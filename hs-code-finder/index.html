@@ -9,8 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#EDF1F4; --sheet:#FFFFFF; --ink:#1B2A4A; --ink-soft:#56627A; --line:#C9D2DC;
-  --stamp:#B8321F; --stamp-bg:#FBEDEA; --ok:#1F6F54; --ok-bg:#E6F2EC; --field:#F6F8FA;
+  --paper:#F5F0E6; --sheet:#FFFDF9; --ink:#13233F; --ink-soft:#6E6A62; --line:#E4DCCB;
+  --stamp:#A5432E; --stamp-bg:#F6E6DF; --ok:#3F6150; --ok-bg:#E6EEE7; --field:#F8F3EA;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
@@ -605,6 +605,9 @@ setMode("personal");
 $("back").onclick=()=>{$("detail").hidden=true;$("results").hidden=false;$("q").focus()};
 $("q").addEventListener("input",()=>{ if(!$("detail").hidden){$("detail").hidden=true;$("results").hidden=false} search(); });
 
+// 다른 페이지에서 #q=검색어 로 열면 바로 검색
+const hq = new URLSearchParams(location.hash.slice(1)).get("q");
+if(hq) $("q").value = hq;
 renderChips(); search();
 </script>
 </body>

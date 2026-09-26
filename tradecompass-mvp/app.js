@@ -4,6 +4,7 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const sectorById = Object.fromEntries(D.sectors.map(s => [s.id, s]));
+const enDate = new Date(D.meta.date + "T00:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
 
 // ── 관심 섹터 (브라우저에만 저장) ──
 const WKEY = "tc-watch";
@@ -73,6 +74,40 @@ const bars = (rows, label) => {
       <span class="y ${r.yoy >= 0 ? "pos" : "neg"}">${signed(r.yoy)}</span></li>`).join("")}</ul>`;
 };
 
+// 섹터 상세: 이 섹터의 Top10 이슈 + 대표 기사 + 종목 정렬 결과
+const pct = (now, prev) => prev ? Math.round((now - prev) / prev * 100) : 0;
+function sectorPage(s) {
+  const list = D.issues.filter(x => x.sectors.includes(s.id)).sort((a, b) => b.score - a.score).slice(0, 10);
+  return `
+    <div class="sp">
+      <a class="back-link rise" href="#/">← 홈으로</a>
+      <div class="sp-head rise" style="--i:1">
+        ${compass(s.score)}
+        <div><h1>${esc(s.name)}</h1><div class="state ${s.state}"><i></i>${s.state} · 노출도 <b class="num">${s.score.toFixed(2)}</b></div></div>
+        ${star(s.id)}
+      </div>
+
+      <h2 class="sp-h rise" style="--i:2">이 섹터의 Top10 이슈</h2>
+      ${list.length ? `<ol class="top10">${list.map((x, i) => `
+        <li class="rise" style="--i:${i + 3}">
+          <span class="rank num">${i + 1}</span>
+          <div class="t10">
+            <a class="kw" href="#/news">${esc(x.keyword)}</a>
+            <div class="chips-row">${x.sectors.map(id => sectorById[id] ? `<a class="schip${id === s.id ? " on" : ""}" href="#/sectors/${id}">${esc(sectorById[id].name)}</a>` : "").join("")}</div>
+            <p class="meta">점수 ${x.score.toFixed(2)} · 최근 7일 보도 ${x.reports}건(직전 7일 ${x.prev}건) · ${signed(pct(x.reports, x.prev))}</p>
+            <p class="meta">▲ 조치 강화 ${x.up}&nbsp;&nbsp;▼ 완화 ${x.down}&nbsp;&nbsp;● 중립 ${x.neutral}</p>
+            <ul class="arts">${x.articles.map(a => `<li><span class="at">${esc(a.title)}</span><small>${esc(a.source)} · ${esc(a.at)}</small></li>`).join("")}</ul>
+          </div>
+        </li>`).join("")}</ol>` : `<p class="muted rise" style="--i:3">최근 7일 동안 이 섹터와 연결된 이슈가 없어요.</p>`}
+
+      <section class="card rise sort-card" style="--i:${list.length + 3}">
+        <h2>종목 정렬 결과</h2>
+        <ul class="sort-list">${s.stocks.map(k => `<li><span>${esc(k.name)}</span><small class="num">${k.code}</small></li>`).join("")}</ul>
+        <div class="pending">시세 데이터 준비 중</div>
+      </section>
+    </div>`;
+}
+
 // ── 화면 ──
 const views = {
   home() {
@@ -80,7 +115,11 @@ const views = {
     const top = [...D.sectors].sort((a, b) => Math.abs(b.score - 50) - Math.abs(a.score - 50))[0];
     const t = D.trade;
     return `
-      <div class="page-h rise"><h1>글로벌 무역 인텔리전스</h1><p>무역 이슈가 국내 섹터와 종목에 주는 영향을 AI가 매일 정리합니다.</p></div>
+      <header class="hero rise">
+        <p class="kicker">Daily Brief · ${esc(enDate)}</p>
+        <h1 class="display">Global Trade <em>Intelligence</em></h1>
+        <p>무역 이슈가 국내 섹터와 종목에 주는 영향을 AI가 매일 정리합니다.</p>
+      </header>
 
       <section class="bearing rise" style="--i:1">
         <svg class="rose" viewBox="0 0 300 300" aria-hidden="true">
@@ -138,7 +177,7 @@ const views = {
     const cur = tags.includes(q) ? q : "전체";
     const list = D.news.filter(n => cur === "전체" || n.tag === cur);
     return `
-      <div class="page-h rise"><h1>무역 뉴스</h1><p>오늘 수집한 ${D.meta.sources.toLocaleString()}건 가운데 AI가 고른 핵심 뉴스와 이슈예요.</p></div>
+      <div class="page-h rise"><p class="kicker">Newsroom</p><h1 class="display sm">Trade <em>News</em></h1><p>오늘 수집한 ${D.meta.sources.toLocaleString()}건 가운데 AI가 고른 핵심 뉴스와 이슈예요.</p></div>
       <div class="grid g-2">
         <section class="card rise" style="--i:1">
           <div class="card-h"><h2>뉴스 × 연관 종목</h2></div>
@@ -153,31 +192,24 @@ const views = {
   },
 
   sectors(id) {
-    const list = id && sectorById[id] ? [sectorById[id]] : D.sectors;
+    if (id && sectorById[id]) return sectorPage(sectorById[id]);
     return `
-      <div class="page-h rise"><h1>${id && sectorById[id] ? esc(sectorById[id].name) : "섹터 분석"}</h1><p>섹터별 노출도와 관련 이슈, 연관 종목이에요.</p></div>
-      ${id ? `<p class="rise"><a class="more" href="#/sectors">← 전체 섹터</a></p>` : ""}
-      <div class="grid">${list.map((s, i) => {
-        const iss = D.issues.filter(x => x.sectors.includes(s.id));
-        return `<section class="card lift rise" style="--i:${i + 1}">
-          <div class="sector-detail">
-            ${compass(s.score)}
-            <div>
-              <h2>${esc(s.name)} <span class="state ${s.state}" style="margin-left:6px"><i></i>${s.state}</span></h2>
-              <p>${esc(s.summary)}</p>
-              <div class="stocks">${s.stocks.map(k => `<span class="tag">${esc(k.name)} <span class="muted">${k.code}</span></span>`).join("")}</div>
-            </div>
-            <div><div class="big">${countUp(s.score, 2)}</div><div style="text-align:right">${star(s.id)}</div></div>
+      <div class="page-h rise"><p class="kicker">Sector Exposure</p><h1 class="display sm">Sector <em>Radar</em></h1><p>섹터를 누르면 관련 Top10 이슈와 기사를 볼 수 있어요.</p></div>
+      <div class="grid">${D.sectors.map((s, i) => `
+        <a class="card lift rise sector-row" style="--i:${i + 1}" href="#/sectors/${s.id}">
+          ${compass(s.score)}
+          <div>
+            <h2>${esc(s.name)} <span class="state ${s.state}"><i></i>${s.state}</span></h2>
+            <p>${esc(s.summary)}</p>
           </div>
-          ${iss.length ? `<ol class="issues" style="margin-top:14px;border-top:1px solid var(--line);padding-top:10px">${iss.map(issueItem).join("")}</ol>` : ""}
-        </section>`;
-      }).join("")}</div>`;
+          <div class="big">${countUp(s.score, 2)}</div>
+        </a>`).join("")}</div>`;
   },
 
   watch() {
     const mine = D.sectors.filter(s => watch.has(s.id));
     return `
-      <div class="page-h rise"><h1>관심 섹터</h1><p>별을 눌러 관심 섹터를 고르면 대시보드처럼 모아 볼 수 있어요. (이 브라우저에만 저장돼요)</p></div>
+      <div class="page-h rise"><p class="kicker">Watchlist</p><h1 class="display sm">My <em>Sectors</em></h1><p>별을 눌러 관심 섹터를 고르면 대시보드처럼 모아 볼 수 있어요. (이 브라우저에만 저장돼요)</p></div>
       <section class="card rise" style="--i:1">
         ${D.sectors.map(s => `<div class="watch-row">${star(s.id)}<div><h3>${esc(s.name)}</h3><p>${esc(s.summary)}</p></div><b class="num">${s.score.toFixed(2)}</b></div>`).join("")}
       </section>
@@ -188,7 +220,7 @@ const views = {
   hs(q) {
     const src = "../hs-code-finder/index.html" + (q ? "#q=" + encodeURIComponent(q) : "");
     return `
-      <div class="page-h rise"><h1>HS 코드 · 통관 계산</h1><p>품목의 HS 코드를 찾고, 개인 직구·사업 수입 예상 세금을 계산해요.</p></div>
+      <div class="page-h rise"><p class="kicker">Tools</p><h1 class="display sm">HS Code <em>&amp; Duty</em></h1><p>품목의 HS 코드를 찾고, 개인 직구·사업 수입 예상 세금을 계산해요.</p></div>
       <iframe class="tool-frame rise" style="--i:1" src="${src}" title="HS 코드 찾기와 세금 계산"></iframe>`;
   }
 };

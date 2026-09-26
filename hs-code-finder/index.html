@@ -111,6 +111,39 @@ footer{margin-top:48px;font-size:.82rem;color:var(--ink-soft);border-top:1px sol
   .stamp{position:static;display:inline-block;margin-bottom:12px;transform:rotate(-4deg)}
   @keyframes thud{from{transform:rotate(-4deg) scale(1.6);opacity:0}to{transform:rotate(-4deg) scale(1);opacity:1}}
 }
+
+/* 세금 계산기 */
+.calc{margin-top:26px;border-top:1px dashed var(--line);padding-top:22px}
+.calc[hidden]{display:none}
+.calc h3{font-size:1.05rem;margin:0 0 4px}
+.calc > p{margin:0 0 12px;color:var(--ink-soft);font-size:.92rem}
+.seg{display:inline-flex;border:1.5px solid var(--ink);border-radius:4px;overflow:hidden;margin-bottom:14px}
+.seg button{border:0;background:transparent;color:var(--ink);font:inherit;font-size:.92rem;padding:7px 16px;cursor:pointer}
+.seg button[aria-selected="true"]{background:var(--ink);color:var(--sheet)}
+.seg button:focus-visible{outline:2px solid var(--stamp);outline-offset:-3px}
+.cgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}
+.cf{display:flex;flex-direction:column;gap:4px;min-width:0}
+.cf[hidden]{display:none}
+.cf label{font-size:.8rem;color:var(--ink-soft)}
+.cf .pair{display:flex;gap:6px}
+.cf input,.cf select{width:100%;min-width:0;font:inherit;font-size:.95rem;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:3px;padding:8px 10px}
+.cf .pair select{flex:0 0 84px}
+.cf input:focus,.cf select:focus{outline:2px solid var(--ink);outline-offset:0}
+.cf input:disabled{opacity:.5}
+.cf small{font-size:.75rem;color:var(--ink-soft)}
+.cout{margin-top:16px}
+.ctable{width:100%;border-collapse:collapse;font-size:.93rem;font-variant-numeric:tabular-nums}
+.ctable td{padding:7px 4px;border-bottom:1px solid var(--line)}
+.ctable td:last-child{text-align:right;white-space:nowrap}
+.ctable td small{display:block;color:var(--ink-soft);font-size:.78rem}
+.ctable tr.total td{border-bottom:0;border-top:1.5px solid var(--ink);font-weight:700;font-size:1.05rem;padding-top:10px}
+.badge{display:inline-block;font-size:.85rem;font-weight:700;padding:4px 10px;border-radius:3px;margin-bottom:10px}
+.badge.free{background:var(--ok-bg);color:var(--ok)}
+.badge.tax{background:var(--stamp-bg);color:var(--stamp)}
+.cnotes{margin:10px 0 0;padding-left:18px;font-size:.85rem;color:var(--ink-soft)}
+.cnotes li{margin-bottom:3px}
+.save{margin-top:10px;padding:10px 12px;background:var(--ok-bg);color:var(--ok);border-radius:3px;font-size:.92rem}
+@media (max-width:520px){ .cgrid{grid-template-columns:minmax(0,1fr)} }
 </style>
 </head>
 <body>
@@ -148,6 +181,62 @@ footer{margin-top:48px;font-size:.82rem;color:var(--ink-soft);border-top:1px sol
       <div class="meta" id="d-meta"></div>
       <div class="note" id="d-note" hidden></div>
 
+      <div class="calc" id="d-calc">
+        <h3>예상 세금 계산</h3>
+        <p>대표 기본세율로 대략적인 세금을 계산해요. 세율과 환율은 직접 고칠 수 있어요.</p>
+        <div class="seg" role="tablist" aria-label="수입 유형">
+          <button role="tab" data-m="personal" aria-selected="true">개인 직구</button>
+          <button role="tab" data-m="business" aria-selected="false">사업 수입</button>
+        </div>
+        <div class="cgrid">
+          <div class="cf">
+            <label for="c-price">물품가격</label>
+            <div class="pair">
+              <input id="c-price" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+              <select id="c-cur" aria-label="통화"><option>USD</option><option>EUR</option><option>JPY</option><option>CNY</option></select>
+            </div>
+          </div>
+          <div class="cf">
+            <label for="c-fx">환율 (1단위당 원)</label>
+            <input id="c-fx" type="number" inputmode="decimal" min="0" step="any">
+            <small>참고값이에요. 관세청 고시환율로 바꿔 주세요.</small>
+          </div>
+          <div class="cf" data-only="business">
+            <label for="c-terms">가격조건</label>
+            <select id="c-terms">
+              <option value="FOB">FOB · EXW (운임·보험료 별도)</option>
+              <option value="CIF">CIF (운임·보험료 포함)</option>
+            </select>
+          </div>
+          <div class="cf">
+            <label for="c-ship">국제 운임 <span id="c-ship-cur">(USD)</span></label>
+            <input id="c-ship" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+          </div>
+          <div class="cf" data-only="business">
+            <label for="c-ins">보험료 <span id="c-ins-cur">(USD)</span></label>
+            <input id="c-ins" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+          </div>
+          <div class="cf" data-only="personal">
+            <label for="c-from">발송 국가</label>
+            <select id="c-from"><option value="US">미국</option><option value="ETC">미국 외</option></select>
+          </div>
+          <div class="cf" data-only="business">
+            <label for="c-origin">원산지</label>
+            <select id="c-origin"></select>
+          </div>
+          <div class="cf">
+            <label for="c-rate">기본세율 (%)</label>
+            <input id="c-rate" type="number" inputmode="decimal" min="0" step="any">
+          </div>
+          <div class="cf" data-only="business" id="c-fta-wrap">
+            <label for="c-fta">FTA 협정세율 (%)</label>
+            <input id="c-fta" type="number" inputmode="decimal" min="0" step="any" placeholder="CLIP에서 확인 후 입력">
+            <small id="c-fta-name"></small>
+          </div>
+        </div>
+        <div class="cout" id="c-out" aria-live="polite"></div>
+      </div>
+
       <div class="check" id="d-check">
         <h3>내 물건에 해당하는지 확인해 보세요</h3>
         <p>하나라도 "예"라면 코드가 달라질 수 있어요.</p>
@@ -158,7 +247,7 @@ footer{margin-top:48px;font-size:.82rem;color:var(--ink-soft);border-top:1px sol
   </section>
 
   <footer>
-    여기서 보여드리는 코드는 참고용 국제 공통 6자리(HS 2022 기준)입니다. 실제 수출입 신고에는 국가별 10자리 코드가 필요하며, 한국 HSK 10자리는 <a href="https://unipass.customs.go.kr/clip/index.do" target="_blank" rel="noopener">관세법령정보포털(CLIP)</a>에서 확인할 수 있어요. 최종 분류는 세관 판단에 따릅니다.
+    여기서 보여드리는 코드는 참고용 국제 공통 6자리(HS 2022 기준)입니다. 실제 수출입 신고에는 국가별 10자리 코드가 필요하며, 한국 HSK 10자리는 <a href="https://unipass.customs.go.kr/clip/index.do" target="_blank" rel="noopener">관세법령정보포털(CLIP)</a>에서 확인할 수 있어요. 최종 분류는 세관 판단에 따릅니다. 세금 계산은 대표 기본세율과 참고 환율을 쓴 추정치예요. 실제 세율은 HSK 10자리 기준으로 CLIP에서, 환율은 관세청 고시환율로 확인하세요.
   </footer>
 </div>
 
@@ -325,6 +414,7 @@ function openDetail(i){
   }
   const note = $("d-note");
   if(d.note){note.hidden=false;note.textContent=d.note}else note.hidden=true;
+  setupCalc(d);
   renderQuestions(); renderVerdict();
   window.scrollTo({top:0});
   $("back").focus();
@@ -358,6 +448,159 @@ function renderVerdict(animate){
       <p style="margin-top:10px;margin-bottom:0">문의할 때는 제품 사진, 재질·성분표, 용도 설명을 준비하면 빨라요.</p></div>`;
   }
 }
+
+// ── 세금 계산기 ──
+// r: 대표 기본세율(%) · 참고용. 실제 세율은 HSK 10자리 기준으로 CLIP에서 확인해야 함
+// lux: 개별소비세 대상 고가품(200만원 초과분) · liq: 주세율(%) · beer: 종량세 주류
+const TAX = {
+ "스마트폰":{r:0},"노트북 · 태블릿":{r:0},"키보드 · 마우스":{r:0},"컴퓨터 모니터":{r:0},
+ "이어폰 · 헤드폰":{r:8},"스마트워치":{r:0},"디지털 카메라":{r:0},"보조배터리":{r:8},
+ "충전기 · 어댑터":{r:8},"USB · 충전 케이블":{r:8},"LED 전구":{r:8},"게임기(콘솔)":{r:8},
+ "헤어드라이어":{r:8},"전기면도기":{r:8},"전자레인지":{r:8},"가정용 냉장고":{r:8},"선풍기":{r:8},
+ "면 티셔츠":{r:13},"합성섬유 티셔츠":{r:13},"청바지(남성)":{r:13},"울 스웨터":{r:13},"운동화":{r:13},
+ "가죽 핸드백":{r:8,lux:1},"백팩(섬유)":{r:8,lux:1},"가죽 지갑":{r:8},"선글라스":{r:8},"우산":{r:8},
+ "은 장신구":{r:8,lux:1},"금 장신구":{r:8,lux:1},"모조 장신구(비금속)":{r:8},
+ "향수":{r:6.5},"기초 화장품":{r:6.5},"립스틱":{r:6.5},"샴푸":{r:6.5},"치약":{r:8},"고형 비누":{r:8},
+ "원두커피(볶은 것)":{r:8},"인스턴트 커피":{r:8},"녹차":{r:513.6},"라면":{r:8},"비스킷 · 쿠키":{r:8},
+ "사탕 · 젤리":{r:8},"판초콜릿":{r:8},"조미김":{r:20},"꿀":{r:243},"생수":{r:8},
+ "맥주":{r:30,beer:1},"와인":{r:15,liq:30},"위스키":{r:20,liq:72},"소주":{r:30,liq:72},"반려동물 사료":{r:5},
+ "보온병 · 텀블러":{r:8},"플라스틱 식기":{r:8},"도자기 식기(자기)":{r:8},"유리컵":{r:8},
+ "스테인리스 냄비":{r:8},"주방칼":{r:8},"침실용 목재 가구":{r:0},"인형 · 조립완구":{r:8},
+ "보드게임":{r:8},"자전거":{r:8},"골프채":{r:8},"텐트":{r:13},"책(인쇄물)":{r:0},
+};
+const FX = {USD:1400, EUR:1550, JPY:9.5, CNY:195}; // 참고용 기본값
+const ORIGINS = [
+ ["US","미국","한-미 FTA"],["EU","EU 회원국","한-EU FTA"],["CN","중국","한-중 FTA"],
+ ["JP","일본","RCEP"],["VN","베트남","한-베트남 FTA"],["ASEAN","그 밖의 아세안","한-아세안 FTA"],
+ ["GB","영국","한-영 FTA"],["AU","호주","한-호주 FTA"],["CA","캐나다","한-캐나다 FTA"],
+ ["IN","인도","한-인도 CEPA"],["ETC","그 밖의 나라",""],
+];
+const LUX_BASE = 2000000;  // 개별소비세 기준가격(원)
+const MIN_DUTY = 10000;    // 징수 최저한(원)
+
+let mode = "personal";
+const won = n => Math.floor(n).toLocaleString("ko-KR")+"원";
+const num = id => { const v = parseFloat($(id).value); return isFinite(v) && v>0 ? v : 0; };
+
+$("c-origin").innerHTML = ORIGINS.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join("");
+
+function setupCalc(d){
+  const t = TAX[d.n];
+  $("d-calc").hidden = !t;
+  if(!t) return;
+  $("c-rate").value = t.r;
+  $("c-fta").value = "";
+  $("c-fx").value = FX[$("c-cur").value];
+  calc();
+}
+
+function setMode(m){
+  mode = m;
+  document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-selected", b.dataset.m===m));
+  document.querySelectorAll(".cf[data-only]").forEach(el=>el.hidden = el.dataset.only!==m);
+  calc();
+}
+
+function calc(){
+  if(!current || !TAX[current.n]) return;
+  const t = TAX[current.n];
+  const cur = $("c-cur").value;
+  $("c-ship-cur").textContent = $("c-ins-cur").textContent = `(${cur})`;
+  const fx = num("c-fx");
+  FX[cur] = fx || FX[cur];
+
+  const origin = ORIGINS.find(o=>o[0]===$("c-origin").value);
+  $("c-fta-name").textContent = origin[2] ? `${origin[2]} 적용 대상 · 원산지증명서 필요` : "FTA 체결국이 아니에요";
+  $("c-fta").disabled = !origin[2];
+
+  const cif_terms = mode==="business" && $("c-terms").value==="CIF";
+  $("c-ship").disabled = $("c-ins").disabled = cif_terms;
+
+  const price = num("c-price");
+  const out = $("c-out");
+  if(!price || !fx){ out.innerHTML = `<p class="cnotes" style="padding:0;list-style:none">물품가격을 입력하면 세금이 계산돼요.</p>`; return; }
+
+  const notes = [];
+  const ship = cif_terms ? 0 : num("c-ship");
+  const ins  = (mode==="business" && !cif_terms) ? num("c-ins") : 0;
+  const cif = Math.floor((price+ship+ins)*fx);
+  if(mode==="business" && !cif_terms && !ins) notes.push("보험료를 모르면 세관이 정한 기준으로 가산될 수 있어요.");
+
+  // 개인 직구: 소액 면세 판정 (국제 운임 제외한 물품가격 기준, USD 환산)
+  if(mode==="personal"){
+    const usd = price*fx/(FX.USD||1);
+    const listed = !["식품","화장품"].includes(current.cat);
+    const limit = ($("c-from").value==="US" && listed) ? 200 : 150;
+    const liquor = t.liq || t.beer;
+    if(!liquor && usd <= limit){
+      out.innerHTML = `<span class="badge free">면세 예상</span>
+        <table class="ctable"><tr><td>물품가격 (USD 환산)<small>국제 운임 제외</small></td><td>$${usd.toFixed(2)}</td></tr>
+        <tr><td>면세 한도</td><td>$${limit}</td></tr>
+        <tr class="total"><td>예상 세금</td><td>0원</td></tr></table>
+        <ul class="cnotes">
+          <li>${limit===200?"미국발 목록통관 물품은 200달러까지 면세예요.":listed?"미국 외 국가에서 보낸 물품은 150달러까지 면세예요.":"식품·화장품 등은 일반통관 대상이라 발송 국가와 관계없이 150달러까지 면세예요."}</li>
+          <li>같은 날 같은 나라에서 도착한 물품은 합쳐서 판단(합산과세)해요.</li>
+        </ul>`;
+      return;
+    }
+    if(liquor) notes.push("주류는 금액과 관계없이 소액 면세가 적용되지 않아요.");
+    else notes.push(`물품가격이 $${usd.toFixed(2)}로 면세 한도($${limit})를 넘어 전체 금액에 과세돼요.`);
+    notes.push("개인이 쓰려고 들여온 특송·우편 물품은 간이세율이 적용되어 실제 세액이 조금 다를 수 있어요.");
+  }
+
+  // 세율 결정 (사업 수입: FTA 세율이 더 낮으면 적용)
+  const basic = parseFloat($("c-rate").value)||0;
+  const ftaRaw = $("c-fta").value.trim();
+  const fta = (mode==="business" && origin[2] && ftaRaw!=="") ? Math.max(0,parseFloat(ftaRaw)||0) : null;
+  const useFta = fta!==null && fta < basic;
+  const rate = useFta ? fta : basic;
+
+  let duty = Math.floor(cif*rate/100);
+  const rows = [[`과세가격<small>${cif_terms?"CIF 가격 × 환율":mode==="business"?"(물품가격 + 운임 + 보험료) × 환율":"(물품가격 + 국제 운임) × 환율"}</small>`, cif]];
+  if(duty>0 && duty<MIN_DUTY){ notes.push(`관세가 ${won(duty)}로 1만원 미만이라 징수하지 않아요.`); duty=0; }
+  rows.push([`관세<small>${useFta?`${origin[2]} 협정세율`:"기본세율"} ${rate}%</small>`, duty]);
+
+  let extra = 0;
+  if(t.liq){
+    const liq = Math.floor((cif+duty)*t.liq/100);
+    const edu = Math.floor(liq*(t.liq>70?0.3:0.1));
+    rows.push([`주세<small>(과세가격+관세) × ${t.liq}%</small>`, liq], [`교육세<small>주세 × ${t.liq>70?30:10}%</small>`, edu]);
+    extra += liq+edu;
+  }
+  if(t.beer) notes.push("맥주 주세는 리터당 부과(종량세)라 이 계산에는 빠져 있어요.");
+  if(t.lux){
+    const over = cif+duty-LUX_BASE;
+    if(over>0){
+      const sp = Math.floor(over*0.2), edu = Math.floor(sp*0.3);
+      rows.push([`개별소비세<small>200만원 초과분 × 20%</small>`, sp], [`교육세<small>개별소비세 × 30%</small>`, edu]);
+      extra += sp+edu;
+      notes.push("개별소비세는 물품 1개 기준 금액으로 계산했어요.");
+    }
+  }
+  const vat = Math.floor((cif+duty+extra)*0.1);
+  rows.push([`부가가치세<small>(과세가격+관세${extra?"+기타 세금":""}) × 10%</small>`, vat]);
+  const total = duty+extra+vat;
+
+  let save = "";
+  if(useFta){
+    const d0 = Math.floor(cif*basic/100), dd = d0 - duty;
+    const saving = dd + Math.floor(dd*0.1);
+    if(saving>0) save = `<div class="save">${origin[2]}를 적용하면 기본세율보다 약 <b>${won(saving)}</b> 줄어들어요 (관세 + 그에 따른 부가세).</div>`;
+  } else if(mode==="business" && origin[2] && fta===null){
+    notes.push(`${origin[2]} 협정세율을 입력하면 기본세율과 비교해 드려요.`);
+  }
+
+  out.innerHTML = `<span class="badge tax">과세 예상</span>
+    <table class="ctable">${rows.map(r=>`<tr><td>${r[0]}</td><td>${won(r[1])}</td></tr>`).join("")}
+    <tr class="total"><td>예상 세금 합계</td><td>${won(total)}</td></tr></table>${save}
+    ${notes.length?`<ul class="cnotes">${notes.map(n=>`<li>${n}</li>`).join("")}</ul>`:""}`;
+}
+
+document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+$("c-cur").onchange = ()=>{ $("c-fx").value = FX[$("c-cur").value]; calc(); };
+["c-price","c-fx","c-ship","c-ins","c-rate","c-fta"].forEach(id=>$(id).addEventListener("input",calc));
+["c-terms","c-from","c-origin"].forEach(id=>$(id).addEventListener("change",calc));
+setMode("personal");
 
 $("back").onclick=()=>{$("detail").hidden=true;$("results").hidden=false;$("q").focus()};
 $("q").addEventListener("input",()=>{ if(!$("detail").hidden){$("detail").hidden=true;$("results").hidden=false} search(); });

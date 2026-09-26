@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HS코드 쉽게 찾기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDF1F4; --sheet:#FFFFFF; --ink:#1B2A4A; --ink-soft:#56627A; --line:#C9D2DC;
+  --stamp:#B8321F; --stamp-bg:#FBEDEA; --ok:#1F6F54; --ok-bg:#E6F2EC; --field:#F6F8FA;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#141B27; --sheet:#1C2535; --ink:#E4E9F2; --ink-soft:#9AA6BB; --line:#33405A;
+    --stamp:#F07A63; --stamp-bg:#3A2320; --ok:#6CC9A4; --ok-bg:#183229; --field:#232E42;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#141B27; --sheet:#1C2535; --ink:#E4E9F2; --ink-soft:#9AA6BB; --line:#33405A;
+  --stamp:#F07A63; --stamp-bg:#3A2320; --ok:#6CC9A4; --ok-bg:#183229; --field:#232E42;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  font-size:16px;line-height:1.6}
+.wrap{max-width:760px;margin:0 auto;padding:32px 20px 64px}
+header h1{font-size:2rem;line-height:1.25;margin:0 0 8px;font-weight:700;letter-spacing:-.01em}
+header p{margin:0;color:var(--ink-soft);max-width:60ch}
+
+.form{margin-top:28px;background:var(--sheet);border:1.5px solid var(--ink);border-radius:4px}
+.form-row{display:flex;border-bottom:1px solid var(--line)}
+.form-row:last-child{border-bottom:0}
+.form-label{flex:0 0 108px;padding:14px 14px;font-size:.85rem;color:var(--ink-soft);border-right:1px solid var(--line);background:var(--field)}
+.form-field{flex:1;min-width:0}
+#q{width:100%;border:0;background:transparent;color:var(--ink);font:inherit;font-size:1.15rem;padding:14px 16px;outline:none}
+#q::placeholder{color:var(--ink-soft);opacity:.8}
+.form:focus-within{box-shadow:0 0 0 3px color-mix(in srgb,var(--ink) 20%,transparent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px}
+.chip{border:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;font-size:.85rem;padding:4px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+.chip:focus-visible,.item:focus-visible,.q-toggle:focus-visible,a:focus-visible,.back:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+.warn{margin-top:16px;padding:14px 16px;border-left:4px solid var(--stamp);background:var(--stamp-bg);border-radius:2px;font-size:.95rem}
+.warn[hidden]{display:none}
+
+.count{margin:28px 0 8px;font-size:.9rem;color:var(--ink-soft)}
+.list{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.item{display:flex;align-items:center;gap:16px;width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;padding:14px 4px;cursor:pointer}
+.item:hover{background:var(--sheet)}
+.item .code{flex:0 0 auto;font-variant-numeric:tabular-nums;font-weight:700;font-size:1.05rem;min-width:88px}
+.item .name{flex:1;min-width:0}
+.item .name small{display:block;color:var(--ink-soft);font-size:.82rem}
+.tag{flex:0 0 auto;font-size:.75rem;padding:2px 8px;border-radius:3px;border:1px solid var(--stamp);color:var(--stamp)}
+
+.empty{padding:24px 4px;color:var(--ink-soft)}
+
+/* Detail */
+.detail[hidden]{display:none}
+.back{background:none;border:0;color:var(--ink-soft);font:inherit;cursor:pointer;padding:0;margin-top:28px}
+.sheet{margin-top:14px;background:var(--sheet);border:1.5px solid var(--ink);border-radius:4px;padding:24px 22px;position:relative;overflow:hidden}
+.sheet h2{margin:0 0 4px;font-size:1.4rem}
+.sheet .desc{color:var(--ink-soft);margin:0 0 22px}
+.digits{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.dg{display:flex;flex-direction:column;gap:4px}
+.dg .box{display:flex}
+.dg .box span{width:44px;height:58px;border:1.5px solid var(--ink);margin-left:-1.5px;display:grid;place-items:center;font-size:1.9rem;font-weight:700;font-variant-numeric:tabular-nums;background:var(--field)}
+.dg .box span:first-child{margin-left:0}
+.dg .cap{font-size:.78rem;color:var(--ink-soft)}
+.dg.muted .box span{border-style:dashed;color:var(--ink-soft);background:transparent;font-size:1.1rem}
+.meta{margin-top:18px;font-size:.92rem;color:var(--ink-soft)}
+.meta b{color:var(--ink);font-weight:500}
+.note{margin-top:14px;font-size:.92rem;padding:10px 12px;background:var(--field);border-radius:3px}
+
+.stamp{position:absolute;top:18px;right:18px;transform:rotate(-8deg);border:3px double var(--stamp);color:var(--stamp);padding:6px 12px;font-weight:700;font-size:.95rem;border-radius:4px;background:color-mix(in srgb,var(--sheet) 80%,transparent);pointer-events:none}
+.stamp[hidden]{display:none}
+@media (prefers-reduced-motion:no-preference){ .stamp.pop{animation:thud .28s ease-out} }
+@keyframes thud{from{transform:rotate(-8deg) scale(1.6);opacity:0}to{transform:rotate(-8deg) scale(1);opacity:1}}
+
+.check{margin-top:26px}
+.check h3{font-size:1.05rem;margin:0 0 4px}
+.check p{margin:0 0 12px;color:var(--ink-soft);font-size:.92rem}
+.q-toggle{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--sheet);border:1px solid var(--line);border-radius:3px;color:var(--ink);font:inherit;padding:12px 14px;margin-bottom:8px;cursor:pointer}
+.q-toggle .yn{flex:0 0 auto;display:flex;border:1px solid var(--line);border-radius:3px;overflow:hidden;font-size:.82rem}
+.q-toggle .yn i{font-style:normal;padding:3px 10px}
+.q-toggle[aria-pressed="false"] .yn i.n{background:var(--ink);color:var(--sheet)}
+.q-toggle[aria-pressed="true"] .yn i.y{background:var(--stamp);color:#fff}
+.q-toggle span.t{flex:1}
+
+.verdict{margin-top:18px;padding:16px 18px;border-radius:3px}
+.verdict.ok{background:var(--ok-bg);color:var(--ok)}
+.verdict.ok p{color:var(--ink)}
+.verdict.pro{background:var(--stamp-bg);border-left:4px solid var(--stamp)}
+.verdict h4{margin:0 0 6px;font-size:1rem}
+.verdict p{margin:0 0 8px;font-size:.93rem}
+.verdict ul{margin:6px 0 0;padding-left:18px;font-size:.93rem}
+.verdict li{margin-bottom:4px}
+a{color:inherit}
+
+footer{margin-top:48px;font-size:.82rem;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:16px}
+
+@media (max-width:520px){
+  header h1{font-size:1.6rem}
+  .form-label{flex-basis:78px;padding:14px 10px}
+  .dg .box span{width:36px;height:50px;font-size:1.55rem}
+  .stamp{position:static;display:inline-block;margin-bottom:12px;transform:rotate(-4deg)}
+  @keyframes thud{from{transform:rotate(-4deg) scale(1.6);opacity:0}to{transform:rotate(-4deg) scale(1);opacity:1}}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>HS코드 쉽게 찾기</h1>
+    <p>물건 이름을 입력하면 국제 공통 HS코드(6자리)를 알려드려요. 성분이 섞였거나 구성이 복잡한 물건은 전문가 확인이 필요하다고 안내해 드립니다.</p>
+  </header>
+
+  <div class="form" role="search">
+    <div class="form-row">
+      <label class="form-label" for="q">품명</label>
+      <div class="form-field"><input id="q" type="search" autocomplete="off" placeholder="예: 스마트폰, 면 티셔츠, 라면"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-label">분야</div>
+      <div class="form-field"><div class="chips" id="chips"></div></div>
+    </div>
+  </div>
+
+  <div class="warn" id="warn" hidden></div>
+
+  <section id="results">
+    <div class="count" id="count"></div>
+    <ul class="list" id="list"></ul>
+  </section>
+
+  <section class="detail" id="detail" hidden>
+    <button class="back" id="back">← 목록으로 돌아가기</button>
+    <div class="sheet">
+      <div class="stamp" id="stamp" hidden>전문가 확인 필요</div>
+      <h2 id="d-name"></h2>
+      <p class="desc" id="d-desc"></p>
+      <div class="digits" id="d-digits"></div>
+      <div class="meta" id="d-meta"></div>
+      <div class="note" id="d-note" hidden></div>
+
+      <div class="check" id="d-check">
+        <h3>내 물건에 해당하는지 확인해 보세요</h3>
+        <p>하나라도 "예"라면 코드가 달라질 수 있어요.</p>
+        <div id="d-questions"></div>
+      </div>
+      <div id="d-verdict"></div>
+    </div>
+  </section>
+
+  <footer>
+    여기서 보여드리는 코드는 참고용 국제 공통 6자리(HS 2022 기준)입니다. 실제 수출입 신고에는 국가별 10자리 코드가 필요하며, 한국 HSK 10자리는 <a href="https://unipass.customs.go.kr/clip/index.do" target="_blank" rel="noopener">관세법령정보포털(CLIP)</a>에서 확인할 수 있어요. 최종 분류는 세관 판단에 따릅니다.
+  </footer>
+</div>
+
+<script>
+// x:true → 항상 전문가 확인 필요 품목
+const DATA = [
+ // 전자제품
+ {n:"스마트폰",k:["휴대폰","핸드폰","아이폰","갤럭시","폰"],c:"851713",cat:"전자",ch:"전기기기와 그 부분품",d:"통화·데이터 통신이 되는 휴대용 전화기"},
+ {n:"노트북 · 태블릿",k:["노트북","랩탑","태블릿","아이패드","컴퓨터"],c:"847130",cat:"전자",ch:"기계류·컴퓨터",d:"휴대용 자동자료처리기계(10kg 이하)"},
+ {n:"키보드 · 마우스",k:["키보드","마우스","입력장치"],c:"847160",cat:"전자",ch:"기계류·컴퓨터",d:"컴퓨터용 입력·출력 장치"},
+ {n:"컴퓨터 모니터",k:["모니터","디스플레이"],c:"852852",cat:"전자",ch:"전기기기와 그 부분품",d:"컴퓨터에 연결해 쓰는 모니터",note:"TV 수신 기능이 있으면 다른 코드가 될 수 있어요."},
+ {n:"이어폰 · 헤드폰",k:["이어폰","헤드폰","에어팟","헤드셋","버즈"],c:"851830",cat:"전자",ch:"전기기기와 그 부분품",d:"헤드폰·이어폰(마이크 결합 포함)"},
+ {n:"스마트워치",k:["스마트워치","애플워치","갤럭시워치","워치"],c:"851762",cat:"전자",ch:"전기기기와 그 부분품",d:"통신 기능이 있는 손목형 기기",note:"통신 기능 없이 시계 기능 위주라면 시계류(91류)로 갈 수 있어요."},
+ {n:"디지털 카메라",k:["카메라","디카","미러리스","DSLR"],c:"852589",cat:"전자",ch:"전기기기와 그 부분품",d:"디지털 스틸 카메라·캠코더"},
+ {n:"보조배터리",k:["보조배터리","파워뱅크","배터리","리튬"],c:"850760",cat:"전자",ch:"전기기기와 그 부분품",d:"리튬이온 축전지"},
+ {n:"충전기 · 어댑터",k:["충전기","어댑터","아답터"],c:"850440",cat:"전자",ch:"전기기기와 그 부분품",d:"정지형 변환기(전원 어댑터)"},
+ {n:"USB · 충전 케이블",k:["케이블","USB","충전선","선"],c:"854442",cat:"전자",ch:"전기기기와 그 부분품",d:"접속자가 달린 1,000V 이하 전선"},
+ {n:"LED 전구",k:["전구","LED","램프","조명"],c:"853952",cat:"전자",ch:"전기기기와 그 부분품",d:"LED 램프"},
+ {n:"게임기(콘솔)",k:["게임기","플스","닌텐도","스위치","엑스박스","콘솔"],c:"950450",cat:"전자",ch:"완구·운동용구",d:"비디오게임용 콘솔"},
+ // 가전
+ {n:"헤어드라이어",k:["드라이기","드라이어","헤어"],c:"851631",cat:"가전",ch:"전기기기와 그 부분품",d:"전열식 헤어드라이어"},
+ {n:"전기면도기",k:["면도기","쉐이버"],c:"851010",cat:"가전",ch:"전기기기와 그 부분품",d:"전기 모터를 내장한 면도기"},
+ {n:"전자레인지",k:["전자레인지","레인지"],c:"851650",cat:"가전",ch:"전기기기와 그 부분품",d:"마이크로웨이브 오븐"},
+ {n:"가정용 냉장고",k:["냉장고"],c:"841821",cat:"가전",ch:"기계류",d:"가정용 압축식 냉장고"},
+ {n:"선풍기",k:["선풍기","팬","탁상용"],c:"841451",cat:"가전",ch:"기계류",d:"탁상·바닥·벽걸이형 선풍기(125W 이하)"},
+ // 의류·잡화
+ {n:"면 티셔츠",k:["티셔츠","티","반팔","면티"],c:"610910",cat:"의류·잡화",ch:"편물제 의류",d:"면으로 만든 편물제 티셔츠",note:"면이 아닌 합성섬유 티셔츠는 6109.90이에요."},
+ {n:"합성섬유 티셔츠",k:["티셔츠","기능성","폴리에스터","쿨티"],c:"610990",cat:"의류·잡화",ch:"편물제 의류",d:"면 외 섬유로 만든 편물제 티셔츠"},
+ {n:"청바지(남성)",k:["청바지","데님","바지","진"],c:"620342",cat:"의류·잡화",ch:"편물제 외 의류",d:"면으로 만든 남성용 바지",note:"여성용은 6204.62예요."},
+ {n:"울 스웨터",k:["스웨터","니트","울","양모"],c:"611011",cat:"의류·잡화",ch:"편물제 의류",d:"양모로 만든 스웨터·풀오버"},
+ {n:"운동화",k:["운동화","스니커즈","신발","러닝화"],c:"640411",cat:"의류·잡화",ch:"신발류",d:"바닥은 고무·플라스틱, 갑피는 섬유인 운동용 신발",note:"갑피가 가죽이면 6403류로 달라져요."},
+ {n:"가죽 핸드백",k:["핸드백","가방","가죽가방","숄더백"],c:"420221",cat:"의류·잡화",ch:"가죽제품",d:"겉면이 가죽인 핸드백"},
+ {n:"백팩(섬유)",k:["백팩","배낭","가방","책가방"],c:"420292",cat:"의류·잡화",ch:"가죽제품·가방류",d:"겉면이 섬유·플라스틱 시트인 가방"},
+ {n:"가죽 지갑",k:["지갑","카드지갑"],c:"420231",cat:"의류·잡화",ch:"가죽제품",d:"겉면이 가죽인 주머니용 소지품"},
+ {n:"선글라스",k:["선글라스","썬글라스"],c:"900410",cat:"의류·잡화",ch:"광학기기",d:"선글라스"},
+ {n:"우산",k:["우산","양산"],c:"660199",cat:"의류·잡화",ch:"우산류",d:"접이식이 아닌 일반 우산",note:"접이식(자루가 줄어드는) 우산은 6601.91이에요."},
+ {n:"은 장신구",k:["목걸이","반지","귀걸이","은","실버","팔찌"],c:"711311",cat:"의류·잡화",ch:"귀금속·장신구",d:"은으로 만든 신변장식용품"},
+ {n:"금 장신구",k:["목걸이","반지","귀걸이","금","골드","팔찌"],c:"711319",cat:"의류·잡화",ch:"귀금속·장신구",d:"금 등 귀금속으로 만든 신변장식용품"},
+ {n:"모조 장신구(비금속)",k:["액세서리","귀걸이","목걸이","패션주얼리"],c:"711719",cat:"의류·잡화",ch:"귀금속·장신구",d:"귀금속이 아닌 금속으로 만든 장신구"},
+ // 화장품·생활
+ {n:"향수",k:["향수","퍼퓸","오드뚜왈렛"],c:"330300",cat:"화장품",ch:"향료·화장품",d:"향수와 화장수"},
+ {n:"기초 화장품",k:["스킨","로션","크림","에센스","세럼","선크림","화장품"],c:"330499",cat:"화장품",ch:"향료·화장품",d:"피부 관리용 화장품",note:"의약외품이나 약효 성분이 있는 제품은 분류가 달라질 수 있어요."},
+ {n:"립스틱",k:["립스틱","립","틴트"],c:"330410",cat:"화장품",ch:"향료·화장품",d:"입술 화장용 제품"},
+ {n:"샴푸",k:["샴푸"],c:"330510",cat:"화장품",ch:"향료·화장품",d:"샴푸"},
+ {n:"치약",k:["치약"],c:"330610",cat:"화장품",ch:"향료·화장품",d:"치약"},
+ {n:"고형 비누",k:["비누"],c:"340111",cat:"화장품",ch:"비누·세제",d:"화장용 고형 비누"},
+ // 식품
+ {n:"원두커피(볶은 것)",k:["커피","원두"],c:"090121",cat:"식품",ch:"커피·차",d:"볶은 커피(카페인 제거 안 한 것)"},
+ {n:"인스턴트 커피",k:["커피","믹스커피","인스턴트","스틱커피"],c:"210111",cat:"식품",ch:"조제식료품",d:"커피 추출물·농축물",note:"설탕·프림이 섞인 믹스커피는 2101.12 등으로 달라질 수 있어요."},
+ {n:"녹차",k:["녹차","차","티백"],c:"090210",cat:"식품",ch:"커피·차",d:"발효하지 않은 녹차(3kg 이하 포장)"},
+ {n:"라면",k:["라면","컵라면","면"],c:"190230",cat:"식품",ch:"곡물 조제품",d:"조리된 면류(인스턴트 면)"},
+ {n:"비스킷 · 쿠키",k:["과자","쿠키","비스킷"],c:"190531",cat:"식품",ch:"곡물 조제품",d:"단맛 비스킷"},
+ {n:"사탕 · 젤리",k:["사탕","젤리","캔디","껌"],c:"170490",cat:"식품",ch:"당류",d:"코코아를 함유하지 않은 설탕과자",note:"껌은 1704.10이에요."},
+ {n:"판초콜릿",k:["초콜릿","초코"],c:"180632",cat:"식품",ch:"코코아 조제품",d:"속을 채우지 않은 판 모양 초콜릿"},
+ {n:"조미김",k:["김","조미김"],c:"200899",cat:"식품",ch:"채소·과실 조제품",d:"기름·소금 등으로 조미한 김",note:"조미하지 않은 마른김은 1212.21이에요."},
+ {n:"꿀",k:["꿀","벌꿀"],c:"040900",cat:"식품",ch:"낙농품·꿀",d:"천연 꿀"},
+ {n:"생수",k:["물","생수","미네랄워터"],c:"220110",cat:"식품",ch:"음료",d:"광천수·탄산수(무가당)"},
+ {n:"맥주",k:["맥주","술"],c:"220300",cat:"식품",ch:"음료·주류",d:"맥아로 만든 맥주"},
+ {n:"와인",k:["와인","포도주","술"],c:"220421",cat:"식품",ch:"음료·주류",d:"2리터 이하 용기의 포도주"},
+ {n:"위스키",k:["위스키","양주","술"],c:"220830",cat:"식품",ch:"음료·주류",d:"위스키"},
+ {n:"소주",k:["소주","술","증류주"],c:"220890",cat:"식품",ch:"음료·주류",d:"그 밖의 증류주"},
+ {n:"반려동물 사료",k:["사료","개사료","고양이사료","펫푸드"],c:"230910",cat:"식품",ch:"사료",d:"소매용 개·고양이 사료"},
+ // 생활용품·취미
+ {n:"보온병 · 텀블러",k:["텀블러","보온병","보냉병","스탠리"],c:"961700",cat:"생활·취미",ch:"잡품",d:"진공식 보온병",note:"진공 구조가 아닌 일반 컵은 재질에 따라 코드가 달라져요."},
+ {n:"플라스틱 식기",k:["그릇","식기","플라스틱","도시락"],c:"392410",cat:"생활·취미",ch:"플라스틱 제품",d:"플라스틱 식탁·주방용품"},
+ {n:"도자기 식기(자기)",k:["그릇","접시","도자기","자기","머그"],c:"691110",cat:"생활·취미",ch:"도자제품",d:"자기로 만든 식탁·주방용품"},
+ {n:"유리컵",k:["컵","유리컵","글라스"],c:"701337",cat:"생활·취미",ch:"유리제품",d:"유리로 만든 음료용 컵"},
+ {n:"스테인리스 냄비",k:["냄비","프라이팬","스텐","스테인리스"],c:"732393",cat:"생활·취미",ch:"철강제품",d:"스테인리스강 주방용품"},
+ {n:"주방칼",k:["칼","식칼","주방칼"],c:"821192",cat:"생활·취미",ch:"공구·칼붙이",d:"날이 고정된 칼"},
+ {n:"침실용 목재 가구",k:["가구","침대","옷장","서랍"],c:"940350",cat:"생활·취미",ch:"가구",d:"침실용 목재 가구"},
+ {n:"인형 · 조립완구",k:["인형","장난감","완구","레고","블록","피규어"],c:"950300",cat:"생활·취미",ch:"완구·운동용구",d:"인형, 조립 완구 등 장난감"},
+ {n:"보드게임",k:["보드게임","게임"],c:"950490",cat:"생활·취미",ch:"완구·운동용구",d:"실내 게임용품",note:"트럼프 카드는 9504.40이에요."},
+ {n:"자전거",k:["자전거"],c:"871200",cat:"생활·취미",ch:"차량",d:"모터가 없는 자전거",note:"전기자전거는 8711.60이에요."},
+ {n:"골프채",k:["골프","골프채","드라이버","아이언"],c:"950631",cat:"생활·취미",ch:"완구·운동용구",d:"골프클럽(완제품)"},
+ {n:"텐트",k:["텐트","캠핑"],c:"630622",cat:"생활·취미",ch:"섬유제품",d:"합성섬유 텐트"},
+ {n:"책(인쇄물)",k:["책","도서","서적","만화책"],c:"490199",cat:"생활·취미",ch:"인쇄물",d:"인쇄된 서적"},
+ // 전문가 확인 필요 품목
+ {n:"의약품",k:["약","의약품","알약","영양제","감기약","처방"],c:"",cat:"전문가 확인",x:1,d:"성분·용도·포장 형태에 따라 코드가 크게 달라져요."},
+ {n:"건강기능식품",k:["영양제","비타민","유산균","오메가","홍삼","건강식품","보충제"],c:"",cat:"전문가 확인",x:1,d:"성분 배합에 따라 식품(21류)·의약품(30류) 등으로 갈려요."},
+ {n:"화학제품 · 원료",k:["화학","원료","용제","시약","수지","페인트","접착제"],c:"",cat:"전문가 확인",x:1,d:"화학 조성과 순도를 알아야 분류할 수 있어요."},
+ {n:"기계 · 장비 부품",k:["부품","부속","모듈","기판","PCB","파츠"],c:"",cat:"전문가 확인",x:1,d:"어느 기계의 부품인지, 범용 부품인지에 따라 달라져요."},
+ {n:"세트 상품",k:["세트","선물세트","키트","구성품"],c:"",cat:"전문가 확인",x:1,d:"여러 물품을 묶은 경우 주된 특성을 판단해야 해요."},
+ {n:"합금 · 금속 원자재",k:["합금","금속","원자재","스크랩","고철"],c:"",cat:"전문가 확인",x:1,d:"금속 성분 비율에 따라 류 자체가 바뀌어요."},
+];
+
+const RISK = ["혼합","섞","세트","키트","부품","부속","성분","화학","원료","배합","합금","복합","모듈","반제품","약","의약","추출물","원액","혼방"];
+const CATS = ["전체","전자","가전","의류·잡화","화장품","식품","생활·취미","전문가 확인"];
+const QUESTIONS = [
+  "두 가지 이상의 재질이나 성분이 섞여 있나요?",
+  "여러 물건이 한 세트로 묶여 판매되나요?",
+  "다른 기계나 장비에 들어가는 부품인가요?",
+];
+
+let cat = "전체";
+let answers = [false,false,false];
+const $ = id => document.getElementById(id);
+const norm = s => s.toLowerCase().replace(/\s+/g,"");
+const fmt = c => c ? c.slice(0,4)+"."+c.slice(4) : "—";
+
+function renderChips(){
+  $("chips").innerHTML = CATS.map(c=>`<button class="chip" aria-pressed="${c===cat}" data-c="${c}">${c}</button>`).join("");
+  $("chips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{cat=b.dataset.c;renderChips();search();});
+}
+
+function search(){
+  const q = norm($("q").value);
+  const hits = RISK.filter(w=>q.includes(w));
+  const warn = $("warn");
+  if(hits.length){
+    warn.hidden=false;
+    warn.innerHTML = `<b>“${hits[0]}”</b>이(가) 포함된 물건은 성분이나 구성에 따라 코드가 달라지는 경우가 많아요. 아래 결과는 참고만 하시고 전문가에게 확인하는 것을 권해요.`;
+  } else warn.hidden=true;
+
+  let items = DATA.filter(d=>cat==="전체"||d.cat===cat);
+  if(q){
+    items = items.map(d=>{
+      const name = norm(d.n);
+      let s = 0;
+      if(name.includes(q)) s = 3;
+      else if(d.k.some(k=>norm(k)===q)) s = 3;
+      else if(d.k.some(k=>norm(k).includes(q)||q.includes(norm(k)))) s = 2;
+      else if(norm(d.d).includes(q)) s = 1;
+      return {d,s};
+    }).filter(o=>o.s>0).sort((a,b)=>b.s-a.s).map(o=>o.d);
+  }
+  const list = $("list");
+  if(!items.length){
+    $("count").textContent = "";
+    list.innerHTML = `<li class="empty">“${escapeHtml($("q").value)}”에 맞는 품목을 찾지 못했어요. 다른 이름(예: 핸드폰 → 스마트폰)으로 검색하거나, <a href="https://unipass.customs.go.kr/clip/index.do" target="_blank" rel="noopener">관세법령정보포털</a>에서 직접 찾아보세요. 잘 모르겠다면 관세청 고객지원센터(국번 없이 125)에 문의할 수 있어요.</li>`;
+    return;
+  }
+  $("count").textContent = q ? `${items.length}개 품목을 찾았어요` : `자주 찾는 품목 ${items.length}개`;
+  list.innerHTML = items.map(d=>`<li><button class="item" data-i="${DATA.indexOf(d)}">
+    <span class="code">${d.x?"—":fmt(d.c)}</span>
+    <span class="name">${d.n}<small>${d.d}</small></span>
+    ${d.x?'<span class="tag">전문가 확인</span>':''}
+  </button></li>`).join("");
+  list.querySelectorAll(".item").forEach(b=>b.onclick=()=>openDetail(+b.dataset.i));
+}
+
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+let current = null;
+function openDetail(i){
+  current = DATA[i]; answers=[false,false,false];
+  $("results").hidden=true; $("detail").hidden=false;
+  const d = current;
+  $("d-name").textContent = d.n;
+  $("d-desc").textContent = d.d;
+  if(d.x){
+    $("d-digits").innerHTML = `<div class="dg muted"><div class="box"><span>?</span><span>?</span><span>?</span><span>?</span><span>?</span><span>?</span></div><div class="cap">성분·구성 확인 후 결정</div></div>`;
+    $("d-meta").innerHTML = "";
+    $("d-check").hidden = true;
+  } else {
+    const c = d.c;
+    const box = s => [...s].map(x=>`<span>${x}</span>`).join("");
+    $("d-digits").innerHTML =
+      `<div class="dg"><div class="box">${box(c.slice(0,2))}</div><div class="cap">류 (${c.slice(0,2)}류)</div></div>
+       <div class="dg"><div class="box">${box(c.slice(2,4))}</div><div class="cap">호</div></div>
+       <div class="dg"><div class="box">${box(c.slice(4,6))}</div><div class="cap">소호</div></div>
+       <div class="dg muted"><div class="box"><span>·</span><span>·</span><span>·</span><span>·</span></div><div class="cap">국가별 세부 4자리</div></div>`;
+    $("d-meta").innerHTML = `<b>${c.slice(0,2)}류</b> ${d.ch}`;
+    $("d-check").hidden = false;
+  }
+  const note = $("d-note");
+  if(d.note){note.hidden=false;note.textContent=d.note}else note.hidden=true;
+  renderQuestions(); renderVerdict();
+  window.scrollTo({top:0});
+  $("back").focus();
+}
+
+function renderQuestions(){
+  $("d-questions").innerHTML = QUESTIONS.map((q,i)=>`<button class="q-toggle" aria-pressed="${answers[i]}" data-i="${i}">
+    <span class="t">${q}</span><span class="yn"><i class="n">아니오</i><i class="y">예</i></span></button>`).join("");
+  $("d-questions").querySelectorAll(".q-toggle").forEach(b=>b.onclick=()=>{
+    answers[+b.dataset.i]=!answers[+b.dataset.i]; renderQuestions(); renderVerdict(true);
+  });
+}
+
+function renderVerdict(animate){
+  const needPro = current.x || answers.some(Boolean) || RISK.some(w=>norm($("q").value).includes(w));
+  const stamp = $("stamp");
+  const wasHidden = stamp.hidden;
+  stamp.hidden = !needPro;
+  if(needPro && wasHidden && animate){stamp.classList.remove("pop");void stamp.offsetWidth;stamp.classList.add("pop")}
+  const v = $("d-verdict");
+  if(!needPro){
+    v.innerHTML = `<div class="verdict ok"><h4>간단한 물건으로 보여요</h4><p>위 코드를 참고하셔도 좋아요. 실제 신고 전에는 관세법령정보포털에서 한국 10자리 코드(HSK)를 확인하세요.</p></div>`;
+  } else {
+    v.innerHTML = `<div class="verdict pro"><h4>전문가에게 확인하세요</h4>
+      <p>성분이나 구성이 복잡하면 같은 이름의 물건도 코드가 달라지고, 잘못 신고하면 가산세나 통관 지연이 생길 수 있어요.</p>
+      <ul>
+        <li>관세청 고객지원센터: 국번 없이 <b>125</b></li>
+        <li>관세사: 수입·수출 대행과 품목분류를 함께 맡길 수 있어요</li>
+        <li>품목분류 사전심사: 관세청에 정식으로 분류를 받아두는 제도로, <a href="https://unipass.customs.go.kr" target="_blank" rel="noopener">UNI-PASS</a>에서 신청해요</li>
+      </ul>
+      <p style="margin-top:10px;margin-bottom:0">문의할 때는 제품 사진, 재질·성분표, 용도 설명을 준비하면 빨라요.</p></div>`;
+  }
+}
+
+$("back").onclick=()=>{$("detail").hidden=true;$("results").hidden=false;$("q").focus()};
+$("q").addEventListener("input",()=>{ if(!$("detail").hidden){$("detail").hidden=true;$("results").hidden=false} search(); });
+
+renderChips(); search();
+</script>
+</body>
+</html>

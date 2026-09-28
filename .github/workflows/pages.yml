@@ -27,7 +27,7 @@ jobs:
         run: |
           mkdir -p _site
           cp index.html .nojekyll _site/
-          cp -r tradecompass-mvp hs-code-finder _site/
+          cp -r tradecompass-mvp hs-code-finder shared _site/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

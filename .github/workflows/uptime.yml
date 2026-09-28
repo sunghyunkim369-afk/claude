@@ -1,0 +1,60 @@
+name: Uptime check
+
+# 매시간 사이트가 열리는지 확인하고, 실패하면 이슈를 열어 메일로 알려요.
+# 다시 정상이 되면 이슈에 기록을 남기고 닫아요.
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check endpoints
+        id: check
+        shell: bash
+        run: |
+          urls=(
+            "https://tcmvp.eyefeet.com/"
+            "https://tcmvp.eyefeet.com/tradecompass-mvp/"
+            "https://tcmvp.eyefeet.com/hs-code-finder/"
+            "https://tcmvp.eyefeet.com/api/health"
+            "https://sunghyunkim369-afk.github.io/claude/tradecompass-mvp/"
+          )
+          failed=""
+          for u in "${urls[@]}"; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -L "$u" || echo 000)
+            echo "$code  $u"
+            if [ "$code" -lt 200 ] || [ "$code" -ge 400 ]; then failed+="- \`$code\` $u"$'\n'; fi
+          done
+          {
+            echo "failed<<EOF"
+            printf '%s' "$failed"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Open or close the incident issue
+        uses: actions/github-script@v7
+        env:
+          FAILED: ${{ steps.check.outputs.failed }}
+        with:
+          script: |
+            const title = "🔴 사이트 접속 장애";
+            const failed = process.env.FAILED.trim();
+            const { data: open } = await github.rest.issues.listForRepo({ ...context.repo, state: "open", labels: "uptime" });
+            const issue = open.find(i => i.title === title);
+            const when = new Date().toISOString();
+            if (failed) {
+              const body = `${when} 점검에서 열리지 않은 주소:\n\n${failed}\n\n[실행 기록](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`;
+              if (issue) await github.rest.issues.createComment({ ...context.repo, issue_number: issue.number, body });
+              else await github.rest.issues.create({ ...context.repo, title, body, labels: ["uptime"] });
+              core.setFailed("Some endpoints are down");
+            } else if (issue) {
+              await github.rest.issues.createComment({ ...context.repo, issue_number: issue.number, body: `${when} 점검에서 모두 정상으로 돌아왔어요.` });
+              await github.rest.issues.update({ ...context.repo, issue_number: issue.number, state: "closed" });
+            }

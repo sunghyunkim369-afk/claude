@@ -1,0 +1,6 @@
+{
+  "name": "tradecompass",
+  "private": true,
+  "description": "TradeCompass MVP: 정적 페이지 + 서버 함수(api/)",
+  "engines": { "node": ">=18" }
+}

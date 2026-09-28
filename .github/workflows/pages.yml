@@ -2,7 +2,7 @@ name: Deploy site to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, claude/elegant-heisenberg-s2a9ar]
   workflow_dispatch:
 
 permissions:

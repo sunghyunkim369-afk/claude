@@ -161,12 +161,16 @@ footer{margin-top:48px;font-size:.82rem;color:var(--ink-soft);border-top:1px sol
 .ags[hidden]{display:none}
 .ags h4{margin:0;font-size:.9rem}
 .ags .none{font-size:.88rem;color:var(--ink-soft);padding:10px 12px;border:1px dashed var(--line);border-radius:3px}
-.ag{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:3px;background:var(--sheet)}
-.ag.best{border-color:var(--ok);background:var(--ok-bg)}
-.ag b{font-weight:500}
-.ag small{display:block;font-size:.76rem;color:var(--ink-soft)}
-.ag input{width:100%;min-width:0;font:inherit;font-size:.92rem;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:3px;padding:7px 9px}
-.ags .src{font-size:.78rem;color:var(--ink-soft)}
+.aglist{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.aglist li{display:flex;flex-direction:column;padding:7px 12px;border:1px solid var(--line);border-radius:3px;background:var(--sheet);font-size:.88rem}
+.aglist b{font-weight:500}
+.aglist span{font-size:.74rem;color:var(--ink-soft)}
+.agrate{display:grid;grid-template-columns:minmax(0,1fr) 140px;gap:10px;align-items:center;margin-top:4px}
+.agrate label{font-size:.88rem}
+.agrate small{display:block;font-size:.74rem;color:var(--ink-soft)}
+.agrate input{width:100%;min-width:0;font:inherit;font-size:.92rem;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:3px;padding:7px 9px}
+.aglinks{font-size:.82rem;color:var(--ink-soft)}
+.aglinks a{color:var(--ink);font-weight:500}
 .ctable tr.best td{color:var(--ok);font-weight:700}
 </style>
 </head>
@@ -698,7 +702,8 @@ function applyDir(){
   renderAgs(); calc();
 }
 
-// 원산지·수출국에 맞는 협정 목록과 세율 입력칸
+// 원산지·수출국에 맞는 협정을 간단히 보여주고, 세율은 FTA 홈페이지에서 확인하도록 안내
+const FTA_LINKS = [["FTA 홈페이지 (산업통상자원부)","https://www.fta.go.kr"],["관세청 FTA 포털","https://www.customs.go.kr/ftaportalkor/main.do"]];
 function renderAgs(){
   const box = $("c-ags");
   if(mode!=="business" || !current) return;
@@ -710,27 +715,33 @@ function renderAgs(){
     return;
   }
   const known = FTA_RATES[resolved().c] || {};
-  box.innerHTML = `<h4>${p[1]}와 맺은 협정 ${p[2].length}개 · ${exp?"상대국이 한국산에 적용하는 세율":"한국이 적용하는 협정세율"}</h4>`
-    + p[2].map(id=>{ const a = AG[id], v = agVals[id] ?? (exp ? "" : known[id] ?? "");
-      return `<label class="ag" data-ag="${id}"><span><b>${a.n}</b><small>${a.y}년 발효 · ${CERT[a.cert]}</small></span>
-        <input type="number" inputmode="decimal" min="0" step="any" data-ag="${id}" value="${v}" placeholder="세율 %" aria-label="${a.n} 세율"></label>`; }).join("")
-    + `<div class="src">${exp ? "상대국 협정세율은 관세청 FTA 포털 등에서 품목별로 확인해 입력하세요."
-        : Object.keys(known).length ? "관세청 협정세율 자료로 채웠어요. 연도·HSK 10자리에 따라 다를 수 있어요."
-        : "협정세율은 HSK 10자리·연도마다 달라요. 관세법령정보포털(CLIP) 세율 조회에서 확인해 입력하세요."}</div>`;
-  box.querySelectorAll("input[data-ag]").forEach(i=>i.addEventListener("input",()=>{ agVals[i.dataset.ag] = i.value; calc(); }));
+  const pre = exp ? "" : (Object.keys(known).length ? Math.min(...Object.values(known)) : "");
+  box.innerHTML = `<h4>${p[1]}와 맺은 협정</h4>
+    <ul class="aglist">${p[2].map(id=>{ const a = AG[id]; return `<li><b>${a.n}</b><span>${a.y}년 발효 · ${CERT[a.cert].split(" · ")[0]}</span></li>`; }).join("")}</ul>
+    <div class="agrate">
+      <label for="c-fta">${exp?"확인한 상대국 협정세율 (%)":"확인한 협정세율 (%)"}<small>선택 입력 · 넣으면 절감액을 계산해요</small></label>
+      <input id="c-fta" type="number" inputmode="decimal" min="0" step="any" value="${agVals.rate ?? pre}" placeholder="예: 0">
+    </div>
+    <div class="aglinks">품목별 협정세율은 ${FTA_LINKS.map(l=>`<a href="${l[1]}" target="_blank" rel="noopener">${l[0]} ↗</a>`).join(" · ")}에서 HS코드로 확인하세요.${p[2].length>1?" 협정이 여러 개면 가장 낮은 세율을 고를 수 있어요.":""}</div>`;
+  $("c-fta").addEventListener("input",e=>{ agVals.rate = e.target.value; calc(); });
 }
 
-// 입력된 협정 중 가장 낮은 세율
+// 발급 방식이 같은 협정끼리 묶어 원산지증명 안내
+function certNotes(ids){
+  const by = {};
+  ids.forEach(id=>(by[AG[id].cert] ||= []).push(AG[id].n));
+  return [...Object.entries(by).map(([c,ns])=>`원산지증명 (${ns.join(" · ")}): ${CERT[c]}.`),
+          ...ids.filter(id=>AG[id].tip).map(id=>`${AG[id].n}: ${AG[id].tip}`)];
+}
+
+// 입력한 협정세율이 기준 세율보다 낮으면 적용
 function bestAg(base){
-  const p = partner(); let best = null;
-  p[2].forEach(id=>{
-    const raw = (agVals[id] ?? $(`input[data-ag="${id}"]`)?.value ?? "").toString().trim();
-    if(raw==="") return;
-    const r = Math.max(0, parseFloat(raw)||0);
-    if(best===null || r < best.r) best = {id, r};
-  });
-  document.querySelectorAll(".ag").forEach(el=>el.classList.toggle("best", !!best && el.dataset.ag===best.id && best.r < base));
-  return best && best.r < base ? best : null;
+  const p = partner();
+  const raw = (agVals.rate ?? $("c-fta")?.value ?? "").toString().trim();
+  if(!p[2].length || raw==="") return null;
+  const r = Math.max(0, parseFloat(raw)||0);
+  if(!(r < base)) return null;
+  return {r, name: p[2].length===1 ? AG[p[2][0]].n : "FTA 협정세율", ids: p[2]};
 }
 
 function calc(){
@@ -785,7 +796,7 @@ function calc(){
   let duty = Math.floor(cif*rate/100);
   const rows = [[`과세가격<small>${cif_terms?"CIF 가격 × 환율":mode==="business"?"(물품가격 + 운임 + 보험료) × 환율":"(물품가격 + 국제 운임) × 환율"}</small>`, cif]];
   if(duty>0 && duty<MIN_DUTY){ notes.push(`관세가 ${won(duty)}로 1만원 미만이라 징수하지 않아요.`); duty=0; }
-  rows.push([`관세<small>${best?`${AG[best.id].n} 협정세율`:"기본세율"} ${rate}%</small>`, duty]);
+  rows.push([`관세<small>${best?`${best.name} 적용`:"기본세율"} ${rate}%</small>`, duty]);
 
   let extra = 0;
   if(t.liq){
@@ -812,12 +823,11 @@ function calc(){
   if(best){
     const d0 = Math.floor(cif*basic/100), dd = d0 - duty;
     const saving = dd + Math.floor(dd*0.1);
-    const a = AG[best.id];
-    if(saving>0) save = `<div class="save">${a.n}를 적용하면 기본세율보다 약 <b>${won(saving)}</b> 줄어들어요 (관세 + 그에 따른 부가세).</div>`;
-    notes.push(`${a.n} 원산지증명: ${CERT[a.cert]}.${a.tip?" "+a.tip:""}`);
+    if(saving>0) save = `<div class="save">협정세율을 적용하면 기본세율보다 약 <b>${won(saving)}</b> 줄어들어요 (관세 + 그에 따른 부가세).</div>`;
+    certNotes(best.ids).forEach(n=>notes.push(n));
     notes.push("협정세율을 받으려면 수입신고 때 원산지증명서를 갖추고 협정 적용을 신청해야 해요.");
   } else if(mode==="business" && partner()[2].length){
-    notes.push("위 협정 칸에 협정세율을 입력하면 기본세율과 비교해 가장 유리한 협정을 골라 드려요.");
+    notes.push("FTA 홈페이지에서 확인한 협정세율을 넣으면 기본세율과 비교해 드려요.");
   }
 
   out.innerHTML = `<span class="badge tax">과세 예상</span>
@@ -839,32 +849,32 @@ function calcExport(price, fx, out){
     let total = d0, save = "";
     if(best){
       const d1 = Math.floor(value*best.r/100);
-      rows.push([`${AG[best.id].n} 적용 관세<small>${best.r}%</small>`, d1]);
+      rows.push([`${best.name} 적용 관세<small>${best.r}%</small>`, d1]);
       total = d1;
-      save = `<div class="save">${AG[best.id].n}를 쓰면 상대국 관세가 약 <b>${won(d0-d1)}</b> 줄어요. 바이어의 수입 비용이 줄어드는 만큼 가격 경쟁력이 생겨요.</div>`;
+      save = `<div class="save">협정을 쓰면 상대국 관세가 약 <b>${won(d0-d1)}</b> 줄어요. 바이어의 수입 비용이 줄어드는 만큼 가격 경쟁력이 생겨요.</div>`;
     }
     html = `<span class="badge tax">상대국 관세 예상</span>
       <table class="ctable">${rows.map(r=>`<tr><td>${r[0]}</td><td>${won(r[1])}</td></tr>`).join("")}
       <tr class="total"><td>상대국에서 내는 관세</td><td>${won(total)}</td></tr></table>${save}`;
   } else {
-    html = `<p class="cnotes" style="padding:0;list-style:none">물품가격, 상대국 일반 관세율, 협정세율을 입력하면 협정으로 줄어드는 관세를 계산해요.</p>`;
+    html = `<p class="cnotes" style="padding:0;list-style:none">물품가격과 상대국 일반 관세율, FTA 홈페이지에서 확인한 협정세율을 넣으면 줄어드는 관세를 계산해요.</p>`;
   }
   const ags = p[2].map(id=>AG[id]);
   const steps = p[2].length ? [
     `HS 6자리(${code})까지는 상대국도 같아요. 7자리부터는 상대국 세율표의 코드를 확인하세요.`,
     `협정마다 정해진 품목별 원산지 기준(세번변경기준·부가가치기준 등)을 이 제품이 충족하는지 확인하세요.`,
-    ...ags.map(a=>`${a.n} 원산지증명: ${CERT[a.cert]}.${a.tip?" "+a.tip:""}`),
+    ...certNotes(p[2]),
     `협정이 여러 개면 상대국 세율이 가장 낮고 원산지 기준을 맞추기 쉬운 협정을 고르세요.`,
   ] : [`${p[1]}에는 한국과 맺은 FTA·특혜관세 협정이 없어 상대국 일반 관세율이 적용돼요.`];
   out.innerHTML = html + `<ul class="cnotes">${steps.map(x=>`<li>${x}</li>`).join("")}
-    <li>상대국 세율과 원산지 기준은 <a href="https://www.customs.go.kr" target="_blank" rel="noopener">관세청</a> FTA 포털에서 품목별로 확인할 수 있어요.</li></ul>`;
+    <li>상대국 세율과 원산지 기준은 ${FTA_LINKS.map(l=>`<a href="${l[1]}" target="_blank" rel="noopener">${l[0]}</a>`).join(" · ")}에서 품목별로 확인할 수 있어요.</li></ul>`;
 }
 
 document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>setMode(b.dataset.m));
 $("c-cur").onchange = ()=>{ $("c-fx").value = FX[$("c-cur").value]; calc(); };
 ["c-price","c-fx","c-ship","c-ins","c-rate"].forEach(id=>$(id).addEventListener("input",calc));
 ["c-terms","c-from"].forEach(id=>$(id).addEventListener("change",calc));
-$("c-origin").addEventListener("change",()=>{ agVals = {}; renderAgs(); calc(); });
+$("c-origin").addEventListener("change",()=>{ agVals = {}; agFor = ""; renderAgs(); calc(); });
 $("c-dir").addEventListener("change",applyDir);
 setMode("personal");
 

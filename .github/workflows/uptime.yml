@@ -28,9 +28,12 @@ jobs:
           )
           failed=""
           for u in "${urls[@]}"; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -L "$u" || echo 000)
-            echo "$code  $u"
-            if [ "$code" -lt 200 ] || [ "$code" -ge 400 ]; then failed+="- \`$code\` $u"$'\n'; fi
+            code=$(curl -s -o body.txt -w '%{http_code}' --max-time 20 -L "$u" || echo 000)
+            note=""
+            # 헬스 체크는 서버 함수가 실제로 실행됐는지(응답에 "ok":true)까지 확인해요
+            if [[ "$u" == */api/health ]] && ! grep -q '"ok":true' body.txt; then note=" (서버 함수가 실행되지 않음: 런타임 확인)"; code_bad=1; else code_bad=0; fi
+            echo "$code  $u$note"
+            if [ "$code" -lt 200 ] || [ "$code" -ge 400 ] || [ "$code_bad" = 1 ]; then failed+="- \`$code\` $u$note"$'\n'; fi
           done
           {
             echo "failed<<EOF"

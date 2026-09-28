@@ -262,7 +262,8 @@ footer{margin-top:48px;font-size:.82rem;color:var(--ink-soft);border-top:1px sol
           </div>
           <div class="cf" data-only="personal">
             <label for="c-from">발송 국가</label>
-            <select id="c-from"><option value="US">미국</option><option value="ETC">미국 외</option></select>
+            <select id="c-from"></select>
+            <small>미국발은 200달러, 그 밖은 150달러까지 면세예요.</small>
           </div>
           <div class="cf" data-only="business">
             <label for="c-origin" id="c-origin-l">원산지 국가</label>
@@ -664,9 +665,13 @@ const won = n => Math.floor(n).toLocaleString("ko-KR")+"원";
 const num = id => { const v = parseFloat($(id).value); return isFinite(v) && v>0 ? v : 0; };
 const dir = () => mode==="business" ? $("c-dir").value : "imp";
 const partner = () => PARTNERS.find(p=>p[0]===$("c-origin").value);
+// 받침에 맞는 조사: josa("일본","과","와") → "일본과"
+const josa = (w, withB, noB) => { const c = w.charCodeAt(w.length-1); return w + ((c>=0xAC00 && c<=0xD7A3 && (c-0xAC00)%28) ? withB : noB); };
 
 $("c-origin").innerHTML = PARTNERS.map(p=>`<option value="${p[0]}">${p[1]}</option>`).join("");
 $("c-origin").value = "VN";
+$("c-from").innerHTML = $("c-origin").innerHTML;
+$("c-from").value = "US";
 
 // 품목 기본 세율에 질문 답(TV 튜너, 도금 여부 등)을 반영한 세금 정보
 function taxInfo(){
@@ -718,7 +723,7 @@ function renderAgs(){
   }
   const known = FTA_RATES[resolved().c] || {};
   const pre = exp ? "" : (Object.keys(known).length ? Math.min(...Object.values(known)) : "");
-  box.innerHTML = `<h4>${p[1]}와 맺은 협정</h4>
+  box.innerHTML = `<h4>${josa(p[1],"과","와")} 맺은 협정</h4>
     <ul class="aglist">${p[2].map(id=>{ const a = AG[id]; return `<li><b>${a.n}</b><span>${a.y}년 발효 · ${CERT[a.cert].split(" · ")[0]}</span></li>`; }).join("")}</ul>
     <div class="agrate">
       <label for="c-fta">${exp?"확인한 상대국 협정세율 (%)":"확인한 협정세율 (%)"}<small>선택 입력 · 넣으면 절감액을 계산해요</small></label>
@@ -839,14 +844,22 @@ function calc(){
     ${notes.length?`<ul class="cnotes">${notes.map(n=>`<li>${n}</li>`).join("")}</ul>`:""}${mode==="personal"?ftaHint():""}`;
 }
 
-// 개인 직구 화면에서 FTA 협정 안내로 이어주는 한 줄
+// 개인 직구: 발송 국가와 맺은 FTA 협정을 결과 아래에 바로 보여줘요
 function ftaHint(){
   const zero = (parseFloat($("c-rate").value)||0) === 0;
-  return `<div class="ftahint">${zero ? "이 품목은 한국 기본세율이 0%라 FTA를 적용해도 관세가 더 줄지 않아요. " : ""}`
-    + `한국과 FTA를 맺은 나라 제품은 원산지를 증빙하면 협정세율을 받을 수 있어요. `
-    + `<button type="button" class="linkbtn" id="to-biz">FTA 협정 확인하기 →</button></div>`;
+  const p = PARTNERS.find(x=>x[0]===$("c-from").value);
+  if(!p[2].length) return `<div class="ftahint">${josa(p[1],"은","는")} 한국과 맺은 FTA·특혜관세 협정이 없어 기본세율로 계산해요.</div>`;
+  return `<div class="ftahint"><b>${josa(p[1],"과","와")} 맺은 협정</b> · ${p[2].map(id=>AG[id].n).join(" · ")}<br>`
+    + (zero ? "이 품목은 한국 기본세율이 0%라 FTA를 적용해도 관세가 더 줄지 않아요."
+            : "원산지를 증빙하면 협정세율을 받을 수 있어요. ")
+    + (zero ? "" : `<button type="button" class="linkbtn" id="to-biz">협정세율 확인하기 →</button>`) + `</div>`;
 }
-document.addEventListener("click", e=>{ if(e.target.id==="to-biz"){ setMode("business"); $("c-origin").focus(); } });
+document.addEventListener("click", e=>{
+  if(e.target.id!=="to-biz") return;
+  $("c-origin").value = $("c-from").value;
+  setMode("business");
+  $("c-origin").focus();
+});
 
 // 수출: 상대국이 한국산에 매기는 관세를 협정 적용 전후로 비교
 function calcExport(price, fx, out){

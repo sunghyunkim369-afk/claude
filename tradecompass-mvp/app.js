@@ -16,7 +16,8 @@ let watch = loadWatch();
 const needleDeg = score => Math.max(-150, Math.min(150, (score - 50) * 3));
 const compass = (score, cls = "compass") => `
   <svg class="${cls}" viewBox="0 0 38 38" aria-hidden="true">
-    <circle cx="19" cy="19" r="17" fill="#FBF5EA" stroke="var(--brass)" stroke-width="1.5"/>
+    <circle cx="19" cy="19" r="17" fill="url(#tc-face)" stroke="url(#tc-rim)" stroke-width="1.8"/>
+    <circle cx="19" cy="19" r="13.5" fill="none" stroke="rgba(184,135,59,.25)" stroke-width=".6"/>
     <g class="n" data-deg="${needleDeg(score)}">
       <path d="M19 5 22 19 19 33 16 19Z" fill="var(--navy)"/>
       <path d="M19 19 22 19 19 33 16 19Z" fill="#8C97A8"/>
@@ -30,7 +31,7 @@ const signed = (v, suf = "%") => `${v > 0 ? "+" : ""}${v}${suf}`;
 const star = id => `<button class="star" data-star="${id}" aria-pressed="${watch.has(id)}" aria-label="${esc(sectorById[id].name)} 관심 섹터 ${watch.has(id) ? "해제" : "추가"}">★</button>`;
 
 const sectorCard = (s, i) => `
-  <a class="card lift sector rise" style="--i:${i}" href="#/sectors/${s.id}">
+  <a class="card lift sector tilt rise" style="--i:${i}" href="#/sectors/${s.id}">
     ${compass(s.score)}
     <span class="name">${esc(s.name)}</span>
     <div class="score">${countUp(s.score, 2)}</div>
@@ -285,6 +286,26 @@ $("#top-date").textContent = d.toLocaleDateString("ko-KR", { year: "numeric", mo
 $("#upd").textContent = D.meta.updatedAt;
 $("#sample-pill").hidden = !D.meta.sample;
 $("#nav-news").textContent = D.news.length;
+
+// ── 입체 효과: 카드 기울기, 스크롤 그림자 ──
+if (matchMedia("(hover: hover) and (prefers-reduced-motion: no-preference)").matches) {
+  document.addEventListener("pointermove", e => {
+    const card = e.target.closest(".tilt");
+    document.querySelectorAll(".tilt.tilting").forEach(c => c !== card && c.classList.remove("tilting"));
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    card.style.setProperty("--ry", ((x - .5) * 14).toFixed(2) + "deg");
+    card.style.setProperty("--rx", ((.5 - y) * 12).toFixed(2) + "deg");
+    card.style.setProperty("--mx", (x * 100).toFixed(1) + "%");
+    card.style.setProperty("--my", (y * 100).toFixed(1) + "%");
+    card.classList.add("tilting");
+  });
+  document.documentElement.addEventListener("pointerleave", () =>
+    document.querySelectorAll(".tilt.tilting").forEach(c => c.classList.remove("tilting")));
+}
+const topBar = $(".top");
+addEventListener("scroll", () => topBar.classList.toggle("scrolled", scrollY > 4), { passive: true });
 
 addEventListener("hashchange", route);
 route();

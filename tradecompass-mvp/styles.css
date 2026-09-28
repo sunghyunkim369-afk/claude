@@ -13,7 +13,13 @@
   --green:#3F6150;      /* 보합·완화 */
   --red:#A5432E;        /* 강화·위험 */
   --amber:#B8781F;
-  --shadow:0 1px 0 rgba(30,36,51,.04),0 8px 24px -16px rgba(30,36,51,.25);
+  /* 입체감: 따뜻한 갈색 톤 그림자를 여러 겹으로 */
+  --shade:74,52,20;
+  --shadow:0 1px 1px rgba(var(--shade),.06),0 3px 6px -2px rgba(var(--shade),.08),0 14px 28px -14px rgba(var(--shade),.28);
+  --shadow-up:0 2px 2px rgba(var(--shade),.06),0 10px 18px -6px rgba(var(--shade),.14),0 28px 48px -20px rgba(var(--shade),.38);
+  --shadow-deep:0 2px 4px rgba(13,26,49,.25),0 18px 36px -12px rgba(13,26,49,.45),0 40px 70px -30px rgba(13,26,49,.5);
+  --hi:inset 0 1px 0 rgba(255,255,255,.95);
+  --well:inset 0 1px 3px rgba(var(--shade),.1),inset 0 0 0 1px rgba(var(--shade),.04);
   --r:8px;
   --ease:cubic-bezier(.2,.7,.2,1);
   --spring:cubic-bezier(.34,1.56,.64,1);
@@ -92,11 +98,11 @@ main{padding:28px 32px 40px;max-width:1240px;width:100%;outline:none}
 
 /* ── 등장 애니메이션 ── */
 @media (prefers-reduced-motion:no-preference){
-  .rise{opacity:0;transform:translateY(14px);animation:rise .7s var(--ease) forwards;animation-delay:calc(var(--i,0) * 70ms)}
+  .rise{animation:rise .7s var(--ease) backwards;animation-delay:calc(var(--i,0) * 70ms)}
   .card{transition:transform .25s var(--ease),box-shadow .25s var(--ease)}
   .card.lift:hover{transform:translateY(-3px);box-shadow:0 1px 0 rgba(30,36,51,.04),0 16px 32px -18px rgba(30,36,51,.35)}
 }
-@keyframes rise{to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
 /* ── Today's Bearing ── */
 .bearing{position:relative;overflow:hidden;background:var(--navy);color:#F2ECDF;border-radius:var(--r);padding:26px 28px;min-height:170px}
@@ -274,6 +280,57 @@ main{padding:28px 32px 40px;max-width:1240px;width:100%;outline:none}
   main.enter{animation:fade .35s var(--ease)}
 }
 @keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* ── 입체감 ── */
+body{background:radial-gradient(1100px 560px at 28% -8%,#FCF9F2 0%,rgba(252,249,242,0) 62%),radial-gradient(900px 700px at 110% 110%,#EDE4D1 0%,rgba(237,228,209,0) 60%),var(--paper);background-attachment:fixed}
+.card{background:linear-gradient(180deg,#FFFEFB 0%,#FBF7EF 100%);box-shadow:var(--hi),var(--shadow);border-color:rgba(var(--shade),.12)}
+@media (prefers-reduced-motion:no-preference){
+  .card.lift:hover{transform:translateY(-4px);box-shadow:var(--hi),var(--shadow-up)}
+}
+.side{background:linear-gradient(180deg,#F8F4EB 0%,#F2EBDD 100%);box-shadow:1px 0 0 var(--line),10px 0 30px -24px rgba(var(--shade),.45);z-index:6}
+nav a[aria-current="page"]{background:linear-gradient(180deg,#1E3356 0%,var(--navy) 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 8px 16px -10px rgba(13,26,49,.7)}
+nav a:not([aria-current]):hover{box-shadow:var(--hi),0 2px 6px -3px rgba(var(--shade),.25)}
+.quick{box-shadow:var(--hi),var(--shadow)}
+.quick input,.pill,.chip{box-shadow:var(--well)}
+.chip[aria-pressed="true"]{box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 4px 10px -6px rgba(13,26,49,.6)}
+.top{transition:box-shadow .3s var(--ease)}
+.top.scrolled{box-shadow:0 10px 24px -18px rgba(var(--shade),.5)}
+
+/* 네이비 카드: 깊은 그림자 + 빛 번짐 */
+.bearing{background:radial-gradient(120% 150% at 88% -10%,#27406B 0%,var(--navy) 52%,#0C182D 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -1px 0 rgba(0,0,0,.3),var(--shadow-deep)}
+.bearing::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.07) 0%,rgba(255,255,255,0) 38%)}
+.bearing h2{text-shadow:0 2px 12px rgba(0,0,0,.35)}
+.rose{filter:drop-shadow(0 6px 10px rgba(0,0,0,.35))}
+
+/* 나침반: 볼록한 면 + 떠 있는 바늘 */
+.compass{filter:drop-shadow(0 2px 2px rgba(var(--shade),.18)) drop-shadow(0 6px 8px rgba(var(--shade),.14))}
+.compass .n{filter:drop-shadow(0 1.5px 1px rgba(13,26,49,.35))}
+.brand-mark{filter:drop-shadow(0 2px 3px rgba(var(--shade),.25))}
+
+/* 숫자: 종이에 찍힌 듯한 음각 */
+.sector .score,.big,.kpi b,.impact b{text-shadow:0 1px 0 rgba(255,255,255,.9),0 3px 8px rgba(var(--shade),.14)}
+
+/* 안쪽으로 파인 영역 */
+.kpis,.note,.meter,.bar .track{box-shadow:var(--well)}
+.risk{background:linear-gradient(180deg,#FFFDF8 0%,#F7F1E5 100%);box-shadow:var(--hi),0 1px 2px rgba(var(--shade),.08),0 6px 12px -8px rgba(var(--shade),.2)}
+.lv{box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 2px 4px -1px rgba(0,0,0,.25)}
+.bar .fill{background:linear-gradient(180deg,#2A4474 0%,var(--navy) 60%,#0C182D 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+.meter b{background:linear-gradient(180deg,#D4A55C 0%,var(--brass) 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+.tag,.schip{box-shadow:var(--hi),0 1px 2px rgba(var(--shade),.1)}
+.schip.on{box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 4px 10px -5px rgba(var(--shade),.55)}
+.pending{box-shadow:var(--well)}
+.star[aria-pressed="true"]{text-shadow:0 2px 6px rgba(184,135,59,.55)}
+
+/* 섹터 카드: 마우스를 따라 3D로 기울기 */
+.tilt{position:relative;transform-style:preserve-3d;will-change:transform}
+.tilt::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;
+  background:radial-gradient(220px circle at var(--mx,50%) var(--my,0%),rgba(255,255,255,.55),rgba(255,255,255,0) 60%)}
+@media (prefers-reduced-motion:no-preference) and (hover:hover){
+  .card.tilt.tilting{transition:transform .08s linear,box-shadow .25s var(--ease);transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-4px);box-shadow:var(--hi),var(--shadow-up)}
+  .tilt.tilting::after{opacity:1}
+  .tilt .compass{transform:translateZ(22px)}
+  .tilt .score{transform:translateZ(14px)}
+}
 
 /* ── 반응형 ── */
 @media (max-width:1080px){

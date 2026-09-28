@@ -83,6 +83,7 @@ header p{margin:0;color:var(--ink-soft);max-width:60ch}
 @keyframes thud{from{transform:rotate(-8deg) scale(1.6);opacity:0}to{transform:rotate(-8deg) scale(1);opacity:1}}
 
 .check{margin-top:26px}
+#d-verdict{margin-bottom:8px}
 .check h3{font-size:1.05rem;margin:0 0 4px}
 .check p{margin:0 0 12px;color:var(--ink-soft);font-size:.92rem}
 .q-toggle{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--sheet);border:1px solid var(--line);border-radius:3px;color:var(--ink);font:inherit;padding:12px 14px;margin-bottom:8px;cursor:pointer}
@@ -144,13 +145,36 @@ footer{margin-top:48px;font-size:.82rem;color:var(--ink-soft);border-top:1px sol
 .cnotes li{margin-bottom:3px}
 .save{margin-top:10px;padding:10px 12px;background:var(--ok-bg);color:var(--ok);border-radius:3px;font-size:.92rem}
 @media (max-width:520px){ .cgrid{grid-template-columns:minmax(0,1fr)} }
+/* 품목별 확인 질문 */
+.qg{margin:0 0 14px;padding:0;border:0}
+.qg legend{padding:0;margin-bottom:8px;font-size:.95rem;font-weight:500}
+.qg legend small{display:block;font-weight:400;font-size:.8rem;color:var(--ink-soft)}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{border:1px solid var(--line);background:var(--sheet);color:var(--ink);font:inherit;font-size:.88rem;padding:7px 14px;border-radius:999px;cursor:pointer}
+.opt[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+.opt:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.dg .box span.chg{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.changed{margin-top:10px;font-size:.88rem;color:var(--ok)}
+
+/* FTA 협정 비교 */
+.ags{margin-top:14px;display:grid;gap:8px}
+.ags[hidden]{display:none}
+.ags h4{margin:0;font-size:.9rem}
+.ags .none{font-size:.88rem;color:var(--ink-soft);padding:10px 12px;border:1px dashed var(--line);border-radius:3px}
+.ag{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:3px;background:var(--sheet)}
+.ag.best{border-color:var(--ok);background:var(--ok-bg)}
+.ag b{font-weight:500}
+.ag small{display:block;font-size:.76rem;color:var(--ink-soft)}
+.ag input{width:100%;min-width:0;font:inherit;font-size:.92rem;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:3px;padding:7px 9px}
+.ags .src{font-size:.78rem;color:var(--ink-soft)}
+.ctable tr.best td{color:var(--ok);font-weight:700}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <h1>HS코드 쉽게 찾기</h1>
-    <p>물건 이름을 입력하면 국제 공통 HS코드(6자리)를 알려드려요. 성분이 섞였거나 구성이 복잡한 물건은 전문가 확인이 필요하다고 안내해 드립니다.</p>
+    <p>물건 이름을 입력하면 국제 공통 HS코드(6자리)를 알려주고, 몇 가지 질문으로 코드를 좁혀요. 한국과 FTA·특혜관세 협정을 맺은 나라와의 수입·수출 관세도 비교할 수 있어요.</p>
   </header>
 
   <div class="form" role="search">
@@ -181,12 +205,19 @@ footer{margin-top:48px;font-size:.82rem;color:var(--ink-soft);border-top:1px sol
       <div class="meta" id="d-meta"></div>
       <div class="note" id="d-note" hidden></div>
 
+      <div class="check" id="d-check">
+        <h3>내 물건에 맞게 코드 좁히기</h3>
+        <p>답을 고르면 위 코드가 바로 바뀌어요. 섞인 물건은 "무엇이 가장 많은지"로 분류해요.</p>
+        <div id="d-questions"></div>
+      </div>
+      <div id="d-verdict"></div>
+
       <div class="calc" id="d-calc">
-        <h3>예상 세금 계산</h3>
-        <p>대표 기본세율로 대략적인 세금을 계산해요. 세율과 환율은 직접 고칠 수 있어요.</p>
+        <h3>관세 · 세금 계산</h3>
+        <p>대표 기본세율로 대략적인 세금을 계산해요. 사업 수입·수출은 한국과 맺은 FTA·특혜관세 협정도 비교해요.</p>
         <div class="seg" role="tablist" aria-label="수입 유형">
           <button role="tab" data-m="personal" aria-selected="true">개인 직구</button>
-          <button role="tab" data-m="business" aria-selected="false">사업 수입</button>
+          <button role="tab" data-m="business" aria-selected="false">사업 수입 · 수출</button>
         </div>
         <div class="cgrid">
           <div class="cf">
@@ -202,17 +233,24 @@ footer{margin-top:48px;font-size:.82rem;color:var(--ink-soft);border-top:1px sol
             <small>참고값이에요. 관세청 고시환율로 바꿔 주세요.</small>
           </div>
           <div class="cf" data-only="business">
+            <label for="c-dir">거래 방향</label>
+            <select id="c-dir">
+              <option value="imp">수입 (해외 → 한국)</option>
+              <option value="exp">수출 (한국 → 해외)</option>
+            </select>
+          </div>
+          <div class="cf" data-only="business" data-imp>
             <label for="c-terms">가격조건</label>
             <select id="c-terms">
               <option value="FOB">FOB · EXW (운임·보험료 별도)</option>
               <option value="CIF">CIF (운임·보험료 포함)</option>
             </select>
           </div>
-          <div class="cf">
+          <div class="cf" data-imp>
             <label for="c-ship">국제 운임 <span id="c-ship-cur">(USD)</span></label>
             <input id="c-ship" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
           </div>
-          <div class="cf" data-only="business">
+          <div class="cf" data-only="business" data-imp>
             <label for="c-ins">보험료 <span id="c-ins-cur">(USD)</span></label>
             <input id="c-ins" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
           </div>
@@ -221,28 +259,18 @@ footer{margin-top:48px;font-size:.82rem;color:var(--ink-soft);border-top:1px sol
             <select id="c-from"><option value="US">미국</option><option value="ETC">미국 외</option></select>
           </div>
           <div class="cf" data-only="business">
-            <label for="c-origin">원산지</label>
+            <label for="c-origin" id="c-origin-l">원산지 국가</label>
             <select id="c-origin"></select>
           </div>
           <div class="cf">
-            <label for="c-rate">기본세율 (%)</label>
+            <label for="c-rate" id="c-rate-l">한국 기본세율 (%)</label>
             <input id="c-rate" type="number" inputmode="decimal" min="0" step="any">
           </div>
-          <div class="cf" data-only="business" id="c-fta-wrap">
-            <label for="c-fta">FTA 협정세율 (%)</label>
-            <input id="c-fta" type="number" inputmode="decimal" min="0" step="any" placeholder="CLIP에서 확인 후 입력">
-            <small id="c-fta-name"></small>
-          </div>
         </div>
+        <div class="ags" id="c-ags" data-only="business"></div>
         <div class="cout" id="c-out" aria-live="polite"></div>
       </div>
 
-      <div class="check" id="d-check">
-        <h3>내 물건에 해당하는지 확인해 보세요</h3>
-        <p>하나라도 "예"라면 코드가 달라질 수 있어요.</p>
-        <div id="d-questions"></div>
-      </div>
-      <div id="d-verdict"></div>
     </div>
   </section>
 
@@ -335,14 +363,104 @@ const DATA = [
 
 const RISK = ["혼합","섞","세트","키트","부품","부속","성분","화학","원료","배합","합금","복합","모듈","반제품","약","의약","추출물","원액","혼방"];
 const CATS = ["전체","전자","가전","의류·잡화","화장품","식품","생활·취미","전문가 확인"];
-const QUESTIONS = [
-  "두 가지 이상의 재질이나 성분이 섞여 있나요?",
-  "여러 물건이 한 세트로 묶여 판매되나요?",
-  "다른 기계나 장비에 들어가는 부품인가요?",
-];
+// ── 품목별 확인 질문 ──
+// 섞였는지 대신 "무엇이 주인지"를 물어요. 답(보기 번호)에 따라 resolve()가 코드를 정해요.
+// 반환값: c 코드 · d 설명 · note 안내 · pro 전문가 확인 사유 · r/lux 세금 계산용 덮어쓰기
+const CH = {"12":"채유용 종자·해조류 등","17":"당류와 설탕과자","18":"코코아와 그 조제품","20":"채소·과실 조제품","21":"조제식료품",
+  "22":"음료·주류","23":"사료","42":"가죽제품·가방류","61":"편물제 의류","62":"편물제 외 의류","63":"그 밖의 섬유제품","64":"신발류",
+  "66":"우산류","71":"귀금속·장신구","85":"전기기기와 그 부분품","87":"차량","91":"시계","95":"완구·운동용구"};
+const Q = {
+  knit:  {q:"원단이 잘 늘어나는 니트(편물)인가요, 셔츠처럼 짠 직물인가요?", o:["니트·저지(편물)","직물"]},
+  who:   {q:"누구를 위한 옷인가요?", h:"의류는 남성용·여성용 코드가 따로 있어요", o:["남성·남아용","여성·여아용"]},
+  fibre: {q:"무게로 따져 가장 많이 들어간 섬유는?", h:"옷 안쪽 라벨의 혼용률에서 가장 큰 숫자", o:["면","합성섬유(폴리에스터·나일론 등)","울(양모)","모르겠어요"]},
+  fibre2:{q:"무게로 따져 가장 많이 들어간 섬유는?", h:"라벨의 혼용률에서 가장 큰 숫자", o:["면","합성섬유(폴리에스터 등)","모르겠어요"]},
+  fibre4:{q:"무게로 따져 가장 많이 들어간 섬유는?", h:"라벨의 혼용률에서 가장 큰 숫자", o:["울(양모)","캐시미어","면","합성섬유(아크릴 등)"]},
+  upper: {q:"발등을 덮는 겉감(갑피)의 재질은?", h:"신발은 겉감과 바닥 재질로 분류해요", o:["섬유(메시·캔버스)","천연 가죽","고무·플라스틱(인조가죽 포함)","모르겠어요"]},
+  sole:  {q:"바닥(밑창)의 재질은?", o:["고무·플라스틱","가죽"]},
+  sport: {q:"운동용 신발인가요?", o:["운동용(러닝·트레이닝·테니스 등)","일상용"]},
+  surface:{q:"겉면을 덮은 재질은?", h:"가방은 안감이 아니라 겉면 재질로 분류해요", o:["천연 가죽","인조가죽(PU)·플라스틱 시트","섬유(나일론·캔버스)","그 밖(종이·나무 등)"]},
+  comm:  {q:"휴대폰·네트워크와 데이터를 주고받나요?", o:["통신 기능이 있어요","시간 표시 위주예요"]},
+  motor: {q:"전기 모터로 달리거나 페달을 보조하나요?", o:["모터 없음","전기 모터 있음"]},
+  tuner: {q:"TV 방송을 받는 기능(튜너)이 있나요?", o:["컴퓨터 연결용이에요","TV 수신 기능이 있어요"]},
+  mix:   {q:"커피만 들었나요, 설탕·크리머가 섞인 믹스인가요?", o:["커피만(블랙)","설탕·크리머 믹스"]},
+  season:{q:"기름·소금 등으로 조미했나요?", o:["조미한 김","조미 안 한 마른김"]},
+  gum:   {q:"어떤 과자인가요?", o:["사탕·젤리","껌"]},
+  cocoa: {q:"초콜릿·코코아가 들어갔나요?", o:["없어요","들어갔어요"]},
+  fill:  {q:"속을 채운 초콜릿인가요?", o:["속 없는 판 초콜릿","필링을 채웠어요"]},
+  umb:   {q:"어떤 우산인가요?", o:["일반 우산","접이식(자루가 줄어듦)","정원·해변용 파라솔"]},
+  metal: {q:"귀금속 자체인가요, 일반 금속에 도금한 것인가요?", h:"도금 액세서리는 귀금속이 아니라 모조 장신구예요", o:["귀금속 자체","도금한 것"]},
+  fizz:  {q:"스파클링 와인인가요?", o:["일반(스틸) 와인","스파클링"]},
+  vol:   {q:"용기 크기는?", o:["2L 이하 병","2L 넘는 용기"]},
+  retail:{q:"어떻게 포장돼 있나요?", o:["소매용 포장","대용량·원료용"]},
+  fab:   {q:"텐트 원단은?", o:["합성섬유","면 등 그 밖의 섬유"]},
+  cards: {q:"어떤 게임인가요?", o:["보드게임","트럼프 카드"]},
+  sale:  {q:"어떻게 팔리나요?", h:"모든 품목에 공통으로 물어요", o:["단품으로","다른 물건과 한 세트(소매 포장)","다른 기계·장비에 들어가는 부품"]},
+};
+const REFINE = {
+  top:{qs:["knit","fibre","who"], when:{who:a=>a.knit===1}, resolve(a){
+    if(a.knit===0) return {c:a.fibre===0?"610910":"610990", d:"편물제 티셔츠·싱글릿",
+      note:a.fibre===3?"라벨 혼용률을 확인하세요. 면이 가장 많으면 6109.10이에요.":""};
+    const men=a.who===0, f=a.fibre;
+    const c = men ? ["620520","620530","620590","620590"][f] : ["620630","620640","620620","620690"][f];
+    return {c, d:men?"남성용 셔츠(직물)":"여성용 블라우스·셔츠(직물)", note:"직물 상의는 티셔츠가 아니라 셔츠·블라우스로 분류돼요."};
+  }},
+  pants:{qs:["knit","who","fibre2"], resolve(a){
+    const woven=a.knit===1, men=a.who===0, syn=a.fibre2===1;
+    const c = woven ? (men?(syn?"620343":"620342"):(syn?"620463":"620462")) : (men?(syn?"610343":"610342"):(syn?"610463":"610462"));
+    return {c, d:`${men?"남성용":"여성용"} 바지 (${woven?"직물":"편물"}, ${syn?"합성섬유":"면"})`, note:a.fibre2===2?"섬유 구성을 모르면 면 기준으로 보여드려요. 라벨을 확인하세요.":""};
+  }},
+  sweater:{qs:["fibre4"], resolve(a){ return {c:["611011","611012","611020","611030"][a.fibre4], d:"스웨터·풀오버·카디건(편물)"}; }},
+  shoe:{qs:["upper","sole","sport"], resolve(a){
+    if(a.upper===3) return {c:"640411", pro:"신발은 겉감(갑피) 재질로 류가 갈려요. 재질을 확인해야 정확한 코드를 알 수 있어요."};
+    const sp=a.sport===0;
+    if(a.upper===0) return a.sole===0 ? {c:sp?"640411":"640419", d:"바닥 고무·플라스틱, 겉감 섬유"} : {c:"640420", d:"바닥 가죽, 겉감 섬유"};
+    if(a.upper===1) return sp ? {c:"640319", d:"겉감 가죽 운동화"} : {c:a.sole===1?"640359":"640399", d:"겉감 가죽 신발", note:"발목을 덮는 부츠는 코드가 달라요(6403.51·6403.91)."};
+    return a.sole===0 ? {c:sp?"640219":"640299", d:"바닥·겉감 모두 고무·플라스틱", note:sp?"":"발목을 덮으면 6402.91이에요."} : {c:"640590", d:"그 밖의 신발"};
+  }},
+  bag:{qs:["surface"], resolve(a,it){
+    const k=it.kind, dig=[1,2,2,9][a.surface];
+    const kinds={2:"핸드백",3:"지갑·카드지갑 등 소지품 케이스",9:"배낭·여행가방 등 그 밖의 용기"};
+    return {c:"4202"+k+dig, d:`${kinds[k]} (겉면 ${Q.surface.o[a.surface]})`,
+      note:a.surface===1?"인조가죽(PU)은 가죽이 아니라 플라스틱 시트로 분류돼요.":"",
+      lux:k===3 ? 0 : 1};
+  }},
+  watch:{qs:["comm"], resolve(a){ return a.comm===0 ? {c:"851762", d:"통신 기능이 있는 손목형 기기"} :
+    {c:"910212", d:"전자식 손목시계(디지털 표시)", note:"바늘로 표시하는 시계는 9102.11이에요."}; }},
+  bike:{qs:["motor"], resolve(a){ return a.motor===0 ? {c:"871200", d:"모터가 없는 자전거"} : {c:"871160", d:"전기 모터가 달린 자전거"}; }},
+  monitor:{qs:["tuner"], resolve(a){ return a.tuner===0 ? {c:"852852", d:"컴퓨터 연결용 모니터"} : {c:"852872", d:"TV 수신 기능이 있는 컬러 텔레비전", r:8}; }},
+  instant:{qs:["mix"], resolve(a){ return a.mix===0 ? {c:"210111", d:"커피 추출물·농축물"} : {c:"210112", d:"커피 추출물을 기본으로 한 조제품(믹스커피)"}; }},
+  laver:{qs:["season"], resolve(a){ return a.season===0 ? {c:"200899", d:"조미한 김"} : {c:"121221", d:"식용 해조류(마른김)", note:"조미하지 않은 김은 해조류(12류)로 분류돼요."}; }},
+  candy:{qs:["gum","cocoa"], resolve(a){
+    if(a.cocoa===1) return {c:"180690", d:"코코아를 함유한 조제품", note:"코코아가 들어가면 설탕과자(17류)가 아니라 코코아 조제품(18류)으로 가요."};
+    return a.gum===1 ? {c:"170410", d:"추잉껌"} : {c:"170490", d:"코코아를 함유하지 않은 설탕과자"};
+  }},
+  choco:{qs:["fill"], resolve(a){ return {c:a.fill===0?"180632":"180631", d:a.fill===0?"속을 채우지 않은 판 초콜릿":"속을 채운 판 초콜릿"}; }},
+  umbrella:{qs:["umb"], resolve(a){ return {c:["660199","660191","660110"][a.umb], d:["일반 우산","접이식 우산","정원·해변용 파라솔"][a.umb]}; }},
+  jewel:{qs:["metal"], resolve(a,it){ return a.metal===0 ? {c:it.base, d:"귀금속으로 만든 신변장식용품"} :
+    {c:"711719", d:"도금한 모조 장신구", lux:0, note:"도금 제품은 개별소비세 대상 귀금속이 아니에요."}; }},
+  wine:{qs:["fizz","vol"], when:{vol:a=>a.fizz===0}, resolve(a){
+    if(a.fizz===1) return {c:"220410", d:"스파클링 와인"};
+    return {c:a.vol===0?"220421":"220422", d:a.vol===0?"2L 이하 용기의 포도주":"2L 초과 10L 이하 용기의 포도주"};
+  }},
+  pet:{qs:["retail"], resolve(a){ return a.retail===0 ? {c:"230910", d:"소매용 개·고양이 사료"} : {c:"230990", d:"그 밖의 사료 조제품"}; }},
+  tent:{qs:["fab"], resolve(a){ return {c:a.fab===0?"630622":"630629", d:a.fab===0?"합성섬유 텐트":"그 밖의 섬유 텐트"}; }},
+  game:{qs:["cards"], resolve(a){ return a.cards===0 ? {c:"950490", d:"실내 게임용품"} : {c:"950440", d:"트럼프 카드"}; }},
+};
+// 품목 → [그룹, 기본 답, 추가 정보]
+const GROUP = {
+  "면 티셔츠":["top",{knit:0,fibre:0,who:0}], "합성섬유 티셔츠":["top",{knit:0,fibre:1,who:0}],
+  "청바지(남성)":["pants",{knit:1,who:0,fibre2:0}], "울 스웨터":["sweater",{fibre4:0}],
+  "운동화":["shoe",{upper:0,sole:0,sport:0}],
+  "가죽 핸드백":["bag",{surface:0},{kind:2}], "백팩(섬유)":["bag",{surface:2},{kind:9}], "가죽 지갑":["bag",{surface:0},{kind:3}],
+  "스마트워치":["watch",{comm:0}], "자전거":["bike",{motor:0}], "컴퓨터 모니터":["monitor",{tuner:0}],
+  "인스턴트 커피":["instant",{mix:0}], "조미김":["laver",{season:0}], "사탕 · 젤리":["candy",{gum:0,cocoa:0}],
+  "판초콜릿":["choco",{fill:0}], "우산":["umbrella",{umb:0}],
+  "은 장신구":["jewel",{metal:0},{base:"711311"}], "금 장신구":["jewel",{metal:0},{base:"711319"}],
+  "와인":["wine",{fizz:0,vol:0}], "반려동물 사료":["pet",{retail:0}], "텐트":["tent",{fab:0}], "보드게임":["game",{cards:0}],
+};
 
 let cat = "전체";
-let answers = [false,false,false];
+let answers = {};
 const $ = id => document.getElementById(id);
 const norm = s => s.toLowerCase().replace(/\s+/g,"");
 const fmt = c => c ? c.slice(0,4)+"."+c.slice(4) : "—";
@@ -392,7 +510,7 @@ function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;","
 
 let current = null;
 function openDetail(i){
-  current = DATA[i]; answers=[false,false,false];
+  current = DATA[i]; answers = Object.assign({sale:0}, (GROUP[current.n]||[])[1]);
   $("results").hidden=true; $("detail").hidden=false;
   const d = current;
   $("d-name").textContent = d.n;
@@ -402,44 +520,75 @@ function openDetail(i){
     $("d-meta").innerHTML = "";
     $("d-check").hidden = true;
   } else {
-    const c = d.c;
-    const box = s => [...s].map(x=>`<span>${x}</span>`).join("");
-    $("d-digits").innerHTML =
-      `<div class="dg"><div class="box">${box(c.slice(0,2))}</div><div class="cap">류 (${c.slice(0,2)}류)</div></div>
-       <div class="dg"><div class="box">${box(c.slice(2,4))}</div><div class="cap">호</div></div>
-       <div class="dg"><div class="box">${box(c.slice(4,6))}</div><div class="cap">소호</div></div>
-       <div class="dg muted"><div class="box"><span>·</span><span>·</span><span>·</span><span>·</span></div><div class="cap">국가별 세부 4자리</div></div>`;
-    $("d-meta").innerHTML = `<b>${c.slice(0,2)}류</b> ${d.ch}`;
     $("d-check").hidden = false;
   }
-  const note = $("d-note");
-  if(d.note){note.hidden=false;note.textContent=d.note}else note.hidden=true;
   setupCalc(d);
   renderQuestions(); renderVerdict();
   window.scrollTo({top:0});
   $("back").focus();
 }
 
+// 현재 답으로 코드·설명·안내를 정해요
+function resolved(){
+  const d = current, g = GROUP[d.n];
+  let r = {c:d.c, d:d.d, note:d.note||""};
+  if(g){
+    const out = REFINE[g[0]].resolve(answers, g[2]||{});
+    r = {...r, ...out, d:out.d||d.d, note:out.note!==undefined ? out.note : r.note};
+  }
+  if(answers.sale===1) r.note2 = "소매용 세트는 세트의 본질적 특성을 주는 물건 기준으로 분류해요. 이 물건이 세트의 주된 물건이라면 위 코드를 써도 돼요.";
+  if(answers.sale===2) r.pro = "부품은 어떤 기계 전용인지에 따라 그 기계 쪽 코드로 가고, 나사·볼트처럼 여러 기계에 두루 쓰이면 재질 쪽 코드로 가요.";
+  return r;
+}
+
+function renderCode(){
+  const d = current;
+  if(d.x){ const n = $("d-note"); n.hidden = !d.note; n.textContent = d.note||""; return; }
+  const r = resolved(), c = r.c, o = d.c;
+  const box = (from,to) => [...c.slice(from,to)].map((x,i)=>`<span class="${x!==o[from+i]?"chg":""}">${x}</span>`).join("");
+  $("d-digits").innerHTML =
+    `<div class="dg"><div class="box">${box(0,2)}</div><div class="cap">류 (${c.slice(0,2)}류)</div></div>
+     <div class="dg"><div class="box">${box(2,4)}</div><div class="cap">호</div></div>
+     <div class="dg"><div class="box">${box(4,6)}</div><div class="cap">소호</div></div>
+     <div class="dg muted"><div class="box"><span>·</span><span>·</span><span>·</span><span>·</span></div><div class="cap">국가별 세부 4자리</div></div>`;
+  $("d-meta").innerHTML = `<b>${c.slice(0,2)}류</b> ${CH[c.slice(0,2)] || d.ch} · ${escapeHtml(r.d)}`
+    + (c!==o ? `<div class="changed">답변을 반영해 ${fmt(o)} → <b>${fmt(c)}</b>로 바뀌었어요.</div>` : "");
+  const notes = [r.note, r.note2].filter(Boolean);
+  const note = $("d-note");
+  note.hidden = !notes.length; note.innerHTML = notes.map(escapeHtml).join("<br>");
+}
+
 function renderQuestions(){
-  $("d-questions").innerHTML = QUESTIONS.map((q,i)=>`<button class="q-toggle" aria-pressed="${answers[i]}" data-i="${i}">
-    <span class="t">${q}</span><span class="yn"><i class="n">아니오</i><i class="y">예</i></span></button>`).join("");
-  $("d-questions").querySelectorAll(".q-toggle").forEach(b=>b.onclick=()=>{
-    answers[+b.dataset.i]=!answers[+b.dataset.i]; renderQuestions(); renderVerdict(true);
+  const g = GROUP[current.n], ref = g && REFINE[g[0]];
+  const ids = [...(ref ? ref.qs.filter(id => !(ref.when && ref.when[id]) || ref.when[id](answers)) : []), "sale"];
+  $("d-questions").innerHTML = ids.map(id=>{
+    const q = Q[id];
+    return `<fieldset class="qg"><legend>${q.q}${q.h?`<small>${q.h}</small>`:""}</legend><div class="opts">${
+      q.o.map((t,i)=>`<button type="button" class="opt" data-q="${id}" data-v="${i}" aria-pressed="${answers[id]===i}">${t}</button>`).join("")}</div></fieldset>`;
+  }).join("");
+  $("d-questions").querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    answers[b.dataset.q] = +b.dataset.v;
+    renderQuestions(); renderCode(); renderVerdict(true); setupCalc(current, true);
+    $("d-questions").querySelector(`[data-q="${b.dataset.q}"][data-v="${b.dataset.v}"]`)?.focus();
   });
+  renderCode();
 }
 
 function renderVerdict(animate){
-  const needPro = current.x || answers.some(Boolean) || RISK.some(w=>norm($("q").value).includes(w));
+  const r = current.x ? {} : resolved();
+  const reason = current.x ? "성분·구성에 따라 코드가 크게 달라지는 품목이에요." : r.pro
+    || (RISK.some(w=>norm($("q").value).includes(w)) ? "검색어에 성분·구성이 복잡한 물건을 뜻하는 말이 있어요." : "");
+  const needPro = !!reason;
   const stamp = $("stamp");
   const wasHidden = stamp.hidden;
   stamp.hidden = !needPro;
   if(needPro && wasHidden && animate){stamp.classList.remove("pop");void stamp.offsetWidth;stamp.classList.add("pop")}
   const v = $("d-verdict");
   if(!needPro){
-    v.innerHTML = `<div class="verdict ok"><h4>간단한 물건으로 보여요</h4><p>위 코드를 참고하셔도 좋아요. 실제 신고 전에는 관세법령정보포털에서 한국 10자리 코드(HSK)를 확인하세요.</p></div>`;
+    v.innerHTML = `<div class="verdict ok"><h4>${fmt(r.c)}로 보여요</h4><p>답변 기준의 참고 코드예요. 실제 신고 전에는 관세법령정보포털에서 한국 10자리 코드(HSK)를 확인하세요.</p></div>`;
   } else {
     v.innerHTML = `<div class="verdict pro"><h4>전문가에게 확인하세요</h4>
-      <p>성분이나 구성이 복잡하면 같은 이름의 물건도 코드가 달라지고, 잘못 신고하면 가산세나 통관 지연이 생길 수 있어요.</p>
+      <p>${reason} 잘못 신고하면 가산세나 통관 지연이 생길 수 있어요.</p>
       <ul>
         <li>관세청 고객지원센터: 국번 없이 <b>125</b></li>
         <li>관세사: 수입·수출 대행과 품목분류를 함께 맡길 수 있어요</li>
@@ -469,56 +618,136 @@ const TAX = {
  "보드게임":{r:8},"자전거":{r:8},"골프채":{r:8},"텐트":{r:13},"책(인쇄물)":{r:0},
 };
 const FX = {USD:1400, EUR:1550, JPY:9.5, CNY:195}; // 참고용 기본값
-const ORIGINS = [
- ["US","미국","한-미 FTA"],["EU","EU 회원국","한-EU FTA"],["CN","중국","한-중 FTA"],
- ["JP","일본","RCEP"],["VN","베트남","한-베트남 FTA"],["ASEAN","그 밖의 아세안","한-아세안 FTA"],
- ["GB","영국","한-영 FTA"],["AU","호주","한-호주 FTA"],["CA","캐나다","한-캐나다 FTA"],
- ["IN","인도","한-인도 CEPA"],["ETC","그 밖의 나라",""],
+// ── 한국의 FTA·특혜관세 협정 ──
+// y: 발효 연도 · cert: 원산지증명서 발급 방식 · 2026년 기준 목록이며 최신 발효 여부는 관세청에서 확인이 필요해요
+const AG = {
+  chile:{n:"한-칠레 FTA",y:2004,cert:"self"}, singapore:{n:"한-싱가포르 FTA",y:2006,cert:"agency"},
+  efta:{n:"한-EFTA FTA",y:2006,cert:"self"}, asean:{n:"한-아세안 FTA",y:2007,cert:"agency"},
+  india:{n:"한-인도 CEPA",y:2010,cert:"agency"}, eu:{n:"한-EU FTA",y:2011,cert:"self",tip:"건당 6,000유로를 넘으면 인증수출자만 원산지를 스스로 증명할 수 있어요."},
+  peru:{n:"한-페루 FTA",y:2011,cert:"self",tip:"인증수출자가 원산지를 스스로 증명해요."}, us:{n:"한-미 FTA",y:2012,cert:"self"},
+  turkey:{n:"한-튀르키예 FTA",y:2013,cert:"self"}, australia:{n:"한-호주 FTA",y:2014,cert:"both"},
+  canada:{n:"한-캐나다 FTA",y:2015,cert:"self"}, china:{n:"한-중 FTA",y:2015,cert:"agency"},
+  nz:{n:"한-뉴질랜드 FTA",y:2015,cert:"self"}, vietnam:{n:"한-베트남 FTA",y:2015,cert:"agency"},
+  colombia:{n:"한-콜롬비아 FTA",y:2016,cert:"self"}, centralam:{n:"한-중미 FTA",y:2019,cert:"self"},
+  uk:{n:"한-영 FTA",y:2021,cert:"self"}, rcep:{n:"RCEP",y:2022,cert:"agency",tip:"인증수출자는 원산지를 스스로 증명할 수 있어요."},
+  israel:{n:"한-이스라엘 FTA",y:2022,cert:"self"}, cambodia:{n:"한-캄보디아 FTA",y:2022,cert:"agency"},
+  indonesia:{n:"한-인도네시아 CEPA",y:2023,cert:"agency"}, philippines:{n:"한-필리핀 FTA",y:2024,cert:"agency"},
+  apta:{n:"아시아·태평양 무역협정(APTA)",y:1976,cert:"agency",tip:"FTA가 아닌 개발도상국 간 특혜관세 협정이에요."},
+};
+const CERT = {self:"자율발급 · 수출자가 직접 작성", agency:"기관발급 · 세관이나 상공회의소가 발급", both:"기관발급 · 자율발급 모두 가능"};
+// 국가 → 적용 가능한 협정 (여러 개면 가장 낮은 세율을 골라 쓸 수 있어요)
+const PARTNERS = [
+  ["CN","중국",["china","rcep","apta"]], ["US","미국",["us"]], ["VN","베트남",["vietnam","asean","rcep"]],
+  ["EU","EU 회원국",["eu"]], ["JP","일본",["rcep"]], ["IN","인도",["india","apta"]],
+  ["ID","인도네시아",["indonesia","asean","rcep"]], ["PH","필리핀",["philippines","asean","rcep"]],
+  ["KH","캄보디아",["cambodia","asean","rcep"]], ["SG","싱가포르",["singapore","asean","rcep"]],
+  ["ASEAN","태국·말레이시아 등 그 밖의 아세안",["asean","rcep"]], ["AU","호주",["australia","rcep"]],
+  ["NZ","뉴질랜드",["nz","rcep"]], ["GB","영국",["uk"]], ["CA","캐나다",["canada"]], ["CL","칠레",["chile"]],
+  ["PE","페루",["peru"]], ["CO","콜롬비아",["colombia"]], ["TR","튀르키예",["turkey"]], ["IL","이스라엘",["israel"]],
+  ["EFTA","스위스·노르웨이 등 EFTA",["efta"]], ["CA5","파나마·코스타리카 등 중미",["centralam"]],
+  ["APTA","방글라데시·스리랑카·몽골",["apta"]], ["ETC","그 밖의 나라",[]],
 ];
+// 협정세율 데이터: { "HS 6자리": { 협정id: 세율 } } — 관세청 자료를 연결하면 여기에 채워져 입력칸이 자동으로 채워져요
+const FTA_RATES = {};
 const LUX_BASE = 2000000;  // 개별소비세 기준가격(원)
 const MIN_DUTY = 10000;    // 징수 최저한(원)
 
 let mode = "personal";
+let agVals = {}, agFor = "";
 const won = n => Math.floor(n).toLocaleString("ko-KR")+"원";
 const num = id => { const v = parseFloat($(id).value); return isFinite(v) && v>0 ? v : 0; };
+const dir = () => mode==="business" ? $("c-dir").value : "imp";
+const partner = () => PARTNERS.find(p=>p[0]===$("c-origin").value);
 
-$("c-origin").innerHTML = ORIGINS.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join("");
+$("c-origin").innerHTML = PARTNERS.map(p=>`<option value="${p[0]}">${p[1]}</option>`).join("");
+$("c-origin").value = "VN";
 
-function setupCalc(d){
-  const t = TAX[d.n];
+// 품목 기본 세율에 질문 답(TV 튜너, 도금 여부 등)을 반영한 세금 정보
+function taxInfo(){
+  const t = TAX[current.n];
+  if(!t) return null;
+  const r = resolved();
+  return {...t, ...(r.r!==undefined?{r:r.r}:{}), ...(r.lux!==undefined?{lux:r.lux}:{})};
+}
+
+function setupCalc(d, keep){
+  const t = taxInfo();
   $("d-calc").hidden = !t;
   if(!t) return;
-  $("c-rate").value = t.r;
-  $("c-fta").value = "";
-  $("c-fx").value = FX[$("c-cur").value];
-  calc();
+  if(dir()==="imp") $("c-rate").value = t.r;
+  if(!keep){ agVals = {}; agFor = ""; $("c-fx").value = FX[$("c-cur").value]; }
+  renderAgs(); calc();
 }
 
 function setMode(m){
   mode = m;
   document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-selected", b.dataset.m===m));
-  document.querySelectorAll(".cf[data-only]").forEach(el=>el.hidden = el.dataset.only!==m);
-  calc();
+  document.querySelectorAll("[data-only]").forEach(el=>el.hidden = el.dataset.only!==m);
+  applyDir();
+}
+
+function applyDir(){
+  const exp = dir()==="exp";
+  document.querySelectorAll("[data-imp]").forEach(el=>{ if(!el.dataset.only || el.dataset.only===mode) el.hidden = exp; });
+  $("c-origin-l").textContent = exp ? "수출 대상국" : "원산지 국가";
+  $("c-rate-l").textContent = exp ? "상대국 일반 관세율 (%)" : "한국 기본세율 (%)";
+  const t = current && taxInfo();
+  if(exp){ $("c-rate").value = ""; $("c-rate").placeholder = "상대국 세율표에서 확인"; }
+  else if(t){ $("c-rate").value = t.r; $("c-rate").placeholder = ""; }
+  agVals = {}; agFor = "";
+  renderAgs(); calc();
+}
+
+// 원산지·수출국에 맞는 협정 목록과 세율 입력칸
+function renderAgs(){
+  const box = $("c-ags");
+  if(mode!=="business" || !current) return;
+  const p = partner(), exp = dir()==="exp", key = p[0]+dir()+current.c;
+  if(agFor===key) return;
+  agFor = key;
+  if(!p[2].length){
+    box.innerHTML = `<div class="none">한국과 FTA·특혜관세 협정이 없는 나라예요. ${exp?"상대국의 일반 관세율이 적용돼요.":"한국 기본세율(또는 WTO 협정세율)이 적용돼요."}</div>`;
+    return;
+  }
+  const known = FTA_RATES[resolved().c] || {};
+  box.innerHTML = `<h4>${p[1]}와 맺은 협정 ${p[2].length}개 · ${exp?"상대국이 한국산에 적용하는 세율":"한국이 적용하는 협정세율"}</h4>`
+    + p[2].map(id=>{ const a = AG[id], v = agVals[id] ?? (exp ? "" : known[id] ?? "");
+      return `<label class="ag" data-ag="${id}"><span><b>${a.n}</b><small>${a.y}년 발효 · ${CERT[a.cert]}</small></span>
+        <input type="number" inputmode="decimal" min="0" step="any" data-ag="${id}" value="${v}" placeholder="세율 %" aria-label="${a.n} 세율"></label>`; }).join("")
+    + `<div class="src">${exp ? "상대국 협정세율은 관세청 FTA 포털 등에서 품목별로 확인해 입력하세요."
+        : Object.keys(known).length ? "관세청 협정세율 자료로 채웠어요. 연도·HSK 10자리에 따라 다를 수 있어요."
+        : "협정세율은 HSK 10자리·연도마다 달라요. 관세법령정보포털(CLIP) 세율 조회에서 확인해 입력하세요."}</div>`;
+  box.querySelectorAll("input[data-ag]").forEach(i=>i.addEventListener("input",()=>{ agVals[i.dataset.ag] = i.value; calc(); }));
+}
+
+// 입력된 협정 중 가장 낮은 세율
+function bestAg(base){
+  const p = partner(); let best = null;
+  p[2].forEach(id=>{
+    const raw = (agVals[id] ?? $(`input[data-ag="${id}"]`)?.value ?? "").toString().trim();
+    if(raw==="") return;
+    const r = Math.max(0, parseFloat(raw)||0);
+    if(best===null || r < best.r) best = {id, r};
+  });
+  document.querySelectorAll(".ag").forEach(el=>el.classList.toggle("best", !!best && el.dataset.ag===best.id && best.r < base));
+  return best && best.r < base ? best : null;
 }
 
 function calc(){
   if(!current || !TAX[current.n]) return;
-  const t = TAX[current.n];
+  const t = taxInfo();
   const cur = $("c-cur").value;
   $("c-ship-cur").textContent = $("c-ins-cur").textContent = `(${cur})`;
   const fx = num("c-fx");
   FX[cur] = fx || FX[cur];
-
-  const origin = ORIGINS.find(o=>o[0]===$("c-origin").value);
-  $("c-fta-name").textContent = origin[2] ? `${origin[2]} 적용 대상 · 원산지증명서 필요` : "FTA 체결국이 아니에요";
-  $("c-fta").disabled = !origin[2];
 
   const cif_terms = mode==="business" && $("c-terms").value==="CIF";
   $("c-ship").disabled = $("c-ins").disabled = cif_terms;
 
   const price = num("c-price");
   const out = $("c-out");
-  if(!price || !fx){ out.innerHTML = `<p class="cnotes" style="padding:0;list-style:none">물품가격을 입력하면 세금이 계산돼요.</p>`; return; }
+  if(dir()==="exp") return calcExport(price, fx, out);
+  if(!price || !fx){ out.innerHTML = `<p class="cnotes" style="padding:0;list-style:none">물품가격을 입력하면 세금이 계산돼요.</p>`; bestAg(Infinity); return; }
 
   const notes = [];
   const ship = cif_terms ? 0 : num("c-ship");
@@ -548,17 +777,15 @@ function calc(){
     notes.push("개인이 쓰려고 들여온 특송·우편 물품은 간이세율이 적용되어 실제 세액이 조금 다를 수 있어요.");
   }
 
-  // 세율 결정 (사업 수입: FTA 세율이 더 낮으면 적용)
+  // 세율 결정 (사업 수입: 입력된 협정 중 가장 낮은 세율이 기본세율보다 낮으면 적용)
   const basic = parseFloat($("c-rate").value)||0;
-  const ftaRaw = $("c-fta").value.trim();
-  const fta = (mode==="business" && origin[2] && ftaRaw!=="") ? Math.max(0,parseFloat(ftaRaw)||0) : null;
-  const useFta = fta!==null && fta < basic;
-  const rate = useFta ? fta : basic;
+  const best = mode==="business" ? bestAg(basic) : null;
+  const rate = best ? best.r : basic;
 
   let duty = Math.floor(cif*rate/100);
   const rows = [[`과세가격<small>${cif_terms?"CIF 가격 × 환율":mode==="business"?"(물품가격 + 운임 + 보험료) × 환율":"(물품가격 + 국제 운임) × 환율"}</small>`, cif]];
   if(duty>0 && duty<MIN_DUTY){ notes.push(`관세가 ${won(duty)}로 1만원 미만이라 징수하지 않아요.`); duty=0; }
-  rows.push([`관세<small>${useFta?`${origin[2]} 협정세율`:"기본세율"} ${rate}%</small>`, duty]);
+  rows.push([`관세<small>${best?`${AG[best.id].n} 협정세율`:"기본세율"} ${rate}%</small>`, duty]);
 
   let extra = 0;
   if(t.liq){
@@ -582,12 +809,15 @@ function calc(){
   const total = duty+extra+vat;
 
   let save = "";
-  if(useFta){
+  if(best){
     const d0 = Math.floor(cif*basic/100), dd = d0 - duty;
     const saving = dd + Math.floor(dd*0.1);
-    if(saving>0) save = `<div class="save">${origin[2]}를 적용하면 기본세율보다 약 <b>${won(saving)}</b> 줄어들어요 (관세 + 그에 따른 부가세).</div>`;
-  } else if(mode==="business" && origin[2] && fta===null){
-    notes.push(`${origin[2]} 협정세율을 입력하면 기본세율과 비교해 드려요.`);
+    const a = AG[best.id];
+    if(saving>0) save = `<div class="save">${a.n}를 적용하면 기본세율보다 약 <b>${won(saving)}</b> 줄어들어요 (관세 + 그에 따른 부가세).</div>`;
+    notes.push(`${a.n} 원산지증명: ${CERT[a.cert]}.${a.tip?" "+a.tip:""}`);
+    notes.push("협정세율을 받으려면 수입신고 때 원산지증명서를 갖추고 협정 적용을 신청해야 해요.");
+  } else if(mode==="business" && partner()[2].length){
+    notes.push("위 협정 칸에 협정세율을 입력하면 기본세율과 비교해 가장 유리한 협정을 골라 드려요.");
   }
 
   out.innerHTML = `<span class="badge tax">과세 예상</span>
@@ -596,10 +826,46 @@ function calc(){
     ${notes.length?`<ul class="cnotes">${notes.map(n=>`<li>${n}</li>`).join("")}</ul>`:""}`;
 }
 
+// 수출: 상대국이 한국산에 매기는 관세를 협정 적용 전후로 비교
+function calcExport(price, fx, out){
+  const p = partner(), mfnRaw = $("c-rate").value.trim(), mfn = parseFloat(mfnRaw);
+  const best = bestAg(isFinite(mfn) ? mfn : Infinity);
+  const value = Math.floor(price*fx);
+  const code = fmt(resolved().c);
+  let html = "";
+  if(price && fx && isFinite(mfn)){
+    const d0 = Math.floor(value*mfn/100);
+    const rows = [[`수출 금액<small>물품가격 × 환율</small>`, value], [`상대국 일반 관세<small>${mfn}%</small>`, d0]];
+    let total = d0, save = "";
+    if(best){
+      const d1 = Math.floor(value*best.r/100);
+      rows.push([`${AG[best.id].n} 적용 관세<small>${best.r}%</small>`, d1]);
+      total = d1;
+      save = `<div class="save">${AG[best.id].n}를 쓰면 상대국 관세가 약 <b>${won(d0-d1)}</b> 줄어요. 바이어의 수입 비용이 줄어드는 만큼 가격 경쟁력이 생겨요.</div>`;
+    }
+    html = `<span class="badge tax">상대국 관세 예상</span>
+      <table class="ctable">${rows.map(r=>`<tr><td>${r[0]}</td><td>${won(r[1])}</td></tr>`).join("")}
+      <tr class="total"><td>상대국에서 내는 관세</td><td>${won(total)}</td></tr></table>${save}`;
+  } else {
+    html = `<p class="cnotes" style="padding:0;list-style:none">물품가격, 상대국 일반 관세율, 협정세율을 입력하면 협정으로 줄어드는 관세를 계산해요.</p>`;
+  }
+  const ags = p[2].map(id=>AG[id]);
+  const steps = p[2].length ? [
+    `HS 6자리(${code})까지는 상대국도 같아요. 7자리부터는 상대국 세율표의 코드를 확인하세요.`,
+    `협정마다 정해진 품목별 원산지 기준(세번변경기준·부가가치기준 등)을 이 제품이 충족하는지 확인하세요.`,
+    ...ags.map(a=>`${a.n} 원산지증명: ${CERT[a.cert]}.${a.tip?" "+a.tip:""}`),
+    `협정이 여러 개면 상대국 세율이 가장 낮고 원산지 기준을 맞추기 쉬운 협정을 고르세요.`,
+  ] : [`${p[1]}에는 한국과 맺은 FTA·특혜관세 협정이 없어 상대국 일반 관세율이 적용돼요.`];
+  out.innerHTML = html + `<ul class="cnotes">${steps.map(x=>`<li>${x}</li>`).join("")}
+    <li>상대국 세율과 원산지 기준은 <a href="https://www.customs.go.kr" target="_blank" rel="noopener">관세청</a> FTA 포털에서 품목별로 확인할 수 있어요.</li></ul>`;
+}
+
 document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>setMode(b.dataset.m));
 $("c-cur").onchange = ()=>{ $("c-fx").value = FX[$("c-cur").value]; calc(); };
-["c-price","c-fx","c-ship","c-ins","c-rate","c-fta"].forEach(id=>$(id).addEventListener("input",calc));
-["c-terms","c-from","c-origin"].forEach(id=>$(id).addEventListener("change",calc));
+["c-price","c-fx","c-ship","c-ins","c-rate"].forEach(id=>$(id).addEventListener("input",calc));
+["c-terms","c-from"].forEach(id=>$(id).addEventListener("change",calc));
+$("c-origin").addEventListener("change",()=>{ agVals = {}; renderAgs(); calc(); });
+$("c-dir").addEventListener("change",applyDir);
 setMode("personal");
 
 $("back").onclick=()=>{$("detail").hidden=true;$("results").hidden=false;$("q").focus()};

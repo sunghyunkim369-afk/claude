@@ -171,6 +171,8 @@ footer{margin-top:48px;font-size:.82rem;color:var(--ink-soft);border-top:1px sol
 .agrate input{width:100%;min-width:0;font:inherit;font-size:.92rem;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:3px;padding:7px 9px}
 .aglinks{font-size:.82rem;color:var(--ink-soft)}
 .aglinks a{color:var(--ink);font-weight:500}
+.ftahint{margin-top:12px;padding:10px 12px;border:1px dashed var(--line);border-radius:3px;font-size:.86rem;color:var(--ink-soft)}
+.linkbtn{background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .ctable tr.best td{color:var(--ok);font-weight:700}
 </style>
 </head>
@@ -780,7 +782,7 @@ function calc(){
         <ul class="cnotes">
           <li>${limit===200?"미국발 목록통관 물품은 200달러까지 면세예요.":listed?"미국 외 국가에서 보낸 물품은 150달러까지 면세예요.":"식품·화장품 등은 일반통관 대상이라 발송 국가와 관계없이 150달러까지 면세예요."}</li>
           <li>같은 날 같은 나라에서 도착한 물품은 합쳐서 판단(합산과세)해요.</li>
-        </ul>`;
+        </ul>${ftaHint()}`;
       return;
     }
     if(liquor) notes.push("주류는 금액과 관계없이 소액 면세가 적용되지 않아요.");
@@ -827,14 +829,24 @@ function calc(){
     certNotes(best.ids).forEach(n=>notes.push(n));
     notes.push("협정세율을 받으려면 수입신고 때 원산지증명서를 갖추고 협정 적용을 신청해야 해요.");
   } else if(mode==="business" && partner()[2].length){
-    notes.push("FTA 홈페이지에서 확인한 협정세율을 넣으면 기본세율과 비교해 드려요.");
+    notes.push(basic===0 ? "이 품목은 한국 기본세율이 이미 0%라 FTA를 적용해도 관세가 더 줄지 않아요. 부가가치세만 내요."
+      : "FTA 홈페이지에서 확인한 협정세율을 넣으면 기본세율과 비교해 드려요.");
   }
 
   out.innerHTML = `<span class="badge tax">과세 예상</span>
     <table class="ctable">${rows.map(r=>`<tr><td>${r[0]}</td><td>${won(r[1])}</td></tr>`).join("")}
     <tr class="total"><td>예상 세금 합계</td><td>${won(total)}</td></tr></table>${save}
-    ${notes.length?`<ul class="cnotes">${notes.map(n=>`<li>${n}</li>`).join("")}</ul>`:""}`;
+    ${notes.length?`<ul class="cnotes">${notes.map(n=>`<li>${n}</li>`).join("")}</ul>`:""}${mode==="personal"?ftaHint():""}`;
 }
+
+// 개인 직구 화면에서 FTA 협정 안내로 이어주는 한 줄
+function ftaHint(){
+  const zero = (parseFloat($("c-rate").value)||0) === 0;
+  return `<div class="ftahint">${zero ? "이 품목은 한국 기본세율이 0%라 FTA를 적용해도 관세가 더 줄지 않아요. " : ""}`
+    + `한국과 FTA를 맺은 나라 제품은 원산지를 증빙하면 협정세율을 받을 수 있어요. `
+    + `<button type="button" class="linkbtn" id="to-biz">FTA 협정 확인하기 →</button></div>`;
+}
+document.addEventListener("click", e=>{ if(e.target.id==="to-biz"){ setMode("business"); $("c-origin").focus(); } });
 
 // 수출: 상대국이 한국산에 매기는 관세를 협정 적용 전후로 비교
 function calcExport(price, fx, out){

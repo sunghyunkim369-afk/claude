@@ -221,7 +221,7 @@ const views = {
   hs(q) {
     const src = "../hs-code-finder/index.html" + (q ? "#q=" + encodeURIComponent(q) : "");
     return `
-      <div class="page-h rise"><p class="kicker">Tools</p><h1 class="display sm">HS Code <em>&amp; Duty</em></h1><p>품목의 HS 코드를 찾고, 개인 직구·사업 수입 예상 세금을 계산해요.</p></div>
+      <div class="page-h rise"><p class="kicker">Tools</p><h1 class="display sm">HS Code <em>&amp; Duty</em></h1><p>품목의 HS 코드를 찾고, 개인 직구·사업 수입·수출 관세와 한국의 FTA 협정을 확인해요.</p></div>
       <iframe class="tool-frame rise" style="--i:1" src="${src}" title="HS 코드 찾기와 세금 계산"></iframe>`;
   }
 };

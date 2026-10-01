@@ -16,6 +16,16 @@
 | Eyefeet Cloud | https://tcmvp.eyefeet.com | 테넌트가 이 저장소의 `main`을 가져가 `npm run build`로 `dist/`를 만들고 배포해요 (런타임 `vercel`). 무료 플랜은 컨테이너 1개라 **정지 → 배포 → 시작** 순서로 배포해요 |
 | GitHub Pages | https://sunghyunkim369-afk.github.io/claude/ | 기본 브랜치에 푸시하면 `.github/workflows/pages.yml`이 배포 (정적 파일만, `api/` 없음) |
 
+## 실제 무역 뉴스 (매주 갱신)
+
+대시보드의 Top10 이슈·섹터 노출도·리스크·뉴스는 연합뉴스·한국경제·매일경제·WTO RSS와 Google 뉴스 검색(신뢰 언론사 30여 곳만)으로 모은 **실제 기사**로 계산해요. 공식과 근거 논문은 [docs/news-algorithm.md](docs/news-algorithm.md).
+
+- 수집: `.github/workflows/news-collect.yml` 이 6시간마다 `data/news/archive.json` 에 기사를 쌓아요.
+- 발행: `.github/workflows/news-publish.yml` 이 매주 월요일 06:47(KST)에 `tradecompass-mvp/data.js`, `data/news/latest.json` 을 만들어 두 브랜치에 올리고 GitHub Pages 를 다시 배포해요.
+- eyefeet: `/api/data` 가 `main` 의 `latest.json` 을 전달해서, 재배포 없이 새 주간 데이터가 보여요.
+- 직접 실행: `node scripts/news/collect.js --backfill` → `node scripts/news/publish.js`
+- (선택) GitHub → Settings → Secrets → Actions 에 `AI_API_KEY` 를 넣으면 Eyefeet AI 가 기사 분류·주간 요약을 보완해요.
+
 ## AI 분석 (Eyefeet AI · 깃솔트 로컬 AI)
 
 브라우저는 `shared/ai-client.js`로 `POST /api/ai`를 부르고, `api/ai.js`가 환경변수의 AI 주소·키로 Eyefeet AI(qwen3-30b-a3b)를 호출해요.

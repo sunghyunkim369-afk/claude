@@ -1,0 +1,58 @@
+name: News publish (weekly)
+
+# 매주 월요일 06:47(한국 시간)에 지난 7일 기사로 Top10·섹터 노출도를 계산해
+# tradecompass-mvp/data.js 와 data/news/latest.json 을 새로 만들고, 두 브랜치에 올린 뒤 GitHub Pages 를 다시 배포해요.
+on:
+  schedule:
+    - cron: "47 21 * * 0"
+  workflow_dispatch:
+    inputs:
+      collect_first:
+        description: "발행 전에 한 번 더 수집"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: news-data
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/elegant-heisenberg-s2a9ar
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Collect latest
+        if: github.event_name == 'schedule' || inputs.collect_first
+        env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+        run: node scripts/news/collect.js
+      - name: Score and publish
+        env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+        run: node scripts/news/publish.js
+      - name: Commit and push
+        run: |
+          git config user.name "tradecompass-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/news tradecompass-mvp/data.js
+          if git diff --cached --quiet; then echo "변경 없음"; exit 0; fi
+          git commit -m "News: weekly publish $(date -u +%Y-%m-%d)"
+          git pull --rebase origin claude/elegant-heisenberg-s2a9ar
+          git push origin HEAD:claude/elegant-heisenberg-s2a9ar
+          # main 은 eyefeet 배포용: 작업 브랜치와 같게 맞춰요
+          git push origin HEAD:main || echo "::warning::main 브랜치에 올리지 못했어요 (작업 브랜치와 갈라짐)"
+      - name: Redeploy GitHub Pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref claude/elegant-heisenberg-s2a9ar

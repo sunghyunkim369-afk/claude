@@ -1,10 +1,12 @@
 (() => {
-const D = window.TC_DATA;
+let D = window.TC_DATA;
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const sectorById = Object.fromEntries(D.sectors.map(s => [s.id, s]));
-const enDate = new Date(D.meta.date + "T00:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+let sectorById = Object.fromEntries(D.sectors.map(s => [s.id, s]));
+const enDate = () => new Date(D.meta.date + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+// 원문 기사 링크 (http/https 만 허용)
+const ext = (url, text) => /^https?:\/\//.test(url || "") ? `<a class="ext" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${text}</a>` : text;
 
 // ── 관심 섹터 (브라우저에만 저장) ──
 const WKEY = "tc-watch";
@@ -27,6 +29,7 @@ const compass = (score, cls = "compass") => `
 const countUp = (to, dec = 0, pre = "", suf = "") =>
   `<span class="num" data-to="${to}" data-dec="${dec}" data-pre="${esc(pre)}" data-suf="${esc(suf)}">${pre}${Number(to).toFixed(dec)}${suf}</span>`;
 const dirLabel = { up: "▲ 긍정", down: "▼ 부정", flat: "● 중립" };
+const actLabel = { up: ["▲ 조치 강화", "up"], down: ["▼ 조치 완화", "down"], neutral: ["● 중립", "flat"] };
 const signed = (v, suf = "%") => `${v > 0 ? "+" : ""}${v}${suf}`;
 const star = id => `<button class="star" data-star="${id}" aria-pressed="${watch.has(id)}" aria-label="${esc(sectorById[id].name)} 관심 섹터 ${watch.has(id) ? "해제" : "추가"}">★</button>`;
 
@@ -44,25 +47,31 @@ const issueItem = (x, i) => `
   <li class="issue">
     <span class="rank">${String(i + 1).padStart(2, "0")}</span>
     <div>
-      <h3>${esc(x.title)}</h3>
-      <div class="src">${esc(x.source)} · ${esc(x.time)}</div>
+      <h3>${ext(x.link, esc(x.title))}</h3>
+      <div class="src">${x.keyword ? `<b>${esc(x.keyword)}</b> · ` : ""}${esc(x.source)} · ${esc(x.time)}${x.reports ? ` · 보도 ${x.reports}건` : ""}</div>
       <span class="tag">${esc(x.tag)}</span>
       ${x.summary ? `<p class="sum">${esc(x.summary)}</p>` : ""}
     </div>
-    <div class="impact ${x.impact >= 85 ? "hi" : ""}"><b class="num">${countUp(x.impact)}</b><small>영향도</small></div>
+    <div class="impact ${x.impact >= 80 ? "hi" : ""}"><b class="num">${countUp(x.impact)}</b><small>${D.meta.sample ? "영향도" : "이슈 점수"}</small></div>
   </li>`;
 
+// 실제 데이터: 기사별 관련 섹터와 무역 조치 방향 / 예전 샘플: 종목별 방향
+const newsLinks = n => n.sectors
+  ? `<span><em class="dir ${actLabel[n.direction]?.[1] || "flat"}">${actLabel[n.direction]?.[0] || "● 중립"}</em></span>${n.sectors.length
+      ? n.sectors.map(id => sectorById[id] ? `<a href="#/sectors/${id}">${esc(sectorById[id].name)}</a>` : "").join("")
+      : `<span class="muted">관련 섹터 없음</span>`}`
+  : (n.stocks.length ? n.stocks.map(s => `<span>${esc(s.name)} <em class="dir ${s.dir}">${dirLabel[s.dir]}</em></span>`).join("") : `<span class="muted">연관 종목 없음</span>`);
 const newsRow = n => `
   <li class="news-row">
-    <div class="t"><b class="num">${esc(n.time)}</b><small>${esc(n.source)}</small></div>
-    <div><h3><span class="tag">${esc(n.tag)}</span>${esc(n.title)}</h3><p>AI 요약 · ${esc(n.summary)}</p></div>
-    <div class="links">${n.stocks.length ? n.stocks.map(s => `<span>${esc(s.name)} <em class="dir ${s.dir}">${dirLabel[s.dir]}</em></span>`).join("") : `<span class="muted">연관 종목 없음</span>`}</div>
+    <div class="t"><b class="num">${esc(n.time)}</b><small>${esc(n.source)}${n.outlets > 1 ? ` 외 ${n.outlets - 1}곳` : ""}</small></div>
+    <div><h3><span class="tag">${esc(n.tag)}</span>${ext(n.link, esc(n.title))}</h3>${n.summary ? `<p>${D.meta.sample ? "AI 요약 · " : ""}${esc(n.summary)}</p>` : ""}</div>
+    <div class="links">${newsLinks(n)}</div>
   </li>`;
 
 const riskItem = r => `
   <li class="risk ${r.level}">
     <span class="lv ${r.level}">${r.level}</span>
-    <div><h3>${esc(r.title)}</h3><p>${esc(r.detail)}</p></div>
+    <div><h3>${esc(r.title)}</h3><p>${ext(r.link, esc(r.detail))}</p></div>
     <span class="eff">${esc(r.effect)}</span>
   </li>`;
 
@@ -95,9 +104,9 @@ function sectorPage(s) {
           <div class="t10">
             <a class="kw" href="#/news">${esc(x.keyword)}</a>
             <div class="chips-row">${x.sectors.map(id => sectorById[id] ? `<a class="schip${id === s.id ? " on" : ""}" href="#/sectors/${id}">${esc(sectorById[id].name)}</a>` : "").join("")}</div>
-            <p class="meta">점수 ${x.score.toFixed(2)} · 최근 7일 보도 ${x.reports}건(직전 7일 ${x.prev}건) · ${signed(pct(x.reports, x.prev))}</p>
+            <p class="meta">점수 ${x.score.toFixed(2)} · 최근 7일 보도 ${x.reports}건(직전 7일 ${x.prev}건) · ${x.prev ? signed(pct(x.reports, x.prev)) : "신규"}</p>
             <p class="meta">▲ 조치 강화 ${x.up}&nbsp;&nbsp;▼ 완화 ${x.down}&nbsp;&nbsp;● 중립 ${x.neutral}</p>
-            <ul class="arts">${x.articles.map(a => `<li><span class="at">${esc(a.title)}</span><small>${esc(a.source)} · ${esc(a.at)}</small></li>`).join("")}</ul>
+            <ul class="arts">${x.articles.map(a => `<li><span class="at">${ext(a.link, esc(a.title))}</span><small>${esc(a.source)} · ${esc(a.at)}</small></li>`).join("")}</ul>
           </div>
         </li>`).join("")}</ol>` : `<p class="muted rise" style="--i:3">최근 7일 동안 이 섹터와 연결된 이슈가 없어요.</p>`}
 
@@ -113,15 +122,15 @@ function sectorPage(s) {
 
 // ── AI 분석 (Eyefeet AI) ──
 // 화면에 있는 데이터를 글로 정리해 /api/ai 로 보내고, 돌아온 분석을 카드에 그려요.
-const AI_EXAMPLES = ["반도체 수출기업은 지금 무엇을 확인해야 하나요?", "홍해 리스크가 유럽 수출 물류비에 주는 영향은?", "오늘 가장 주의할 섹터와 이유는?"];
+const AI_EXAMPLES = ["반도체 수출기업은 지금 무엇을 확인해야 하나요?", "홍해 리스크가 유럽 수출 물류비에 주는 영향은?", "이번 주 가장 주의할 섹터와 이유는?"];
 const DIR = { positive: ["긍정", "pos"], negative: ["부정", "neg"], mixed: ["혼재", "mix"] };
 
 function aiCard(kind, id, i) {
   const sector = kind === "sector";
   const off = !window.tcAI || !tcAI.enabled;
   return `<section class="card rise ai-card" style="--i:${i}" data-ai="${kind}" data-id="${id}">
-    <div class="ai-card-h"><h2>${sector ? "AI 영향 분석" : "오늘 브리핑에 대해 AI에게 묻기"}</h2><span class="ai-badge">AI · 참고용</span></div>
-    <p class="muted">${sector ? "이 섹터의 노출도와 관련 이슈를 바탕으로 국내 기업이 받을 영향을 정리해요." : "오늘 정리된 이슈·섹터 자료만 근거로 답해요."}${D.meta.sample ? " 지금은 샘플 데이터라 분석도 예시예요." : ""}</p>
+    <div class="ai-card-h"><h2>${sector ? "AI 영향 분석" : "이번 주 브리핑에 대해 AI에게 묻기"}</h2><span class="ai-badge">AI · 참고용</span></div>
+    <p class="muted">${sector ? "이 섹터의 노출도와 관련 이슈를 바탕으로 국내 기업이 받을 영향을 정리해요." : "이번 주 정리된 이슈·섹터 자료만 근거로 답해요."}${D.meta.sample ? " 지금은 샘플 데이터라 분석도 예시예요." : ""}</p>
     ${sector
       ? `<button type="button" class="ai-btn" data-ai-run ${off ? "disabled" : ""}>AI로 분석하기</button>`
       : `<form class="ai-ask" data-ai-ask><label for="ask-q" class="sr">질문</label>
@@ -146,13 +155,13 @@ function sectorContext(s) {
 function briefContext() {
   const t = D.trade;
   return [
-    `기준일 ${D.meta.date}`,
-    `오늘의 요약: ${D.bearing.headline}`, ...D.bearing.points.map(p => `- ${p}`),
-    `섹터 노출도:`, ...D.sectors.map(s => `- ${s.name} ${s.score} (${s.state}): ${s.summary}`),
-    `핵심 이슈:`, ...D.issues.map(x => `- ${x.title} (영향도 ${x.impact}): ${x.summary}`),
+    `기준 기간 ${D.meta.period || D.meta.date}`,
+    `이번 주 요약: ${D.bearing.headline}`, ...D.bearing.points.map(p => `- ${p}`),
+    `섹터 노출도(50=평소 수준):`, ...D.sectors.map(s => `- ${s.name} ${s.score} (${s.state}): ${s.summary}`),
+    `핵심 이슈:`, ...D.issues.map(x => `- ${x.keyword ? x.keyword + ": " : ""}${x.title} (점수 ${x.impact}, 보도 ${x.reports}건·직전 주 ${x.prev}건)${x.summary ? " " + x.summary : ""}`),
     `공급망 리스크:`, ...D.risks.map(r => `- [${r.level}] ${r.title}: ${r.detail}, ${r.effect}`),
-    `무역 흐름(${t.period}): 수출 $${t.total}B, 전년 대비 ${t.yoy}%, 수지 +$${t.balance}B`,
-  ].join("\n").slice(0, 5800);
+    t ? `무역 흐름(${t.period}): 수출 $${t.total}B, 전년 대비 ${t.yoy}%, 수지 +$${t.balance}B` : "",
+  ].filter(Boolean).join("\n").slice(0, 5800);
 }
 
 const li = (xs) => xs.length ? `<ul class="ai-list">${xs.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : "";
@@ -207,9 +216,9 @@ const views = {
     const t = D.trade;
     return `
       <header class="hero rise">
-        <p class="kicker">Daily Brief · ${esc(enDate)}</p>
+        <p class="kicker">Weekly Brief · ${esc(enDate())}</p>
         <h1 class="display">Global Trade <em>Intelligence</em></h1>
-        <p>무역 이슈가 국내 섹터와 종목에 주는 영향을 AI가 매일 정리합니다.</p>
+        <p>${D.meta.sample ? "무역 이슈가 국내 섹터와 종목에 주는 영향을 정리합니다." : `${esc(D.meta.period)} 동안 신뢰할 수 있는 언론·기관 ${D.meta.outlets}곳의 무역 기사 ${D.meta.sources.toLocaleString()}건을 분석했어요.`}</p>
       </header>
 
       <section class="bearing rise" style="--i:1">
@@ -224,34 +233,34 @@ const views = {
             <path d="M150 50 162 150 138 150Z" fill="var(--brass)"/>
           </g>
         </svg>
-        <div class="eyebrow">TODAY'S BEARING</div>
+        <div class="eyebrow">THIS WEEK'S BEARING</div>
         <h2>${esc(b.headline)}</h2>
         <ul>${b.points.map(p => `<li>${esc(p)}</li>`).join("")}</ul>
       </section>
 
       ${aiCard("ask", "", 2)}
 
-      <div class="sec-h rise" style="--i:2"><h2>섹터별 노출도</h2><span>최근 7일 뉴스 기준 · 50 = 중립</span></div>
+      <div class="sec-h rise" style="--i:2"><h2>섹터별 노출도</h2><span>${D.meta.sample ? "최근 7일 뉴스 기준 · 50 = 중립" : "직전 4주 대비 뉴스 비중 · 50 = 평소 수준"}</span></div>
       <div class="sectors">${D.sectors.map((s, i) => sectorCard(s, i + 3)).join("")}</div>
-      <p class="note rise" style="--i:6">노출도는 최근 7일간 관련 뉴스의 보도량과 방향을 지수로 나타낸 참고 지표입니다. 실제 판단은 개별 정보를 함께 확인하신 뒤 직접 하시기 바랍니다.</p>
+      <p class="note rise" style="--i:6">노출도는 이번 주 무역 기사 중 그 섹터 기사의 비중이 직전 4주 평균보다 얼마나 높은지를 나타낸 지표예요(50 = 평소 수준). 강화·완화는 기사 속 무역 조치 방향입니다. 실제 판단은 원문을 함께 확인하신 뒤 직접 하시기 바랍니다. <a href="#/method">계산 방법 보기</a></p>
 
       <div class="grid g-2" style="margin-top:22px">
         <section class="card rise" style="--i:7">
-          <div class="card-h"><div><h2>오늘의 핵심 무역 이슈</h2><p>영향도 · 확산 속도 기준</p></div><a class="more" href="#/news">전체 이슈 →</a></div>
+          <div class="card-h"><div><h2>이번 주 핵심 무역 이슈</h2><p>보도량 · 증가 추세 · 한국 관련도 기준</p></div><a class="more" href="#/news">Top 10 →</a></div>
           <ol class="issues">${D.issues.slice(0, 3).map(issueItem).join("")}</ol>
         </section>
         <section class="card rise" style="--i:8">
-          <div class="card-h"><div><h2>공급망 리스크 신호</h2><p>${D.risks.length}개 신호 감시 중</p></div></div>
+          <div class="card-h"><div><h2>공급망 리스크 신호</h2><p>${D.risks.length ? `수출통제·제재·해운·공급망·원자재 이슈 ${D.risks.length}개` : "이번 주 두드러진 신호 없음"}</p></div></div>
           <ul class="risks">${D.risks.map(riskItem).join("")}</ul>
         </section>
       </div>
 
       <section class="card rise" style="--i:9;margin-top:18px">
-        <div class="card-h"><div><h2>뉴스 × 연관 종목 분석</h2><p>AI가 뉴스에서 종목 영향 경로를 추출했어요</p></div><a class="more" href="#/news">뉴스 피드 →</a></div>
+        <div class="card-h"><div><h2>${D.meta.sample ? "뉴스 × 연관 종목 분석" : "주요 무역 뉴스"}</h2><p>${D.meta.sample ? "AI가 뉴스에서 종목 영향 경로를 추출했어요" : "기사 제목을 누르면 원문으로 이동해요"}</p></div><a class="more" href="#/news">뉴스 피드 →</a></div>
         <ul class="news">${D.news.slice(0, 3).map(newsRow).join("")}</ul>
       </section>
 
-      <section class="card rise" style="--i:10;margin-top:18px">
+      ${t ? `<section class="card rise" style="--i:10;margin-top:18px">
         <div class="card-h"><div><h2>국가·품목별 무역 흐름</h2><p>대한민국 월간 수출 · ${esc(t.period)}</p></div></div>
         <div class="kpis">
           <div class="kpi"><small>총 수출액</small><b>${countUp(t.total, 1, "$", "B")}</b></div>
@@ -262,7 +271,7 @@ const views = {
           <div><p class="flow-h">주요 수출국</p>${bars(t.countries, r => r.name)}</div>
           <div><p class="flow-h">주요 수출 품목</p>${bars(t.items, r => r.name)}</div>
         </div>
-      </section>`;
+      </section>` : ""}`;
   },
 
   news(q) {
@@ -270,15 +279,15 @@ const views = {
     const cur = tags.includes(q) ? q : "전체";
     const list = D.news.filter(n => cur === "전체" || n.tag === cur);
     return `
-      <div class="page-h rise"><p class="kicker">Newsroom</p><h1 class="display sm">Trade <em>News</em></h1><p>오늘 수집한 ${D.meta.sources.toLocaleString()}건 가운데 AI가 고른 핵심 뉴스와 이슈예요.</p></div>
+      <div class="page-h rise"><p class="kicker">Newsroom</p><h1 class="display sm">Trade <em>News</em></h1><p>${D.meta.sample ? `오늘 수집한 ${D.meta.sources.toLocaleString()}건 가운데 고른 핵심 뉴스와 이슈예요.` : `${esc(D.meta.period)} 수집한 무역 기사 ${D.meta.sources.toLocaleString()}건에서 고른 Top 10 이슈와 주요 뉴스예요. <a href="#/method">순위는 어떻게 정하나요?</a>`}</p></div>
       <div class="grid g-2">
         <section class="card rise" style="--i:1">
-          <div class="card-h"><h2>뉴스 × 연관 종목</h2></div>
+          <div class="card-h"><h2>${D.meta.sample ? "뉴스 × 연관 종목" : "주요 뉴스"}</h2></div>
           <div class="filters">${tags.map(t => `<a class="chip" href="#/news/${encodeURIComponent(t)}" aria-pressed="${t === cur}">${esc(t)}</a>`).join("")}</div>
           <ul class="news">${list.map(newsRow).join("")}</ul>
         </section>
         <section class="card rise" style="--i:2">
-          <div class="card-h"><h2>핵심 이슈 전체</h2></div>
+          <div class="card-h"><h2>${D.meta.sample ? "핵심 이슈 전체" : "이번 주 Top 10 이슈"}</h2></div>
           <ol class="issues">${D.issues.map(issueItem).join("")}</ol>
         </section>
       </div>`;
@@ -308,6 +317,34 @@ const views = {
       </section>
       <div class="sec-h rise" style="--i:2"><h2>내 관심 섹터</h2><span>${mine.length}개</span></div>
       ${mine.length ? `<div class="sectors">${mine.map((s, i) => sectorCard(s, i + 3)).join("")}</div>` : `<div class="card empty rise" style="--i:3">아직 고른 섹터가 없어요. 위 목록에서 ★을 눌러 보세요.</div>`}`;
+  },
+
+  method() {
+    const m = D.meta;
+    return `
+      <div class="page-h rise"><p class="kicker">Methodology</p><h1 class="display sm">How we <em>rank</em></h1><p>Top 10 이슈와 섹터 노출도를 정하는 방법이에요. 모든 숫자는 실제 기사 수로 계산해요.</p></div>
+      <section class="card rise method" style="--i:1">
+        <h2>1. 어떤 뉴스를 모으나요?</h2>
+        <ul>
+          <li><b>통신사·경제지 RSS</b>: 연합뉴스(경제·산업·국제), 한국경제(경제·국제), 매일경제(경제), WTO 공식 뉴스</li>
+          <li><b>Google 뉴스 검색</b>: 관세·수출통제·반덤핑·FTA·제재·해운·공급망·환율·원자재·보조금·통관·수출입 동향 12개 주제와 정책브리핑(정부 발표), 해외 통신사 영문 기사. 검색 결과 중 <b>신뢰 언론사 목록</b>(통신사, 주요 경제지·일간지·방송, Reuters·Bloomberg 등 30여 곳)에 있는 기사만 남겨요.</li>
+          <li>6시간마다 수집하고, 같은 사건을 다룬 기사는 제목 유사도로 하나로 묶어 몇 곳이 보도했는지만 셉니다.</li>
+        </ul>
+        <h2>2. 이슈 점수</h2>
+        <p class="formula">점수 = 100 × (0.6 × 보도량 + 0.4 × 추세) × (0.6 + 0.4 × 한국 관련도)</p>
+        <ul>
+          <li><b>이슈</b> = 주제 × 상대국 (예: 미국 관세, 중국 수출통제)</li>
+          <li><b>보도량</b> = 기사마다 출처 신뢰도 × 최신성(3.5일마다 절반) × 보도 언론사 수를 더한 뒤 로그로 0~1 정규화</li>
+          <li><b>추세</b> = 이번 주 무역 기사 중 이 이슈의 비중을 직전 4주 비중과 비교 (같으면 0.5, 늘수록 1에 가깝게)</li>
+          <li><b>한국 관련도</b> = 한국·국내 기업이 직접 언급되면 1, 해외 기사는 0.5</li>
+          <li>Top 10은 점수 순으로 고르되 같은 주제·같은 나라 이슈가 반복되지 않도록 조정해요(한 섹터 최대 3개).</li>
+        </ul>
+        <h2>3. 섹터 노출도</h2>
+        <p>이번 주 무역 기사 중 그 섹터 기사의 비중을 직전 4주 평균과 비교해 0~100으로 나타내요. 50은 평소 수준, 높을수록 평소보다 뉴스에 많이 노출됐다는 뜻이에요. 강화·완화·보합은 기사 속 무역 조치(부과·통제 vs 인하·유예)의 방향이에요.</p>
+        <h2>4. 언제 바뀌나요?</h2>
+        <p>기사는 6시간마다 쌓이고, 순위는 <b>매주 월요일 아침</b> 새로 계산돼요.${m.sample ? "" : ` 지금 화면: ${esc(m.period)} · 기사 ${m.sources.toLocaleString()}건 · 언론사·기관 ${m.outlets}곳.`}</p>
+        <p class="muted">근거 논문: Baker·Bloom·Davis(2016) 경제정책 불확실성 지수, Caldara 외(2020) 무역정책 불확실성 지수, Carbonell·Goldstein(1998) MMR, Broder(1997) 문서 유사도.</p>
+      </section>`;
   },
 
   hs(q) {
@@ -373,11 +410,28 @@ menu.addEventListener("click", () => { const o = !side.classList.contains("open"
 scrim.addEventListener("click", closeMenu);
 
 // ── 머리글 ──
-const d = new Date(D.meta.date + "T00:00:00");
-$("#top-date").textContent = d.toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "long" });
-$("#upd").textContent = D.meta.updatedAt;
-$("#sample-pill").hidden = !D.meta.sample;
-$("#nav-news").textContent = D.news.length;
+function header() {
+  const d = new Date(D.meta.date + "T00:00:00");
+  $("#top-date").textContent = D.meta.period ? `${D.meta.period} 기준` : d.toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "long" });
+  $("#upd").textContent = D.meta.sample ? `AI 요약 · 매일 ${D.meta.updatedAt} 갱신` : `실제 뉴스 · ${D.meta.cadence || "매주"} 갱신 (${d.getMonth() + 1}/${d.getDate()})`;
+  $("#sample-pill").hidden = !D.meta.sample;
+  $("#nav-news").textContent = D.issues.length;
+}
+header();
+
+// eyefeet 에서는 다시 배포하지 않아도 최신 주간 데이터를 받아와요 (/api/data → GitHub 에 매주 올라가는 latest.json)
+if (window.tcAI && tcAI.enabled) {
+  fetch("/api/data", { headers: { Accept: "application/json" } })
+    .then(r => r.ok ? r.json() : null)
+    .then(n => {
+      if (!n || !n.meta || !Array.isArray(n.sectors) || !Array.isArray(n.issues)) return;
+      if (!D.meta.sample && (n.meta.generated || "") <= (D.meta.generated || "")) return;
+      D = window.TC_DATA = n;
+      sectorById = Object.fromEntries(D.sectors.map(s => [s.id, s]));
+      header(); route();
+    })
+    .catch(() => {});
+}
 
 // ── 입체 효과: 카드 기울기, 스크롤 그림자 ──
 if (matchMedia("(hover: hover) and (prefers-reduced-motion: no-preference)").matches) {

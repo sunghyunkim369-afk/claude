@@ -386,3 +386,17 @@ nav a:not([aria-current]):hover{box-shadow:var(--hi),0 2px 6px -3px rgba(var(--s
   .rose{opacity:.5}
   .tool-frame{height:calc(100vh - 170px)}
 }
+
+/* 실제 뉴스 데이터: 원문 링크, 섹터 링크, 산정 방식 페이지 */
+a.ext{color:inherit;text-decoration:none;background-image:linear-gradient(currentColor,currentColor);background-size:0 1px;background-repeat:no-repeat;background-position:0 100%;transition:background-size .25s}
+a.ext:hover,a.ext:focus-visible{background-size:100% 1px}
+.arts a.ext{text-decoration:underline;text-underline-offset:3px;background:none}
+.links a{color:var(--navy);font-size:.82rem;text-decoration:none}
+.links a:hover{text-decoration:underline}
+.issue .src b{color:var(--ink);font-weight:600}
+.method h2{font-size:1.02rem;margin:22px 0 8px}
+.method h2:first-child{margin-top:0}
+.method ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:.92rem;line-height:1.6}
+.method p{font-size:.92rem;line-height:1.65}
+.formula{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9rem!important;padding:12px 14px;border-radius:6px;background:var(--paper-2);border:1px solid var(--line);overflow-x:auto}
+.pill[hidden]{display:none}

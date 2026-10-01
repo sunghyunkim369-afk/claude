@@ -5,7 +5,7 @@
 //   AI_BASE_URL   AI 호출 주소. Eyefeet AI는 https://www.eyefeetai.com/api/chat/completions
 //                 (…/chat/completions 로 끝나는 전체 주소면 그대로 쓰고, 서버 주소만 넣으면 /v1/chat/completions 를 붙여요)
 //   AI_API_KEY    eyefeetai.com 설정 → 계정 → API 키에서 발급
-//   AI_MODEL      사용할 모델 이름 (예: qwen3-30b-a3b)
+//   AI_MODEL      사용할 모델 이름 (선택, 기본값 qwen3-30b-a3b)
 //   AI_API_STYLE  "openai"(기본) 또는 "ollama"(/api/chat)
 
 const MAX_INPUT = 400;             // 품목 설명 최대 글자 수

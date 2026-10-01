@@ -2,5 +2,8 @@
   "name": "tradecompass",
   "private": true,
   "description": "TradeCompass MVP: 정적 페이지 + 서버 함수(api/)",
+  "scripts": {
+    "build": "node -e \"console.log('정적 사이트라 빌드할 것이 없어요')\""
+  },
   "engines": { "node": ">=18" }
 }

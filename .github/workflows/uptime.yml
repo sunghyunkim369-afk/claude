@@ -33,6 +33,8 @@ jobs:
             # 헬스 체크는 서버 함수가 실제로 실행됐는지(응답에 "ok":true)까지 확인해요
             if [[ "$u" == */api/health ]] && ! grep -q '"ok":true' body.txt; then note=" (서버 함수가 실행되지 않음: 런타임 확인)"; code_bad=1; else code_bad=0; fi
             echo "$code  $u$note"
+            # 헬스 응답에는 환경변수 설정 여부(true/false)만 들어 있어서 그대로 남겨도 안전해요
+            if [[ "$u" == */api/health ]]; then echo "    $(head -c 400 body.txt)"; fi
             if [ "$code" -lt 200 ] || [ "$code" -ge 400 ] || [ "$code_bad" = 1 ]; then failed+="- \`$code\` $u$note"$'\n'; fi
           done
           {

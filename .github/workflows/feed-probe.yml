@@ -13,6 +13,7 @@ jobs:
     steps:
       - shell: bash
         run: |
+          set +e +o pipefail
           check() {
             code=$(curl -sL -A "Mozilla/5.0 TradeCompassBot" -o f.xml -w '%{http_code}' --max-time 25 "$2" || echo 000)
             items=$(grep -o '<item[ >]' f.xml | wc -l); entries=$(grep -o '<entry[ >]' f.xml | wc -l)

@@ -9,4 +9,4 @@ node_modules/
 .DS_Store
 
 # 빌드 결과 (scripts/build.js 가 만들어요)
-public/
+dist/

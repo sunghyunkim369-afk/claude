@@ -70,7 +70,7 @@ function parseResult(text) {
 async function callAI(query) {
   const base = (process.env.AI_BASE_URL || "").replace(/\/+$/, "");
   const style = (process.env.AI_API_STYLE || "openai").toLowerCase();
-  const model = process.env.AI_MODEL || "";
+  const model = process.env.AI_MODEL || "qwen3-30b-a3b";   // 비어 있으면 Eyefeet AI 안내의 기본 모델
   const headers = { "Content-Type": "application/json" };
   if (process.env.AI_API_KEY) headers.Authorization = `Bearer ${process.env.AI_API_KEY}`;
   // "/no_think": Qwen3 계열에서 생각 과정을 건너뛰어 빠르게 답하게 해요 (다른 모델은 무시)

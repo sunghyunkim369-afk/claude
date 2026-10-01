@@ -1,5 +1,5 @@
 // 뉴스 파이프라인 공통 기능: RSS 읽기, 정리, 분류, 중복 묶기
-const { OUTLETS, TOPICS, SECTORS, COUNTRIES, TIGHTEN, EASE, KOREA_WORDS } = require("./config");
+const { OUTLETS, TOPICS, TRADE_WORDS, SECTORS, COUNTRIES, TIGHTEN, EASE, KOREA_WORDS } = require("./config");
 
 const UA = "Mozilla/5.0 (compatible; TradeCompassBot/1.0; +https://tcmvp.eyefeet.com)";
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -49,11 +49,13 @@ function parseFeed(xml) {
 // Google 뉴스 제목 끝의 " - 언론사" 를 떼어요
 const stripOutlet = (title, source) => source && title.endsWith(` - ${source}`) ? title.slice(0, -(source.length + 3)) : title;
 const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };
-function outletTier(name = "", url = "") {
-  const h = hostOf(url);
-  const o = OUTLETS.find(o => o.match.some(m => name.includes(m)) || (h && o.domains.some(d => h === d || h.endsWith("." + d))));
-  return o ? o.tier : 0;
+function findOutlet(name = "", url = "") {
+  const h = hostOf(url) || (/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(name) ? name.replace(/^www\./, "") : "");
+  return OUTLETS.find(o => o.match.some(m => name.includes(m)) || (h && o.domains.some(d => h === d || h.endsWith("." + d))));
 }
+const outletTier = (name, url) => { const o = findOutlet(name, url); return o ? o.tier : 0; };
+// "hankyung.com", "Chosunbiz" 처럼 제각각인 언론사 표기를 하나로 맞춰요 (그 언론사의 계열 매체 이름은 그대로)
+const outletName = (name, url) => { const o = findOutlet(name, url); return o && (/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(name) || !name) ? o.match[0] : name; };
 
 // ── 분류 ──
 const lower = (s) => s.toLowerCase();
@@ -95,9 +97,22 @@ function classify(item) {
   };
 }
 
+// 검색 주제(hint)와 단어 분류를 합쳐 최종 주제를 정해요. 무역 기사가 아니면 null (버림)
+// - 단어 분류에 hint 주제가 있으면 hint 우선
+// - 단어 분류가 다른 주제를 찾았으면 그 주제
+// - 아무 주제 단어도 없으면: 수출·수입·무역·통상 단어가 있으면 "수출입 동향"으로, 없으면 버려요
+//   (Google 뉴스 검색은 본문·비슷한 말로도 결과를 줘서 "세이프가드" 검색에 안전경영 기사가 섞여요)
+function finalize(item, hint) {
+  const c = classify(item);
+  if (hint && c.topics.includes(hint)) { c.topic = hint; c.topics = [hint, ...c.topics.filter(t => t !== hint)]; return c; }
+  if (c.topics.length) return c;
+  if (hint && has(lower(`${item.title} ${item.desc}`), TRADE_WORDS)) { c.topic = "export_trend"; c.topics = ["export_trend"]; return c; }
+  return null;
+}
+
 // ── 중복 묶기 (제목 2글자 조각의 Jaccard 유사도, Broder 1997 shingling) ──
 const normTitle = (t) => t.replace(/\[[^\]]*\]|\([^)]*\)|【[^】]*】/g, "").replace(/[^\p{L}\p{N}]/gu, "").toLowerCase();
 function shingles(t) { const s = normTitle(t), set = new Set(); for (let i = 0; i < s.length - 1; i++) set.add(s.slice(i, i + 2)); return set; }
 function jaccard(a, b) { let inter = 0; for (const x of a) if (b.has(x)) inter++; return inter / (a.size + b.size - inter || 1); }
 
-module.exports = { fetchText, parseFeed, stripOutlet, outletTier, hostOf, isTrade, classify, shingles, jaccard, normTitle, sleep };
+module.exports = { fetchText, parseFeed, stripOutlet, outletTier, outletName, finalize, hostOf, isTrade, classify, shingles, jaccard, normTitle, sleep };

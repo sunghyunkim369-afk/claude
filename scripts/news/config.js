@@ -134,7 +134,8 @@ const SCORE = {
   smoothing: 0.5,         // 점유율 계산 때 0건 이슈도 비교할 수 있게 더하는 값 (라플라스 평활)
   minReports: 2,          // 이번 주 기사가 이보다 적으면 Top10 후보에서 제외 (정부 발표는 1건도 허용)
   mmrLambda: 0.7,         // Top10 고를 때 점수 vs 다양성 비중 (MMR, 1이면 점수만)
-  newsCount: 20,          // 뉴스 피드에 싣는 기사 수
+  newsCount: 20,
+  sectorPrior: 8,         // 섹터 노출도 축소 강도: 기사 8건이면 평소 대비 차이의 절반만 반영          // 뉴스 피드에 싣는 기사 수
 };
 
 module.exports = { FEEDS, GOV_QUERY, EN_QUERY, COUNTRIES, OUTLETS, TOPICS, TRADE_WORDS, SECTORS, TIGHTEN, EASE, KOREA_WORDS, SCORE };

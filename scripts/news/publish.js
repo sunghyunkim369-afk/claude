@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const { TOPICS, SECTORS, COUNTRIES, SCORE } = require("./config");
 const { weeklyBrief } = require("./ai");
+const { finalize, outletName } = require("./lib");
 
 const ROOT = path.join(__dirname, "..", "..");
 const ARCHIVE = path.join(ROOT, "data", "news", "archive.json");
@@ -103,7 +104,15 @@ const shortSum = (a) => a.summary || (a.desc && !a.desc.startsWith(a.title.slice
 
 async function main() {
   const now = Date.now();
-  const all = JSON.parse(fs.readFileSync(ARCHIVE, "utf8")).items.filter(a => Date.parse(a.date) <= now + DAY);
+  // 분류 규칙이 바뀌어도 지난 기사까지 같은 규칙으로 계산하도록, AI가 분류하지 않은 기사는 여기서 다시 분류해요
+  const all = JSON.parse(fs.readFileSync(ARCHIVE, "utf8")).items.filter(a => Date.parse(a.date) <= now + DAY).flatMap(a => {
+    a.source = outletName(a.source);
+    a.outlets = [...new Set((a.outlets || [a.source]).map(o => outletName(o)))];
+    if (a.ai) return [a];
+    const g = (a.feed || "").startsWith("gnews:") ? a.feed.slice(6) : "";
+    const c = finalize(a, a.hint || (topicById[g] ? g : undefined));
+    return c ? [{ ...a, ...c }] : [];
+  });
   const week = all.filter(a => weekOf(a, now) === 0);
   const prevWeek = all.filter(a => weekOf(a, now) === 1);
   const base = all.filter(a => { const w = weekOf(a, now); return w >= 1 && w <= SCORE.baselineWeeks; });
@@ -152,8 +161,8 @@ async function main() {
   const sectors = SECTORS.map(s => {
     const list = week.filter(a => (a.sectors || []).includes(s.id));
     const M = momentum(list.length, week.length, sCountBase.get(s.id) || 0, base.length, SECTORS.length);
-    // 이번 주 기사가 너무 적으면(3건 미만) 중립 쪽으로 당겨요
-    const shrink = Math.min(1, list.length / 3);
+    // 기사가 적을수록 50(평소) 쪽으로 당겨요: n/(n+k). 기사 4건짜리 섹터가 100 가까이 튀지 않게
+    const shrink = list.length / (list.length + SCORE.sectorPrior);
     const score = 50 + (M - 0.5) * 100 * shrink;
     const d = dirCount(list);
     const tone = (d.up - d.down) / Math.max(1, list.length);

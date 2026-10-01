@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { FEEDS, GOV_QUERY, EN_QUERY, TOPICS, SCORE } = require("./config");
-const { fetchText, parseFeed, stripOutlet, outletTier, isTrade, classify, shingles, jaccard, sleep } = require("./lib");
+const { fetchText, parseFeed, stripOutlet, outletTier, outletName, isTrade, finalize, shingles, jaccard, sleep } = require("./lib");
 const { enrich } = require("./ai");
 
 const ARCHIVE = path.join(__dirname, "..", "..", "data", "news", "archive.json");
@@ -53,7 +53,7 @@ async function fromGoogleNews() {
         const tier = outletTier(i.source, i.sourceUrl);
         if (!tier) continue;                 // 화이트리스트에 없는 언론사는 제외
         kept++;
-        out.push({ ...i, title: stripOutlet(i.title, i.source), tier, official: tier >= 1, lang: t.en ? "en" : "ko", feed: `gnews:${t.id}`, hint: t.hint });
+        out.push({ ...i, title: stripOutlet(i.title, i.source), source: outletName(i.source, i.sourceUrl), tier, official: tier >= 1, lang: t.en ? "en" : "ko", feed: `gnews:${t.id}`, hint: t.hint });
       }
       await sleep(1200);
     }
@@ -84,13 +84,12 @@ async function main() {
       if (raw.tier > dup.i.tier) dup.i.tier = raw.tier;
       merged++; continue;
     }
-    const c = classify(raw);
-    if (!raw.hint && !c.topics.length) continue;   // 주제를 못 찾은 정부·영문 기사는 버려요
-    if (raw.hint && !c.topics.includes(raw.hint)) { c.topics = [raw.hint, ...c.topics].slice(0, 2); c.topic = raw.hint; }
+    const c = finalize(raw, raw.hint);
+    if (!c) continue;                              // 무역 기사가 아니면 버려요
     const item = {
       id: crypto.createHash("sha1").update(raw.link).digest("hex").slice(0, 12),
       title: raw.title.slice(0, 200), link: raw.link, source: raw.source, outlets: [raw.source],
-      tier: raw.tier, official: raw.official, lang: raw.lang, date, desc: raw.desc.slice(0, 200), feed: raw.feed,
+      tier: raw.tier, official: raw.official, lang: raw.lang, date, desc: raw.desc.slice(0, 200), feed: raw.feed, hint: raw.hint,
       ...c, collectedAt: new Date().toISOString(),
     };
     items.push(item); recent.push({ i: item, sh }); added++;

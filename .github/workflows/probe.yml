@@ -1,0 +1,21 @@
+name: Eyefeet path probe
+
+# eyefeet가 정적 파일을 어느 경로로 보여주는지 확인하는 수동 점검 (배포 문제 진단용)
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        run: |
+          for p in / /index.html /tradecompass-mvp/ /tradecompass-mvp/index.html /hs-code-finder/index.html \
+                   /public/ /public/index.html /public/tradecompass-mvp/index.html \
+                   /shared/error-logger.js /package.json /vercel.json /README.md /api/health /api/log; do
+            code=$(curl -s -o body.txt -w '%{http_code} %{content_type}' --max-time 20 "https://tcmvp.eyefeet.com$p" || echo "000")
+            echo "$code  $p  | $(head -c 120 body.txt | tr '\n' ' ')"
+          done

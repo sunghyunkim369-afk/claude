@@ -6,15 +6,31 @@
 |---|---|
 | `tradecompass-mvp/` | 대시보드 MVP (정적 페이지, 데이터는 `data.js`) |
 | `hs-code-finder/` | HS코드 찾기 · 코드 좁히기 질문 · 관세/FTA 계산 |
-| `shared/` | 페이지 공통 스크립트 (브라우저 에러 수집기) |
+| `shared/` | 페이지 공통 스크립트 (브라우저 에러 수집기, AI 호출 도우미) |
 | `api/` | 서버 함수 (eyefeet `vercel` 런타임에서 실행) |
 
 ## 배포
 
 | 위치 | 주소 | 배포 방식 |
 |---|---|---|
-| Eyefeet Cloud | https://tcmvp.eyefeet.com | 테넌트가 이 저장소의 `main` 브랜치를 가져가 배포. 런타임은 `vercel`이어야 `api/`가 동작해요 |
+| Eyefeet Cloud | https://tcmvp.eyefeet.com | 테넌트가 이 저장소의 `main`을 가져가 `npm run build`로 `dist/`를 만들고 배포해요 (런타임 `vercel`). 무료 플랜은 컨테이너 1개라 **정지 → 배포 → 시작** 순서로 배포해요 |
 | GitHub Pages | https://sunghyunkim369-afk.github.io/claude/ | 기본 브랜치에 푸시하면 `.github/workflows/pages.yml`이 배포 (정적 파일만, `api/` 없음) |
+
+## AI 분석 (Eyefeet AI · 깃솔트 로컬 AI)
+
+브라우저는 `shared/ai-client.js`로 `POST /api/ai`를 부르고, `api/ai.js`가 환경변수의 AI 주소·키로 Eyefeet AI(qwen3-30b-a3b)를 호출해요.
+eyefeet 주소에서만 동작하고, GitHub Pages·아티팩트에서는 버튼이 꺼지며 eyefeet 사이트로 안내해요.
+
+| 작업 | 쓰는 곳 | 내용 |
+|---|---|---|
+| `hs` | HS코드 페이지 "AI에게 설명해서 찾기" | 품목 설명 → HS 6자리 후보 3개 + 확인 질문. 류별 분류 기준표를 함께 보내 오답을 줄이고, 화면에서 목록 품목·규칙과 대조해 다르면 경고해요 |
+| `sector` | 대시보드 섹터 상세 "AI 영향 분석" | 섹터 노출도·관련 이슈 → 영향받는 기업 유형, 지켜볼 점, 지금 확인할 일 |
+| `ask` | 대시보드 "오늘 브리핑에 대해 AI에게 묻기" | 오늘 데이터만 근거로 질문에 답변 (자료에 없으면 없다고 답함) |
+
+- 응답은 20~40초 걸려요. 화면에 경과 시간을 보여주고 1분이 넘으면 멈춰요.
+- IP당 분당 6회로 제한하고, 질문 400자·참고 자료 6,000자까지만 받아요.
+- AI 응답은 정해진 JSON으로 검사한 뒤에만 화면에 보여줘요. 실패는 서버 로그에 `[ai-error]`로 남아요.
+- 환경변수: `AI_BASE_URL`(`https://www.eyefeetai.com/api/chat/completions`), `AI_API_KEY`(비밀), `AI_MODEL`(선택), `AI_API_STYLE`(`openai`).
 
 ## 에러 로깅
 

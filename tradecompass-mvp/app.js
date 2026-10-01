@@ -101,13 +101,103 @@ function sectorPage(s) {
           </div>
         </li>`).join("")}</ol>` : `<p class="muted rise" style="--i:3">최근 7일 동안 이 섹터와 연결된 이슈가 없어요.</p>`}
 
-      <section class="card rise sort-card" style="--i:${list.length + 3}">
+      ${aiCard("sector", s.id, list.length + 3)}
+
+      <section class="card rise sort-card" style="--i:${list.length + 4}">
         <h2>종목 정렬 결과</h2>
         <ul class="sort-list">${s.stocks.map(k => `<li><span>${esc(k.name)}</span><small class="num">${k.code}</small></li>`).join("")}</ul>
         <div class="pending">시세 데이터 준비 중</div>
       </section>
     </div>`;
 }
+
+// ── AI 분석 (Eyefeet AI) ──
+// 화면에 있는 데이터를 글로 정리해 /api/ai 로 보내고, 돌아온 분석을 카드에 그려요.
+const AI_EXAMPLES = ["반도체 수출기업은 지금 무엇을 확인해야 하나요?", "홍해 리스크가 유럽 수출 물류비에 주는 영향은?", "오늘 가장 주의할 섹터와 이유는?"];
+const DIR = { positive: ["긍정", "pos"], negative: ["부정", "neg"], mixed: ["혼재", "mix"] };
+
+function aiCard(kind, id, i) {
+  const sector = kind === "sector";
+  const off = !window.tcAI || !tcAI.enabled;
+  return `<section class="card rise ai-card" style="--i:${i}" data-ai="${kind}" data-id="${id}">
+    <div class="ai-card-h"><h2>${sector ? "AI 영향 분석" : "오늘 브리핑에 대해 AI에게 묻기"}</h2><span class="ai-badge">AI · 참고용</span></div>
+    <p class="muted">${sector ? "이 섹터의 노출도와 관련 이슈를 바탕으로 국내 기업이 받을 영향을 정리해요." : "오늘 정리된 이슈·섹터 자료만 근거로 답해요."}${D.meta.sample ? " 지금은 샘플 데이터라 분석도 예시예요." : ""}</p>
+    ${sector
+      ? `<button type="button" class="ai-btn" data-ai-run ${off ? "disabled" : ""}>AI로 분석하기</button>`
+      : `<form class="ai-ask" data-ai-ask><label for="ask-q" class="sr">질문</label>
+           <input id="ask-q" maxlength="400" placeholder="예: ${esc(AI_EXAMPLES[0])}" ${off ? "disabled" : ""}>
+           <button class="ai-btn" ${off ? "disabled" : ""}>묻기</button></form>
+         <div class="ai-examples">${AI_EXAMPLES.map(q => `<button type="button" class="ai-chip" data-ai-example="${esc(q)}" ${off ? "disabled" : ""}>${esc(q)}</button>`).join("")}</div>`}
+    <div class="ai-result" aria-live="polite">${off ? `<p class="muted">AI 분석은 <a href="${window.tcAI ? tcAI.LIVE_URL : "#"}" target="_blank" rel="noopener">eyefeet 사이트</a>에서 이용할 수 있어요.</p>` : ""}</div>
+  </section>`;
+}
+
+function sectorContext(s) {
+  const iss = D.issues.filter(x => x.sectors.includes(s.id));
+  return [
+    `섹터: ${s.name} / 노출도 ${s.score} (${s.state}, 50=중립) / 조치 강화 ${s.up} · 완화 ${s.down} · 중립 ${s.neutral}`,
+    `요약: ${s.summary}`,
+    `관련 종목: ${s.stocks.map(k => k.name).join(", ")}`,
+    `관련 이슈:`,
+    ...iss.map(x => `- ${x.keyword}: ${x.title} (점수 ${x.score}, 최근 7일 보도 ${x.reports}건·직전 ${x.prev}건, 강화 ${x.up}·완화 ${x.down}) ${x.summary}`),
+  ].join("\n");
+}
+
+function briefContext() {
+  const t = D.trade;
+  return [
+    `기준일 ${D.meta.date}`,
+    `오늘의 요약: ${D.bearing.headline}`, ...D.bearing.points.map(p => `- ${p}`),
+    `섹터 노출도:`, ...D.sectors.map(s => `- ${s.name} ${s.score} (${s.state}): ${s.summary}`),
+    `핵심 이슈:`, ...D.issues.map(x => `- ${x.title} (영향도 ${x.impact}): ${x.summary}`),
+    `공급망 리스크:`, ...D.risks.map(r => `- [${r.level}] ${r.title}: ${r.detail}, ${r.effect}`),
+    `무역 흐름(${t.period}): 수출 $${t.total}B, 전년 대비 ${t.yoy}%, 수지 +$${t.balance}B`,
+  ].join("\n").slice(0, 5800);
+}
+
+const li = (xs) => xs.length ? `<ul class="ai-list">${xs.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : "";
+function renderSectorAI(r) {
+  return `<p class="ai-sum">${esc(r.summary)}</p>
+    ${r.impacts.length ? `<ul class="ai-impacts">${r.impacts.map(i => `<li><span class="ai-dir ${DIR[i.direction][1]}">${DIR[i.direction][0]}</span><b>${esc(i.who)}</b> ${esc(i.effect)}</li>`).join("")}</ul>` : ""}
+    ${r.watch.length ? `<h3 class="ai-h">지켜볼 점</h3>${li(r.watch)}` : ""}
+    ${r.actions.length ? `<h3 class="ai-h">지금 확인할 일</h3>${li(r.actions)}` : ""}`;
+}
+function renderAskAI(r) {
+  return `<p class="ai-sum">${esc(r.answer)}</p>
+    ${r.points.length ? `<h3 class="ai-h">근거로 쓴 자료</h3>${li(r.points)}` : ""}
+    ${r.next.length ? `<h3 class="ai-h">더 확인하면 좋은 것</h3>${li(r.next)}` : ""}`;
+}
+
+async function runAI(card, task, payload) {
+  const out = card.querySelector(".ai-result");
+  const btns = card.querySelectorAll("button, input");
+  btns.forEach(b => b.disabled = true);
+  out.innerHTML = `<p class="muted ai-wait"></p>`;
+  const stop = tcAI.progress(out.firstChild);
+  try {
+    const r = await tcAI.ask(task, payload);
+    out.innerHTML = (task === "sector" ? renderSectorAI(r) : renderAskAI(r))
+      + `<p class="ai-foot">AI가 화면의 자료로 만든 참고 분석이에요. 투자 권유가 아니며, 중요한 판단은 원문을 확인하세요.</p>`;
+  } catch (e) {
+    out.innerHTML = `<p class="ai-err">${esc(e.message)}</p>`;
+  } finally { stop(); btns.forEach(b => b.disabled = false); }
+}
+
+document.addEventListener("click", e => {
+  const run = e.target.closest("[data-ai-run]");
+  if (run) { const card = run.closest(".ai-card"); return runAI(card, "sector", { context: sectorContext(sectorById[card.dataset.id]) }); }
+  const ex = e.target.closest("[data-ai-example]");
+  if (ex) { const card = ex.closest(".ai-card"); card.querySelector("#ask-q").value = ex.dataset.aiExample; card.querySelector("form").requestSubmit(); }
+});
+document.addEventListener("submit", e => {
+  const f = e.target.closest("[data-ai-ask]");
+  if (!f) return;
+  e.preventDefault();
+  const q = f.querySelector("#ask-q").value.trim();
+  const card = f.closest(".ai-card");
+  if (q.length < 2) { card.querySelector(".ai-result").innerHTML = `<p class="ai-err">질문을 두 글자 이상 적어 주세요.</p>`; return; }
+  runAI(card, "ask", { query: q, context: briefContext() });
+});
 
 // ── 화면 ──
 const views = {
@@ -138,6 +228,8 @@ const views = {
         <h2>${esc(b.headline)}</h2>
         <ul>${b.points.map(p => `<li>${esc(p)}</li>`).join("")}</ul>
       </section>
+
+      ${aiCard("ask", "", 2)}
 
       <div class="sec-h rise" style="--i:2"><h2>섹터별 노출도</h2><span>최근 7일 뉴스 기준 · 50 = 중립</span></div>
       <div class="sectors">${D.sectors.map((s, i) => sectorCard(s, i + 3)).join("")}</div>

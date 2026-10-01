@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>HS코드 쉽게 찾기</title>
 <script src="../shared/error-logger.js"></script>
+<script src="../shared/ai-client.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
@@ -175,6 +176,38 @@ footer{margin-top:48px;font-size:.82rem;color:var(--ink-soft);border-top:1px sol
 .ftahint{margin-top:12px;padding:10px 12px;border:1px dashed var(--line);border-radius:3px;font-size:.86rem;color:var(--ink-soft)}
 .linkbtn{background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .ctable tr.best td{color:var(--ok);font-weight:700}
+/* AI에게 설명해서 찾기 */
+.ai{margin-top:18px;padding:16px 18px;border:1.5px dashed var(--line);border-radius:4px;background:var(--sheet)}
+.ai-head h2{margin:0;font-size:1.02rem;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ai-head p{margin:4px 0 12px;color:var(--ink-soft);font-size:.88rem}
+.beta{font-size:.72rem;font-weight:500;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--ink-soft)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.ai-form{display:flex;gap:8px;align-items:stretch}
+.ai-form textarea{flex:1;min-width:0;font:inherit;font-size:.95rem;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:3px;padding:9px 11px;resize:vertical}
+.ai-form button{flex:0 0 auto;font:inherit;font-weight:700;font-size:.9rem;padding:0 16px;border-radius:3px;border:0;background:var(--ink);color:var(--sheet);cursor:pointer}
+.ai-form button:disabled{opacity:.5;cursor:default}
+#ai-out:not(:empty){margin-top:14px}
+.ai-wait{font-size:.88rem;color:var(--ink-soft)}
+.ai-err{font-size:.9rem;color:var(--stamp)}
+.ai-check{padding:10px 12px;border-radius:3px;font-size:.9rem;margin-bottom:10px}
+.ai-check.same{background:var(--ok-bg);color:var(--ok)}
+.ai-check.diff{background:var(--stamp-bg);border-left:4px solid var(--stamp)}
+.ai-cands{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ai-cands li{padding:10px 12px;border:1px solid var(--line);border-radius:3px;display:grid;gap:4px}
+.ai-cands .top{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
+.ai-cands .code{font-weight:700;font-variant-numeric:tabular-nums}
+.ai-cands .why{font-size:.86rem;color:var(--ink-soft)}
+.conf{font-size:.72rem;padding:1px 7px;border-radius:99px;border:1px solid var(--line)}
+.conf.high{color:var(--ok);border-color:var(--ok)}
+.conf.low{color:var(--stamp);border-color:var(--stamp)}
+.verify{font-size:.8rem}
+.verify.ok{color:var(--ok)}
+.verify.near{color:var(--ink)}
+.verify.none{color:var(--ink-soft)}
+.mini{font:inherit;font-size:.8rem;padding:3px 10px;border-radius:99px;border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
+.ai-qs{margin:10px 0 0;padding-left:18px;font-size:.88rem}
+.ai-foot{margin-top:10px;font-size:.78rem;color:var(--ink-soft)}
+@media (max-width:520px){ .ai-form{flex-direction:column} .ai-form button{padding:10px} }
 </style>
 </head>
 <body>
@@ -196,6 +229,19 @@ footer{margin-top:48px;font-size:.82rem;color:var(--ink-soft);border-top:1px sol
   </div>
 
   <div class="warn" id="warn" hidden></div>
+
+  <section class="ai" id="ai" aria-labelledby="ai-title">
+    <div class="ai-head">
+      <h2 id="ai-title">AI에게 설명해서 찾기 <span class="beta">AI 추천 · 참고용</span></h2>
+      <p>목록에 없는 물건은 재질·용도·생김새를 설명해 주세요. AI 후보를 이 페이지의 분류 규칙과 대조해 보여드려요.</p>
+    </div>
+    <form id="ai-form" class="ai-form">
+      <label for="ai-q" class="sr">품목 설명</label>
+      <textarea id="ai-q" rows="2" maxlength="400" placeholder="예: 고무 밑창에 메시 갑피인 러닝화"></textarea>
+      <button type="submit" id="ai-go">AI에게 물어보기</button>
+    </form>
+    <div id="ai-out" aria-live="polite"></div>
+  </section>
 
   <section id="results">
     <div class="count" id="count"></div>
@@ -502,7 +548,9 @@ function search(){
   const list = $("list");
   if(!items.length){
     $("count").textContent = "";
-    list.innerHTML = `<li class="empty">“${escapeHtml($("q").value)}”에 맞는 품목을 찾지 못했어요. 다른 이름(예: 핸드폰 → 스마트폰)으로 검색하거나, <a href="https://unipass.customs.go.kr/clip/index.do" target="_blank" rel="noopener">관세법령정보포털</a>에서 직접 찾아보세요. 잘 모르겠다면 관세청 고객지원센터(국번 없이 125)에 문의할 수 있어요.</li>`;
+    list.innerHTML = `<li class="empty">“${escapeHtml($("q").value)}”에 맞는 품목을 찾지 못했어요. 다른 이름(예: 핸드폰 → 스마트폰)으로 검색하거나, <a href="https://unipass.customs.go.kr/clip/index.do" target="_blank" rel="noopener">관세법령정보포털</a>에서 직접 찾아보세요. 잘 모르겠다면 관세청 고객지원센터(국번 없이 125)에 문의할 수 있어요.${tcAI.enabled ? ` <button type="button" class="mini" id="ai-from-search">AI에게 설명해서 찾기</button>` : ""}</li>`;
+    const b = $("ai-from-search");
+    if(b) b.onclick = () => { $("ai-q").value = $("q").value; $("ai-form").requestSubmit(); $("ai").scrollIntoView({behavior:"smooth"}); };
     return;
   }
   $("count").textContent = q ? `${items.length}개 품목을 찾았어요` : `자주 찾는 품목 ${items.length}개`;
@@ -903,6 +951,73 @@ $("c-cur").onchange = ()=>{ $("c-fx").value = FX[$("c-cur").value]; calc(); };
 $("c-origin").addEventListener("change",()=>{ agVals = {}; agFor = ""; renderAgs(); calc(); });
 $("c-dir").addEventListener("change",applyDir);
 setMode("personal");
+
+// ── AI에게 설명해서 찾기 ──
+// AI 후보를 이 페이지의 품목 목록(DATA)과 규칙으로 대조해요.
+const CONF = {high:"확신 높음", medium:"확신 보통", low:"확신 낮음"};
+
+// 설명 문장 안의 단어로 목록 품목을 찾아요 (전문가 확인 품목은 제외)
+function localMatches(text){
+  const q = norm(text);
+  return DATA.map((d,i)=>{
+    if(d.x) return null;
+    let s = 0;
+    if(q.includes(norm(d.n))) s = 3;
+    else if(d.k.some(k=>norm(k).length>1 && q.includes(norm(k)))) s = 2;
+    return s ? {d,i,s} : null;
+  }).filter(Boolean).sort((a,b)=>b.s-a.s);
+}
+
+function verifyCode(hs6){
+  const exact = DATA.findIndex(d=>!d.x && d.c===hs6);
+  if(exact>=0) return {cls:"ok", text:`목록 품목과 일치 · ${DATA[exact].n}`, i:exact};
+  const near = DATA.findIndex(d=>!d.x && d.c.slice(0,4)===hs6.slice(0,4));
+  if(near>=0) return {cls:"near", text:`같은 호(${hs6.slice(0,4)})의 목록 품목 · ${DATA[near].n}`, i:near};
+  return {cls:"none", text:"목록에 없는 코드 · 관세법령정보포털(CLIP)에서 확인하세요"};
+}
+
+function renderAI(r, text){
+  const out = $("ai-out");
+  if(!r.candidates.length){
+    out.innerHTML = `<p class="ai-err">AI가 코드를 찾지 못했어요. 재질·용도를 조금 더 자세히 적어 보세요.</p>`;
+    return;
+  }
+  const local = localMatches(text)[0];
+  const top = r.candidates[0];
+  let check = "";
+  if(local){
+    check = local.d.c===top.hs6
+      ? `<div class="ai-check same">이 페이지 분류 규칙으로도 <b>${escapeHtml(local.d.n)} ${fmt(local.d.c)}</b>예요. AI 추천과 같아요.</div>`
+      : `<div class="ai-check diff">이 페이지 분류 규칙으로는 <b>${escapeHtml(local.d.n)} ${fmt(local.d.c)}</b>에 가까워요. AI 1순위(${fmt(top.hs6)})와 달라요.
+          질문에 답하며 코드를 확인해 보세요. <button type="button" class="mini" data-open="${local.i}">${escapeHtml(local.d.n)} 열기</button></div>`;
+  }
+  out.innerHTML = check + `<ol class="ai-cands">${r.candidates.map(c=>{
+      const v = verifyCode(c.hs6);
+      return `<li><div class="top"><span class="code">${fmt(c.hs6)}</span><span>${escapeHtml(c.name)}</span><span class="conf ${c.confidence}">${CONF[c.confidence]}</span></div>
+        <div class="why">${escapeHtml(c.why)}</div>
+        <div class="verify ${v.cls}">${escapeHtml(v.text)} ${v.i!==undefined?`<button type="button" class="mini" data-open="${v.i}">열기</button>`:""}</div></li>`;
+    }).join("")}</ol>`
+    + (r.questions.length ? `<ul class="ai-qs">${r.questions.map(q=>`<li>${escapeHtml(q)}</li>`).join("")}</ul>` : "")
+    + `<p class="ai-foot">${r.caution?escapeHtml(r.caution)+" ":""}AI 추천은 참고용이에요. 신고 전에는 CLIP이나 관세사에게 확인하세요.</p>`;
+  out.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openDetail(+b.dataset.open));
+}
+
+if(!tcAI.enabled){
+  $("ai-go").disabled = true;
+  $("ai-q").disabled = true;
+  $("ai-out").innerHTML = `<p class="ai-wait">AI 분석은 <a href="${tcAI.LIVE_URL}/hs-code-finder/" target="_blank" rel="noopener">eyefeet 사이트</a>에서 이용할 수 있어요.</p>`;
+}
+$("ai-form").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const text = $("ai-q").value.trim();
+  if(text.length < 2){ $("ai-out").innerHTML = `<p class="ai-err">물건을 두 글자 이상 설명해 주세요.</p>`; return; }
+  $("ai-go").disabled = true;
+  $("ai-out").innerHTML = `<p class="ai-wait" id="ai-wait"></p>`;
+  const stop = tcAI.progress($("ai-wait"));
+  try { renderAI(await tcAI.ask("hs", {query:text}), text); }
+  catch(err){ $("ai-out").innerHTML = `<p class="ai-err">${escapeHtml(err.message)}</p>`; }
+  finally { stop(); $("ai-go").disabled = false; }
+});
 
 $("back").onclick=()=>{$("detail").hidden=true;$("results").hidden=false;$("q").focus()};
 $("q").addEventListener("input",()=>{ if(!$("detail").hidden){$("detail").hidden=true;$("results").hidden=false} search(); });

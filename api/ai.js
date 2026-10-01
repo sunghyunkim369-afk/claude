@@ -2,14 +2,15 @@
 // API 키와 AI 주소는 서버 환경변수에만 있고, 브라우저에는 절대 내려가지 않아요.
 //
 // 환경변수 (Eyefeet Cloud 테넌트 설정에 넣기)
-//   AI_BASE_URL   AI 서버 주소 (예: https://www.eyefeetai.com)  ※ 실제 주소는 AI 안내 페이지에서 확인
-//   AI_API_KEY    발급받은 키 (없으면 인증 헤더 없이 호출)
-//   AI_MODEL      사용할 모델 이름
-//   AI_API_STYLE  "openai"(기본, /v1/chat/completions) 또는 "ollama"(/api/chat)
+//   AI_BASE_URL   AI 호출 주소. Eyefeet AI는 https://www.eyefeetai.com/api/chat/completions
+//                 (…/chat/completions 로 끝나는 전체 주소면 그대로 쓰고, 서버 주소만 넣으면 /v1/chat/completions 를 붙여요)
+//   AI_API_KEY    eyefeetai.com 설정 → 계정 → API 키에서 발급
+//   AI_MODEL      사용할 모델 이름 (예: qwen3-30b-a3b)
+//   AI_API_STYLE  "openai"(기본) 또는 "ollama"(/api/chat)
 
 const MAX_INPUT = 400;             // 품목 설명 최대 글자 수
 const LIMIT_PER_MIN = 6;           // IP당 분당 호출 수
-const TIMEOUT_MS = 25_000;
+const TIMEOUT_MS = 40_000;        // 로컬 AI는 응답이 느릴 수 있어요
 const hits = new Map();
 
 const SYSTEM = `당신은 한국 수출입 품목분류(HS 코드)를 돕는 보조자입니다.
@@ -48,7 +49,9 @@ function send(res, status, obj) {
 
 // AI 응답에서 JSON만 꺼내 형식을 검사해요 (모델이 앞뒤에 글을 붙여도 동작하게)
 function parseResult(text) {
-  const m = String(text).match(/\{[\s\S]*\}/);
+  // Qwen3 등은 답 앞에 <think>…</think> 생각 과정을 붙일 수 있어서 먼저 지워요
+  const clean = String(text).replace(/<think>[\s\S]*?<\/think>/gi, "");
+  const m = clean.match(/\{[\s\S]*\}/);
   if (!m) throw new Error("no json");
   const j = JSON.parse(m[0]);
   const candidates = (Array.isArray(j.candidates) ? j.candidates : [])
@@ -70,12 +73,14 @@ async function callAI(query) {
   const model = process.env.AI_MODEL || "";
   const headers = { "Content-Type": "application/json" };
   if (process.env.AI_API_KEY) headers.Authorization = `Bearer ${process.env.AI_API_KEY}`;
-  const messages = [{ role: "system", content: SYSTEM }, { role: "user", content: `품목 설명: ${query}` }];
+  // "/no_think": Qwen3 계열에서 생각 과정을 건너뛰어 빠르게 답하게 해요 (다른 모델은 무시)
+  const messages = [{ role: "system", content: SYSTEM }, { role: "user", content: `품목 설명: ${query} /no_think` }];
 
-  const url = style === "ollama" ? `${base}/api/chat` : `${base}/v1/chat/completions`;
+  const url = /\/chat\/completions$|\/api\/chat$/.test(base) ? base
+    : style === "ollama" ? `${base}/api/chat` : `${base}/v1/chat/completions`;
   const body = style === "ollama"
     ? { model, messages, stream: false, format: "json", options: { temperature: 0.2 } }
-    : { model, messages, temperature: 0.2, max_tokens: 700 };
+    : { model, messages, stream: false, temperature: 0.2, max_tokens: 700 };
 
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);

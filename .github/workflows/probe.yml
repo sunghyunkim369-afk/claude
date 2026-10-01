@@ -19,3 +19,7 @@ jobs:
             code=$(curl -s -o body.txt -w '%{http_code} %{content_type}' --max-time 20 "https://tcmvp.eyefeet.com$p" || echo "000")
             echo "$code  $p  | $(head -c 120 body.txt | tr '\n' ' ')"
           done
+          echo "--- AI 호출 테스트 (POST /api/ai) ---"
+          curl -s -w '\nHTTP %{http_code} · %{time_total}s\n' --max-time 60 -X POST \
+            -H 'Content-Type: application/json' -d '{"query":"고무 밑창에 메시 갑피인 러닝화"}' \
+            https://tcmvp.eyefeet.com/api/ai | head -c 1500

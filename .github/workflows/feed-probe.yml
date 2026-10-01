@@ -1,0 +1,42 @@
+name: News feed probe
+
+# 뉴스 출처 후보의 RSS가 실제로 받아지는지 확인하는 수동 점검
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        run: |
+          check() {
+            code=$(curl -sL -A "Mozilla/5.0 TradeCompassBot" -o f.xml -w '%{http_code}' --max-time 25 "$2" || echo 000)
+            items=$(grep -o '<item[ >]' f.xml | wc -l); entries=$(grep -o '<entry[ >]' f.xml | wc -l)
+            first=$(grep -o '<title>[^<]*</title>' f.xml | sed -n '2p' | head -c 90)
+            [ -z "$first" ] && first=$(grep -o '<title><!\[CDATA\[[^]]*' f.xml | sed -n '2p' | head -c 90)
+            echo "$code items=$items entries=$entries | $1 | $first"
+          }
+          check "yna-economy"      "https://www.yna.co.kr/rss/economy.xml"
+          check "yna-industry"     "https://www.yna.co.kr/rss/industry.xml"
+          check "yna-international" "https://www.yna.co.kr/rss/international.xml"
+          check "korea-press-all"  "https://www.korea.kr/rss/pressrelease.xml"
+          check "korea-motie"      "https://www.korea.kr/rss/dept_motie.xml"
+          check "korea-kcs"        "https://www.korea.kr/rss/dept_kcs.xml"
+          check "korea-moef"       "https://www.korea.kr/rss/dept_moef.xml"
+          check "korea-mof"        "https://www.korea.kr/rss/dept_mof.xml"
+          check "hankyung-economy" "https://www.hankyung.com/feed/economy"
+          check "hankyung-intl"    "https://www.hankyung.com/feed/international"
+          check "mk-economy"       "https://www.mk.co.kr/rss/30100041/"
+          check "gnews-ko-tariff"  "https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%20when%3A7d&hl=ko&gl=KR&ceid=KR%3Ako"
+          check "gnews-ko-export"  "https://news.google.com/rss/search?q=%EC%88%98%EC%B6%9C%20%EA%B7%9C%EC%A0%9C%20when%3A7d&hl=ko&gl=KR&ceid=KR%3Ako"
+          check "gnews-en-tariff"  "https://news.google.com/rss/search?q=tariff%20Korea%20when%3A7d&hl=en-US&gl=US&ceid=US%3Aen"
+          check "wto-news"         "https://www.wto.org/library/rss/latest_news_e.xml"
+          check "ustr-press"       "https://ustr.gov/about-us/policy-offices/press-office/press-releases/feed"
+          check "commerce-news"    "https://www.commerce.gov/feeds/news"
+          check "kotra-news"       "https://dream.kotra.or.kr/kotranews/cms/rss/actionKotraBoardRss.do?MENU_ID=70"
+          echo "--- google news sample sources ---"
+          curl -sL -A "Mozilla/5.0" --max-time 25 "https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%20when%3A7d&hl=ko&gl=KR&ceid=KR%3Ako" | grep -o '<source url="[^"]*">[^<]*' | sort | uniq -c | sort -rn | head -25

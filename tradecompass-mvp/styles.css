@@ -400,3 +400,26 @@ a.ext:hover,a.ext:focus-visible{background-size:100% 1px}
 .method p{font-size:.92rem;line-height:1.65}
 .formula{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9rem!important;padding:12px 14px;border-radius:6px;background:var(--paper-2);border:1px solid var(--line);overflow-x:auto}
 .pill[hidden]{display:none}
+
+/* 긴 제목·주소가 칸 밖으로 나가지 않게 */
+.news-row > div,.issue > div,.arts li,.risk > div,.sp-news,.t10{min-width:0;overflow-wrap:anywhere;word-break:keep-all}
+.news-row p,.issue .sum{overflow-wrap:anywhere}
+
+/* 섹터 상세: 뉴스를 먼저, 크게 */
+.sp{max-width:880px}
+.sp-sum{margin:-14px 0 24px;color:var(--ink-soft);font-size:.92rem}
+.sp-news{margin-bottom:36px}
+.sp-news-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.sp-news-h .sp-h{margin:0}
+.sp-news-h span{font-size:.8rem;color:var(--ink-soft)}
+.sp-news .nb{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.sp-news h3{margin:0;font-weight:600;line-height:1.45}
+.sp-news p{margin:8px 0 0;color:var(--ink-soft);font-size:.9rem;line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.sp-news small{display:block;margin-top:10px;font-size:.78rem;color:var(--ink-soft)}
+.nf{padding:22px 24px;border-left:4px solid var(--brass)}
+.nf h3{font-size:1.28rem}
+.nl{list-style:none;margin:14px 0 0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.nl li{padding:16px 18px;display:flex;flex-direction:column}
+.nl h3{font-size:1.02rem}
+.nl small{margin-top:auto;padding-top:10px}
+@media (max-width:820px){ .nl{grid-template-columns:minmax(0,1fr)} .nf{padding:18px} .nf h3{font-size:1.12rem} }

@@ -29,7 +29,9 @@ const compass = (score, cls = "compass") => `
 const countUp = (to, dec = 0, pre = "", suf = "") =>
   `<span class="num" data-to="${to}" data-dec="${dec}" data-pre="${esc(pre)}" data-suf="${esc(suf)}">${pre}${Number(to).toFixed(dec)}${suf}</span>`;
 const dirLabel = { up: "▲ 긍정", down: "▼ 부정", flat: "● 중립" };
-const actLabel = { up: ["▲ 조치 강화", "up"], down: ["▼ 조치 완화", "down"], neutral: ["● 중립", "flat"] };
+// up/down: 기사 속 무역 조치가 강화·완화 / neutral: 조치 기사지만 방향 없음 / info: 환율·운임·실적 같은 동향 기사
+const actLabel = { up: ["▲ 조치 강화", "up"], down: ["▼ 조치 완화", "down"], neutral: ["● 중립", "flat"], info: ["● 동향", "flat"] };
+const act = d => actLabel[d] || actLabel.neutral;
 const signed = (v, suf = "%") => `${v > 0 ? "+" : ""}${v}${suf}`;
 const star = id => `<button class="star" data-star="${id}" aria-pressed="${watch.has(id)}" aria-label="${esc(sectorById[id].name)} 관심 섹터 ${watch.has(id) ? "해제" : "추가"}">★</button>`;
 
@@ -39,7 +41,7 @@ const sectorCard = (s, i) => `
     <span class="name">${esc(s.name)}</span>
     <div class="score">${countUp(s.score, 2)}</div>
     <div class="state ${s.state}"><i></i>${s.state}</div>
-    <div class="split"><span>▲ 강화 ${s.up}</span><span>▼ 완화 ${s.down}</span><span>● 중립 ${s.neutral}</span></div>
+    <div class="split"><span>▲ 강화 ${s.up}</span><span>▼ 완화 ${s.down}</span><span>● ${D.meta.sample ? "중립" : "중립·동향"} ${s.neutral}</span></div>
     <div class="meter"><b data-w="${s.score}"></b></div>
   </a>`;
 
@@ -57,7 +59,7 @@ const issueItem = (x, i) => `
 
 // 실제 데이터: 기사별 관련 섹터와 무역 조치 방향 / 예전 샘플: 종목별 방향
 const newsLinks = n => n.sectors
-  ? `<span><em class="dir ${actLabel[n.direction]?.[1] || "flat"}">${actLabel[n.direction]?.[0] || "● 중립"}</em></span>${n.sectors.length
+  ? `<span><em class="dir ${act(n.direction)[1]}">${act(n.direction)[0]}</em></span>${n.sectors.length
       ? n.sectors.map(id => sectorById[id] ? `<a href="#/sectors/${id}">${esc(sectorById[id].name)}</a>` : "").join("")
       : `<span class="muted">관련 섹터 없음</span>`}`
   : (n.stocks.length ? n.stocks.map(s => `<span>${esc(s.name)} <em class="dir ${s.dir}">${dirLabel[s.dir]}</em></span>`).join("") : `<span class="muted">연관 종목 없음</span>`);
@@ -86,6 +88,33 @@ const bars = (rows, label) => {
 
 // 섹터 상세: 이 섹터의 Top10 이슈 + 대표 기사 + 종목 정렬 결과
 const pct = (now, prev) => prev ? Math.round((now - prev) / prev * 100) : 0;
+// 섹터 뉴스: 발행 데이터의 섹터별 기사(없으면 전체 뉴스에서 이 섹터 기사)
+const sectorNews = s => s.news || D.news.filter(n => (n.sectors || []).includes(s.id));
+const newsMeta = n => `${esc(n.source)}${n.outlets > 1 ? ` 외 ${n.outlets - 1}곳` : ""} · ${esc(n.time)}${n.clock ? " " + esc(n.clock) : ""}`;
+const newsBadges = n => `<span class="tag">${esc(n.tag)}</span>${n.direction ? `<em class="dir ${act(n.direction)[1]}">${act(n.direction)[0]}</em>` : ""}`;
+function sectorNewsBlock(s, i) {
+  const ns = sectorNews(s);
+  if (!ns.length) return `<section class="sp-news rise" style="--i:${i}"><h2 class="sp-h">이번 주 ${esc(s.name)} 뉴스</h2><p class="muted">이번 주 이 섹터와 연결된 무역 기사가 없어요.</p></section>`;
+  const [f, ...rest] = ns;
+  return `
+    <section class="sp-news rise" style="--i:${i}">
+      <div class="sp-news-h"><h2 class="sp-h">이번 주 ${esc(s.name)} 뉴스</h2><span>${s.articles ? `관련 기사 ${s.articles}건 중 ` : ""}영향 큰 순 · 제목을 누르면 원문</span></div>
+      <article class="card lift nf">
+        <div class="nb">${newsBadges(f)}</div>
+        <h3>${ext(f.link, esc(f.title))}</h3>
+        ${f.summary ? `<p>${esc(f.summary)}</p>` : ""}
+        <small>${newsMeta(f)}</small>
+      </article>
+      ${rest.length ? `<ul class="nl">${rest.map(n => `
+        <li class="card lift">
+          <div class="nb">${newsBadges(n)}</div>
+          <h3>${ext(n.link, esc(n.title))}</h3>
+          ${n.summary ? `<p>${esc(n.summary)}</p>` : ""}
+          <small>${newsMeta(n)}</small>
+        </li>`).join("")}</ul>` : ""}
+    </section>`;
+}
+
 function sectorPage(s) {
   const list = D.issues.filter(x => x.sectors.includes(s.id)).sort((a, b) => b.score - a.score).slice(0, 10);
   return `
@@ -96,6 +125,9 @@ function sectorPage(s) {
         <div><h1>${esc(s.name)}</h1><div class="state ${s.state}"><i></i>${s.state} · 노출도 <b class="num">${s.score.toFixed(2)}</b></div></div>
         ${star(s.id)}
       </div>
+      ${s.summary ? `<p class="sp-sum rise" style="--i:1">${esc(s.summary)}</p>` : ""}
+
+      ${sectorNewsBlock(s, 2)}
 
       <h2 class="sp-h rise" style="--i:2">이 섹터의 Top10 이슈</h2>
       ${list.length ? `<ol class="top10">${list.map((x, i) => `
@@ -105,7 +137,7 @@ function sectorPage(s) {
             <a class="kw" href="#/news">${esc(x.keyword)}</a>
             <div class="chips-row">${x.sectors.map(id => sectorById[id] ? `<a class="schip${id === s.id ? " on" : ""}" href="#/sectors/${id}">${esc(sectorById[id].name)}</a>` : "").join("")}</div>
             <p class="meta">점수 ${x.score.toFixed(2)} · 최근 7일 보도 ${x.reports}건(직전 7일 ${x.prev}건) · ${x.prev ? signed(pct(x.reports, x.prev)) : "신규"}</p>
-            <p class="meta">▲ 조치 강화 ${x.up}&nbsp;&nbsp;▼ 완화 ${x.down}&nbsp;&nbsp;● 중립 ${x.neutral}</p>
+            <p class="meta">▲ 조치 강화 ${x.up}&nbsp;&nbsp;▼ 완화 ${x.down}&nbsp;&nbsp;● ${D.meta.sample ? "중립" : "중립·동향"} ${x.neutral}</p>
             <ul class="arts">${x.articles.map(a => `<li><span class="at">${ext(a.link, esc(a.title))}</span><small>${esc(a.source)} · ${esc(a.at)}</small></li>`).join("")}</ul>
           </div>
         </li>`).join("")}</ol>` : `<p class="muted rise" style="--i:3">최근 7일 동안 이 섹터와 연결된 이슈가 없어요.</p>`}

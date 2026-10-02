@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const { TOPICS, SECTORS, COUNTRIES, SCORE } = require("./config");
 const { weeklyBrief } = require("./ai");
-const { finalize, outletName } = require("./lib");
+const { finalize, outletName, cleanDesc, stripOutlet } = require("./lib");
 
 const ROOT = path.join(__dirname, "..", "..");
 const ARCHIVE = path.join(ROOT, "data", "news", "archive.json");
@@ -100,12 +100,27 @@ const dirCount = (list) => ({
   neutral: list.filter(a => a.direction !== "up" && a.direction !== "down").length,
 });
 const topSectors = (list, k = 3) => [...count(list, a => a.sectors || [])].sort((a, b) => b[1] - a[1]).slice(0, k).map(([id]) => id);
-const shortSum = (a) => a.summary || (a.desc && !a.desc.startsWith(a.title.slice(0, 20)) ? a.desc.slice(0, 110) : "");
+const shortSum = (a) => a.summary || cleanDesc(a.desc, a.title).slice(0, 120);
+
+// 화면에 싣는 기사 한 건
+const toNews = (a) => ({
+  time: fmtMD(Date.parse(a.date)), clock: fmtHM(Date.parse(a.date)), source: a.source,
+  outlets: (a.outlets || []).length, tag: topicById[a.topic]?.label || "무역", title: a.title, link: a.link,
+  summary: shortSum(a), direction: a.direction || "neutral", sectors: (a.sectors || []).filter(id => sectorById[id]),
+  stocks: [],
+});
+// 무게 순으로 고르되 같은 이슈 기사는 cap 건까지
+function pickNews(list, n, cap, now) {
+  const per = {};
+  return [...list].sort((a, b) => weight(b, now) - weight(a, now))
+    .filter(a => { const k = issueKey(a); per[k] = (per[k] || 0) + 1; return per[k] <= cap; }).slice(0, n);
+}
 
 async function main() {
   const now = Date.now();
   // 분류 규칙이 바뀌어도 지난 기사까지 같은 규칙으로 계산하도록, AI가 분류하지 않은 기사는 여기서 다시 분류해요
   const all = JSON.parse(fs.readFileSync(ARCHIVE, "utf8")).items.filter(a => Date.parse(a.date) <= now + DAY).flatMap(a => {
+    a.title = stripOutlet(a.title, a.source);
     a.source = outletName(a.source);
     a.outlets = [...new Set((a.outlets || [a.source]).map(o => outletName(o)))];
     if (a.ai) return [a];
@@ -165,13 +180,17 @@ async function main() {
     const shrink = list.length / (list.length + SCORE.sectorPrior);
     const score = 50 + (M - 0.5) * 100 * shrink;
     const d = dirCount(list);
-    const tone = (d.up - d.down) / Math.max(1, list.length);
-    const state = tone > 0.2 ? "강화" : tone < -0.2 ? "완화" : "보합";
+    // 상태는 방향이 있는 기사(강화·완화)끼리만 비교해요. 환율·실적 같은 동향 기사까지 분모에 넣으면
+    // 거의 모든 섹터가 "보합"이 돼서 정보가 없어지기 때문이에요. 방향 기사가 2건 미만이면 보합.
+    const directional = d.up + d.down;
+    const tone = directional >= 2 ? (d.up - d.down) / directional : 0;
+    const state = tone >= 0.34 ? "강화" : tone <= -0.34 ? "완화" : "보합";
     const its = cands.filter(x => x.sectors.includes(s.id)).slice(0, 2).map(x => x.keyword);
     const summary = list.length
       ? `이번 주 관련 기사 ${list.length}건(직전 4주 주평균 ${round((sCountBase.get(s.id) || 0) / SCORE.baselineWeeks, 1)}건)${its.length ? ` · 주요 이슈: ${its.join(", ")}` : ""}`
       : "이번 주 관련 무역 기사가 거의 없어요.";
-    return { id: s.id, name: s.name, score: round(score), state, ...d, articles: list.length, summary, stocks: s.stocks };
+    return { id: s.id, name: s.name, score: round(score), state, ...d, articles: list.length, summary, stocks: s.stocks,
+      news: pickNews(list, 6, 2, now).map(toNews) };
   }).sort((a, b) => b.score - a.score);
   void sCountNow;
 
@@ -184,15 +203,7 @@ async function main() {
   }));
 
   // ── 뉴스 피드: 무게 순 + 같은 이슈 기사는 3건까지 ──
-  const perIssue = {};
-  const news = [...week].sort((a, b) => weight(b, now) - weight(a, now)).filter(a => {
-    const k = issueKey(a); perIssue[k] = (perIssue[k] || 0) + 1; return perIssue[k] <= 3;
-  }).slice(0, SCORE.newsCount).sort((a, b) => Date.parse(b.date) - Date.parse(a.date)).map(a => ({
-    time: fmtMD(Date.parse(a.date)), clock: fmtHM(Date.parse(a.date)), source: a.source,
-    outlets: (a.outlets || []).length, tag: topicById[a.topic]?.label || "무역", title: a.title, link: a.link,
-    summary: shortSum(a), direction: a.direction || "neutral", sectors: (a.sectors || []).filter(id => sectorById[id]),
-    stocks: [],
-  }));
+  const news = pickNews(week, SCORE.newsCount, 3, now).sort((a, b) => Date.parse(b.date) - Date.parse(a.date)).map(toNews);
 
   // ── 이번 주 요약 (AI 키가 있으면 AI, 없으면 규칙) ──
   const top = issues[0];

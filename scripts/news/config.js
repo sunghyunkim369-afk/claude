@@ -39,7 +39,7 @@ const OUTLETS = [
   { tier: 0.8, match: ["아시아경제"], domains: ["asiae.co.kr"] },
   { tier: 0.8, match: ["헤럴드경제"], domains: ["heraldcorp.com"] },
   { tier: 0.8, match: ["파이낸셜뉴스"], domains: ["fnnews.com"] },
-  { tier: 0.8, match: ["조선비즈"], domains: ["biz.chosun.com"] },
+  { tier: 0.8, match: ["조선비즈", "Chosunbiz"], domains: ["biz.chosun.com"] },
   { tier: 0.8, match: ["전자신문"], domains: ["etnews.com"] },
   { tier: 0.8, match: ["디지털타임스"], domains: ["dt.co.kr"] },
   { tier: 0.8, match: ["연합인포맥스"], domains: ["einfomax.co.kr"] },
@@ -116,8 +116,8 @@ const SECTORS = [
 ];
 
 // ── 4. 조치 방향 (강화/완화) 단어 ────────────────────────────────────
-const TIGHTEN = ["부과", "인상", "강화", "제재", "금지", "제한", "통제", "발동", "조사 착수", "보복", "확대 적용", "impose", "raise", "hike", "tighten", "ban", "restrict", "curb"];
-const EASE = ["인하", "철폐", "면제", "유예", "완화", "해제", "타결", "철회", "감면", "합의", "lower", "cut", "exempt", "suspend", "ease", "lift", "waive", "deal"];
+const TIGHTEN = ["부과", "인상", "강화", "제재", "금지", "제한", "통제", "발동", "조사 착수", "보복", "확대 적용", "압박", "위협", "협박", "단속", "장벽", "엔티티 리스트", "impose", "raise", "hike", "tighten", "ban", "restrict", "curb", "threat"];
+const EASE = ["인하", "철폐", "면제", "유예", "완화", "해제", "타결", "철회", "감면", "합의", "폐지", "재개", "허용", "승인", "해소", "lower", "cut", "exempt", "suspend", "ease", "lift", "waive", "deal", "agreement"];
 const KOREA_WORDS = ["한국", "국내", "韓", "우리나라", "우리 기업", "수출기업", "K-", "Korea", "Korean", "Seoul"];
 
 // ── 5. 점수 설정 ─────────────────────────────────────────────────────

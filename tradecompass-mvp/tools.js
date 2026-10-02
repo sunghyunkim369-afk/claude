@@ -167,17 +167,24 @@ function travelResult() {
     ${r.warn.length ? `<ul class="warns">${r.warn.map(w => `<li>${esc(w)}</li>`).join("")}</ul>` : ""}`;
 }
 
+const FACTS = [
+  { big: "−30%", sub: "최대 20만 원", t: "자진신고 감면", d: "면세 범위를 넘었으면 입국 때 신고하세요. 모바일로도 돼요.", tone: "good" },
+  { big: "+40%", sub: "2년 내 재적발 60%", t: "미신고 가산세", d: "신고 안 하고 걸리면 세금에 가산세가 붙어요.", tone: "bad" },
+  { big: "$800", sub: "1인 기준", t: "기본 면세", d: "가족 한도를 합쳐 비싼 물건 하나를 나눌 수는 없어요.", tone: "" },
+  { big: "포함", sub: "국내 면세점", t: "면세점 물건도 합산", d: "출국 때 면세점에서 산 물건도 $800에 들어가요.", tone: "" },
+  { big: "2L · $400", sub: "병 수 무관 · 2025.3~", t: "술", d: "둘 중 하나라도 넘으면 과세돼요.", tone: "" },
+  { big: "100ml · 200개비", sub: "만 19세 이상", t: "향수 · 담배", d: "$800과 따로 면세. 19세 미만은 술·담배 면세가 없어요.", tone: "" },
+];
 const travelTips = () => `
-  <section class="card tool tips rise" style="--i:3">
-    <h2>모르면 손해 보는 것</h2>
-    <ul>
-      <li><b>자진신고 감면</b> — 면세 범위를 넘으면 입국 때 신고(모바일 신고 가능)하면 세금의 30%를 최대 20만 원까지 깎아줘요. 신고 안 하고 걸리면 반대로 40% 가산세(2년 내 두 번째부터 60%)가 붙어요.</li>
-      <li><b>$800은 한 사람 기준</b> — 가족 면세 한도를 합쳐 비싼 물건 하나를 나눌 수는 없어요. 물건마다 실제 산 사람 기준이에요.</li>
-      <li><b>면세점 물건도 포함</b> — 출국할 때 국내 면세점에서 산 물건도 들고 들어오면 $800에 포함돼요.</li>
-      <li><b>술은 병 수 제한이 없어졌어요</b> — 2025년 3월부터 합계 2L·$400 이하면 몇 병이든 면세예요. 둘 중 하나라도 넘으면 과세돼요.</li>
-      <li><b>향수 100ml, 담배 200개비</b>는 $800과 따로 면세돼요. 만 19세 미만은 술·담배 면세가 없어요.</li>
-    </ul>
-    <p class="src">기준: 관세청 여행자 휴대품 통관 안내 (${RULES.checked} 확인) · ${link(SRC.travel, "관세청 안내 보기")} · 간이세율은 대표 품목 기준이라 실제 세액과 다를 수 있어요.</p>
+  <section class="facts rise" style="--i:3">
+    <div class="facts-h"><h2>모르면 손해 보는 6가지</h2><span>기준 ${RULES.checked} · ${link(SRC.travel, "관세청 안내")}</span></div>
+    <div class="fact-grid">${FACTS.map(f => `
+      <article class="fact ${f.tone}">
+        <div class="fig"><b>${f.big}</b><small>${f.sub}</small></div>
+        <h3>${f.t}</h3>
+        <p>${f.d}</p>
+      </article>`).join("")}</div>
+    <p class="src">간이세율은 대표 품목 기준이라 실제 세액과 다를 수 있어요.</p>
   </section>`;
 
 // ═════════════ 2. 직구 반입 체커 ═════════════
@@ -225,38 +232,51 @@ const checkView = (q = "") => `
     <p class="src">기준: 관세청 「수입통관 사무처리에 관한 고시」 자가사용 인정기준, 식약처·농림축산검역본부 안내 (${RULES.checked} 확인) · ${link(SRC.easylaw, "찾기쉬운 생활법령: 해외직구")}</p>
   </section>
 
-  <div class="grid g-2" style="margin-top:18px">
-    <section class="card tool tips rise" style="--i:2">
-      <h2>합산과세: 나눠 사도 합쳐져요</h2>
-      <ul>
-        <li>같은 날 한국에 도착한 물건은 쇼핑몰이 달라도 <b>가격을 합쳐서</b> 면세 한도($150, 미국 $200)를 따져요.</li>
-        <li>각각 $100짜리 두 건이 같은 날 들어오면 합계 $200 → 미국 외 나라면 과세돼요.</li>
-        <li>며칠 간격으로 나눠 들어오게 하는 게 안전해요. 다만 한 주문을 일부러 쪼개면 합쳐서 과세할 수 있어요.</li>
+  <div class="guides">
+    <section class="card guide rise" style="--i:2">
+      <span class="gi">1</span>
+      <h2>합산과세 <small>나눠 사도 합쳐져요</small></h2>
+      <p class="lead">같은 날 한국에 도착한 물건은 쇼핑몰이 달라도 <b>가격을 합쳐서</b> 면세 한도를 따져요.</p>
+      <div class="eq" aria-label="예시: 100달러 두 건이 같은 날 도착하면 합계 200달러로 과세">
+        <span class="box">$100<small>A 쇼핑몰</small></span><i>+</i><span class="box">$100<small>B 쇼핑몰</small></span><i>=</i><span class="box hot">$200<small>같은 날 도착</small></span>
+      </div>
+      <p class="note-s">미국 외 나라에서 오면 한도 $150을 넘어 과세 · 미국은 $200까지 면세</p>
+      <p class="todo"><b>이렇게</b> 도착일이 며칠 벌어지게 나눠 받기. 단, 한 주문을 일부러 쪼개면 합쳐서 과세될 수 있어요.</p>
+    </section>
+
+    <section class="card guide rise" style="--i:3">
+      <span class="gi">2</span>
+      <h2>되팔기 <small>중고거래 전에 확인</small></h2>
+      <p class="lead">면세로 들여온 직구품은 <b>내가 쓰는 조건</b>이라, 팔면 관세법 위반이 될 수 있어요.</p>
+      <ul class="yn">
+        <li class="n"><span>✕</span><p>직구한 옷·화장품 등을 바로 중고 판매</p></li>
+        <li class="n"><span>✕</span><p>영양제·의약품 개인 간 판매</p></li>
+        <li class="y"><span>✓</span><p>전자제품은 들여온 날부터 <b>1년 지나면</b> 1대 판매 가능</p></li>
       </ul>
     </section>
-    <section class="card tool tips rise" style="--i:3">
-      <h2>되팔기 전에 꼭 확인</h2>
-      <ul>
-        <li><b>면세로 들여온 직구품을 팔면</b> 자가사용 목적이 아니게 돼서 관세법 위반(밀수입 등)이 될 수 있어요. 중고거래 앱에 바로 올리는 게 흔한 실수예요.</li>
-        <li><b>전자제품</b>은 예외적으로 들여온 날(수입신고수리일)부터 <b>1년이 지나면</b> 1대에 한해 중고로 팔 수 있어요.</li>
-        <li>건강기능식품·의약품은 개인 간 판매 자체가 제한돼요.</li>
-      </ul>
+
+    <section class="card guide rise" style="--i:4">
+      <span class="gi">3</span>
+      <h2>반품 관세 환급 <small>세금도 돌려받기</small></h2>
+      <p class="lead">세금 내고 들여온 물건을 <b>6개월 안에</b> 그대로 반품하면 관세·부가세를 돌려받아요. 판매처는 세금을 안 돌려줘요.</p>
+      <ol class="steps">
+        <li><b>반품</b>판매자에게 원래 상태로 반품</li>
+        <li><b>서류</b>반품 송장 · 반품 확인서 · 환불 영수증</li>
+        <li><b>신청</b>가까운 세관에 환급 신청 (200만 원 이하는 수출신고 없이)</li>
+      </ol>
+      <p class="more-l">${link(SRC.refund, "관세청 해외직구물품 관세환급 →")}</p>
     </section>
-    <section class="card tool tips rise" style="--i:4">
-      <h2>반품하면 관세를 돌려받아요</h2>
-      <ul>
-        <li>세금을 내고 들여온 직구품을 <b>수입신고수리일부터 6개월 안에</b> 그대로 반품하면 낸 관세·부가세를 환급받을 수 있어요.</li>
-        <li>200만 원 이하 물품은 수출신고 없이도 <b>반품 송장·반품 확인서·환불 영수증</b>으로 신청할 수 있어요.</li>
-        <li>판매처가 상품값만 환불해 주고 세금은 안 돌려줘요. 직접 세관에 신청해야 해요. ${link(SRC.refund, "관세청 해외직구물품 관세환급")}</li>
-      </ul>
-    </section>
-    <section class="card tool tips rise" style="--i:5">
-      <h2>개인통관고유부호, 도용됐는지 확인</h2>
-      <ul>
-        <li>여러 쇼핑몰에 부호를 입력하다 보니 유출·도용 사례가 있어요. 남이 쓴 건이 내 면세 한도와 합산과세에 섞일 수 있어요.</li>
-        <li>${link(SRC.unipass, "관세청 유니패스")} → 개인통관고유부호 메뉴에서 <b>사용 내역</b>을 보고, 모르는 통관이 있으면 바로 <b>재발급</b>(기존 번호 정지)하세요.</li>
-        <li>부호의 이름·휴대폰 번호와 주문서 정보가 다르면 통관이 보류되니, 번호를 바꾸면 쇼핑몰 정보도 같이 바꿔 주세요.</li>
-      </ul>
+
+    <section class="card guide rise" style="--i:5">
+      <span class="gi">4</span>
+      <h2>개인통관고유부호 <small>도용 확인</small></h2>
+      <p class="lead">여러 쇼핑몰에 입력하다 보니 유출이 잦아요. 남이 쓴 건이 내 면세 한도·합산과세에 섞일 수 있어요.</p>
+      <ol class="steps">
+        <li><b>조회</b>유니패스 → 개인통관고유부호 → 사용 내역</li>
+        <li><b>재발급</b>모르는 통관이 있으면 바로 재발급 (기존 번호 정지)</li>
+        <li><b>변경</b>쇼핑몰·배송대행지에 새 번호로 바꾸기 (이름·휴대폰이 다르면 통관 보류)</li>
+      </ol>
+      <p class="more-l">${link(SRC.unipass, "관세청 유니패스 →")}</p>
     </section>
   </div>`;
 

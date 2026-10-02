@@ -279,8 +279,8 @@ const ITEMS = [
 ];
 
 const checkView = (q = "") => `
-  <div class="page-h rise"><p class="kicker">Customs Helper</p><h1 class="display sm">이거 <em>직구</em>해도 돼요?</h1>
-    <p>자주 사는 품목의 반입 가능 여부와 사람들이 잘 모르는 함정을 정리했어요.</p></div>
+  <div class="page-h rise"><p class="kicker">Customs Helper · 직구 반입 체커</p><h1 class="display sm">Import <em>Checker</em></h1>
+    <p>이거 직구해도 될까요? 자주 사는 품목의 반입 가능 여부와 사람들이 잘 모르는 함정을 정리했어요.</p></div>
   <section class="card tool rise" style="--i:1">
     <label class="search"><span class="sr">품목 검색</span><input type="search" data-check-q value="${esc(q)}" placeholder="예: 멜라토닌, 육포, 이어폰, 영양제" autocomplete="off"></label>
     <div class="legend">${Object.values(ST).map(([t, c]) => `<span class="st ${c}">${t}</span>`).join("")}</div>
@@ -386,8 +386,8 @@ const STAGES = [
   ["반출신고", "세관 창고에서 나와 국내 택배사로 넘어갔어요.", "이제 국내 택배 운송장으로 조회하세요."],
 ];
 const trackView = () => `
-  <div class="page-h rise"><p class="kicker">Customs Tracking</p><h1 class="display sm">내 택배 <em>통관</em> 어디까지?</h1>
-    <p>번호를 넣으면 관세청 유니패스 조회로 바로 가요. 단계별로 무슨 뜻이고 뭘 해야 하는지도 알려 드려요.</p></div>
+  <div class="page-h rise"><p class="kicker">Customs Helper · 통관 진행 조회</p><h1 class="display sm">Customs <em>Tracking</em></h1>
+    <p>내 택배 통관, 어디까지 왔을까요? 번호를 넣으면 관세청 유니패스 조회로 바로 가요. 단계별로 무슨 뜻이고 뭘 해야 하는지도 알려 드려요.</p></div>
   <section class="card tool rise" style="--i:1">
     <form class="track" data-track>
       <label><span>조회 방법</span>
@@ -460,7 +460,7 @@ function renderTrackAI(r, links) {
 const views = {
   travel() {
     return `
-      <div class="page-h rise"><p class="kicker">Travel Duty-Free</p><h1 class="display sm">여행자 <em>면세</em> 계산기</h1>
+      <div class="page-h rise"><p class="kicker">Customs Helper · 여행자 면세 계산기</p><h1 class="display sm">Duty-Free <em>Calculator</em></h1>
         <p>귀국할 때 산 물건을 넣으면 면세인지, 세금이 얼마인지, 자진신고하면 얼마 아끼는지 알려 드려요.</p></div>
       ${travelAI()}
       <div class="tool-2">

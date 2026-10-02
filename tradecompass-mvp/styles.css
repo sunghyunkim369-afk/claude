@@ -551,3 +551,25 @@ a.ext:hover,a.ext:focus-visible{background-size:100% 1px}
 @media (max-width:1080px){ .fact-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
 @media (max-width:820px){ .guides{grid-template-columns:minmax(0,1fr)} }
 @media (max-width:520px){ .fact-grid{grid-template-columns:minmax(0,1fr)} .guide{padding:56px 18px 18px} .guide .gi{left:18px;top:16px} }
+
+/* 통관 도우미 AI */
+.tool-ai{margin:0 0 18px}
+.ai-ask.col{flex-direction:column;align-items:stretch}
+.ai-ask.col .ai-btn{align-self:flex-end}
+.ai-ask textarea{font:inherit;font-size:.93rem;line-height:1.55;padding:10px 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--paper);box-shadow:var(--well);resize:vertical;min-height:76px}
+.check-ai{margin:20px 0 0;padding:18px;border:1px dashed var(--brass-soft);border-radius:var(--r);background:#FFFCF5}
+.ai-verdict{display:flex;gap:10px;align-items:flex-start}
+.ai-verdict .st{margin-top:3px}
+.ai-verdict .ai-sum{margin:0}
+.ings{margin:10px 0 0;font-size:.84rem;color:var(--ink-soft);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ings span{padding:2px 9px;border-radius:99px;background:#F6E1DA;color:var(--red);font-weight:600;font-size:.78rem}
+.ai-result .checks{margin-top:6px}
+.scam{display:grid;gap:4px;padding:12px 14px;margin-bottom:12px;border-radius:8px;background:#FBEFE6;border:1px solid #EBCDB9}
+.scam b{color:var(--red)}
+.scam span{font-size:.86rem;line-height:1.55}
+.links-chk{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:6px;font-size:.84rem;line-height:1.5}
+.links-chk li{padding:8px 10px;border-radius:6px;background:var(--paper);overflow-wrap:anywhere}
+.links-chk li span{font-weight:700;font-size:.74rem;padding:1px 8px;border-radius:99px;margin-right:6px}
+.links-chk .ok span{background:#E3EEE6;color:var(--green)}
+.links-chk .bad span{background:#F6E1DA;color:var(--red)}
+.links-chk code{font-size:.84rem}

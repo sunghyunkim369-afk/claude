@@ -5,6 +5,9 @@
 //   hs      품목 설명 → HS 6자리 후보 최대 3개 + 확인 질문      (HS코드 페이지 "AI에게 물어보기")
 //   sector  섹터 정보·관련 이슈 → 영향 분석                       (대시보드 섹터 상세)
 //   ask     오늘 브리핑 내용 + 질문 → 답변                        (대시보드 "AI에게 묻기")
+//   travel  여행 쇼핑 목록(자유 글) → 계산기 입력 항목            (여행자 면세 계산기 "AI로 한 번에 입력")
+//   customs 사려는 제품 설명 + 반입 기준표 → 해당 기준·확인할 점   (직구 반입 체커 "AI에게 물어보기")
+//   track   통관 상태 문구·문자 + 단계 설명 → 뜻·할 일·사칭 의심   (통관 진행 조회 "문자 해석")
 //
 // 환경변수 (Eyefeet Cloud 테넌트 설정에 넣기)
 //   AI_BASE_URL   AI 호출 주소. Eyefeet AI는 https://www.eyefeetai.com/api/chat/completions
@@ -69,6 +72,63 @@ ${JSON_ONLY}
       })).filter(i => i.who && i.effect).slice(0, 4),
       watch: arr(j.watch).map(w => str(w, 160)).slice(0, 3),
       actions: arr(j.actions).map(a => str(a, 160)).slice(0, 3),
+    }),
+  },
+  travel: {
+    max: 900, maxInput: 600, noContext: true,
+    system: `당신은 해외여행 귀국자의 쇼핑 목록을 세관 면세 계산기 입력값으로 정리하는 보조자입니다.
+사용자가 쓴 글에서 물건마다 종류·수량·가격을 뽑으세요. 수량이 여러 개면 가격은 합계로 계산하세요(단가 × 수량).
+가격은 글에 쓴 통화 그대로 두고 currency 에 USD, KRW, JPY, EUR, CNY, GBP, THB, VND, TWD, HKD, SGD 중 하나를 쓰세요. 통화가 없으면 USD.
+cat: gen(전자제품·화장품·잡화·식품 등 일반), cloth(옷·신발), fur(모피), deer(녹용), lux(개당 200만 원이 넘는 보석·고급 시계·명품 가방).
+술은 liquor 에 type: wine(와인), spirit(위스키·브랜디·보드카·진·럼·데킬라), kaoliang(고량주), other(맥주·사케·소주·리큐어 등), ml 은 전체 용량(병 수 × 병 용량, 모르면 0).
+향수는 perfume(전체 ml 와 가격), 담배는 tobacco(궐련 개비 수, 1보루=200).
+글에 없는 물건이나 가격은 만들지 말고, 모호한 점은 notes 에 짧게 쓰세요.
+${JSON_ONLY}
+{"items":[{"name":"물건 이름","cat":"gen","price":0,"currency":"USD"}],"liquor":[{"name":"술 이름","type":"spirit","ml":0,"price":0,"currency":"USD"}],"perfume":{"ml":0,"price":0,"currency":"USD"},"tobacco":0,"notes":["확인할 점"]}`,
+    user: (q) => `[쇼핑 목록]\n${q}`,
+    parse: (j) => {
+      const CUR = ["USD", "KRW", "JPY", "EUR", "CNY", "GBP", "THB", "VND", "TWD", "HKD", "SGD"];
+      const cur = (c) => CUR.includes(String(c).toUpperCase()) ? String(c).toUpperCase() : "USD";
+      const n = (v) => { const x = Number(String(v).replace(/[^\d.]/g, "")); return isFinite(x) && x > 0 ? Math.round(x * 100) / 100 : 0; };
+      return {
+        items: arr(j.items).map(i => ({ name: str(i.name, 60), cat: ["gen", "cloth", "fur", "deer", "lux"].includes(i.cat) ? i.cat : "gen", price: n(i.price), currency: cur(i.currency) })).filter(i => i.price).slice(0, 15),
+        liquor: arr(j.liquor).map(l => ({ name: str(l.name, 60), type: ["wine", "spirit", "kaoliang", "other"].includes(l.type) ? l.type : "other", ml: n(l.ml), price: n(l.price), currency: cur(l.currency) })).filter(l => l.price || l.ml).slice(0, 8),
+        perfume: j.perfume && typeof j.perfume === "object" ? { ml: n(j.perfume.ml), price: n(j.perfume.price), currency: cur(j.perfume.currency) } : { ml: 0, price: 0, currency: "USD" },
+        tobacco: n(j.tobacco),
+        notes: arr(j.notes).map(x => str(x, 160)).slice(0, 4),
+      };
+    },
+  },
+  customs: {
+    max: 700, maxInput: 300,
+    system: `당신은 한국 해외직구 통관 기준을 안내하는 보조자입니다.
+사용자가 사려는 제품이 아래 [반입 기준표]의 어느 항목에 해당하는지 고르고, 기준표 내용만 근거로 설명하세요.
+기준표에 없는 규정·수치는 만들지 마세요. 해당 항목이 없으면 match 를 비우고 verdict 를 check 로 하세요.
+성분 때문에 막힐 수 있는 제품(영양제·보조제·의약품)은 확인할 성분을 ingredients 에 쓰세요(제품에 흔히 들어 있다고 알려진 것만).
+${JSON_ONLY}
+{"match":["기준표 id"],"verdict":"ok|limit|ban|check","reason":"두 문장 이내 설명","checks":["사기 전에 확인할 일"],"ingredients":["확인할 성분"]}`,
+    user: (q, ctx) => `[반입 기준표]\n${ctx}\n\n[사려는 제품]\n${q}`,
+    parse: (j) => ({
+      match: arr(j.match).map(m => str(m, 30)).slice(0, 3),
+      verdict: ["ok", "limit", "ban", "check"].includes(j.verdict) ? j.verdict : "check",
+      reason: str(j.reason, 400),
+      checks: arr(j.checks).map(c => str(c, 160)).slice(0, 3),
+      ingredients: arr(j.ingredients).map(c => str(c, 40)).slice(0, 5),
+    }),
+  },
+  track: {
+    max: 700, maxInput: 600,
+    system: `당신은 해외직구 택배의 통관 진행 문구와 안내 문자를 쉽게 풀어 주는 보조자입니다.
+아래 [통관 단계 설명]을 근거로, 사용자가 붙여 넣은 문구가 어느 단계인지, 무슨 뜻인지, 지금 무엇을 하면 되는지 짧게 알려 주세요.
+문자에 관세청·유니패스가 아닌 링크로 결제를 요구하거나, 개인정보·카드번호를 묻거나, 급하게 재촉하면 사칭(스미싱) 의심으로 표시하세요.
+모르는 내용은 추측하지 말고 관세청 고객지원센터(125)나 배송사 문의를 권하세요.
+${JSON_ONLY}
+{"stage":"단계 이름 또는 모름","meaning":"두 문장 이내 뜻","actions":["지금 할 일"],"scam":"none|suspect","scam_reason":"의심 이유 한 문장(없으면 빈칸)"}`,
+    user: (q, ctx) => `[통관 단계 설명]\n${ctx}\n\n[붙여 넣은 문구]\n${q}`,
+    parse: (j) => ({
+      stage: str(j.stage, 40), meaning: str(j.meaning, 400),
+      actions: arr(j.actions).map(a => str(a, 160)).slice(0, 3),
+      scam: j.scam === "suspect" ? "suspect" : "none", scam_reason: str(j.scam_reason, 200),
     }),
   },
   ask: {
@@ -167,8 +227,9 @@ module.exports = async function handler(req, res) {
   const query = String(body.query || "").trim();
   const context = typeof body.context === "string" ? body.context : JSON.stringify(body.context || "");
   if (taskName !== "sector" && query.length < 2) return send(res, 400, { error: "두 글자 이상 입력해 주세요." });
-  if (query.length > MAX_INPUT) return send(res, 400, { error: `${MAX_INPUT}자까지 쓸 수 있어요.` });
-  if (taskName !== "hs" && context.length < 10) return send(res, 400, { error: "분석할 자료가 없어요." });
+  const maxInput = task.maxInput || MAX_INPUT;
+  if (query.length > maxInput) return send(res, 400, { error: `${maxInput}자까지 쓸 수 있어요.` });
+  if (taskName !== "hs" && !task.noContext && context.length < 10) return send(res, 400, { error: "분석할 자료가 없어요." });
   if (context.length > MAX_CONTEXT) return send(res, 400, { error: "분석할 자료가 너무 길어요." });
 
   try {

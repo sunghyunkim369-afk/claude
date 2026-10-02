@@ -26,6 +26,14 @@
 - 직접 실행: `node scripts/news/collect.js --backfill` → `node scripts/news/publish.js`
 - (선택) GitHub → Settings → Secrets → Actions 에 `AI_API_KEY` 를 넣으면 Eyefeet AI 가 기사 분류·주간 요약을 보완해요.
 
+## 직구·여행 통관 도우미
+
+`tradecompass-mvp/tools.js` — 실시간 연동 없이 동작하는 일반인용 도구 세 가지 (기준값은 파일 위쪽 `RULES`·`CATS`·`ITEMS` 에 모여 있어요)
+
+- **여행자 면세 계산기** (`#/travel`): 기본 $800, 술 합계 2L·$400(병 수 제한 없음), 향수 100ml, 담배 200개비, 품목별 간이세율, 자진신고 30% 감면(최대 20만 원) vs 미신고 가산세 40%/60% 비교
+- **직구 반입 체커** (`#/check`): 자주 사는 품목의 가능·조건부·불가 + 잘 모르는 함정, 합산과세·되팔기·반품 관세환급·개인통관고유부호 도용 확인
+- **통관 진행 조회** (`#/track`): 번호를 복사해 관세청 유니패스로 연결, 진행 단계별 의미와 할 일
+
 ## AI 분석 (Eyefeet AI · 깃솔트 로컬 AI)
 
 브라우저는 `shared/ai-client.js`로 `POST /api/ai`를 부르고, `api/ai.js`가 환경변수의 AI 주소·키로 Eyefeet AI(qwen3-30b-a3b)를 호출해요.

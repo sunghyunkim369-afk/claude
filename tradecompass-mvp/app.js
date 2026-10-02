@@ -387,6 +387,9 @@ const views = {
   }
 };
 
+// 직구·여행 통관 도우미 화면 (tools.js)
+Object.assign(views, (window.TC_TOOLS || {}).views || {});
+
 // ── 동작 붙이기 ──
 function animate(root) {
   requestAnimationFrame(() => requestAnimationFrame(() => {

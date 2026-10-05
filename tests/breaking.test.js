@@ -33,3 +33,10 @@ test("최신순 정렬과 최대 개수", () => {
   assert.equal(out.length, 5);
   assert.deepEqual(out.map(a => a.title), ["관세 0", "관세 1", "관세 2", "관세 3", "관세 4"]);
 });
+
+test("시세표·게시판 같은 단신은 속보에서 빼요", () => {
+  const { finalize } = require("../scripts/news/lib");
+  assert.equal(finalize({ title: "[표] 외국환율고시표", desc: "환율", lang: "ko" }, "fx"), null);
+  assert.equal(finalize({ title: "[게시판] 관세청 설명회", desc: "", lang: "ko" }, "customs"), null);
+  assert.notEqual(finalize({ title: "원/달러 환율 1,350원대 하락…수출기업 부담", desc: "", lang: "ko" }, "fx"), null);
+});

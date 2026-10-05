@@ -140,7 +140,7 @@ function actionDirection(text, topic) {
 // - 아무 주제 단어도 없으면: 수출·수입·무역·통상 단어가 있으면 "수출입 동향"으로, 없으면 버려요
 //   (Google 뉴스 검색은 본문·비슷한 말로도 결과를 줘서 "세이프가드" 검색에 안전경영 기사가 섞여요)
 // 게시판·인사·부고·사진 같은 단신은 무역 이슈가 아니라서 버려요
-const SKIP_TITLE = /^\s*[\[【(]\s*(게시판|인사|부고|포토|사진|화보|운세|날씨|알림|모집|행사)\s*[\]】)]/;
+const SKIP_TITLE = /^\s*[\[【(]\s*(게시판|인사|부고|포토|사진|화보|운세|날씨|알림|모집|행사|표|그래픽)\s*[\]】)]/;
 function finalize(item, hint) {
   if (SKIP_TITLE.test(item.title) || isPromo(item.title)) return null;
   const c = classify(item);

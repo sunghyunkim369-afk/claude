@@ -1,17 +1,7 @@
 {
- "generated": "2026-10-05T08:13:54.130Z",
+ "generated": "2026-10-05T08:16:06.889Z",
  "hours": 24,
  "items": [
-  {
-   "title": "[표] 외국환율고시표",
-   "link": "https://www.mk.co.kr/news/economy/12168520",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-05T07:57:44.000Z",
-   "tag": "환율",
-   "direction": "info",
-   "sectors": []
-  },
   {
    "title": "[단독] 美 블랙리스트 中기업에...‘안보’ 검토 없이 발전사업 허가",
    "link": "https://www.mk.co.kr/news/economy/12168468",
@@ -160,6 +150,16 @@
    "at": "2026-10-05T02:00:00.000Z",
    "tag": "수출입 동향",
    "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "KOTRA Supports Entry of K-Aerospace Materials, Components, and Equipment into Global Supply Chain with U.S. Bell Textron",
+   "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE9NYU56eXI5UkFUcHpYaEl4bGNqOW9UekUzbmxMWnYyZko0czJQUWNpRjQ0ZjZkZ1ExWFktX3lva2pTS2ZlOUFFTGY2ZnZLU0dENnNtaEFheTZ0TmQxd2U4SDdHRk4?oc=5",
+   "source": "아시아경제",
+   "outlets": 1,
+   "at": "2026-10-05T02:00:00.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
    "sectors": []
   }
  ]

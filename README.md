@@ -37,10 +37,34 @@
 
 ## 회원가입 · 로그인
 
-- 화면: `tradecompass-mvp/auth.js` (머리글 로그인·회원가입 버튼, 창, 내 메뉴). 로그인하면 관심 섹터가 계정에 저장돼 다른 기기에서도 같아요.
-- 서버: `api/auth.js` — `signup` · `login` · `logout` · `me` · `watch`. PostgreSQL(`pg`) 테이블 `tc_users` 를 처음 호출 때 자동으로 만들어요.
-- 보안: 비밀번호는 scrypt 해시로만 저장, 로그인은 HMAC 서명 쿠키(HttpOnly·Secure·SameSite=Lax), 다른 사이트 요청 차단, IP당 분당 10회 제한, 로그인 실패 메시지 통일.
-- 켜려면 Eyefeet 테넌트 환경변수에 `DATABASE_URL`(PostgreSQL 주소)과 `SESSION_SECRET`(32자 이상 임의 문자열)을 넣고 정지 → 배포 → 시작. 없으면 창은 보이지만 "준비 중" 안내만 나와요. GitHub Pages·아티팩트에서는 화면만 미리 볼 수 있어요.
+- 화면: `tradecompass-mvp/auth.js` — 머리글 로그인·회원가입 버튼, 창, 로그인 후 이메일·로그아웃 버튼. 로그인하면 이 브라우저에 저장해 둔 관심 섹터를 계정으로 옮기고, 이후엔 계정에 저장돼 다른 브라우저에서도 같아요.
+- 서버: `api/auth.js` — `signup` · `login` · `logout` · `me` · `watch`.
+  - 저장소: `DATABASE_URL` 이 있으면 PostgreSQL(`tc_users` 테이블 자동 생성), 없으면 서버 파일(`AUTH_FILE`, 기본은 임시 폴더 — **재배포하면 지워질 수 있어요**).
+  - 보안: 비밀번호는 scrypt 해시로만 저장, HMAC 서명 쿠키(HttpOnly·Secure·SameSite=Lax), "로그인 상태 유지" 체크 시 30일·아니면 브라우저 세션, 다른 사이트 요청 차단, IP당 분당 10회 제한, 로그인 실패 메시지 통일.
+- 켜려면 Eyefeet 테넌트 환경변수에 **`SESSION_SECRET`(필수)**, `DATABASE_URL`(권장)을 넣고 정지 → 배포 → 시작. `SESSION_SECRET` 이 없으면 창에 "준비 중" 안내만 나와요.
+- 테스트: `npm test` (`tests/auth.test.js` — 가입→로그아웃→로그인, 30일 유지 쿠키, 다른 브라우저에서 같은 관심 섹터, 평문 비밀번호 없음, 입력 검증·중복·잘못된 로그인, 위조 쿠키·외부 요청·연속 시도). `TEST_DATABASE_URL` 을 주면 PostgreSQL 로도 같은 시나리오를 돌려요(GitHub Actions `Tests` 가 자동으로 함).
+
+## 24시간 속보
+
+- 6시간마다 수집 직후 `scripts/news/breaking.js` 가 최근 24시간 신뢰 언론사 기사를 최신순(최대 15건)으로 `data/news/breaking.json`, `tradecompass-mvp/breaking.js` 에 써요. 두 브랜치에 올리고 GitHub Pages 를 다시 배포해요. eyefeet 은 `/api/breaking` 으로 재배포 없이 최신본을 받아요.
+- 화면: 홈(요약 바로 아래 6건)과 무역 뉴스 맨 위(15건). 브라우저에서도 지금 시각 기준 24시간이 지난 기사는 숨겨요. 조치 방향 라벨은 기존 규칙(강화·완화·동향·중립) 그대로.
+- 테스트: `tests/breaking.test.js` (23시간 59분 포함, 24시간 1분 제외, 미래 시각·비신뢰 출처·홍보 기사 제외, 최신순).
+
+## AI 답변 안전장치
+
+`api/ai.js` 의 모든 작업(브리핑 질문, 섹터 분석, HS 코드, 면세 계산기, 반입 체커, 통관 문구 해석)에 공통 적용:
+
+1. 시스템 프롬프트 규칙: 종목·자산 매수·매도 권유, 목표가·수익 보장 금지, 모르면 모른다고 하고 공식 출처 안내.
+2. 응답 후처리 필터: 매수·매도·목표가·수익 보장·종목 추천 같은 문장은 지우고, 다 지워지면 중립 문구로 바꿔요. 투자 판단을 묻는 질문이거나 필터가 작동하면 답변 위에 안내 문구(`notice`)를 붙여요.
+3. 로그: 요청마다 `[ai-log]`(작업·질문·응답 요약·필터 건수, 이메일·전화번호·긴 숫자는 가림, IP 없음), 필터가 작동하면 `[ai-filter]`. Eyefeet 로그 화면에서 검색해 점검해요.
+- 테스트: `tests/ai-safety.test.js` (삼성전자 사도 돼? · SK하이닉스 팔까? · ETF 추천 · 정상 답변 · 통관/면세 응답 · 로그 가림). 배포 후 실제 AI 점검: Actions → **AI safety check** 실행(또는 `node scripts/ai-safety-check.js`).
+
+## 상태 확인 · 오류 집계
+
+- `/api/health` (`/health` 로도 열림): 가동 여부, 환경변수 설정 여부, 회원 저장소 종류, **최근 24시간 서버 오류 건수(출처별)**. 내용은 넣지 않아요.
+- `/api/admin-errors`: 최근 오류 50건 목록. `ADMIN_TOKEN` 환경변수를 넣어야 열리고, `Authorization: Bearer <ADMIN_TOKEN>` 헤더가 필요해요. 메시지 속 개인정보는 가려져 있어요.
+  예) `curl -H "Authorization: Bearer $ADMIN_TOKEN" https://tcmvp.eyefeet.com/api/admin-errors`
+- 집계는 서버 메모리 기준이라 재시작하면 0부터 다시 세요. 모든 오류는 `[server-error]` 로그에도 남아요.
 
 ## AI 분석 (Eyefeet AI · 깃솔트 로컬 AI)
 

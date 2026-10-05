@@ -52,7 +52,7 @@ async function runToolAI(card, task, payload, render) {
   ctrls.forEach(b => b.disabled = true);
   out.innerHTML = `<p class="muted ai-wait"></p>`;
   const stop = tcAI.progress(out.firstChild, "AI가 읽는 중이에요");
-  try { out.innerHTML = render(await tcAI.ask(task, payload)); }
+  try { const r = await tcAI.ask(task, payload); out.innerHTML = (r.notice ? `<p class="ai-notice">${esc(r.notice)}</p>` : "") + render(r); }
   catch (e) { out.innerHTML = `<p class="ai-err">${esc(e.message)}</p>`; }
   finally { stop(); ctrls.forEach(b => b.disabled = !aiOn()); }
 }

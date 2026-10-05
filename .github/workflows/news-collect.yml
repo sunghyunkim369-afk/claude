@@ -1,6 +1,7 @@
 name: News collect
 
-# 6시간마다 공식·유명 출처에서 무역 기사를 모아 data/news/archive.json 에 쌓아요.
+# 6시간마다 공식·유명 출처에서 무역 기사를 모아 data/news/archive.json 에 쌓고,
+# 최근 24시간 속보(data/news/breaking.json, tradecompass-mvp/breaking.js)를 새로 만들어 두 브랜치에 올린 뒤 GitHub Pages 를 다시 배포해요.
 # 처음 한 번은 Actions 화면에서 backfill 을 켜고 실행하면 직전 5주치를 채워요.
 on:
   schedule:
@@ -14,6 +15,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: news-data
@@ -34,15 +36,28 @@ jobs:
         env:
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
         run: node scripts/news/collect.js ${{ inputs.backfill && '--backfill' || '' }}
-      - name: Commit archive
+      - name: Breaking news (last 24h)
+        run: node scripts/news/breaking.js
+      - name: Commit and push
+        id: push
         run: |
           git config user.name "tradecompass-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/news/archive.json
+          git add data/news/archive.json data/news/breaking.json tradecompass-mvp/breaking.js
           if git diff --cached --quiet; then echo "변경 없음"; exit 0; fi
           git commit -m "News: collect $(date -u +%Y-%m-%dT%H:%MZ)"
           for i in 1 2 3; do
-            git pull --rebase origin claude/elegant-heisenberg-s2a9ar && git push origin HEAD:claude/elegant-heisenberg-s2a9ar && exit 0
+            if git pull --rebase origin claude/elegant-heisenberg-s2a9ar && git push origin HEAD:claude/elegant-heisenberg-s2a9ar; then
+              # main 은 eyefeet /api/breaking 이 읽는 브랜치: 작업 브랜치와 같게 맞춰요
+              git push origin HEAD:main || echo "::warning::main 브랜치에 올리지 못했어요 (작업 브랜치와 갈라짐)"
+              echo "pushed=1" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
             sleep $((i * 5))
           done
           exit 1
+      - name: Redeploy GitHub Pages
+        if: steps.push.outputs.pushed == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref claude/elegant-heisenberg-s2a9ar

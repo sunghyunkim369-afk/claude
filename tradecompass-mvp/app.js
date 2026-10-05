@@ -282,7 +282,7 @@ async function runAI(card, task, payload) {
   const stop = tcAI.progress(out.firstChild);
   try {
     const r = await tcAI.ask(task, payload);
-    out.innerHTML = (task === "sector" ? renderSectorAI(r) : renderAskAI(r))
+    out.innerHTML = (r.notice ? `<p class="ai-notice">${esc(r.notice)}</p>` : "") + (task === "sector" ? renderSectorAI(r) : renderAskAI(r))
       + `<p class="ai-foot">AI가 화면의 자료로 만든 참고 분석이에요. 투자 권유가 아니며, 중요한 판단은 원문을 확인하세요.</p>`;
   } catch (e) {
     out.innerHTML = `<p class="ai-err">${esc(e.message)}</p>`;
@@ -304,6 +304,31 @@ document.addEventListener("submit", e => {
   if (q.length < 2) { card.querySelector(".ai-result").innerHTML = `<p class="ai-err">질문을 두 글자 이상 적어 주세요.</p>`; return; }
   runAI(card, "ask", { query: q, context: briefContext() });
 });
+
+// ── 속보 · 최근 24시간 ──
+// 6시간마다 수집할 때 만든 breaking.js (eyefeet 은 /api/breaking 으로 최신본) 에서, 지금 시각 기준 24시간 안의 기사만 보여줘요.
+let BR = window.TC_BREAKING || null;
+const H24 = 24 * 3600 * 1000;
+const within24 = iso => { const t = Date.parse(iso), n = Date.now(); return t >= n - H24 && t <= n + 600000; };
+const hm = iso => { const d = new Date(iso); return isNaN(d) ? "" : `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`; };
+function breakingBlock(i, full) {
+  if (!BR) return "";
+  const items = (BR.items || []).filter(a => within24(a.at)).slice(0, full ? 15 : 6);
+  return `
+    <section class="card breaking rise" id="breaking" style="--i:${i}">
+      <div class="card-h"><div><h2><span class="live"></span>속보 <small>최근 24시간</small></h2><p>신뢰 언론사 기사 최신순 · 6시간마다 수집 · 마지막 수집 ${esc(hm(BR.generated))}</p></div>${full ? "" : `<a class="more" href="#/news">전체 →</a>`}</div>
+      ${items.length ? `<ol class="br-list${full ? " full" : ""}">${items.map(a => `
+        <li>
+          <span class="br-time${Date.now() - Date.parse(a.at) < 3 * 3600 * 1000 ? " new" : ""}">${esc(ago(a.at))}</span>
+          <div class="br-body">
+            <h3>${ext(a.link, esc(a.title))}</h3>
+            <p><span class="tag">${esc(a.tag)}</span><em class="dir ${act(a.direction)[1]}">${act(a.direction)[0]}</em><span class="src">${esc(a.source)}${a.outlets > 1 ? ` 외 ${a.outlets - 1}곳` : ""}</span></p>
+          </div>
+        </li>`).join("")}</ol>`
+      : `<p class="muted">최근 24시간 동안 새로 들어온 무역 기사가 없어요. 다음 수집 때 다시 확인해 주세요.</p>`}
+    </section>`;
+}
+const refreshBreaking = () => { const el = document.getElementById("breaking"); if (el) { const full = location.hash.startsWith("#/news"); el.outerHTML = breakingBlock(1, full); } };
 
 // ── 홈: 내 관심 섹터 ──
 // 관심 섹터를 고르면(로그인 없이도 이 브라우저에 저장) 홈 위쪽에 점수·상태·대표 기사를 모아 보여줘요.
@@ -363,6 +388,8 @@ const views = {
         <ul>${b.points.map(p => `<li>${esc(p)}</li>`).join("")}</ul>
       </section>
 
+      ${breakingBlock(2, false)}
+
       ${myBlock()}
 
       <div class="grid g-2" style="margin-top:22px">
@@ -409,6 +436,7 @@ const views = {
     const list = D.news.filter(n => cur === "전체" || n.tag === cur);
     return `
       <div class="page-h rise"><p class="kicker">Newsroom</p><h1 class="display sm">Trade <em>News</em></h1><p>${D.meta.sample ? `오늘 수집한 ${D.meta.sources.toLocaleString()}건 가운데 고른 핵심 뉴스와 이슈예요.` : `${esc(D.meta.period)} 수집한 무역 기사 ${D.meta.sources.toLocaleString()}건에서 고른 Top 10 이슈와 주요 뉴스예요. <a href="#/method">순위는 어떻게 정하나요?</a>`}</p></div>
+      ${breakingBlock(1, true)}
       <div class="grid g-2">
         <section class="card rise" style="--i:1">
           <div class="card-h"><h2>${D.meta.sample ? "뉴스 × 연관 종목" : "주요 뉴스"}</h2></div>
@@ -480,6 +508,7 @@ const views = {
           <li><b>추세</b> = 이번 주 무역 기사 중 이 이슈의 비중을 직전 4주 비중과 비교 (같으면 0.5, 늘수록 1에 가깝게)</li>
           <li><b>한국 관련도</b> = 한국·국내 기업이 직접 언급되면 1, 해외 기사는 0.5</li>
           <li>Top 10은 점수 순으로 고르되 같은 주제·같은 나라 이슈가 반복되지 않도록 조정해요(한 섹터 최대 3개).</li>
+          <li><b>대표 기사</b> = 이슈 주제 단어가 제목에 있고(상대국이 있으면 나라 이름까지) 관련도 기준을 넘는 기사 중 가장 중요한 기사예요. 제품 출시·행사 홍보 기사는 이슈에서 빼요.</li>
         </ul>
         <h2>3. 섹터 노출도</h2>
         <p>이번 주 무역 기사 중 그 섹터 기사의 비중을 직전 4주 평균과 비교해 0~100으로 나타내요. 50은 평소 수준, 높을수록 평소보다 뉴스에 많이 노출됐다는 뜻이에요. 강화·완화·보합은 기사 속 무역 조치(부과·통제 vs 인하·유예)의 방향이에요.</p>
@@ -604,6 +633,14 @@ function header() {
   $("#nav-news").textContent = D.issues.length;
 }
 header();
+
+// eyefeet 에서는 6시간마다 갱신되는 속보도 다시 배포 없이 받아와요
+if (window.tcAI && tcAI.enabled) {
+  fetch("/api/breaking", { headers: { Accept: "application/json" } })
+    .then(r => r.ok ? r.json() : null)
+    .then(n => { if (n && Array.isArray(n.items) && (!BR || (n.generated || "") > (BR.generated || ""))) { BR = n; refreshBreaking(); } })
+    .catch(() => {});
+}
 
 // eyefeet 에서는 다시 배포하지 않아도 최신 주간 데이터를 받아와요 (/api/data → GitHub 에 매주 올라가는 latest.json)
 if (window.tcAI && tcAI.enabled) {

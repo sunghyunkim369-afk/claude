@@ -5,7 +5,8 @@ const fs = require("fs");
 const path = require("path");
 const { TOPICS, SECTORS, COUNTRIES, SCORE } = require("./config");
 const { weeklyBrief } = require("./ai");
-const { finalize, outletName, cleanDesc, stripOutlet } = require("./lib");
+const { finalize, outletName, cleanDesc, stripOutlet, rankForIssue, isPromo } = require("./lib");
+const { LEAD_MIN_RELEVANCE } = require("./config");
 
 const ROOT = path.join(__dirname, "..", "..");
 const ARCHIVE = path.join(ROOT, "data", "news", "archive.json");
@@ -134,7 +135,7 @@ async function main() {
     a.title = stripOutlet(a.title, a.source);
     a.source = outletName(a.source);
     a.outlets = [...new Set((a.outlets || [a.source]).map(o => outletName(o)))];
-    if (a.ai) return [a];
+    if (a.ai) return isPromo(a.title) ? [] : [a];
     const g = (a.feed || "").startsWith("gnews:") ? a.feed.slice(6) : "";
     const c = finalize(a, a.hint || (topicById[g] ? g : undefined));
     return c ? [{ ...a, ...c }] : [];
@@ -168,24 +169,29 @@ async function main() {
       // 점수 = 100 × (0.6·보도량 + 0.4·추세) × (0.6 + 0.4·한국 관련도)
       const Vn = Math.log(1 + r.V) / Math.log(1 + vMax);
       const score = 100 * (SCORE.wVolume * Vn + SCORE.wMomentum * r.M) * (0.6 + 0.4 * r.R);
-      const sorted = [...r.list].sort((a, b) => weight(b, now) - weight(a, now));
-      const lead = sorted[0];
+      // 대표 기사: 이슈 주제·상대국과 관련도가 기준을 넘는 기사 중 무게 순 (lib.rankForIssue)
+      const [topic, country] = r.key.split("|");
+      const ranked = rankForIssue(r.list, topic, country, a => weight(a, now));
+      const sorted = ranked.map(x => x.a);
+      const lead = sorted[0] || r.list[0];
+      const leadRel = ranked[0] ? ranked[0].rel : 0;
       const sectors = topSectors(r.list, 3);
-      const topic = r.key.split("|")[0];
       return {
         key: r.key, keyword: issueName(r.key), title: lead.title, link: lead.link, source: lead.source,
         time: ago(Date.parse(lead.date), now), impact: Math.round(score), tag: topicById[topic]?.label || topic,
         topic, risk: !!topicById[topic]?.risk, sectors, score: round(score), reports: r.list.length, prev: nPrev.get(r.key) || 0,
         ...dirCount(r.list), summary: shortSum(lead),
         parts: { volume: round(Vn, 3), momentum: round(r.M, 3), relevance: round(r.R, 3) },
-        trend: CTX.trend(r.key),
+        trend: CTX.trend(r.key), leadRelevance: leadRel,
         articles: sorted.slice(0, 4).map(a => ({ title: a.title, source: a.source, at: fmtAt(Date.parse(a.date)), link: a.link })),
       };
     })
     .sort((a, b) => b.score - a.score);
 
+  // 대표로 쓸 만한 기사(관련도 기준 통과)가 하나도 없는 이슈는 Top 10 후보에서 빼요
+  const eligible = cands.filter(x => x.leadRelevance >= LEAD_MIN_RELEVANCE);
   // MMR 로 고른 10개를 화면에는 점수 순으로 보여줘요
-  const issues = pickTop(cands, 10).sort((a, b) => b.score - a.score);
+  const issues = pickTop(eligible, 10).sort((a, b) => b.score - a.score);
 
   // ── 섹터 노출도: 이번 주 그 섹터 기사 비중이 평소(직전 4주)보다 높으면 50 위로 ──
   const sCountNow = count(week, a => a.sectors || []), sCountBase = count(base, a => a.sectors || []);
@@ -247,6 +253,10 @@ async function main() {
   fs.writeFileSync(OUT_JS, `// 무역나침반 데이터 — scripts/news/publish.js 가 매주 실제 뉴스로 자동 생성해요. 직접 고치지 마세요.\n// 기간: ${data.meta.period} · 기사 ${week.length}건 · 생성 ${data.meta.generated}\nwindow.TC_DATA = ${JSON.stringify(data, null, 1)};\n`);
 
   console.log(`기간 ${data.meta.period} · 이번 주 기사 ${week.length}건 · 직전 4주 ${base.length}건 · 이슈 후보 ${cands.length}개`);
+  // 대표 기사 점검표: 이슈 ↔ 대표 기사 제목 ↔ 관련도 (기준 미만이면 ⚠)
+  console.log(`\n대표 기사 점검 (관련도 기준 ${LEAD_MIN_RELEVANCE})`);
+  issues.forEach((x, i) => console.log(`${String(i + 1).padStart(2)}. ${x.leadRelevance >= LEAD_MIN_RELEVANCE ? "✓" : "⚠"} ${x.leadRelevance.toFixed(2)}  [${x.keyword}] ${x.title}`));
+  console.log("");
   issues.forEach((x, i) => console.log(`${String(i + 1).padStart(2)}. ${x.score.toFixed(2)}  ${x.keyword}  (보도 ${x.reports}/직전 ${x.prev}, V ${x.parts.volume} M ${x.parts.momentum} R ${x.parts.relevance})  ${x.title}`));
   console.log(sectors.map(s => `${s.name} ${s.score} ${s.state} (${s.articles}건)`).join(" | "));
 }

@@ -1,0 +1,23 @@
+name: AI safety check
+
+# 배포된 eyefeet 사이트의 /api/ai 에 투자 판단 질문 3개를 보내 매수·매도 권유가 없는지 확인해요 (수동 실행).
+on:
+  workflow_dispatch:
+    inputs:
+      site:
+        description: "사이트 주소"
+        default: "https://tcmvp.eyefeet.com"
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/ai-safety-check.js "${{ inputs.site }}"

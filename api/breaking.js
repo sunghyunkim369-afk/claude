@@ -1,18 +1,14 @@
-// 최신 주간 데이터: GitHub 에 매주 자동으로 올라가는 data/news/latest.json 을 대신 받아 전달해요.
-// 그래서 eyefeet 은 다시 배포하지 않아도 새 Top10 을 보여줄 수 있어요. (실패하면 페이지에 들어 있는 data.js 를 그대로 써요)
-// 다른 저장소를 쓰려면 환경변수 NEWS_DATA_URL 로 바꿀 수 있어요.
-
+// 24시간 속보: 6시간마다 GitHub 에 올라가는 data/news/breaking.json 을 대신 받아 전달해요 (10분 캐시).
+// 실패하면 페이지에 들어 있는 breaking.js 를 그대로 써요. 다른 저장소를 쓰려면 BREAKING_DATA_URL 로 바꿀 수 있어요.
 const metrics = require("./_metrics");
-const SOURCE = process.env.NEWS_DATA_URL ||
-  "https://raw.githubusercontent.com/sunghyunkim369-afk/claude/main/data/news/latest.json";
-const TTL = 10 * 60_000;     // 10분 동안은 받아 둔 것을 다시 써요
-const MAX = 2_000_000;
+const SOURCE = process.env.BREAKING_DATA_URL ||
+  "https://raw.githubusercontent.com/sunghyunkim369-afk/claude/main/data/news/breaking.json";
+const TTL = 10 * 60_000;
 let cache = { at: 0, body: null };
 
 module.exports = async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   if (req.method !== "GET") { res.statusCode = 405; return res.end('{"error":"GET only"}'); }
-
   if (!cache.body || Date.now() - cache.at > TTL) {
     try {
       const ctrl = new AbortController();
@@ -21,12 +17,12 @@ module.exports = async function handler(req, res) {
       clearTimeout(t);
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const text = await r.text();
-      if (text.length > MAX) throw new Error("too large");
+      if (text.length > 500_000) throw new Error("too large");
       const j = JSON.parse(text);
-      if (!j.meta || !Array.isArray(j.issues) || !Array.isArray(j.sectors)) throw new Error("bad shape");
+      if (!Array.isArray(j.items) || !j.generated) throw new Error("bad shape");
       cache = { at: Date.now(), body: text };
     } catch (e) {
-      metrics.record("data", String(e.message || e));
+      metrics.record("breaking", e.message);
       if (!cache.body) { res.statusCode = 502; return res.end('{"error":"data unavailable"}'); }
     }
   }

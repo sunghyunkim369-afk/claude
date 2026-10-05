@@ -837,3 +837,22 @@ dialog.auth::backdrop{background:rgba(19,35,63,.45);backdrop-filter:blur(3px)}
   /* 모바일에서는 하단 탭바 '내 정보'로 로그인하니 머리글 버튼은 숨겨요 (로그인 후 프로필 버튼은 보여요) */
   .auth-slot .join-btn,.auth-slot .ghost-btn{display:none}
 }
+.me-btn .nm{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:820px){ .auth-slot .out-btn{display:none} }
+
+/* ── 속보 · 최근 24시간 ── */
+.breaking{margin:22px 0 4px}
+.breaking h2{display:flex;align-items:center;gap:8px}
+.breaking h2 small{font-size:.78rem;font-weight:500;color:var(--ink-soft)}
+.live{width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 0 0 rgba(165,67,46,.5)}
+@media (prefers-reduced-motion:no-preference){ .live{animation:live 1.8s ease-out infinite} @keyframes live{70%{box-shadow:0 0 0 8px rgba(165,67,46,0)}100%{box-shadow:0 0 0 0 rgba(165,67,46,0)}} }
+.br-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px}
+.br-list.full{grid-template-columns:minmax(0,1fr)}
+.br-list li{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px solid var(--line);min-width:0}
+.br-time{font-size:.76rem;color:var(--ink-soft);padding-top:3px;white-space:nowrap}
+.br-time.new{color:var(--red);font-weight:700}
+.br-body h3{margin:0;font-size:.95rem;font-weight:600;line-height:1.45;overflow-wrap:anywhere;word-break:keep-all}
+.br-body p{margin:6px 0 0;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-size:.78rem;color:var(--ink-soft)}
+.br-body .dir{font-size:.74rem}
+@media (max-width:820px){ .br-list{grid-template-columns:minmax(0,1fr)} .br-list li{grid-template-columns:60px minmax(0,1fr)} }
+.ai-notice{margin:0 0 10px;padding:8px 12px;border-radius:8px;background:var(--tint-amber);color:var(--amber-ink);font-size:.84rem;line-height:1.5}

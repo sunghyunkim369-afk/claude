@@ -23,6 +23,38 @@ const TIMEOUT_MS = 45_000;         // 로컬 AI는 응답이 느릴 수 있어�
 const hits = new Map();
 
 const JSON_ONLY = "반드시 아래 JSON만 출력하세요. 앞뒤 설명 문장이나 코드 블록 표시는 쓰지 마세요.";
+const metrics = require("./_metrics");
+
+// ── 안전장치 (a) 모든 작업의 시스템 프롬프트에 붙이는 규칙 ──
+const SAFETY = `[반드시 지킬 규칙]
+- 특정 종목·주식·코인·자산을 사라/팔라고 권하지 마세요. "매수", "매도", "목표가", "수익 보장", "지금이 살 때" 같은 표현을 쓰지 마세요.
+- 주가·수익률을 예측하거나 보장하지 마세요. 투자 판단을 묻는 질문에는 "투자 판단은 안내하지 않아요"라고 말하고, 관련된 무역 사실만 정리하세요.
+- 확실하지 않으면 모른다고 답하고, 관세청·산업통상자원부·공시(DART) 같은 공식 출처를 확인하라고 안내하세요.`;
+
+// ── 안전장치 (b) 응답 후처리 필터: 투자자문성 문장을 지우거나 중립 문구로 바꿔요 ──
+const ADVICE = [
+  /매수|매도|사세요|파세요|사야\s*(해|합니다|할)|팔아야\s*(해|합니다|할)|사는\s*게\s*좋|파는\s*게\s*좋|살\s*때(입니다|예요|다)|팔\s*때(입니다|예요|다)/,
+  /목표\s*주?가|목표\s*가격|적정\s*주가/,
+  /수익(을|률)?\s*(이\s*)?(보장|확실|확정)|원금\s*보장|무조건\s*(오|올|상승|수익)|반드시\s*(오를|상승|수익)/,
+  /(종목|주식|ETF|코인|펀드)\s*(을|를)?\s*추천|추천\s*(종목|주식)|투자\s*(를\s*)?추천|비중\s*(확대|축소)/,
+  /\b(buy|sell)\s+(now|rating|signal)\b|\bprice\s+target\b/i,
+];
+const NEUTRAL = "투자 판단(매수·매도)은 안내하지 않아요. 공시와 공식 자료를 함께 확인해 주세요.";
+const INVEST_Q = /사도\s*(돼|될|되나)|팔아도|팔까|살까|매수|매도|주가|주식|종목|코인|투자해도|오를까|떨어질까|목표가|수익/;
+function filterText(text, hits) {
+  const parts = String(text).split(/(?<=[.!?。])\s+|\n+/);
+  const kept = parts.filter(p => { const m = ADVICE.find(re => re.test(p)); if (m) { hits.push((p.match(m) || [""])[0]); return false; } return true; });
+  if (kept.length === parts.length) return text;
+  const out = kept.join(" ").trim();
+  return out || NEUTRAL;
+}
+function filterAdvice(v, hits) {
+  if (typeof v === "string") return filterText(v, hits);
+  // 목록 항목이 통째로 투자 권유였으면 그 항목은 빼요 (중립 문구를 여러 번 늘어놓지 않게)
+  if (Array.isArray(v)) return v.map(x => filterAdvice(x, hits)).filter(x => x !== NEUTRAL);
+  if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, filterAdvice(x, hits)]));
+  return v;
+}
 
 // 자주 틀리는 류의 분류 기준. 모델이 이 기준과 어긋난 후보를 내지 않도록 함께 보내요.
 const HS_GUIDE = `[분류 기준표]
@@ -232,14 +264,30 @@ module.exports = async function handler(req, res) {
   if (taskName !== "hs" && !task.noContext && context.length < 10) return send(res, 400, { error: "분석할 자료가 없어요." });
   if (context.length > MAX_CONTEXT) return send(res, 400, { error: "분석할 자료가 너무 길어요." });
 
+  const t0 = Date.now();
+  const invest = INVEST_Q.test(query);
   try {
-    const text = await callAI(task.system, task.user(query, context), task.max);
-    return send(res, 200, task.parse(extractJson(text)));
+    const text = await caller(`${task.system}\n${SAFETY}`, task.user(query, context), task.max);
+    const hits = [];
+    const result = filterAdvice(task.parse(extractJson(text)), hits);
+    // 투자 판단을 묻는 질문이면, 답변 위에 안내 문구를 함께 보내요
+    if (invest || hits.length) result.notice = "AI는 특정 종목의 매수·매도나 주가를 안내하지 않아요. 이번 주 무역 자료와 관련된 사실만 정리했어요.";
+    // (c) 점검용 로그: 질문·응답 요약·필터 작동 여부 (이메일·전화번호·긴 숫자는 가려요, IP는 남기지 않아요)
+    console.log("[ai-log] " + JSON.stringify({ at: new Date().toISOString(), task: taskName, ms: Date.now() - t0, invest,
+      q: metrics.mask(query, 200), out: metrics.mask(JSON.stringify(result), 300), filtered: hits.length, terms: [...new Set(hits)].slice(0, 5) }));
+    if (hits.length) console.log("[ai-filter] " + JSON.stringify({ at: new Date().toISOString(), task: taskName, removed: hits.length, terms: [...new Set(hits)].slice(0, 5) }));
+    return send(res, 200, result);
   } catch (e) {
-    console.error("[ai-error] " + JSON.stringify({ at: new Date().toISOString(), task: taskName, message: String(e.message).slice(0, 200) }));
+    metrics.record("ai", `${taskName}: ${e.message}`);
+    console.log("[ai-log] " + JSON.stringify({ at: new Date().toISOString(), task: taskName, ms: Date.now() - t0, invest, q: metrics.mask(query, 200), ok: false }));
     const timeout = e.name === "AbortError";
     return send(res, 502, { error: timeout ? "AI 응답이 늦어요. 잠시 뒤 다시 시도해 주세요." : "AI 응답을 받지 못했어요. 잠시 뒤 다시 시도해 주세요." });
   }
 };
 
 module.exports.parseResult = parseResult;
+// 테스트용: AI 호출을 가짜 함수로 바꿔 끼울 수 있어요
+let caller = callAI;
+module.exports._setCaller = (fn) => { caller = fn || callAI; };
+module.exports._filter = (v) => { const hits = []; return { out: filterAdvice(v, hits), hits }; };
+module.exports.SAFETY = SAFETY;

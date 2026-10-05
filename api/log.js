@@ -1,3 +1,4 @@
+const metrics = require("./_metrics");
 // 브라우저 에러 수집: 페이지(error-logger.js)가 보낸 에러를 서버 로그에 한 줄 JSON으로 남겨요.
 // Eyefeet Cloud(vercel 런타임)의 로그 화면에서 "[client-error]"로 검색하면 모아 볼 수 있어요.
 
@@ -55,6 +56,7 @@ module.exports = async function handler(req, res) {
       page: clip(e.page, 300),
       ua: clip(req.headers["user-agent"], 200),
     }));
+    metrics.record("client", clip(e.message, 200), { page: clip(e.page, 120) }, { quiet: true });
   }
   res.statusCode = 204;
   res.end();

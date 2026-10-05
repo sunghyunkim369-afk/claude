@@ -3,7 +3,8 @@
   "private": true,
   "description": "TradeCompass MVP: 정적 페이지 + 서버 함수(api/)",
   "scripts": {
-    "build": "node scripts/build.js"
+    "build": "node scripts/build.js",
+    "test": "node --test tests/*.test.js"
   },
   "engines": {
     "node": ">=18"

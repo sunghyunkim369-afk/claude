@@ -41,11 +41,13 @@ jobs:
         env:
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
         run: node scripts/news/publish.js
+      - name: Breaking news (last 24h)
+        run: node scripts/news/breaking.js
       - name: Commit and push
         run: |
           git config user.name "tradecompass-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/news tradecompass-mvp/data.js
+          git add data/news tradecompass-mvp/data.js tradecompass-mvp/breaking.js
           if git diff --cached --quiet; then echo "변경 없음"; exit 0; fi
           git commit -m "News: weekly publish $(date -u +%Y-%m-%d)"
           git pull --rebase origin claude/elegant-heisenberg-s2a9ar

@@ -2,31 +2,35 @@
 // POST /api/auth  { action: "signup" | "login" | "logout" | "me" | "watch", ... }
 //
 // 필요한 환경변수 (Eyefeet Cloud 테넌트 설정, 값은 저장소에 절대 넣지 않아요)
-//   DATABASE_URL    PostgreSQL 접속 주소 (회원 정보 저장)
-//   SESSION_SECRET  로그인 쿠키 서명용 임의 문자열 (32자 이상 권장)
-// 둘 중 하나라도 없으면 503 으로 "회원 기능 준비 중"을 알려요.
+//   SESSION_SECRET  로그인 쿠키 서명용 임의 문자열 (32자 이상) — 없으면 503 "회원 기능 준비 중"
+//   DATABASE_URL    (권장) PostgreSQL 주소. 있으면 회원 정보를 DB에 저장해요.
+//   AUTH_FILE       (선택) DB가 없을 때 쓰는 서버 파일 경로. 기본: 임시 폴더/tradecompass/users.json
+//                   ※ 파일 저장은 서버를 다시 배포하면 지워질 수 있어요. 오래 쓰려면 DATABASE_URL 을 넣으세요.
 //
 // 보안
 // - 비밀번호는 scrypt(무작위 salt)로 해시해서만 저장해요. 원문은 어디에도 남기지 않아요.
 // - 로그인 상태는 HMAC 서명한 쿠키(HttpOnly, Secure, SameSite=Lax)로 유지해요.
+//   "로그인 상태 유지"를 고르면 30일, 아니면 브라우저를 닫으면 끝나는 쿠키(최대 1일)예요.
 // - 다른 사이트에서 보낸 요청(Origin 불일치)은 거절하고, IP당 분당 시도 횟수를 제한해요.
 // - 로그인 실패 메시지는 "이메일 또는 비밀번호가 맞지 않아요" 하나로 통일해요(가입 여부 노출 방지).
 const crypto = require("crypto");
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
+const metrics = require("./_metrics");
 
 const COOKIE = "tc_session";
 const LIMIT_PER_MIN = 10;
 const SECTORS = ["semi", "auto", "battery", "steel", "chem", "ship", "machinery", "consumer"];
 const hits = new Map();
-let pool = null, ready = null;
 
-// ── 저장소 (PostgreSQL) ──
-function db() {
-  if (!pool) {
-    const { Pool } = require("pg");
-    pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 3,
-      ssl: /sslmode=disable|localhost|127\.0\.0\.1/.test(process.env.DATABASE_URL) ? false : { rejectUnauthorized: false } });
-  }
-  if (!ready) ready = pool.query(`CREATE TABLE IF NOT EXISTS tc_users (
+// ── 저장소 1: PostgreSQL ──
+function pgStore(url) {
+  const { Pool } = require("pg");
+  const pool = new Pool({ connectionString: url, max: 3,
+    ssl: /sslmode=disable|localhost|127\.0\.0\.1/.test(url) ? false : { rejectUnauthorized: false } });
+  let ready = null;
+  const init = () => ready || (ready = pool.query(`CREATE TABLE IF NOT EXISTS tc_users (
     id SERIAL PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
     name TEXT NOT NULL,
@@ -34,8 +38,63 @@ function db() {
     watch JSONB NOT NULL DEFAULT '[]',
     agreed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    last_login TIMESTAMPTZ)`).catch(e => { ready = null; throw e; });
-  return ready.then(() => pool);
+    last_login TIMESTAMPTZ)`).catch(e => { ready = null; throw e; }));
+  const q = async (sql, args) => { await init(); return (await pool.query(sql, args)).rows; };
+  return {
+    kind: "postgres",
+    async create(u) {
+      const r = await q("INSERT INTO tc_users (email, name, pass_hash, watch) VALUES ($1, $2, $3, $4) ON CONFLICT (email) DO NOTHING RETURNING id, email, name, watch",
+        [u.email, u.name, u.passHash, JSON.stringify(u.watch)]);
+      return r[0] || null;
+    },
+    async byEmail(email) { return (await q("SELECT id, email, name, pass_hash, watch FROM tc_users WHERE email = $1", [email]))[0] || null; },
+    async byId(id) { return (await q("SELECT id, email, name, watch FROM tc_users WHERE id = $1", [id]))[0] || null; },
+    async setWatch(id, watch) { return (await q("UPDATE tc_users SET watch = $2 WHERE id = $1 RETURNING id, email, name, watch", [id, JSON.stringify(watch)]))[0] || null; },
+    async touch(id) { await q("UPDATE tc_users SET last_login = now() WHERE id = $1", [id]); },
+    end: () => pool.end(),
+  };
+}
+
+// ── 저장소 2: 서버 파일 (DB가 없을 때) ──
+// 쓰기는 한 번에 하나씩, 임시 파일에 쓴 뒤 이름을 바꿔 통째로 교체해요(중간에 끊겨도 파일이 깨지지 않게).
+function fileStore(file) {
+  let chain = Promise.resolve();
+  const load = () => { try { return JSON.parse(fs.readFileSync(file, "utf8")); } catch { return { seq: 0, users: [] }; } };
+  const save = (d) => {
+    fs.mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
+    const tmp = `${file}.${process.pid}.tmp`;
+    fs.writeFileSync(tmp, JSON.stringify(d), { mode: 0o600 });
+    fs.renameSync(tmp, file);
+  };
+  const locked = (fn) => (chain = chain.then(() => fn(), () => fn()));
+  const pub = (u) => u && { id: u.id, email: u.email, name: u.name, watch: u.watch };
+  return {
+    kind: "file",
+    create: (u) => locked(() => {
+      const d = load();
+      if (d.users.some(x => x.email === u.email)) return null;
+      const row = { id: ++d.seq, email: u.email, name: u.name, pass_hash: u.passHash, watch: u.watch,
+        agreed_at: new Date().toISOString(), created_at: new Date().toISOString(), last_login: null };
+      d.users.push(row); save(d);
+      return pub(row);
+    }),
+    byEmail: async (email) => { const u = load().users.find(x => x.email === email); return u ? { ...pub(u), pass_hash: u.pass_hash } : null; },
+    byId: async (id) => pub(load().users.find(x => x.id === id)),
+    setWatch: (id, watch) => locked(() => {
+      const d = load(), u = d.users.find(x => x.id === id);
+      if (!u) return null;
+      u.watch = watch; save(d); return pub(u);
+    }),
+    touch: (id) => locked(() => { const d = load(), u = d.users.find(x => x.id === id); if (u) { u.last_login = new Date().toISOString(); save(d); } }),
+    end: async () => {},
+  };
+}
+
+let store = null;
+function getStore() {
+  if (!store) store = process.env.DATABASE_URL ? pgStore(process.env.DATABASE_URL)
+    : fileStore(process.env.AUTH_FILE || path.join(os.tmpdir(), "tradecompass", "users.json"));
+  return store;
 }
 
 // ── 비밀번호 ──
@@ -69,10 +128,13 @@ function readToken(req) {
   if (sig.length !== good.length || !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(good))) return null;
   try { const p = JSON.parse(Buffer.from(body, "base64url").toString()); return p.exp > Date.now() ? p : null; } catch { return null; }
 }
-function setCookie(res, value, days) {
-  const age = value ? days * 86_400 : 0;
-  res.setHeader("Set-Cookie", `${COOKIE}=${value}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${age}`);
+// remember=true → 30일 유지 쿠키 / false → 브라우저 닫으면 끝나는 쿠키(토큰 자체도 1일 뒤 만료)
+function setSession(res, user, remember) {
+  const days = remember ? 30 : 1;
+  const age = remember ? `; Max-Age=${days * 86_400}` : "";
+  res.setHeader("Set-Cookie", `${COOKIE}=${makeToken(user, days)}; Path=/; HttpOnly; Secure; SameSite=Lax${age}`);
 }
+const clearSession = (res) => res.setHeader("Set-Cookie", `${COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`);
 
 // ── 공통 ──
 function send(res, status, obj) {
@@ -113,10 +175,10 @@ const pwProblem = (pw) =>
   : pw.length > 72 ? "비밀번호는 72자까지 쓸 수 있어요."
   : !/[A-Za-z]/.test(pw) || !/\d/.test(pw) ? "비밀번호에 영문과 숫자를 함께 넣어 주세요." : "";
 
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== "POST") { res.setHeader("Allow", "POST"); return send(res, 405, { error: "POST만 받아요." }); }
-  if (!process.env.DATABASE_URL || !process.env.SESSION_SECRET) {
-    return send(res, 503, { error: "회원 기능이 아직 연결되지 않았어요. (관리자: DATABASE_URL, SESSION_SECRET 설정 필요)", code: "not_configured" });
+  if (!process.env.SESSION_SECRET) {
+    return send(res, 503, { error: "회원 기능이 아직 연결되지 않았어요. (관리자: SESSION_SECRET 설정 필요)", code: "not_configured" });
   }
   if (!sameOrigin(req)) return send(res, 403, { error: "허용되지 않은 요청이에요." });
 
@@ -127,7 +189,7 @@ module.exports = async function handler(req, res) {
   if ((action === "login" || action === "signup") && tooMany(ip)) return send(res, 429, { error: "시도가 너무 많아요. 1분 뒤에 다시 해 주세요." });
 
   try {
-    const pg = await db();
+    const db = getStore();
 
     if (action === "signup") {
       const name = String(body.name || "").trim(), email = String(body.email || "").trim().toLowerCase(), pw = body.password;
@@ -135,42 +197,43 @@ module.exports = async function handler(req, res) {
       if (!EMAIL.test(email)) return send(res, 400, { error: "이메일 형식을 확인해 주세요.", field: "email" });
       const p = pwProblem(pw); if (p) return send(res, 400, { error: p, field: "password" });
       if (body.agree !== true) return send(res, 400, { error: "개인정보 수집·이용에 동의해 주세요.", field: "agree" });
-      const r = await pg.query(
-        "INSERT INTO tc_users (email, name, pass_hash, watch) VALUES ($1, $2, $3, $4) ON CONFLICT (email) DO NOTHING RETURNING id, email, name, watch",
-        [email, name, await hashPw(pw), JSON.stringify(cleanWatch(body.watch))]);
-      if (!r.rows[0]) return send(res, 409, { error: "이미 가입된 이메일이에요. 로그인해 주세요.", field: "email" });
-      setCookie(res, makeToken(r.rows[0], 7), 7);
-      console.log(JSON.stringify({ tag: "[auth]", event: "signup", uid: r.rows[0].id, at: new Date().toISOString() }));
-      return send(res, 200, { user: publicUser(r.rows[0]) });
+      const u = await db.create({ email, name, passHash: await hashPw(pw), watch: cleanWatch(body.watch) });
+      if (!u) return send(res, 409, { error: "이미 가입된 이메일이에요. 로그인해 주세요.", field: "email" });
+      setSession(res, u, !!body.remember);
+      console.log(JSON.stringify({ tag: "[auth]", event: "signup", uid: u.id, store: db.kind, at: new Date().toISOString() }));
+      return send(res, 200, { user: publicUser(u) });
     }
 
     if (action === "login") {
       const email = String(body.email || "").trim().toLowerCase(), pw = String(body.password || "");
-      const r = await pg.query("SELECT id, email, name, pass_hash, watch FROM tc_users WHERE email = $1", [email]);
-      const u = r.rows[0];
+      const u = await db.byEmail(email);
       const ok = await checkPw(pw, u ? u.pass_hash : DUMMY);
       if (!u || !ok) return send(res, 401, { error: "이메일 또는 비밀번호가 맞지 않아요." });
-      const days = body.remember ? 30 : 1;
-      await pg.query("UPDATE tc_users SET last_login = now() WHERE id = $1", [u.id]);
-      setCookie(res, makeToken(u, days), days);
+      await db.touch(u.id);
+      setSession(res, u, !!body.remember);
       return send(res, 200, { user: publicUser(u) });
     }
 
-    if (action === "logout") { setCookie(res, "", 0); return send(res, 200, { ok: true }); }
+    if (action === "logout") { clearSession(res); return send(res, 200, { ok: true }); }
 
     const tok = readToken(req);
     if (!tok) return send(res, 401, { error: "로그인이 필요해요." });
     if (action === "me") {
-      const r = await pg.query("SELECT email, name, watch FROM tc_users WHERE id = $1", [tok.uid]);
-      return r.rows[0] ? send(res, 200, { user: publicUser(r.rows[0]) }) : send(res, 401, { error: "로그인이 필요해요." });
+      const u = await db.byId(tok.uid);
+      return u ? send(res, 200, { user: publicUser(u) }) : send(res, 401, { error: "로그인이 필요해요." });
     }
     if (action === "watch") {
-      const r = await pg.query("UPDATE tc_users SET watch = $2 WHERE id = $1 RETURNING email, name, watch", [tok.uid, JSON.stringify(cleanWatch(body.watch))]);
-      return send(res, 200, { user: publicUser(r.rows[0]) });
+      const u = await db.setWatch(tok.uid, cleanWatch(body.watch));
+      return u ? send(res, 200, { user: publicUser(u) }) : send(res, 401, { error: "로그인이 필요해요." });
     }
     return send(res, 400, { error: "알 수 없는 요청이에요." });
   } catch (e) {
-    console.error("[auth-error] " + JSON.stringify({ at: new Date().toISOString(), action, message: String(e.message).slice(0, 200) }));
+    metrics.record("auth", `${action}: ${e.message}`);
     return send(res, 500, { error: "잠시 문제가 생겼어요. 조금 뒤 다시 시도해 주세요." });
   }
-};
+}
+
+module.exports = handler;
+// 상태 확인·테스트용
+module.exports.storeKind = () => (process.env.DATABASE_URL ? "postgres" : "file");
+module.exports._reset = async () => { if (store) await store.end(); store = null; hits.clear(); };

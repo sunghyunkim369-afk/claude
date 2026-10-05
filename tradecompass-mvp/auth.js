@@ -24,7 +24,8 @@ slot.className = "auth-slot";
 document.querySelector(".top-badges")?.after(slot);
 function renderSlot() {
   slot.innerHTML = user
-    ? `<button type="button" class="me-btn" data-auth="menu" aria-haspopup="true" aria-expanded="false"><span class="av">${esc(user.name.slice(0, 1))}</span><span class="nm">${esc(user.name)}</span></button>
+    ? `<button type="button" class="me-btn" data-auth="menu" aria-haspopup="true" aria-expanded="false" title="${esc(user.name)}"><span class="av">${esc(user.name.slice(0, 1))}</span><span class="nm">${esc(user.email)}</span></button>
+       <button type="button" class="ghost-btn out-btn" data-auth="logout">로그아웃</button>
        <div class="me-menu" hidden role="menu">
          <p><b>${esc(user.name)}</b><small>${esc(user.email)}</small></p>
          <a href="#/watch" role="menuitem">관심 섹터 <em>${user.watch.length}</em></a>

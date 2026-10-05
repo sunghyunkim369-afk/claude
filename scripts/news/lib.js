@@ -1,5 +1,5 @@
 // 뉴스 파이프라인 공통 기능: RSS 읽기, 정리, 분류, 중복 묶기
-const { OUTLETS, TOPICS, TRADE_WORDS, SECTORS, COUNTRIES, TIGHTEN, EASE, KOREA_WORDS } = require("./config");
+const { OUTLETS, TOPICS, TRADE_WORDS, SECTORS, COUNTRIES, TIGHTEN, EASE, KOREA_WORDS, CORE_TRADE, PROMO, LEAD_MIN_RELEVANCE, TOPIC_EXCLUDE } = require("./config");
 
 const UA = "Mozilla/5.0 (compatible; TradeCompassBot/1.0; +https://tcmvp.eyefeet.com)";
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -100,7 +100,9 @@ function classify(item) {
   // 제목에 나온 단어에 가중치 2, 요약에만 나오면 1
   const score = (words) => countHits(titleText, words) * 2 + countHits(text, words);
   // "관세"는 반덤핑 관세·관세청처럼 다른 주제 단어 안에도 들어 있어서, 동점이면 더 구체적인 주제를 앞에 둬요
-  const topics = TOPICS.map(t => ({ id: t.id, s: score(t.kw) - (t.id === "tariff" ? 0.5 : 0) })).filter(t => t.s > 0).sort((a, b) => b.s - a.s);
+  // 주제 단어가 다른 뜻으로 쓰인 제목(예: "마약 공급망")은 그 주제에서 빼요
+  const excluded = (id) => (TOPIC_EXCLUDE[id] || []).some(w => titleText.includes(lower(w)));
+  const topics = TOPICS.map(t => ({ id: t.id, s: excluded(t.id) ? 0 : score(t.kw) - (t.id === "tariff" ? 0.5 : 0) })).filter(t => t.s > 0).sort((a, b) => b.s - a.s);
   const sectors = SECTORS.map(s => ({ id: s.id, s: score(s.kw) })).filter(s => s.s > 0).sort((a, b) => b.s - a.s);
   const ctext = text.replace(/中企|中小/g, ""), ctitle = titleText.replace(/中企|中小/g, "");
   const cs = (words) => countHits(ctitle, words) * 2 + countHits(ctext, words);
@@ -140,7 +142,7 @@ function actionDirection(text, topic) {
 // 게시판·인사·부고·사진 같은 단신은 무역 이슈가 아니라서 버려요
 const SKIP_TITLE = /^\s*[\[【(]\s*(게시판|인사|부고|포토|사진|화보|운세|날씨|알림|모집|행사)\s*[\]】)]/;
 function finalize(item, hint) {
-  if (SKIP_TITLE.test(item.title)) return null;
+  if (SKIP_TITLE.test(item.title) || isPromo(item.title)) return null;
   const c = classify(item);
   if (hint && c.topics.includes(hint)) { c.topic = hint; c.topics = [hint, ...c.topics.filter(t => t !== hint)]; return c; }
   if (c.topics.length) return c;
@@ -148,9 +150,54 @@ function finalize(item, hint) {
   return null;
 }
 
+// ── 제품 출시·행사 홍보 기사 거르기 ──
+// 제목에 무역 핵심 단어(관세·수출·공급망·운임…)가 하나도 없는데 출시·개최·할인 같은 홍보성 단어가 있으면 true.
+// 예) "HD현대사이트솔루션, 국내 최대 18t급 전동지게차 출시" → true (해운·물류 이슈에서 빠져요)
+function isPromo(title = "") {
+  const t = lower(title);
+  return PROMO.some(w => t.includes(lower(w))) && !CORE_TRADE.some(w => hit(t, w));
+}
+
+// ── 이슈 대표 기사 고르기 ──
+// 관련도(0~1) = 주제 단어가 제목에 있으면 0.6 (요약에만 있으면 0.25)
+//             + 상대국 이름이 제목에 있으면 0.3 (요약에만 0.1, 상대국 없는 이슈는 0.3)
+//             + 무역 핵심 단어가 제목에 있으면 0.1
+// 관련도가 기준(0.6) 이상인 기사 중 "무게 × (0.5 + 관련도)"가 가장 큰 기사를 대표로 써요. 기준을 넘는 기사가 없으면 관련도 1등.
+function issueRelevance(a, topicId, countryId) {
+  const t = lower(a.title || "").replace(FALSE_HITS, ""), d = lower(a.desc || "").replace(FALSE_HITS, "");
+  const topic = TOPICS.find(x => x.id === topicId), country = COUNTRIES.find(x => x.id === countryId);
+  let s = 0;
+  if (topic && !(TOPIC_EXCLUDE[topicId] || []).some(w => t.includes(lower(w)))) s += has(t, topic.kw) ? 0.6 : has(d, topic.kw) ? 0.25 : 0;
+  if (!country) s += 0.3;
+  else {
+    const ct = t.replace(/中企|中小/g, ""), cd = d.replace(/中企|中小/g, "");
+    s += has(ct, country.kw) ? 0.3 : has(cd, country.kw) ? 0.1 : 0;
+  }
+  if (CORE_TRADE.some(w => hit(t, w))) s += 0.1;
+  return Math.round(Math.min(1, s) * 100) / 100;
+}
+function rankForIssue(list, topicId, countryId, weightOf) {
+  const scored = list.filter(a => !isPromo(a.title)).map(a => ({ a, rel: issueRelevance(a, topicId, countryId), w: weightOf(a) }));
+  const pass = scored.filter(x => x.rel >= LEAD_MIN_RELEVANCE).sort((x, y) => y.w * (0.5 + y.rel) - x.w * (0.5 + x.rel));
+  const rest = scored.filter(x => x.rel < LEAD_MIN_RELEVANCE).sort((x, y) => y.rel - x.rel || y.w - x.w);
+  return [...pass, ...rest];   // 앞쪽이 대표 기사 후보 (기준 통과 → 미달 순)
+}
+
+// ── 24시간 속보 ──
+// 수집 시각 기준 최근 24시간(경계 포함) 안에 나온 신뢰 언론사 기사만, 최신순으로. 미래 시각(시계 오차 10분 초과)·홍보 기사는 빼요.
+const BREAKING_HOURS = 24;
+function breakingFrom(items, now = Date.now(), limit = 15) {
+  const from = now - BREAKING_HOURS * 3_600_000, until = now + 10 * 60_000;
+  return items
+    .filter(a => { const t = Date.parse(a.date); return t >= from && t <= until; })
+    .filter(a => (a.tier || outletTier(a.source)) >= 0.7 && !isPromo(a.title))
+    .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
+    .slice(0, limit);
+}
+
 // ── 중복 묶기 (제목 2글자 조각의 Jaccard 유사도, Broder 1997 shingling) ──
 const normTitle = (t) => t.replace(/\[[^\]]*\]|\([^)]*\)|【[^】]*】/g, "").replace(/[^\p{L}\p{N}]/gu, "").toLowerCase();
 function shingles(t) { const s = normTitle(t), set = new Set(); for (let i = 0; i < s.length - 1; i++) set.add(s.slice(i, i + 2)); return set; }
 function jaccard(a, b) { let inter = 0; for (const x of a) if (b.has(x)) inter++; return inter / (a.size + b.size - inter || 1); }
 
-module.exports = { cleanDesc, actionDirection, fetchText, parseFeed, stripOutlet, outletTier, outletName, finalize, hostOf, isTrade, classify, shingles, jaccard, normTitle, sleep };
+module.exports = { breakingFrom, BREAKING_HOURS, isPromo, issueRelevance, rankForIssue, cleanDesc, actionDirection, fetchText, parseFeed, stripOutlet, outletTier, outletName, finalize, hostOf, isTrade, classify, shingles, jaccard, normTitle, sleep };

@@ -118,6 +118,20 @@ const SECTORS = [
 // ── 4. 조치 방향 (강화/완화) 단어 ────────────────────────────────────
 const TIGHTEN = ["부과", "인상", "강화", "제재", "금지", "제한", "통제", "발동", "조사 착수", "보복", "확대 적용", "압박", "위협", "협박", "단속", "장벽", "엔티티 리스트", "impose", "raise", "hike", "tighten", "ban", "restrict", "curb", "threat"];
 const EASE = ["인하", "철폐", "면제", "유예", "완화", "해제", "타결", "철회", "감면", "합의", "폐지", "재개", "허용", "승인", "해소", "lower", "cut", "exempt", "suspend", "ease", "lift", "waive", "deal", "agreement"];
+// 제목에 이 단어가 하나도 없고 홍보성 단어(PROMO)만 있으면 제품 출시·행사 홍보 기사로 보고 이슈에서 빼요
+const CORE_TRADE = ["관세", "수출", "수입", "무역", "통상", "제재", "통제", "규제", "FTA", "협정", "반덤핑", "상계관세", "세이프가드",
+  "공급망", "핵심광물", "희토류", "운임", "해운", "환율", "유가", "원자재", "보조금", "IRA", "통관", "원산지", "tariff", "export", "import", "trade", "sanction"];
+const PROMO = ["출시", "론칭", "런칭", "신제품", "선보", "선봬", "개최", "세미나", "박람회", "전시회", "이벤트", "할인", "프로모션",
+  "기념식", "시상식", "수상", "기부", "봉사", "채용", "설명회", "팝업", "체험단", "[게시판]", "[인사]", "[부고]"];
+// 주제 단어가 다른 뜻으로 쓰인 경우: 이 단어가 제목에 있으면 그 주제로 분류하지 않아요 (예: "마약 공급망")
+const TOPIC_EXCLUDE = {
+  supply_chain: ["마약", "보이스피싱", "범죄 조직", "도박"],
+  sanctions: ["징계", "출장정지", "경고 처분", "축구", "야구", "선수"],
+  shipping: ["택배 파업", "배달앱"],
+};
+// 대표 기사 관련도 기준 (0~1). 이보다 낮으면 그 이슈의 대표 기사로 쓰지 않고 다음 후보를 봐요.
+const LEAD_MIN_RELEVANCE = 0.6;
+
 const KOREA_WORDS = ["한국", "국내", "韓", "우리나라", "우리 기업", "수출기업", "K-", "Korea", "Korean", "Seoul"];
 
 // ── 5. 점수 설정 ─────────────────────────────────────────────────────
@@ -138,4 +152,4 @@ const SCORE = {
   sectorPrior: 8,         // 섹터 노출도 축소 강도: 기사 8건이면 평소 대비 차이의 절반만 반영          // 뉴스 피드에 싣는 기사 수
 };
 
-module.exports = { FEEDS, GOV_QUERY, EN_QUERY, COUNTRIES, OUTLETS, TOPICS, TRADE_WORDS, SECTORS, TIGHTEN, EASE, KOREA_WORDS, SCORE };
+module.exports = { TOPIC_EXCLUDE, CORE_TRADE, PROMO, LEAD_MIN_RELEVANCE, FEEDS, GOV_QUERY, EN_QUERY, COUNTRIES, OUTLETS, TOPICS, TRADE_WORDS, SECTORS, TIGHTEN, EASE, KOREA_WORDS, SCORE };

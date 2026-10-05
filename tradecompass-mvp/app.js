@@ -19,6 +19,7 @@ let watch = loadWatch();
 // 로그인하면 이 기기의 관심 섹터와 계정의 관심 섹터를 합쳐요
 document.addEventListener("tc-auth", e => {
   const u = e.detail;
+  setTimeout(refreshMy);
   if (!u) return;
   const merged = new Set([...watch, ...u.watch]);
   const changed = merged.size !== u.watch.length || merged.size !== watch.size;
@@ -36,7 +37,7 @@ const compass = (score, cls = "compass") => `
     <circle cx="19" cy="19" r="17" fill="url(#tc-face)" stroke="url(#tc-rim)" stroke-width="1.8"/>
     <circle cx="19" cy="19" r="13.5" fill="none" stroke="rgba(184,135,59,.25)" stroke-width=".6"/>
     <g class="n" data-deg="${needleDeg(score)}">
-      <path d="M19 5 22 19 19 33 16 19Z" fill="var(--navy)"/>
+      <path d="M19 5 22 19 19 33 16 19Z" fill="var(--navy-bg)"/>
       <path d="M19 19 22 19 19 33 16 19Z" fill="#8C97A8"/>
     </g>
     <circle cx="19" cy="19" r="1.6" fill="#FBF5EA"/>
@@ -304,6 +305,34 @@ document.addEventListener("submit", e => {
   runAI(card, "ask", { query: q, context: briefContext() });
 });
 
+// ── 홈: 내 관심 섹터 ──
+// 관심 섹터를 고르면(로그인 없이도 이 브라우저에 저장) 홈 위쪽에 점수·상태·대표 기사를 모아 보여줘요.
+function myBlock() {
+  const u = window.tcAuth && tcAuth.user;
+  const mine = D.sectors.filter(s => watch.has(s.id));
+  const who = u ? `${esc(u.name)}님의 관심 섹터` : "내 관심 섹터";
+  if (!mine.length) return `
+    <section class="my rise" id="my-sectors" style="--i:2">
+      <div class="my-h"><h2>${who}</h2><span>고르면 여기에 모아 보여드려요</span></div>
+      <div class="my-empty">
+        <p>관심 있는 섹터를 눌러 추가하세요.${u ? "" : ` <button type="button" class="linkish" data-auth="open-signup">회원가입</button>하면 휴대폰·PC 어디서나 같아요.`}</p>
+        <div class="my-picks">${D.sectors.map(s => `<button type="button" class="pick-chip" data-star="${s.id}" aria-pressed="false">+ ${esc(s.name)}</button>`).join("")}</div>
+      </div>
+    </section>`;
+  return `
+    <section class="my rise" id="my-sectors" style="--i:2">
+      <div class="my-h"><h2>${who}</h2><a class="more" href="#/watch">편집 →</a></div>
+      <div class="my-grid">${mine.map(s => {
+        const n = (s.news || [])[0];
+        return `<article class="my-card">
+          <a class="my-top" href="#/sectors/${s.id}">${compass(s.score, "compass sm")}<span class="nm">${esc(s.name)}</span><b class="num">${s.score.toFixed(1)}</b><span class="state ${s.state}"><i></i>${s.state}</span></a>
+          ${n ? `<p class="my-news"><span class="tag">${esc(n.tag)}</span>${ext(n.link, esc(n.title))}</p>` : `<p class="my-news muted">이번 주 관련 기사가 거의 없어요.</p>`}
+          <small>기사 ${s.articles ?? (s.up + s.down + s.neutral)}건 · ▲${s.up} ▼${s.down}</small>
+        </article>`; }).join("")}</div>
+    </section>`;
+}
+const refreshMy = () => { const el = document.getElementById("my-sectors"); if (el) { el.outerHTML = myBlock(); animate(document.getElementById("my-sectors")); } };
+
 // ── 화면 ──
 const views = {
   home() {
@@ -334,16 +363,12 @@ const views = {
         <ul>${b.points.map(p => `<li>${esc(p)}</li>`).join("")}</ul>
       </section>
 
-      ${aiCard("ask", "", 2)}
-
-      <div class="sec-h rise" style="--i:2"><h2>섹터별 노출도</h2><span>${D.meta.sample ? "최근 7일 뉴스 기준 · 50 = 중립" : "직전 4주 대비 뉴스 비중 · 50 = 평소 수준"}</span></div>
-      <div class="sectors">${D.sectors.map((s, i) => sectorCard(s, i + 3)).join("")}</div>
-      <p class="note rise" style="--i:6">노출도는 이번 주 무역 기사 중 그 섹터 기사의 비중이 직전 4주 평균보다 얼마나 높은지를 나타낸 지표예요(50 = 평소 수준). 강화·완화는 기사 속 무역 조치 방향입니다. 실제 판단은 원문을 함께 확인하신 뒤 직접 하시기 바랍니다. <a href="#/method">계산 방법 보기</a></p>
+      ${myBlock()}
 
       <div class="grid g-2" style="margin-top:22px">
         <section class="card rise" style="--i:7">
           <div class="card-h"><div><h2>이번 주 핵심 무역 이슈</h2><p>보도량 · 증가 추세 · 한국 관련도 기준</p></div><a class="more" href="#/news">Top 10 →</a></div>
-          <ol class="issues">${D.issues.slice(0, 3).map(issueItem).join("")}</ol>
+          <ol class="issues">${D.issues.slice(0, 4).map(issueItem).join("")}</ol>
         </section>
         <section class="card rise" style="--i:8">
           <div class="card-h"><div><h2>공급망 리스크 신호</h2><p>${D.risks.length ? `수출통제·제재·해운·공급망·원자재 이슈 ${D.risks.length}개` : "이번 주 두드러진 신호 없음"}</p></div></div>
@@ -355,6 +380,14 @@ const views = {
         <div class="card-h"><div><h2>${D.meta.sample ? "뉴스 × 연관 종목 분석" : "주요 무역 뉴스"}</h2><p>${D.meta.sample ? "AI가 뉴스에서 종목 영향 경로를 추출했어요" : "이번 주 중요도 순 · 제목을 누르면 원문으로 이동해요"}</p></div><a class="more" href="#/news">뉴스 피드 →</a></div>
         ${D.meta.sample ? `<ul class="news">${D.news.slice(0, 3).map(newsRow).join("")}</ul>` : `<div class="front">${newsFront(D.news)}</div>`}
       </section>
+
+
+      <div class="sec-h rise" style="--i:10;margin-top:28px"><h2>섹터별 노출도</h2><span>${D.meta.sample ? "최근 7일 뉴스 기준 · 50 = 중립" : "직전 4주 대비 뉴스 비중 · 50 = 평소 수준"}</span></div>
+      <div class="sectors">${D.sectors.map((s, i) => sectorCard(s, i + 3)).join("")}</div>
+      <p class="note rise" style="--i:6">노출도는 이번 주 무역 기사 중 그 섹터 기사의 비중이 직전 4주 평균보다 얼마나 높은지를 나타낸 지표예요(50 = 평소 수준). 강화·완화는 기사 속 무역 조치 방향입니다. 실제 판단은 원문을 함께 확인하신 뒤 직접 하시기 바랍니다. <a href="#/method">계산 방법 보기</a></p>
+
+
+      ${aiCard("ask", "", 11)}
 
       ${t ? `<section class="card rise" style="--i:10;margin-top:18px">
         <div class="card-h"><div><h2>국가·품목별 무역 흐름</h2><p>대한민국 월간 수출 · ${esc(t.period)}</p></div></div>
@@ -413,6 +446,19 @@ const views = {
       </section>
       <div class="sec-h rise" style="--i:2"><h2>내 관심 섹터</h2><span>${mine.length}개</span></div>
       ${mine.length ? `<div class="sectors">${mine.map((s, i) => sectorCard(s, i + 3)).join("")}</div>` : `<div class="card empty rise" style="--i:3">아직 고른 섹터가 없어요. 위 목록에서 ★을 눌러 보세요.</div>`}`;
+  },
+
+  tools() {
+    const T = [
+      ["hs", "HS 코드 · 통관 계산", "품목의 HS 코드를 찾고 관세·부가세와 FTA 협정을 확인해요.", "HS"],
+      ["travel", "여행자 면세 계산기", "귀국할 때 산 물건이 면세인지, 자진신고하면 얼마 아끼는지.", "$800"],
+      ["check", "직구 반입 체커", "멜라토닌·육포·전자제품… 직구해도 되는지와 잘 모르는 함정.", "OK?"],
+      ["track", "통관 진행 조회", "유니패스 단계 풀이와 받은 문자가 사칭인지 확인.", "B/L"],
+    ];
+    return `
+      <div class="page-h rise"><p class="kicker">Tools</p><h1 class="display sm">Trade <em>Tools</em></h1><p>무역·직구·여행 통관에 바로 쓰는 도구 모음이에요.</p></div>
+      <div class="tool-hub">${T.map(([id, t, d, mark], i) => `
+        <a class="card lift hub rise" style="--i:${i + 1}" href="#/${id}"><span class="hub-mark">${mark}</span><h2>${t}</h2><p>${d}</p><span class="go">열기 →</span></a>`).join("")}</div>`;
   },
 
   method() {
@@ -491,7 +537,9 @@ function route() {
   const main = $("#view");
   main.innerHTML = views[key](arg ? decodeURIComponent(arg) : undefined);
   main.classList.remove("enter"); void main.offsetWidth; main.classList.add("enter");
-  document.querySelectorAll("nav a").forEach(a => a.dataset.view === key ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+  document.querySelectorAll(".side nav a").forEach(a => a.dataset.view === key ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+  const tab = { home: "home", news: "news", sectors: "sectors", watch: "me", method: "news", tools: "tools", hs: "tools", travel: "tools", check: "tools", track: "tools" }[key];
+  document.querySelectorAll(".tabbar [data-tab]").forEach(a => a.dataset.tab === tab ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
   animate(main);
   closeMenu();
   window.scrollTo(0, 0);
@@ -504,14 +552,42 @@ document.addEventListener("click", e => {
   const id = s.dataset.star;
   watch.has(id) ? watch.delete(id) : watch.add(id);
   saveWatch(watch);
-  if (location.hash.startsWith("#/watch")) route();
-  else document.querySelectorAll(`[data-star="${id}"]`).forEach(b => b.setAttribute("aria-pressed", watch.has(id)));
+  if (location.hash.startsWith("#/watch")) return route();
+  document.querySelectorAll(`[data-star="${id}"]`).forEach(b => b.setAttribute("aria-pressed", watch.has(id)));
+  refreshMy();
 });
 
 $("#quick").addEventListener("submit", e => {
   e.preventDefault();
   const q = $("#quick-q").value.trim();
   location.hash = "#/hs" + (q ? "/" + encodeURIComponent(q) : "");
+});
+
+// ── 다크 모드: 기기 설정을 따르다가, 버튼을 누르면 그 선택을 기억해요 ──
+const TKEY = "tc-theme";
+const isDark = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+function paintThemeBtn() {
+  const b = $("#theme-btn"); if (!b) return;
+  const d = isDark();
+  b.setAttribute("aria-label", d ? "밝은 화면으로" : "어두운 화면으로"); b.title = b.getAttribute("aria-label");
+  b.innerHTML = d
+    ? `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round">${[0,45,90,135,180,225,270,315].map(r => `<line x1="12" y1="2.5" x2="12" y2="4.8" transform="rotate(${r} 12 12)"/>`).join("")}</g></svg>`
+    : `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="currentColor"/></svg>`;
+}
+$("#theme-btn")?.addEventListener("click", () => {
+  const next = isDark() ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem(TKEY, next); } catch {}
+  paintThemeBtn();
+});
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", paintThemeBtn);
+paintThemeBtn();
+
+// 하단 탭바의 '내 정보': 로그인했으면 관심 섹터, 아니면 로그인 창
+document.addEventListener("click", e => {
+  const me = e.target.closest('.tabbar [data-tab="me"]');
+  if (!me || (window.tcAuth && tcAuth.user)) return;
+  if (window.tcAuth) { e.preventDefault(); tcAuth.open("login"); }
 });
 
 const side = $("#side"), scrim = $("#scrim"), menu = $("#menu");

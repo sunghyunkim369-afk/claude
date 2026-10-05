@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>TradeCompass</title>
+<script>try{var t=localStorage.getItem("tc-theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}</script>
+<meta name="color-scheme" content="light dark">
 <script src="../shared/error-logger.js"></script>
 <script src="../shared/ai-client.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -58,6 +60,7 @@
     <header class="top">
       <button class="menu" id="menu" aria-label="메뉴 열기" aria-expanded="false"><span></span><span></span><span></span></button>
       <div class="top-date" id="top-date"></div>
+      <button type="button" class="theme-btn" id="theme-btn" aria-label="어두운 화면으로"></button>
       <div class="top-badges">
         <span class="pill ai"><i></i><span id="upd"></span></span>
         <span class="pill sample" id="sample-pill" hidden>샘플 데이터</span>
@@ -70,6 +73,13 @@
   </div>
 </div>
 <div class="scrim" id="scrim"></div>
+<nav class="tabbar" aria-label="빠른 이동">
+  <a href="#/" data-tab="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1Z"/></svg><span>홈</span></a>
+  <a href="#/news" data-tab="news"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h11v14H6a1 1 0 0 1-1-1Zm11 4h3v9a1 1 0 0 1-1 1h-2M8 9h5M8 12h5M8 15h3"/></svg><span>뉴스</span></a>
+  <a href="#/sectors" data-tab="sectors"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/></svg><span>섹터</span></a>
+  <a href="#/tools" data-tab="tools"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>도구</span></a>
+  <a href="#/watch" data-tab="me"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg><span>내 정보</span></a>
+</nav>
 
 <script src="data.js"></script>
 <script src="tools.js"></script>

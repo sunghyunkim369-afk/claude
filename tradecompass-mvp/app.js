@@ -391,23 +391,34 @@ const views = {
 Object.assign(views, (window.TC_TOOLS || {}).views || {});
 
 // ── 동작 붙이기 ──
+// 숫자·막대 애니메이션. 화면 프레임(requestAnimationFrame)이 안 도는 환경(숨은 탭, 미리보기, 캡처, 일부 앱 내 브라우저)에서도
+// 숫자가 0에 멈추지 않도록: 처음부터 최종값을 그려 두고, 프레임이 실제로 돌 때만 0부터 올라가게 하고, 끝나면 최종값으로 확정해요.
+const DUR = 1100;
+const finalText = el => el.dataset.pre + (+el.dataset.to).toFixed(+el.dataset.dec) + el.dataset.suf;
+function settle(root) {
+  root.querySelectorAll("[data-w]").forEach(el => el.style.width = el.dataset.w + "%");
+  root.querySelectorAll(".compass .n").forEach(el => el.style.setProperty("--deg", el.dataset.deg + "deg"));
+  root.querySelectorAll(".num[data-to]").forEach(el => el.textContent = finalText(el));
+}
 function animate(root) {
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    root.querySelectorAll("[data-w]").forEach(el => el.style.width = el.dataset.w + "%");
-    root.querySelectorAll(".compass .n").forEach((el, i) => setTimeout(() => el.style.setProperty("--deg", el.dataset.deg + "deg"), reduce ? 0 : 200 + i * 80));
-  }));
-  if (reduce) return;
-  root.querySelectorAll(".num[data-to]").forEach(el => {
-    const to = +el.dataset.to, dec = +el.dataset.dec, pre = el.dataset.pre, suf = el.dataset.suf;
-    const t0 = performance.now(), dur = 1100;
-    const tick = now => {
-      const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
-      el.textContent = pre + (to * e).toFixed(dec) + suf;
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    el.textContent = pre + (0).toFixed(dec) + suf;
-    requestAnimationFrame(tick);
+  if (reduce || document.hidden) return settle(root);
+  requestAnimationFrame(t0 => {
+    root.querySelectorAll(".num[data-to]").forEach(el => {
+      const to = +el.dataset.to, dec = +el.dataset.dec, pre = el.dataset.pre, suf = el.dataset.suf;
+      const tick = now => {
+        const p = Math.min(1, (now - t0) / DUR), e = 1 - Math.pow(1 - p, 3);
+        el.textContent = pre + (to * e).toFixed(dec) + suf;
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      tick(t0);
+    });
+    requestAnimationFrame(() => {
+      root.querySelectorAll("[data-w]").forEach(el => el.style.width = el.dataset.w + "%");
+      root.querySelectorAll(".compass .n").forEach((el, i) => setTimeout(() => el.style.setProperty("--deg", el.dataset.deg + "deg"), 200 + i * 80));
+    });
   });
+  // 프레임이 안 돌았어도, 돌았어도 끝나는 시점에 최종값으로 확정해요
+  setTimeout(() => settle(root), DUR + 100);
 }
 
 function route() {

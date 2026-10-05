@@ -1,8 +1,72 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-05T08:16:06.889Z",
+ "generated": "2026-10-05T12:43:10.501Z",
  "hours": 24,
  "items": [
+  {
+   "title": "英, EU 압박에 중국산 전기차 추가관세 검토",
+   "link": "https://www.hankyung.com/article/2026100537651",
+   "source": "한국경제",
+   "outlets": 1,
+   "at": "2026-10-05T09:30:13.000Z",
+   "tag": "관세",
+   "direction": "up",
+   "sectors": [
+    "auto"
+   ]
+  },
+  {
+   "title": "[기고] 한국 통상전략의 새로운 선택지 CPTPP",
+   "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE8wVW9yZEFfdndMeVZMbkhhUVJTYXJoTld0MW5qb1FDUUFGUGZPNk1mZUZwaElKZW9YcjM4QVZ0SzBGblZtQmVTUlZycUttazktZEVNOGMtV3l5QQ?oc=5",
+   "source": "파이낸셜뉴스",
+   "outlets": 1,
+   "at": "2026-10-05T09:21:28.000Z",
+   "tag": "FTA·통상협정",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "[투자의 창] 숨 고른 원·달러 환율, 다시 오를까",
+   "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE1XQXk5TFNmQmFBMkNsdDRrc3c3clFRai10MTZ0MjJNWmNmaGNSQnhoOVk4el9xXzJWZmVxTkJZMzRzN1dRbnhhQzJNd0NHa0h1Y2fSAVNBVV95cUxPbTQxQmZVckJDZFh3S1gzOEdVd1pWSTBmVzF1RUptaUFrZVJQSnBUNHAtYk1jTlZMN3pYLTE2MDdScnZ4VndQZHZwVVRiNEpOYkYyTQ?oc=5",
+   "source": "서울경제",
+   "outlets": 1,
+   "at": "2026-10-05T08:46:32.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "Electric Vehicle Factory Is 'Robot Laboratory'… Transplantation of supply chain and production strategies",
+   "link": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE5FUWhkR2lueVdoc3U2bjlUM2ZwZnloWXlrbFo2VVhlOHpqYnZXQnVZLTEtbzFyV3FMTHBDMlU4d3VXOHBMMVM0Rjc5UEhZaHJBYldr?oc=5",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-05T08:24:51.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": [
+    "auto"
+   ]
+  },
+  {
+   "title": "美제재 받은 中기업, 韓전력사업 허가받아",
+   "link": "https://www.mk.co.kr/news/economy/12168581",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-05T08:22:12.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "\"美中의존 줄이자\"…정부, CPTPP 가입 속도",
+   "link": "https://www.mk.co.kr/news/economy/12168579",
+   "source": "매일경제",
+   "outlets": 2,
+   "at": "2026-10-05T08:22:11.000Z",
+   "tag": "FTA·통상협정",
+   "direction": "neutral",
+   "sectors": []
+  },
   {
    "title": "[단독] 美 블랙리스트 中기업에...‘안보’ 검토 없이 발전사업 허가",
    "link": "https://www.mk.co.kr/news/economy/12168468",
@@ -11,6 +75,16 @@ window.TC_BREAKING = {
    "at": "2026-10-05T07:12:32.000Z",
    "tag": "경제제재",
    "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "[단독]소부장 공급망 다변화 추진에도 특정국 90% 이상 의존 품목 되레 증가",
+   "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1XREw3UmpQUGpTQ0pLN05yRUZMNS1FZU9qeHZoTjRLTzZNOFBzSi1GNUNCVkdXYlVyT1RWbzRPQUNxWHF1U2NjQUNjS0E4QzhmTnhfMEFsYUtkdm5GM3pN0gFfQVVfeXFMTVdETDdSalBQalNDSks3TnJFRkw1LUVlT2p4dmhONEtPNk04UHNKLUY1Q0JWR1diVXJPVFZvNE9BQ3FYcXVTY2NBQ2NLQThDOGZOeF8wQWxhS2R2bkYzek0?oc=5",
+   "source": "경향신문",
+   "outlets": 1,
+   "at": "2026-10-05T07:12:00.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
    "sectors": []
   },
   {
@@ -85,80 +159,6 @@ window.TC_BREAKING = {
    "source": "매일경제",
    "outlets": 1,
    "at": "2026-10-05T03:53:04.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "\"30개 테스트공장 풀가동\" SK엔무브 고급 윤활기유 1위 만든 R&D",
-   "link": "https://www.yna.co.kr/view/AKR20261001192900003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-05T03:00:02.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "\"관세 300%\"...벼랑 끝 트럼프, 한국 쥐어짜서 현금 지원 공약 '펑펑'",
-   "link": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE0yUjVCLXl2U0laYmhnWFlyOHZpUlc3cDFMV0pwakRZZHZpZGd1SG1sRC1LanRqVVR3T3BFaEc1MmtxSUVSaFlOcm9vNGVzVHpVLVI3Slh1UVZjaHhFVW1aQ241OGtEaWp20gFuQVVfeXFMT2JtTUVFMTVRWHIxbXdGcDViTXR6czZaN3RtU01ScDBQRlNPQ19lSFBzNFJoRUtTZFdmQW5mdFFNWFZIb1BjNDllS2xUUDlaSmNDaHVqWTcyVHhSRUlkVDNCSV9zVXVXNnYzeXN4eWc?oc=5",
-   "source": "머니투데이",
-   "outlets": 1,
-   "at": "2026-10-05T03:00:01.000Z",
-   "tag": "관세",
-   "direction": "down",
-   "sectors": []
-  },
-  {
-   "title": "사우디, 11월 아시아 공급용 원유가 대폭 인하",
-   "link": "https://www.yna.co.kr/view/AKR20261005028100009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-05T02:25:49.000Z",
-   "tag": "유가·원자재",
-   "direction": "down",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "'코브라' 헬기 명가 벨텍스트론 방한…K-항공부품 러브콜",
-   "link": "https://www.yna.co.kr/view/AKR20261005026700003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-05T02:10:15.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": [
-    "machinery"
-   ]
-  },
-  {
-   "title": "美 벨 텍스트론 구매단 방한…K항공우주 소부장 공급망 협력",
-   "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNWGZtT20tejFwY1I5bDhmRElIVUdTVGl0eWxyN1FFM2RvcDk0U1lEX3NDWWV4NFBEaWw0NFlVSEtTb0pYWEVhcU9TZUFNSWY1d3hyaE5lZExjOE1TbmRiVUNGLUs2WnBsYjRPVi11R0lzZ20weDRwa05QOC14bmk0Yg?oc=5",
-   "source": "이데일리",
-   "outlets": 1,
-   "at": "2026-10-05T02:00:06.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "KTC 6대 원장에 양병내 전 산업통상자원부 통상차관보 취임",
-   "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE5VdDFJdzQ5aDQ5NlRLZWI4RjZHV1pRUmo4REJUSWxCV3U1c0RsdkVNYm9XUGcwWVBuTUdYZk1uUmY2VzIwdEg4N1NLa2RvUQ?oc=5",
-   "source": "전자신문",
-   "outlets": 1,
-   "at": "2026-10-05T02:00:00.000Z",
-   "tag": "수출입 동향",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "KOTRA Supports Entry of K-Aerospace Materials, Components, and Equipment into Global Supply Chain with U.S. Bell Textron",
-   "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE9NYU56eXI5UkFUcHpYaEl4bGNqOW9UekUzbmxMWnYyZko0czJQUWNpRjQ0ZjZkZ1ExWFktX3lva2pTS2ZlOUFFTGY2ZnZLU0dENnNtaEFheTZ0TmQxd2U4SDdHRk4?oc=5",
-   "source": "아시아경제",
-   "outlets": 1,
-   "at": "2026-10-05T02:00:00.000Z",
    "tag": "공급망·핵심광물",
    "direction": "info",
    "sectors": []

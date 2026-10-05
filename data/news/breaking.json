@@ -1,7 +1,49 @@
 {
- "generated": "2026-10-05T08:08:01.085Z",
+ "generated": "2026-10-05T08:13:54.130Z",
  "hours": 24,
  "items": [
+  {
+   "title": "[표] 외국환율고시표",
+   "link": "https://www.mk.co.kr/news/economy/12168520",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-05T07:57:44.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "[단독] 美 블랙리스트 中기업에...‘안보’ 검토 없이 발전사업 허가",
+   "link": "https://www.mk.co.kr/news/economy/12168468",
+   "source": "매일경제",
+   "outlets": 2,
+   "at": "2026-10-05T07:12:32.000Z",
+   "tag": "경제제재",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "위기의 해운업 정책금융 18조로 재건…해양강국 향해 출항",
+   "link": "https://www.hankyung.com/article/2026100532111",
+   "source": "한국경제",
+   "outlets": 1,
+   "at": "2026-10-05T07:08:55.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "대미투자 산 넘어 산…미 압박에 관세불안까지 고조",
+   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFB2Zmp0dDFtazdvaFhIZGo2aV9SdEZUUlRUd05nd0Q3bkVZejRvemNZZnNsSUhJRUFmcUxrWXNWM3d6TFhHcGJ1VnJZU05QX1lnakRMSHlWcGxmUDJZenB1c3NVUWJuZ0k?oc=5",
+   "source": "연합뉴스TV",
+   "outlets": 1,
+   "at": "2026-10-05T06:53:00.000Z",
+   "tag": "관세",
+   "direction": "up",
+   "sectors": []
+  },
   {
    "title": "[단독] “美, 20억달러만 보증해주고...韓에 알래스카 LNG 500억달러 압박”",
    "link": "https://www.mk.co.kr/news/economy/12168425",
@@ -119,54 +161,6 @@
    "tag": "수출입 동향",
    "direction": "neutral",
    "sectors": []
-  },
-  {
-   "title": "KOTRA Supports Entry of K-Aerospace Materials, Components, and Equipment into Global Supply Chain with U.S. Bell Textron",
-   "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE9NYU56eXI5UkFUcHpYaEl4bGNqOW9UekUzbmxMWnYyZko0czJQUWNpRjQ0ZjZkZ1ExWFktX3lva2pTS2ZlOUFFTGY2ZnZLU0dENnNtaEFheTZ0TmQxd2U4SDdHRk4?oc=5",
-   "source": "아시아경제",
-   "outlets": 1,
-   "at": "2026-10-05T02:00:00.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "호르무즈 봉쇄 후 3번째 한국 선박 수에즈운하로 원유 운송",
-   "link": "https://www.yna.co.kr/view/AKR20261005025400051",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-05T01:48:24.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship",
-    "chem"
-   ]
-  },
-  {
-   "title": "英, 결국 中전기차 관세 올린다…EU 압박에 '백기'",
-   "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNZDVRZHZGOHRLRnYtYUhiWVBudE1tMzNDQUVYSlpMMFFJODd3OU1fZXZVVzYwamdDc2VBWjBOSFU5dER0ZGF5eGlUSXpxNEpzSDVPNDhzamxFblZ4N1drTUxlbkFYMTNWZ0I5MDlBVUwyUGpWQmN1TWdacjF1cUxsWg?oc=5",
-   "source": "이데일리",
-   "outlets": 1,
-   "at": "2026-10-05T01:29:59.000Z",
-   "tag": "관세",
-   "direction": "up",
-   "sectors": [
-    "auto"
-   ]
-  },
-  {
-   "title": "호르무즈 해협 선박 공격 재개로 중동 원유 수출 회복세 '흔들'",
-   "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE1DLXo5SDR2Q1U3ZkxNbUQtY1FXbkxKTXM5ektnT256OTR4LWs2ZzV1X2ZqcWZhWVdwUDRmdnAyMnlnMmFxRlRMZjh1b2l3YkRvN0lUNUtSUEF5aTg1N2fSAV5BVV95cUxNQy16OUg0dkNVN2ZMTW1ELWNRV25MSk1zOXpLZ09uejk0eC1rNmc1dV9manFmYVlXcFA0ZnZwMjJ5ZzJhcUZUTGY4dW9pd2JEbzdJVDVLUlBBeWk4NTdn?oc=5",
-   "source": "뉴스1",
-   "outlets": 1,
-   "at": "2026-10-05T01:05:06.000Z",
-   "tag": "유가·원자재",
-   "direction": "down",
-   "sectors": [
-    "chem",
-    "ship"
-   ]
   }
  ]
 }

@@ -60,6 +60,57 @@ const sectorCard = (s, i) => `
     <div class="meter"><b data-w="${s.score}"></b></div>
   </a>`;
 
+// ── 보도 추이 미니 그래프 (최근 5주, 오래된 주 → 이번 주) ──
+// 한 가지 값만 그리는 작은 선 그래프라 범례 없이 제목·라벨로 설명해요. 점마다 주·건수 툴팁.
+function spark(trend, { w = 92, h = 26, label = "보도 추이" } = {}) {
+  if (!Array.isArray(trend) || trend.length < 2) return "";
+  const weeks = D.meta.trendWeeks || trend.map((_, i) => `${trend.length - i}주 전`);
+  const max = Math.max(...trend, 1), pad = 4, step = (w - pad * 2) / (trend.length - 1);
+  const pts = trend.map((v, i) => [pad + i * step, h - pad - (v / max) * (h - pad * 2)]);
+  const line = pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+  const area = `${pad},${h - pad} ${line} ${(w - pad).toFixed(1)},${h - pad}`;
+  const [lx, ly] = pts[pts.length - 1];
+  const desc = `${label}: ${trend.map((v, i) => `${weeks[i] || ""}주 ${v}건`).join(", ")}`;
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(desc)}">
+    <polygon points="${area}" class="sa"/><polyline points="${line}" class="sl"/>
+    ${pts.map(([x, y], i) => `<g class="sp"><rect x="${(x - step / 2).toFixed(1)}" y="0" width="${step.toFixed(1)}" height="${h}"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.6"/><title>${esc(weeks[i] || "")}주 · ${trend[i]}건</title></g>`).join("")}
+    <circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="3" class="last"/>
+  </svg>`;
+}
+// "3시간 전" 같은 상대 시간 (기사 시각 기준)
+function ago(iso) {
+  const t = Date.parse(iso); if (!t) return "";
+  const m = Math.max(1, Math.round((Date.now() - t) / 60000));
+  return m < 60 ? `${m}분 전` : m < 1440 ? `${Math.round(m / 60)}시간 전` : `${Math.round(m / 1440)}일 전`;
+}
+const reach = n => n.outlets > 1 ? `<span class="reach">${n.outlets}곳 보도</span>` : "";
+const sectorChips = ids => (ids || []).map(id => sectorById[id] ? `<a class="sc" href="#/sectors/${id}">${esc(sectorById[id].name)}</a>` : "").join("");
+
+// 홈 "주요 무역 뉴스": 머리기사 1건 크게 + 헤드라인 6건 (중요도 순)
+function newsFront(list) {
+  const ranked = [...list].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
+  const [lead, ...rest] = ranked;
+  if (!lead) return `<p class="muted">이번 주 주요 뉴스가 없어요.</p>`;
+  const heads = rest.slice(0, 6);
+  return `
+    <article class="lead">
+      <div class="lead-main">
+        <div class="kick"><span class="tag">${esc(lead.tag)}</span><em class="dir ${act(lead.direction)[1]}">${act(lead.direction)[0]}</em>${reach(lead)}</div>
+        <h3>${ext(lead.link, esc(lead.title))}</h3>
+        <p>${esc(lead.summary || lead.why || "")}</p>
+        <div class="meta">${esc(lead.source)} · ${esc(ago(lead.at) || lead.time)}${sectorChips(lead.sectors)}</div>
+      </div>
+      ${lead.trend ? `<aside class="lead-trend"><small>${esc(lead.issue)} 이슈 · 최근 5주 보도</small>${spark(lead.trend, { w: 150, h: 54, label: `${lead.issue} 보도 추이` })}<b>${lead.issueReports}<span>건 이번 주</span></b></aside>` : ""}
+    </article>
+    <ol class="heads">${heads.map(n => `
+      <li>
+        <div class="kick"><span class="tag">${esc(n.tag)}</span>${reach(n)}</div>
+        <h4>${ext(n.link, esc(n.title))}</h4>
+        <p>${esc(n.summary && n.summary.length < 90 ? n.summary : (n.why || n.summary || ""))}</p>
+        <small>${esc(n.source)} · ${esc(ago(n.at) || n.time)}</small>
+      </li>`).join("")}</ol>`;
+}
+
 const issueItem = (x, i) => `
   <li class="issue">
     <span class="rank">${String(i + 1).padStart(2, "0")}</span>
@@ -69,19 +120,17 @@ const issueItem = (x, i) => `
       <span class="tag">${esc(x.tag)}</span>
       ${x.summary ? `<p class="sum">${esc(x.summary)}</p>` : ""}
     </div>
-    <div class="impact ${x.impact >= 80 ? "hi" : ""}"><b class="num">${countUp(x.impact)}</b><small>${D.meta.sample ? "영향도" : "이슈 점수"}</small></div>
+    <div class="impact ${x.impact >= 80 ? "hi" : ""}"><b class="num">${countUp(x.impact)}</b><small>${D.meta.sample ? "영향도" : "이슈 점수"}</small>${x.trend ? spark(x.trend, { w: 64, h: 20, label: `${x.keyword} 보도 추이` }) : ""}</div>
   </li>`;
 
 // 실제 데이터: 기사별 관련 섹터와 무역 조치 방향 / 예전 샘플: 종목별 방향
 const newsLinks = n => n.sectors
-  ? `<span><em class="dir ${act(n.direction)[1]}">${act(n.direction)[0]}</em></span>${n.sectors.length
-      ? n.sectors.map(id => sectorById[id] ? `<a href="#/sectors/${id}">${esc(sectorById[id].name)}</a>` : "").join("")
-      : `<span class="muted">관련 섹터 없음</span>`}`
+  ? `<span><em class="dir ${act(n.direction)[1]}">${act(n.direction)[0]}</em></span>${n.sectors.map(id => sectorById[id] ? `<a href="#/sectors/${id}">${esc(sectorById[id].name)}</a>` : "").join("")}${n.trend ? spark(n.trend, { w: 64, h: 18, label: `${n.issue} 보도 추이` }) : ""}`
   : (n.stocks.length ? n.stocks.map(s => `<span>${esc(s.name)} <em class="dir ${s.dir}">${dirLabel[s.dir]}</em></span>`).join("") : `<span class="muted">연관 종목 없음</span>`);
 const newsRow = n => `
   <li class="news-row">
-    <div class="t"><b class="num">${esc(n.time)}</b><small>${esc(n.source)}${n.outlets > 1 ? ` 외 ${n.outlets - 1}곳` : ""}</small></div>
-    <div><h3><span class="tag">${esc(n.tag)}</span>${ext(n.link, esc(n.title))}</h3>${n.summary ? `<p>${D.meta.sample ? "AI 요약 · " : ""}${esc(n.summary)}</p>` : ""}</div>
+    <div class="t"><b class="num">${esc(n.time)}</b><small>${esc(n.source)}${n.outlets > 1 ? ` 외 ${n.outlets - 1}곳` : ""}</small>${n.at ? `<small>${esc(ago(n.at))}</small>` : ""}</div>
+    <div><h3><span class="tag">${esc(n.tag)}</span>${ext(n.link, esc(n.title))}</h3>${n.summary ? `<p>${D.meta.sample ? "AI 요약 · " : ""}${esc(n.summary)}</p>` : ""}${n.why ? `<p class="why">${esc(n.why)}</p>` : ""}</div>
     <div class="links">${newsLinks(n)}</div>
   </li>`;
 
@@ -303,8 +352,8 @@ const views = {
       </div>
 
       <section class="card rise" style="--i:9;margin-top:18px">
-        <div class="card-h"><div><h2>${D.meta.sample ? "뉴스 × 연관 종목 분석" : "주요 무역 뉴스"}</h2><p>${D.meta.sample ? "AI가 뉴스에서 종목 영향 경로를 추출했어요" : "기사 제목을 누르면 원문으로 이동해요"}</p></div><a class="more" href="#/news">뉴스 피드 →</a></div>
-        <ul class="news">${D.news.slice(0, 3).map(newsRow).join("")}</ul>
+        <div class="card-h"><div><h2>${D.meta.sample ? "뉴스 × 연관 종목 분석" : "주요 무역 뉴스"}</h2><p>${D.meta.sample ? "AI가 뉴스에서 종목 영향 경로를 추출했어요" : "이번 주 중요도 순 · 제목을 누르면 원문으로 이동해요"}</p></div><a class="more" href="#/news">뉴스 피드 →</a></div>
+        ${D.meta.sample ? `<ul class="news">${D.news.slice(0, 3).map(newsRow).join("")}</ul>` : `<div class="front">${newsFront(D.news)}</div>`}
       </section>
 
       ${t ? `<section class="card rise" style="--i:10;margin-top:18px">

@@ -102,13 +102,24 @@ const dirCount = (list) => ({
 const topSectors = (list, k = 3) => [...count(list, a => a.sectors || [])].sort((a, b) => b[1] - a[1]).slice(0, k).map(([id]) => id);
 const shortSum = (a) => a.summary || cleanDesc(a.desc, a.title).slice(0, 120);
 
+// 이슈별 보도 추이·이번 주 건수 (main 에서 채워요)
+const TREND_WEEKS = 5;   // 보관 42일 중 수집 시점 차이로 잘리는 가장 오래된 주는 빼요
+let CTX = { week: new Map(), trend: () => [] };
+
 // 화면에 싣는 기사 한 건
-const toNews = (a) => ({
-  time: fmtMD(Date.parse(a.date)), clock: fmtHM(Date.parse(a.date)), source: a.source,
-  outlets: (a.outlets || []).length, tag: topicById[a.topic]?.label || "무역", title: a.title, link: a.link,
-  summary: shortSum(a), direction: a.direction || "neutral", sectors: (a.sectors || []).filter(id => sectorById[id]),
-  stocks: [],
-});
+// why: 요약이 없는 기사(Google 뉴스 등)도 "왜 중요한지" 한 줄을 보여주려고 데이터로 만든 설명
+const toNews = (a, rank) => {
+  const key = issueKey(a), sectors = (a.sectors || []).filter(id => sectorById[id]);
+  const n = CTX.week.get(key) || 0;
+  return {
+    time: fmtMD(Date.parse(a.date)), clock: fmtHM(Date.parse(a.date)), at: a.date, rank, source: a.source,
+    outlets: (a.outlets || []).length, tag: topicById[a.topic]?.label || "무역", title: a.title, link: a.link,
+    summary: shortSum(a), direction: a.direction || "neutral", sectors,
+    issue: issueName(key), issueReports: n, trend: CTX.trend(key),
+    why: `${issueName(key)} 이슈 · 이번 주 ${n}건 보도${sectors.length ? ` · ${sectors.map(id => sectorById[id].name).join("·")} 영향권` : ""}`,
+    stocks: [],
+  };
+};
 // 무게 순으로 고르되 같은 이슈 기사는 cap 건까지
 function pickNews(list, n, cap, now) {
   const per = {};
@@ -130,6 +141,10 @@ async function main() {
   });
   const week = all.filter(a => weekOf(a, now) === 0);
   const prevWeek = all.filter(a => weekOf(a, now) === 1);
+  // 이슈별 최근 5주 보도 건수 (오래된 주 → 이번 주)
+  const byWeek = Array.from({ length: TREND_WEEKS }, (_, i) => count(all.filter(a => weekOf(a, now) === TREND_WEEKS - 1 - i), issueKey));
+  CTX = { week: byWeek[TREND_WEEKS - 1], trend: (key) => byWeek.map(m => m.get(key) || 0) };
+  const trendWeeks = Array.from({ length: TREND_WEEKS }, (_, i) => fmtMD(now - (TREND_WEEKS - i) * SCORE.windowDays * DAY + DAY));
   const base = all.filter(a => { const w = weekOf(a, now); return w >= 1 && w <= SCORE.baselineWeeks; });
   if (week.length < 10) throw new Error(`이번 주 기사가 ${week.length}건뿐이라 발행하지 않아요 (수집 확인 필요)`);
 
@@ -163,6 +178,7 @@ async function main() {
         topic, risk: !!topicById[topic]?.risk, sectors, score: round(score), reports: r.list.length, prev: nPrev.get(r.key) || 0,
         ...dirCount(r.list), summary: shortSum(lead),
         parts: { volume: round(Vn, 3), momentum: round(r.M, 3), relevance: round(r.R, 3) },
+        trend: CTX.trend(r.key),
         articles: sorted.slice(0, 4).map(a => ({ title: a.title, source: a.source, at: fmtAt(Date.parse(a.date)), link: a.link })),
       };
     })
@@ -190,7 +206,7 @@ async function main() {
       ? `이번 주 관련 기사 ${list.length}건(직전 4주 주평균 ${round((sCountBase.get(s.id) || 0) / SCORE.baselineWeeks, 1)}건)${its.length ? ` · 주요 이슈: ${its.join(", ")}` : ""}`
       : "이번 주 관련 무역 기사가 거의 없어요.";
     return { id: s.id, name: s.name, score: round(score), state, ...d, articles: list.length, summary, stocks: s.stocks,
-      news: pickNews(list, 6, 2, now).map(toNews) };
+      news: pickNews(list, 6, 2, now).map((a, i) => toNews(a, i)) };
   }).sort((a, b) => b.score - a.score);
   void sCountNow;
 
@@ -203,7 +219,8 @@ async function main() {
   }));
 
   // ── 뉴스 피드: 무게 순 + 같은 이슈 기사는 3건까지 ──
-  const news = pickNews(week, SCORE.newsCount, 3, now).sort((a, b) => Date.parse(b.date) - Date.parse(a.date)).map(toNews);
+  // rank: 중요도(무게) 순위 — 홈의 머리기사·헤드라인은 rank 순, 뉴스 피드는 최신순
+  const news = pickNews(week, SCORE.newsCount, 3, now).map((a, i) => toNews(a, i)).sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
 
   // ── 이번 주 요약 (AI 키가 있으면 AI, 없으면 규칙) ──
   const top = issues[0];
@@ -219,7 +236,7 @@ async function main() {
       date: fmtDate(now), updatedAt: fmtHM(now), generated: new Date(now).toISOString(),
       period: `${fmtDate(from)} ~ ${fmtDate(now)}`, cadence: "매주 월요일",
       sources: week.length, outlets: new Set(week.flatMap(a => a.outlets || [a.source])).size,
-      archive: all.length, sample: false,
+      archive: all.length, sample: false, trendWeeks,
     },
     bearing, sectors, issues: issues.map(({ key, risk, ...x }) => x), news, risks,
     trade: null,   // 월간 수출입 통계는 관세청 공공데이터 API 키가 생기면 붙일 자리

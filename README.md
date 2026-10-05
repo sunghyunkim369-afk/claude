@@ -35,6 +35,13 @@
 - **통관 진행 조회** (`#/track`): 번호를 복사해 관세청 유니패스로 연결, 진행 단계별 의미와 할 일
 - AI(eyefeet에서만): 쇼핑 목록 글 → 계산기 자동 입력(`travel`), 제품 설명 → 기준표 항목 찾기(`customs`), 문자·상태 문구 해석 + 사칭 의심(`track`). AI는 입력 정리·해석만 하고, 세금 계산과 반입 판정은 기준표로 해요. 문자 속 링크가 관세청·정부(go.kr) 주소인지는 AI 없이도 바로 검사해요.
 
+## 회원가입 · 로그인
+
+- 화면: `tradecompass-mvp/auth.js` (머리글 로그인·회원가입 버튼, 창, 내 메뉴). 로그인하면 관심 섹터가 계정에 저장돼 다른 기기에서도 같아요.
+- 서버: `api/auth.js` — `signup` · `login` · `logout` · `me` · `watch`. PostgreSQL(`pg`) 테이블 `tc_users` 를 처음 호출 때 자동으로 만들어요.
+- 보안: 비밀번호는 scrypt 해시로만 저장, 로그인은 HMAC 서명 쿠키(HttpOnly·Secure·SameSite=Lax), 다른 사이트 요청 차단, IP당 분당 10회 제한, 로그인 실패 메시지 통일.
+- 켜려면 Eyefeet 테넌트 환경변수에 `DATABASE_URL`(PostgreSQL 주소)과 `SESSION_SECRET`(32자 이상 임의 문자열)을 넣고 정지 → 배포 → 시작. 없으면 창은 보이지만 "준비 중" 안내만 나와요. GitHub Pages·아티팩트에서는 화면만 미리 볼 수 있어요.
+
 ## AI 분석 (Eyefeet AI · 깃솔트 로컬 AI)
 
 브라우저는 `shared/ai-client.js`로 `POST /api/ai`를 부르고, `api/ai.js`가 환경변수의 AI 주소·키로 Eyefeet AI(qwen3-30b-a3b)를 호출해요.

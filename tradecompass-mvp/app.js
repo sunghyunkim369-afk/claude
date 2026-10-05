@@ -11,8 +11,23 @@ const ext = (url, text) => /^https?:\/\//.test(url || "") ? `<a class="ext" href
 // ── 관심 섹터 (브라우저에만 저장) ──
 const WKEY = "tc-watch";
 const loadWatch = () => { try { return new Set(JSON.parse(localStorage.getItem(WKEY) || "[]")); } catch { return new Set(); } };
-const saveWatch = set => { try { localStorage.setItem(WKEY, JSON.stringify([...set])); } catch {} };
+const saveWatch = set => {
+  try { localStorage.setItem(WKEY, JSON.stringify([...set])); } catch {}
+  if (window.tcAuth) tcAuth.syncWatch([...set]);   // 로그인 중이면 계정에도 저장
+};
 let watch = loadWatch();
+// 로그인하면 이 기기의 관심 섹터와 계정의 관심 섹터를 합쳐요
+document.addEventListener("tc-auth", e => {
+  const u = e.detail;
+  if (!u) return;
+  const merged = new Set([...watch, ...u.watch]);
+  const changed = merged.size !== u.watch.length || merged.size !== watch.size;
+  watch = merged;
+  try { localStorage.setItem(WKEY, JSON.stringify([...watch])); } catch {}
+  if (changed && merged.size !== u.watch.length) tcAuth.syncWatch([...watch]);
+  document.querySelectorAll("[data-star]").forEach(b => b.setAttribute("aria-pressed", watch.has(b.dataset.star)));
+  if (changed && location.hash.startsWith("#/watch")) route();
+});
 
 // ── 조각들 ──
 const needleDeg = score => Math.max(-150, Math.min(150, (score - 50) * 3));

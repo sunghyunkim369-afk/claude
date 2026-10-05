@@ -37,6 +37,9 @@ jobs:
             if [[ "$u" == */api/health ]]; then echo "    $(head -c 400 body.txt)"; fi
             if [ "$code" -lt 200 ] || [ "$code" -ge 400 ] || [ "$code_bad" = 1 ]; then failed+="- \`$code\` $u$note"$'\n'; fi
           done
+          # 회원 기능 확인 (계정을 만들지 않는 요청): 401 = 동작 중(로그인 안 된 상태), 503 = 준비 중
+          auth=$(curl -s -o auth.txt -w '%{http_code}' --max-time 20 -X POST -H 'Content-Type: application/json' -H 'Origin: https://tcmvp.eyefeet.com' -d '{"action":"me"}' https://tcmvp.eyefeet.com/api/auth || echo 000)
+          echo "$auth  https://tcmvp.eyefeet.com/api/auth (401=동작 중, 503=준비 중)  $(head -c 200 auth.txt)"
           {
             echo "failed<<EOF"
             printf '%s' "$failed"

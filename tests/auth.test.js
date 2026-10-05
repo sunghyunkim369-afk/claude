@@ -130,3 +130,33 @@ test("AUTH_DISABLED=1 이면 '준비 중'(503)", async () => {
   delete process.env.AUTH_DISABLED;
   assert.equal(r.status, 503); assert.equal(r.body.code, "not_configured");
 });
+
+if (process.env.TEST_DATABASE_URL) {
+  test("DB를 처음 연결하면 파일에 있던 회원·관심 섹터·로그인이 그대로 DB로 옮겨져요", async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "tc-auth-migrate-"));
+    const keep = process.env.SESSION_SECRET; delete process.env.SESSION_SECRET;
+    delete process.env.DATABASE_URL; process.env.AUTH_FILE = path.join(dir, "users.json");
+    delete require.cache[require.resolve("../api/auth.js")];
+    let auth = require("../api/auth.js");
+    const a = new Jar();
+    await a.call(auth, { action: "signup", name: "이전", email: "move@test.kr", password: PW, agree: true, watch: ["chem"] });
+    await auth._reset();
+
+    const { Client } = require("pg");
+    const c = new Client({ connectionString: process.env.TEST_DATABASE_URL }); await c.connect();
+    await c.query("DROP TABLE IF EXISTS tc_users"); await c.query("DROP TABLE IF EXISTS tc_settings");
+    process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
+    delete require.cache[require.resolve("../api/auth.js")];
+    auth = require("../api/auth.js");
+    const me = await a.call(auth, { action: "me" });            // 옮기기 전에 받은 쿠키로 그대로 로그인 유지
+    assert.equal(me.status, 200); assert.deepEqual(me.body.user.watch, ["chem"]);
+    const b = new Jar();
+    assert.equal((await b.call(auth, { action: "login", email: "move@test.kr", password: PW })).status, 200);
+    assert.ok(fs.readdirSync(dir).some(n => n.startsWith("users.json.migrated-")), "옮긴 파일은 백업으로 남아요");
+    const fresh = await new Jar().call(auth, { action: "signup", name: "새", email: "new@test.kr", password: PW, agree: true });
+    assert.equal(fresh.status, 200);                            // 번호 이어서 새 가입도 정상
+    await auth._reset(); await c.end();
+    delete process.env.DATABASE_URL; process.env.SESSION_SECRET = keep;
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+}

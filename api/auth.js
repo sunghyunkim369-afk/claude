@@ -39,7 +39,10 @@ function pgStore(url) {
     watch JSONB NOT NULL DEFAULT '[]',
     agreed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    last_login TIMESTAMPTZ)`).catch(e => { ready = null; throw e; }));
+    last_login TIMESTAMPTZ)`)
+    .then(() => pool.query("CREATE TABLE IF NOT EXISTS tc_settings (k TEXT PRIMARY KEY, v TEXT NOT NULL)"))
+    .then(() => migrateFromFile(pool))
+    .catch(e => { ready = null; throw e; }));
   const q = async (sql, args) => { await init(); return (await pool.query(sql, args)).rows; };
   return {
     kind: "postgres",
@@ -55,12 +58,43 @@ function pgStore(url) {
     // 쿠키 서명 비밀값: 없으면 만들어서 DB에 보관 (여러 서버가 같은 값을 쓰도록 먼저 넣은 값이 이겨요)
     async secret() {
       await init();
-      await pool.query("CREATE TABLE IF NOT EXISTS tc_settings (k TEXT PRIMARY KEY, v TEXT NOT NULL)");
       await pool.query("INSERT INTO tc_settings (k, v) VALUES ('session_secret', $1) ON CONFLICT (k) DO NOTHING", [crypto.randomBytes(32).toString("hex")]);
       return (await pool.query("SELECT v FROM tc_settings WHERE k = 'session_secret'")).rows[0].v;
     },
     end: () => pool.end(),
   };
+}
+
+// DB를 처음 연결했을 때, 그동안 서버 파일에 저장된 회원(비밀번호 해시·관심 섹터·번호 그대로)과
+// 쿠키 서명 비밀값을 DB로 옮겨요. DB가 비어 있을 때만 한 번 하고, 옮긴 파일은 이름을 바꿔 백업으로 남겨요.
+// 번호(id)를 그대로 옮기기 때문에 이미 로그인한 사람도 로그인이 유지돼요.
+const authFile = () => process.env.AUTH_FILE || path.join(os.tmpdir(), "tradecompass", "users.json");
+async function migrateFromFile(pool) {
+  const f = authFile();
+  if (!fs.existsSync(f)) return 0;
+  const { rows } = await pool.query("SELECT count(*)::int AS n FROM tc_users");
+  if (rows[0].n > 0) return 0;
+  const d = JSON.parse(fs.readFileSync(f, "utf8"));
+  const users = Array.isArray(d.users) ? d.users : [];
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    for (const u of users) {
+      await client.query(`INSERT INTO tc_users (id, email, name, pass_hash, watch, agreed_at, created_at, last_login)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT DO NOTHING`,
+        [u.id, u.email, u.name, u.pass_hash, JSON.stringify(u.watch || []), u.agreed_at || new Date().toISOString(), u.created_at || new Date().toISOString(), u.last_login || null]);
+    }
+    await client.query("SELECT setval(pg_get_serial_sequence('tc_users', 'id'), GREATEST((SELECT COALESCE(max(id), 0) FROM tc_users), 1))");
+    try {
+      const sec = fs.readFileSync(path.join(path.dirname(f), "session-secret"), "utf8").trim();
+      if (sec.length >= 32) await client.query("INSERT INTO tc_settings (k, v) VALUES ('session_secret', $1) ON CONFLICT (k) DO NOTHING", [sec]);
+    } catch {}
+    await client.query("COMMIT");
+  } catch (e) { await client.query("ROLLBACK"); throw e; }
+  finally { client.release(); }
+  fs.renameSync(f, `${f}.migrated-${Date.now()}`);
+  console.log(JSON.stringify({ tag: "[auth]", event: "migrated-file-to-postgres", users: users.length, at: new Date().toISOString() }));
+  return users.length;
 }
 
 // ── 저장소 2: 서버 파일 (DB가 없을 때) ──
@@ -110,7 +144,7 @@ function fileStore(file) {
 let store = null;
 function getStore() {
   if (!store) store = process.env.DATABASE_URL ? pgStore(process.env.DATABASE_URL)
-    : fileStore(process.env.AUTH_FILE || path.join(os.tmpdir(), "tradecompass", "users.json"));
+    : fileStore(authFile());
   return store;
 }
 

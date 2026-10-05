@@ -41,7 +41,7 @@
 - 서버: `api/auth.js` — `signup` · `login` · `logout` · `me` · `watch`.
   - 저장소: `DATABASE_URL` 이 있으면 PostgreSQL(`tc_users` 테이블 자동 생성), 없으면 서버 파일(`AUTH_FILE`, 기본은 임시 폴더 — **재배포하면 지워질 수 있어요**).
   - 보안: 비밀번호는 scrypt 해시로만 저장, HMAC 서명 쿠키(HttpOnly·Secure·SameSite=Lax), "로그인 상태 유지" 체크 시 30일·아니면 브라우저 세션, 다른 사이트 요청 차단, IP당 분당 10회 제한, 로그인 실패 메시지 통일.
-- 켜려면 Eyefeet 테넌트 환경변수에 **`SESSION_SECRET`(필수)**, `DATABASE_URL`(권장)을 넣고 정지 → 배포 → 시작. `SESSION_SECRET` 이 없으면 창에 "준비 중" 안내만 나와요.
+- 환경변수 없이도 동작해요: `SESSION_SECRET` 이 없으면 서버가 처음 실행될 때 무작위 비밀값을 만들어 회원 저장소 옆에 보관해요. 오래 쓰려면 `DATABASE_URL`(권장)을 넣으세요. 잠시 끄려면 `AUTH_DISABLED=1`.
 - 테스트: `npm test` (`tests/auth.test.js` — 가입→로그아웃→로그인, 30일 유지 쿠키, 다른 브라우저에서 같은 관심 섹터, 평문 비밀번호 없음, 입력 검증·중복·잘못된 로그인, 위조 쿠키·외부 요청·연속 시도). `TEST_DATABASE_URL` 을 주면 PostgreSQL 로도 같은 시나리오를 돌려요(GitHub Actions `Tests` 가 자동으로 함).
 
 ## 24시간 속보

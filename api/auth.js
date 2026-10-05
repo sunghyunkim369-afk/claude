@@ -2,7 +2,8 @@
 // POST /api/auth  { action: "signup" | "login" | "logout" | "me" | "watch", ... }
 //
 // 필요한 환경변수 (Eyefeet Cloud 테넌트 설정, 값은 저장소에 절대 넣지 않아요)
-//   SESSION_SECRET  로그인 쿠키 서명용 임의 문자열 (32자 이상) — 없으면 503 "회원 기능 준비 중"
+//   SESSION_SECRET  (선택) 로그인 쿠키 서명용 임의 문자열 (32자 이상).
+//                   없으면 서버가 처음 실행될 때 무작위 값을 만들어 회원 저장소(DB 또는 파일)에 보관해서 써요.
 //   DATABASE_URL    (권장) PostgreSQL 주소. 있으면 회원 정보를 DB에 저장해요.
 //   AUTH_FILE       (선택) DB가 없을 때 쓰는 서버 파일 경로. 기본: 임시 폴더/tradecompass/users.json
 //                   ※ 파일 저장은 서버를 다시 배포하면 지워질 수 있어요. 오래 쓰려면 DATABASE_URL 을 넣으세요.
@@ -51,6 +52,13 @@ function pgStore(url) {
     async byId(id) { return (await q("SELECT id, email, name, watch FROM tc_users WHERE id = $1", [id]))[0] || null; },
     async setWatch(id, watch) { return (await q("UPDATE tc_users SET watch = $2 WHERE id = $1 RETURNING id, email, name, watch", [id, JSON.stringify(watch)]))[0] || null; },
     async touch(id) { await q("UPDATE tc_users SET last_login = now() WHERE id = $1", [id]); },
+    // 쿠키 서명 비밀값: 없으면 만들어서 DB에 보관 (여러 서버가 같은 값을 쓰도록 먼저 넣은 값이 이겨요)
+    async secret() {
+      await init();
+      await pool.query("CREATE TABLE IF NOT EXISTS tc_settings (k TEXT PRIMARY KEY, v TEXT NOT NULL)");
+      await pool.query("INSERT INTO tc_settings (k, v) VALUES ('session_secret', $1) ON CONFLICT (k) DO NOTHING", [crypto.randomBytes(32).toString("hex")]);
+      return (await pool.query("SELECT v FROM tc_settings WHERE k = 'session_secret'")).rows[0].v;
+    },
     end: () => pool.end(),
   };
 }
@@ -86,6 +94,15 @@ function fileStore(file) {
       u.watch = watch; save(d); return pub(u);
     }),
     touch: (id) => locked(() => { const d = load(), u = d.users.find(x => x.id === id); if (u) { u.last_login = new Date().toISOString(); save(d); } }),
+    // 쿠키 서명 비밀값: 없으면 만들어서 회원 파일 옆에 보관 (주인만 읽기)
+    secret: () => locked(() => {
+      const f = path.join(path.dirname(file), "session-secret");
+      try { const v = fs.readFileSync(f, "utf8").trim(); if (v.length >= 32) return v; } catch {}
+      const v = crypto.randomBytes(32).toString("hex");
+      fs.mkdirSync(path.dirname(f), { recursive: true, mode: 0o700 });
+      fs.writeFileSync(f, v, { mode: 0o600 });
+      return v;
+    }),
     end: async () => {},
   };
 }
@@ -114,7 +131,13 @@ const DUMMY = "s1$AAAAAAAAAAAAAAAAAAAAAA==$" + Buffer.alloc(64).toString("base64
 
 // ── 로그인 쿠키 ──
 const b64 = (s) => Buffer.from(s).toString("base64url");
-const sign = (data) => crypto.createHmac("sha256", process.env.SESSION_SECRET).update(data).digest("base64url");
+let SECRET = null;
+async function loadSecret() {
+  if (process.env.SESSION_SECRET && process.env.SESSION_SECRET.length >= 16) return (SECRET = process.env.SESSION_SECRET);
+  if (!SECRET) SECRET = await getStore().secret();
+  return SECRET;
+}
+const sign = (data) => crypto.createHmac("sha256", SECRET).update(data).digest("base64url");
 function makeToken(user, days) {
   const body = b64(JSON.stringify({ uid: user.id, exp: Date.now() + days * 86_400_000 }));
   return `${body}.${sign(body)}`;
@@ -177,10 +200,15 @@ const pwProblem = (pw) =>
 
 async function handler(req, res) {
   if (req.method !== "POST") { res.setHeader("Allow", "POST"); return send(res, 405, { error: "POST만 받아요." }); }
-  if (!process.env.SESSION_SECRET) {
-    return send(res, 503, { error: "회원 기능이 아직 연결되지 않았어요. (관리자: SESSION_SECRET 설정 필요)", code: "not_configured" });
+  if (process.env.AUTH_DISABLED === "1") {
+    return send(res, 503, { error: "회원 기능을 잠시 멈췄어요.", code: "not_configured" });
   }
   if (!sameOrigin(req)) return send(res, 403, { error: "허용되지 않은 요청이에요." });
+  try { await loadSecret(); }
+  catch (e) {
+    metrics.record("auth", `secret: ${e.message}`);
+    return send(res, 503, { error: "회원 기능을 준비하지 못했어요. 잠시 뒤 다시 시도해 주세요.", code: "not_configured" });
+  }
 
   let body;
   try { body = await readBody(req); } catch { return send(res, 400, { error: "요청 형식이 올바르지 않아요." }); }
@@ -236,4 +264,4 @@ async function handler(req, res) {
 module.exports = handler;
 // 상태 확인·테스트용
 module.exports.storeKind = () => (process.env.DATABASE_URL ? "postgres" : "file");
-module.exports._reset = async () => { if (store) await store.end(); store = null; hits.clear(); };
+module.exports._reset = async () => { if (store) await store.end(); store = null; SECRET = null; hits.clear(); };

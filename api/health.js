@@ -14,7 +14,7 @@ module.exports = function handler(req, res) {
     time: new Date().toISOString(),
     uptimeSec: Math.round(process.uptime()),
     env: Object.fromEntries(EXPECTED.map(k => [k, Boolean(process.env[k])])),
-    auth: !process.env.SESSION_SECRET ? "off" : process.env.DATABASE_URL ? "postgres" : "file",
+    auth: process.env.AUTH_DISABLED === "1" ? "off" : process.env.DATABASE_URL ? "postgres" : "file",
     errors: metrics.summary(24),
   }));
 };

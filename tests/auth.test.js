@@ -101,10 +101,32 @@ if (process.env.TEST_DATABASE_URL) {
   });
 }
 
-test("SESSION_SECRET 이 없으면 '준비 중'(503)", async () => {
+test("SESSION_SECRET 이 없어도 서버가 비밀값을 만들어 보관하고 회원 기능이 동작해요", async () => {
   const keep = process.env.SESSION_SECRET; delete process.env.SESSION_SECRET;
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "tc-auth-nosecret-"));
+  delete process.env.DATABASE_URL; process.env.AUTH_FILE = path.join(dir, "users.json");
+  delete require.cache[require.resolve("../api/auth.js")];
+  const auth = require("../api/auth.js");
+  const a = new Jar();
+  const r = await a.call(auth, { action: "signup", name: "비밀", email: "nosecret@test.kr", password: PW, agree: true });
+  assert.equal(r.status, 200);
+  assert.equal((await a.call(auth, { action: "me" })).status, 200);
+  const secretFile = path.join(dir, "session-secret");
+  assert.ok(fs.readFileSync(secretFile, "utf8").length >= 32);
+  assert.equal((fs.statSync(secretFile).mode & 0o077), 0, "비밀값 파일은 주인만 읽을 수 있어요");
+  // 서버를 다시 시작해도(모듈 다시 로드) 같은 비밀값이라 로그인이 유지돼요
+  await auth._reset();
+  delete require.cache[require.resolve("../api/auth.js")];
+  assert.equal((await a.call(require("../api/auth.js"), { action: "me" })).status, 200);
+  await require("../api/auth.js")._reset();
+  fs.rmSync(dir, { recursive: true, force: true });
+  process.env.SESSION_SECRET = keep;
+});
+
+test("AUTH_DISABLED=1 이면 '준비 중'(503)", async () => {
+  process.env.AUTH_DISABLED = "1";
   delete require.cache[require.resolve("../api/auth.js")];
   const r = await new Jar().call(require("../api/auth.js"), { action: "me" });
-  process.env.SESSION_SECRET = keep;
+  delete process.env.AUTH_DISABLED;
   assert.equal(r.status, 503); assert.equal(r.body.code, "not_configured");
 });

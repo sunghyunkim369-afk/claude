@@ -8,11 +8,22 @@ const { parseFeed, shingles, jaccard } = require("../news/lib");
 
 const OUT = path.join(__dirname, "..", "..", "data", "media-preview");
 const UA = { "User-Agent": "TradeCompass/1.0 (student project; media preview)" };
+// 채널 ID 는 핸들 페이지(@...)에서 찾아요. 후보 핸들을 여러 개 두고 처음 찾은 것을 써요.
 const CHANNELS = [
-  ["연합뉴스TV", "UCTHCOPwqNfZ0uiKOvFyhGwg"], ["YTN", "UChlgI3UHCOnwUGzWzbJ3H5w"], ["KBS News", "UCcQTRi69dsVYHN3exePtZ1A"],
-  ["SBS 뉴스", "UCkinYTS9IHqOEwR1Sze2JTw"], ["MBCNEWS", "UCF4Wxdo3inmxP-Y59wXDsFw"], ["JTBC News", "UCsU-I-vHLiaMfV_ceaYz5rQ"],
-  ["한국경제TV", "UCF8AeLlUbEpKju6v1H6p8Eg"], ["SBS Biz", "UCbMjg2EvXs_RUGW-KrdM3pw"],
+  ["연합뉴스TV", ["yonhapnewstv23", "yonhapnewstv"]], ["YTN", ["ytnnews24", "YTN"]], ["KBS News", ["newskbs", "KBSNEWS"]],
+  ["SBS 뉴스", ["sbsnews8", "SBSNEWS"]], ["MBCNEWS", ["MBCNEWS11", "MBCNEWS"]], ["JTBC News", ["jtbc_news", "JTBCNEWS"]],
+  ["한국경제TV", ["wowtv", "hkwowtv"]], ["SBS Biz", ["SBSBiz", "sbsbiz"]],
 ];
+async function channelId(handles) {
+  for (const h of handles) {
+    try {
+      const html = await get(`https://www.youtube.com/@${h}`);
+      const m = html.match(/"externalId":"(UC[\w-]{22})"/) || html.match(/channel\/(UC[\w-]{22})/);
+      if (m) return { handle: h, id: m[1] };
+    } catch (e) { console.log(`  @${h}: ${e.message}`); }
+  }
+  return null;
+}
 const PHOTO_QUERIES = {
   tariff: "container port cranes", export_control: "semiconductor wafer", trade_remedy: "steel coils",
   shipping: "container ship sea", supply_chain: "cargo terminal", energy: "oil tanker", fx: "currency exchange",
@@ -29,9 +40,14 @@ async function get(url, asBuf) {
 
 async function youtube() {
   const vids = [];
-  for (const [name, id] of CHANNELS) {
+  for (const [name, handles] of CHANNELS) {
     try {
-      const xml = await get(`https://www.youtube.com/feeds/videos.xml?channel_id=${id}`);
+      const ch = await channelId(handles);
+      if (!ch) throw new Error("채널 ID 못 찾음");
+      let xml;
+      try { xml = await get(`https://www.youtube.com/feeds/videos.xml?channel_id=${ch.id}`); }
+      catch (e) { xml = await get(`https://www.youtube.com/feeds/videos.xml?playlist_id=UU${ch.id.slice(2)}`); }   // 업로드 목록 피드로 다시
+      console.log(`  ${name}: @${ch.handle} → ${ch.id}`);
       const title = (xml.match(/<title>([^<]*)<\/title>/) || [])[1];
       const entries = xml.match(/<entry>[\s\S]*?<\/entry>/g) || [];
       for (const e of entries) {
@@ -59,23 +75,29 @@ async function youtube() {
   matches.forEach(m => console.log(`- [${m.issue}] ${m.lead.slice(0, 40)}\n    → ${m.best[0] ? `${m.best[0].sim} ${m.best[0].channel} · ${m.best[0].title.slice(0, 50)}` : "없음"}`));
 }
 
+// Wikimedia Commons: 키 없이 검색되고 라이선스 정보(extmetadata)를 같이 줘요. CC0·공공영역·CC BY·CC BY-SA 만, 가로 사진만.
+const OK_LICENSE = /^(cc0|public domain|pd|cc by(-sa)? [1-4]\.0)/i;
 async function photos() {
   const out = {};
   fs.mkdirSync(path.join(OUT, "photos"), { recursive: true });
   for (const [key, q] of Object.entries(PHOTO_QUERIES)) {
     try {
-      const j = JSON.parse(await get(`https://api.openverse.org/v1/images/?q=${encodeURIComponent(q)}&license=cc0,pdm,by&page_size=6&aspect_ratio=wide&size=large&mature=false`));
+      const api = `https://commons.wikimedia.org/w/api.php?action=query&format=json&generator=search&gsrnamespace=6&gsrlimit=20&gsrsearch=${encodeURIComponent(q + " filetype:bitmap")}&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=960`;
+      const pages = Object.values(JSON.parse(await get(api)).query?.pages || {}).sort((a, b) => a.index - b.index);
       out[key] = [];
-      for (const [i, r] of (j.results || []).slice(0, 4).entries()) {
-        const file = `${key}-${i}.jpg`;
-        try { fs.writeFileSync(path.join(OUT, "photos", file), await get(r.thumbnail, true)); }
-        catch (e) { continue; }
-        out[key].push({ file, title: r.title, creator: r.creator, license: `${r.license} ${r.license_version || ""}`.trim(), source: r.foreign_landing_url, provider: r.provider });
+      for (const pg of pages) {
+        const ii = (pg.imageinfo || [])[0]; if (!ii) continue;
+        const md = ii.extmetadata || {}, lic = (md.LicenseShortName?.value || "").trim();
+        if (!OK_LICENSE.test(lic) || ii.width < ii.height * 1.2 || ii.width < 900) continue;
+        const file = `${key}-${out[key].length}.jpg`;
+        try { fs.writeFileSync(path.join(OUT, "photos", file), await get(ii.thumburl, true)); } catch { continue; }
+        out[key].push({ file, title: pg.title.replace(/^File:/, ""), creator: (md.Artist?.value || "").replace(/<[^>]+>/g, "").trim().slice(0, 80), license: lic, source: ii.descriptionurl });
         await sleep(300);
+        if (out[key].length >= 4) break;
       }
-      console.log(`photo ${key} (${q}): ${out[key].length}장`);
+      console.log(`photo ${key} (${q}): 후보 ${pages.length} → ${out[key].length}장`);
     } catch (e) { console.log(`photo ${key}: 실패 ${e.message}`); }
-    await sleep(800);
+    await sleep(600);
   }
   fs.writeFileSync(path.join(OUT, "photos.json"), JSON.stringify(out, null, 1));
 }

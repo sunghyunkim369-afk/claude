@@ -17,10 +17,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: node scripts/media/preview.js
+      - run: rm -rf data/media-preview && node scripts/media/preview.js
       - run: |
           git config user.name "tradecompass-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -rq --cached data/media-preview 2>/dev/null || true
           git add data/media-preview
           git diff --cached --quiet && exit 0
           git commit -m "Media preview candidates"

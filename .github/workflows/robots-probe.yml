@@ -15,12 +15,17 @@ jobs:
       - shell: bash
         run: |
           set +e
-          for h in news.google.com www.yna.co.kr www.hankyung.com www.mk.co.kr www.wto.org ustr.gov www.whitehouse.gov www.federalregister.gov ec.europa.eu asia.nikkei.com www.scmp.com gcaptain.com theloadstar.com commons.wikimedia.org; do
+          for h in www.korea.kr news.google.com www.yna.co.kr www.hankyung.com www.mk.co.kr www.wto.org ustr.gov www.whitehouse.gov www.federalregister.gov ec.europa.eu asia.nikkei.com www.scmp.com gcaptain.com theloadstar.com commons.wikimedia.org; do
             echo "===== $h ====="
             curl -sL -A "Mozilla/5.0 (TradeCompass robots check)" --max-time 15 "https://$h/robots.txt" -o r.txt -w 'HTTP %{http_code}\n'
-            # User-agent: * 구간만 보여줘요
-            awk 'BEGIN{IGNORECASE=1} /^user-agent:/{ua=($2=="*")} ua' r.txt | grep -iE '^(user-agent|disallow|allow)' | head -40
+            # 줄 끝 CR 을 지우고(Windows 줄바꿈이면 "*" 비교가 틀려요) User-agent: * 구간만 보여줘요
+            tr -d '\r' < r.txt | awk 'BEGIN{IGNORECASE=1} /^user-agent:/{ua=($2=="*")} ua' | grep -iE '^(user-agent|disallow|allow)' | head -60
             sleep 2
+          done
+          echo "===== 정책브리핑 RSS 후보 ====="
+          for u in https://www.korea.kr/rss/policy.xml https://www.korea.kr/rss/pressrelease.xml https://www.korea.kr/rss/dept_motie.xml https://www.korea.kr/rss/dept_kcs.xml https://www.korea.kr/etc/rss.do; do
+            code=$(curl -sL -A "Mozilla/5.0 (TradeCompass)" --max-time 15 -o f.xml -w '%{http_code}' "$u"); n=$(grep -o '<item' f.xml | wc -l)
+            echo "$code items=$n  $u  $(grep -o '<title>[^<]*' f.xml | sed -n 2p | head -c 60)"; sleep 2
           done
           echo "===== tcmvp.eyefeet.com 응답 헤더 ====="
           curl -sI --max-time 15 https://tcmvp.eyefeet.com/tradecompass-mvp/ | grep -iE '^(HTTP|content-security|x-frame|x-content-type|referrer-policy|strict-transport|permissions-policy|server)'

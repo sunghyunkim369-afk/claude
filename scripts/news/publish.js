@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const { TOPICS, SECTORS, COUNTRIES, SCORE } = require("./config");
 const { weeklyBrief } = require("./ai");
-const { finalize, outletName, cleanDesc, stripOutlet, rankForIssue, isPromo, isOpinion, issueRelevance, dedupeEvents } = require("./lib");
+const { finalize, outletName, stripOutlet, rankForIssue, isPromo, isOpinion, issueRelevance, dedupeEvents } = require("./lib");
 const { LEAD_MIN_RELEVANCE } = require("./config");
 
 const ROOT = path.join(__dirname, "..", "..");
@@ -117,7 +117,9 @@ const dirCount = (list) => ({
   neutral: list.filter(a => a.direction !== "up" && a.direction !== "down").length,
 });
 const topSectors = (list, k = 3) => [...count(list, a => a.sectors || [])].sort((a, b) => b[1] - a[1]).slice(0, k).map(([id]) => id);
-const shortSum = (a) => a.summary || cleanDesc(a.desc, a.title).slice(0, 120);
+// 화면·공개 데이터에는 기사 본문에서 잘라 온 글(발췌)과 AI 한 줄 요약을 넣지 않아요 (팀 규칙 C5, 2026-10-06).
+// 제목·언론사·시각·원문 링크와, 우리 데이터로 만든 설명(why: "○○ 이슈 · 이번 주 N건 보도")만 써요.
+// 보관 파일(archive.json)의 desc 는 분류용으로만 남겨요.
 
 // 이슈별 보도 추이·이번 주 건수 (main 에서 채워요)
 const TREND_WEEKS = 5;   // 보관 42일 중 수집 시점 차이로 잘리는 가장 오래된 주는 빼요
@@ -132,7 +134,7 @@ const toNews = (a, rank) => {
     time: fmtMD(Date.parse(a.date)), clock: fmtHM(Date.parse(a.date)), at: a.date, rank, source: a.source,
     outlets: (a.outlets || []).length, tag: topicById[a.topic]?.label || "무역", title: a.titleKo || a.title, link: a.link,
     lang: a.lang === "en" ? "en" : undefined, orig: a.titleKo ? a.title : undefined,
-    summary: shortSum(a), direction: a.direction || "neutral", sectors,
+    direction: a.direction || "neutral", sectors,
     issue: issueName(key), issueReports: n, trend: CTX.trend(key),
     why: `${issueName(key)} 이슈 · 이번 주 ${n}건 보도${sectors.length ? ` · ${sectors.map(id => sectorById[id].name).join("·")} 영향권` : ""}`,
   };
@@ -218,7 +220,7 @@ async function main() {
         topic, risk: !!topicById[topic]?.risk, sectors, score: round(score), reports: r.list.length, prev: nPrev.get(r.key) || 0, reportsC: nNowC.get(r.key) || 0,
         // 지난주 대비 (같은 출처 기준): 증감률과 배수. 직전 주가 0건이면 null(새 이슈)
         ...(() => { const p = nPrev.get(r.key) || 0, c = nNowC.get(r.key) || 0; return p ? { change: Math.round((c - p) / p * 100), ratio: round(c / p, 1) } : { change: null, ratio: null }; })(),
-        ...dirCount(r.list), summary: shortSum(lead),
+        ...dirCount(r.list),
         parts: { volume: round(Vn, 3), momentum: round(r.M, 3), relevance: round(r.R, 3) },
         trend: CTX.trend(r.key), leadRelevance: leadRel,
         articles: dedupeEvents(sorted).slice(0, 4).map(a => ({ title: a.titleKo || a.title, lang: a.lang === "en" ? "en" : undefined, source: a.source, outlets: a.outlets.length, at: fmtAt(Date.parse(a.date)), link: a.link })),

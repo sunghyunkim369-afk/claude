@@ -133,7 +133,7 @@ function newsFront(list) {
   const pool = top1 ? ranked.filter(n => n.link !== top1.link) : ranked;
   // 머리기사 = 2위 이슈의 대표 기사 (뉴스 목록에 있으면 그 기사, 없으면 이슈 정보로 만들어요)
   const second = D.meta.sample ? null : D.issues[1];
-  const fromIssue = x => ({ tag: x.tag, title: x.title, link: x.link, source: x.source, time: x.time, summary: x.summary,
+  const fromIssue = x => ({ tag: x.tag, title: x.title, link: x.link, source: x.source, time: x.time, why: `${x.keyword} 이슈 · 이번 주 ${x.reports}건 보도`,
     lang: x.lang, orig: x.orig, issue: x.keyword, issueReports: x.reports, trend: x.trend });
   const lead = (second && (pool.find(n => n.link === second.link) || fromIssue(second)))
     || (top1 && pool.find(n => n.issue !== top1.keyword)) || pool[0];
@@ -146,7 +146,7 @@ function newsFront(list) {
         ${photoFig(photoFor(TOPIC_BY_LABEL[lead.tag], lead.issue || lead.title, 1), "lead-ph", lead.tag)}
         <div class="kick"><span class="tag">${esc(lead.tag)}</span>${lead.direction ? `<em class="dir ${act(lead.direction)[1]}">${act(lead.direction)[0]}</em>` : ""}${reach(lead)}${enBadge(lead)}</div>
         <h3>${ext(lead.link, esc(lead.title))}</h3>${origLine(lead)}
-        <p>${esc(lead.summary || lead.why || "")}</p>
+        ${lead.why ? `<p>${esc(lead.why)}</p>` : ""}
         <div class="meta">${esc(lead.source)} · ${esc(ago(lead.at) || lead.time)}${sectorChips(lead.sectors)}</div>
       </div>
       ${lead.trend ? `<aside class="lead-trend"><small>${esc(lead.issue)} 이슈 · 최근 5주 보도</small>${spark(lead.trend, { w: 150, h: 54, label: `${lead.issue} 보도 추이` })}<b>${lead.issueReports}<span>건 이번 주</span></b></aside>` : ""}
@@ -155,7 +155,7 @@ function newsFront(list) {
       <li>
         <div class="kick"><span class="tag">${esc(n.tag)}</span>${reach(n)}${enBadge(n)}</div>
         <h4>${ext(n.link, esc(n.title))}</h4>
-        <p>${esc(n.summary && n.summary.length < 90 ? n.summary : (n.why || n.summary || ""))}</p>
+        ${n.why ? `<p>${esc(n.why)}</p>` : ""}
         <small>${esc(n.source)} · ${esc(ago(n.at) || n.time)}</small>
       </li>`).join("")}</ol>`;
 }
@@ -168,7 +168,6 @@ const issueItem = (x, i) => `
       <h3>${ext(x.link, esc(x.title))}</h3>
       <div class="src">${x.keyword ? `<b>${esc(x.keyword)}</b> · ` : ""}${esc(x.source)} · ${esc(x.time)}${x.reports ? ` · 보도 ${x.reports}건` : ""}</div>
       <span class="tag">${esc(x.tag)}</span>
-      ${x.summary ? `<p class="sum">${esc(x.summary)}</p>` : ""}
     </div>
     <div class="impact ${x.impact >= 80 ? "hi" : ""}"><b class="num">${countUp(x.impact)}</b><small>${D.meta.sample ? "영향도" : "이슈 점수"}</small>${x.trend ? spark(x.trend, { w: 64, h: 20, label: `${x.keyword} 보도 추이` }) : ""}</div>
   </li>`;
@@ -180,7 +179,7 @@ const newsLinks = n => n.sectors
 const newsRow = n => `
   <li class="news-row">
     <div class="t"><b class="num">${esc(n.time)}</b><small>${esc(n.source)}${n.outlets > 1 ? ` 외 ${n.outlets - 1}곳` : ""}</small>${n.at ? `<small>${esc(ago(n.at))}</small>` : ""}</div>
-    <div><h3><span class="tag">${esc(n.tag)}</span>${enBadge(n)}${ext(n.link, esc(n.title))}</h3>${origLine(n)}${n.summary ? `<p>${D.meta.sample ? "AI 요약 · " : ""}${esc(n.summary)}</p>` : ""}${n.why ? `<p class="why">${esc(n.why)}</p>` : ""}</div>
+    <div><h3><span class="tag">${esc(n.tag)}</span>${enBadge(n)}${ext(n.link, esc(n.title))}</h3>${origLine(n)}${n.why ? `<p class="why">${esc(n.why)}</p>` : ""}</div>
     <div class="links">${newsLinks(n)}</div>
   </li>`;
 
@@ -216,14 +215,14 @@ function sectorNewsBlock(s, i) {
       <article class="card lift nf">
         <div class="nb">${newsBadges(f)}</div>
         <h3>${ext(f.link, esc(f.title))}</h3>${origLine(f)}
-        ${f.summary ? `<p>${esc(f.summary)}</p>` : ""}
+        ${f.why ? `<p>${esc(f.why)}</p>` : ""}
         <small>${newsMeta(f)}</small>
       </article>
       ${rest.length ? `<ul class="nl">${rest.map(n => `
         <li class="card lift">
           <div class="nb">${newsBadges(n)}</div>
           <h3>${ext(n.link, esc(n.title))}</h3>
-          ${n.summary ? `<p>${esc(n.summary)}</p>` : ""}
+          ${n.why ? `<p>${esc(n.why)}</p>` : ""}
           <small>${newsMeta(n)}</small>
         </li>`).join("")}</ul>` : ""}
     </section>`;
@@ -292,7 +291,7 @@ function sectorContext(s) {
     `섹터: ${s.name} / 노출도 ${s.score} (${s.state}, 50=중립) / 조치 강화 ${s.up} · 완화 ${s.down} · 중립 ${s.neutral}`,
     `요약: ${s.summary}`,
     `관련 이슈:`,
-    ...iss.map(x => `- ${x.keyword}: ${x.title} (점수 ${x.score}, 최근 7일 보도 ${x.reports}건·직전 ${x.prev}건, 강화 ${x.up}·완화 ${x.down}) ${x.summary}`),
+    ...iss.map(x => `- ${x.keyword}: ${x.title} (점수 ${x.score}, 최근 7일 보도 ${x.reports}건·직전 ${x.prev}건, 강화 ${x.up}·완화 ${x.down})`),
   ].join("\n");
 }
 
@@ -302,7 +301,7 @@ function briefContext() {
     `기준 기간 ${D.meta.period || D.meta.date}`,
     `이번 주 요약: ${D.bearing.headline}`, ...D.bearing.points.map(p => `- ${p}`),
     `섹터 노출도(50=평소 수준):`, ...D.sectors.map(s => `- ${s.name} ${s.score} (${s.state}): ${s.summary}`),
-    `핵심 이슈:`, ...D.issues.map(x => `- ${x.keyword ? x.keyword + ": " : ""}${x.title} (점수 ${x.impact}, 보도 ${x.reports}건·직전 주 ${x.prev}건)${x.summary ? " " + x.summary : ""}`),
+    `핵심 이슈:`, ...D.issues.map(x => `- ${x.keyword ? x.keyword + ": " : ""}${x.title} (점수 ${x.impact}, 보도 ${x.reports}건·직전 주 ${x.prev}건)`),
     `공급망 리스크:`, ...D.risks.map(r => `- [${r.level}] ${r.title}: ${r.detail}, ${r.effect}`),
     t ? `무역 흐름(${t.period}): 수출 $${t.total}B, 전년 대비 ${t.yoy}%, 수지 +$${t.balance}B` : "",
   ].filter(Boolean).join("\n").slice(0, 5800);

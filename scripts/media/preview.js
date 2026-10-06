@@ -38,10 +38,14 @@ const PHOTO_QUERIES = {
   machinery: ["industrial robot factory", "electronics factory"], consumer: ["supermarket shelves", "Korean food market", "cosmetics store"],
 };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+// 429(요청 너무 많음)·5xx 면 잠깐 쉬었다가 다시 (최대 4번)
 async function get(url, asBuf) {
-  const r = await fetch(url, { headers: UA, redirect: "follow" });
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  return asBuf ? Buffer.from(await r.arrayBuffer()) : r.text();
+  for (let i = 0; ; i++) {
+    const r = await fetch(url, { headers: UA, redirect: "follow" });
+    if (r.ok) return asBuf ? Buffer.from(await r.arrayBuffer()) : r.text();
+    if (i >= 3 || !(r.status === 429 || r.status >= 500)) throw new Error(`HTTP ${r.status}`);
+    await sleep(5000 * (i + 1));
+  }
 }
 
 async function youtube() {
@@ -84,9 +88,12 @@ async function youtube() {
 // Wikimedia Commons: 키 없이 검색되고 라이선스 정보(extmetadata)를 같이 줘요. CC0·공공영역·CC BY·CC BY-SA 만, 가로 사진만.
 const OK_LICENSE = /^(cc0|public domain|pd|cc by(-sa)? [1-4]\.0)/i;
 async function photos() {
-  const out = {};
+  // 이미 받은 키는 그대로 두고 4장 미만인 키만 다시 받아요
+  let out = {};
+  try { out = JSON.parse(fs.readFileSync(path.join(OUT, "photos.json"), "utf8")); } catch {}
   fs.mkdirSync(path.join(OUT, "photos"), { recursive: true });
   for (const [key, qs] of Object.entries(PHOTO_QUERIES)) {
+   if ((out[key] || []).length >= 4) continue;
    out[key] = [];
    for (const q of qs) {
     try {
@@ -99,12 +106,12 @@ async function photos() {
         const file = `${key}-${out[key].length}.jpg`;
         try { fs.writeFileSync(path.join(OUT, "photos", file), await get(ii.thumburl, true)); } catch { continue; }
         out[key].push({ file, title: pg.title.replace(/^File:/, ""), creator: (md.Artist?.value || "").replace(/<[^>]+>/g, "").trim().slice(0, 80), license: lic, source: ii.descriptionurl });
-        await sleep(300);
+        await sleep(1200);
         if (out[key].length >= Math.ceil(6 * (qs.indexOf(q) + 1) / qs.length)) break;
       }
       console.log(`photo ${key} (${q}): 후보 ${pages.length} → 누적 ${out[key].length}장`);
     } catch (e) { console.log(`photo ${key}: 실패 ${e.message}`); }
-    await sleep(600);
+    await sleep(2500);
    }
   }
   fs.writeFileSync(path.join(OUT, "photos.json"), JSON.stringify(out, null, 1));

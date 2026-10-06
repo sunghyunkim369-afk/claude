@@ -21,9 +21,11 @@ const meta = Object.values(JSON.parse(fs.readFileSync(path.join(SRC, "photos.jso
   let total = 0;
   for (const [key, files] of Object.entries(pick)) {
     out[key] = [];
-    for (const [i, name] of files.entries()) {
+    for (const name of files) {
       const m = meta.find(x => x.file === `${name}.jpg`);
       if (!m) { console.log(`없음: ${name}`); continue; }
+      const file = `${name}.webp`;          // 여러 주제에 같은 사진을 쓰면 파일은 하나만
+      if (fs.existsSync(path.join(DEST, file))) { out[key].push({ f: `img/photos/${file}`, by: m.creator || "Wikimedia Commons", lic: m.license, src: m.source, t: m.title }); continue; }
       const dataUrl = "data:image/jpeg;base64," + fs.readFileSync(path.join(SRC, "photos", m.file)).toString("base64");
       // data: URL 은 캔버스가 오염되지 않아서 다시 저장할 수 있어요
       const webp = await p.evaluate(async (src) => {
@@ -33,7 +35,6 @@ const meta = Object.values(JSON.parse(fs.readFileSync(path.join(SRC, "photos.jso
         c.getContext("2d").drawImage(img, 0, 0, w, h);
         return c.toDataURL("image/webp", 0.72);
       }, dataUrl);
-      const file = `${key}-${i}.webp`;
       const buf = Buffer.from(webp.split(",")[1], "base64");
       fs.writeFileSync(path.join(DEST, file), buf);
       total += buf.length;

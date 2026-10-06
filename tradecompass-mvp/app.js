@@ -86,6 +86,29 @@ function ago(iso) {
   return m < 60 ? `${m}분 전` : m < 1440 ? `${Math.round(m / 60)}시간 전` : `${Math.round(m / 1440)}일 전`;
 }
 const reach = n => n.outlets > 1 ? `<span class="reach">${n.outlets}곳 보도</span>` : "";
+// ── 사진 (Wikimedia Commons 자유 라이선스, photos.js) ──
+// 주제·섹터마다 사진 2~3장. 같은 이슈는 그 주 동안 같은 사진이고, 주(기간)가 바뀌면 자동으로 다른 사진으로 돌아가요.
+const PH = window.TC_PHOTOS || {};
+const TOPIC_BY_LABEL = { "관세": "tariff", "수출통제": "export_control", "반덤핑·무역구제": "trade_remedy", "FTA·통상협정": "agreement",
+  "경제제재": "sanctions", "해운·물류": "shipping", "공급망·핵심광물": "supply_chain", "환율": "fx", "유가·원자재": "energy",
+  "보조금·산업정책": "subsidy", "통관·원산지": "customs", "수출입 동향": "export_trend" };
+const hashStr = s => [...String(s)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
+function photoFor(key, seed, shift = 0) {
+  const list = PH[key];
+  return list && list.length ? list[(hashStr(`${seed}|${D.meta.period || ""}`) + shift) % list.length] : null;
+}
+// '순위 산정 방식' 페이지의 사진 출처 전체 목록 (같은 사진은 한 번만)
+function photoCredits() {
+  const all = [...new Map(Object.values(PH).flat().map(p => [p.f, p])).values()];
+  if (!all.length) return "";
+  return `<h2>사진 출처</h2><p class="muted">기사 사진이 아니라 주제를 보여주는 참고 사진이에요. 모두 Wikimedia Commons 의 자유 라이선스 사진이며, 이름을 누르면 원본과 라이선스를 볼 수 있어요.</p>
+    <ul class="credits">${all.map(p => `<li><a href="${esc(p.src)}" target="_blank" rel="noopener noreferrer">${esc(p.t.replace(/\.(jpe?g|png)$/i, ""))}</a> — ${esc(p.by)} · ${esc(p.lic)}</li>`).join("")}</ul>`;
+}
+// 큰 사진: 오른쪽 아래에 작은 출처 표시(누르면 원본 페이지)
+const photoFig = (p, cls, alt) => p ? `<figure class="ph ${cls}"><img src="${esc(p.f)}" alt="${esc(alt || "")}" loading="lazy" decoding="async"><a class="ph-cr" href="${esc(p.src)}" target="_blank" rel="noopener noreferrer" title="${esc(p.t)} · ${esc(p.by)} · ${esc(p.lic)}">ⓒ ${esc(p.by.slice(0, 28))} · ${esc(p.lic)}</a></figure>` : "";
+// 작은 썸네일: 출처는 마우스를 올리면 보이고, 전체 목록은 '순위 산정 방식' 페이지 맨 아래에 있어요
+const photoThumb = p => p ? `<img class="ph-th" src="${esc(p.f)}" alt="" loading="lazy" decoding="async" title="사진: ${esc(p.by)} · ${esc(p.lic)} (Wikimedia Commons)">` : "";
+
 // 영문 기사 표시: EN 배지 + (AI 번역이 있으면) 원문 제목
 const enBadge = n => n.lang === "en" ? `<span class="en" title="영문 기사${n.orig ? " · 제목은 AI 번역" : ""}">EN</span>` : "";
 const origLine = n => n.orig ? `<small class="orig">원문: ${esc(n.orig)}</small>` : "";
@@ -121,6 +144,7 @@ function newsFront(list) {
   return `
     <article class="lead">
       <div class="lead-main">
+        ${photoFig(photoFor(TOPIC_BY_LABEL[lead.tag], lead.issue || lead.title, 1), "lead-ph", lead.tag)}
         <div class="kick"><span class="tag">${esc(lead.tag)}</span>${lead.direction ? `<em class="dir ${act(lead.direction)[1]}">${act(lead.direction)[0]}</em>` : ""}${reach(lead)}${enBadge(lead)}</div>
         <h3>${ext(lead.link, esc(lead.title))}</h3>${origLine(lead)}
         <p>${esc(lead.summary || lead.why || "")}</p>
@@ -141,6 +165,7 @@ const issueItem = (x, i) => `
   <li class="issue">
     <span class="rank">${String(i + 1).padStart(2, "0")}${moveBadge(x)}</span>
     <div>
+      ${photoThumb(photoFor(x.topic || TOPIC_BY_LABEL[x.tag], x.keyword))}
       <h3>${ext(x.link, esc(x.title))}</h3>
       <div class="src">${x.keyword ? `<b>${esc(x.keyword)}</b> · ` : ""}${esc(x.source)} · ${esc(x.time)}${x.reports ? ` · 보도 ${x.reports}건` : ""}</div>
       <span class="tag">${esc(x.tag)}</span>
@@ -210,6 +235,7 @@ function sectorPage(s) {
   return `
     <div class="sp">
       <a class="back-link rise" href="#/">← 홈으로</a>
+      ${photoFig(photoFor(s.id, s.id), "sp-ph rise", s.name)}
       <div class="sp-head rise" style="--i:1">
         ${compass(s.score)}
         <div><h1>${esc(s.name)}</h1><div class="state ${s.state}"><i></i>노출도 <b class="num">${Math.round(s.score)}</b> · ${stateLabel(s.state)}</div>
@@ -612,6 +638,7 @@ const views = {
           <li><b>조치 방향</b>(강화·완화)은 관세·제재·수출입 같은 무역 맥락이 있는 기사에만 붙여요. 단어 규칙이라 틀릴 수 있어요. 2026-10 점검에서 표본 75건 중 88%가 사람 판단과 같았어요.</li>
           <li><b>정정</b>: 분류·대표 기사가 틀렸다면 원문 링크와 함께 알려 주세요. 규칙을 고쳐 다음 수집(6시간 이내)부터 반영하고, 고친 내용은 계산 방법 문서에 남겨요.</li>
         </ul>
+        ${photoCredits()}
         <p class="muted">근거 논문: Baker·Bloom·Davis(2016) 경제정책 불확실성 지수, Caldara 외(2020) 무역정책 불확실성 지수, Carbonell·Goldstein(1998) MMR, Broder(1997) 문서 유사도.</p>
       </section>`;
   },

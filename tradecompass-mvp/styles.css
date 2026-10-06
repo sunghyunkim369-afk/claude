@@ -906,3 +906,15 @@ dialog.auth::backdrop{background:rgba(19,35,63,.45);backdrop-filter:blur(3px)}
 .qt:hover{border-color:var(--brass)}
 .mq{margin:0;padding-left:18px;display:grid;gap:6px;font-size:.9rem}
 .mq b{margin-right:6px}
+
+/* ── 사진 (주제·섹터 참고 사진) ── */
+.ph{position:relative;margin:0 0 14px;border-radius:10px;overflow:hidden;background:var(--line)}
+.ph img{display:block;width:100%;height:100%;object-fit:cover}
+.ph.lead-ph{aspect-ratio:16/7}
+.ph.sp-ph{aspect-ratio:16/5;margin-bottom:18px}
+.ph-cr{position:absolute;right:6px;bottom:4px;max-width:70%;font-size:.58rem;line-height:1.3;color:rgba(255,255,255,.82);text-shadow:0 1px 2px rgba(0,0,0,.65);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph-cr:hover{color:#fff;text-decoration:underline}
+.ph-th{float:right;width:92px;height:62px;object-fit:cover;border-radius:6px;margin:2px 0 6px 12px;background:var(--line)}
+.credits{margin:0;padding-left:18px;columns:2 320px;font-size:.78rem;color:var(--ink-soft)}
+.credits li{break-inside:avoid;margin-bottom:3px}
+@media (max-width:640px){.ph-th{width:64px;height:46px;margin-left:8px}.ph.sp-ph{aspect-ratio:16/8}.ph.lead-ph{aspect-ratio:16/9}}

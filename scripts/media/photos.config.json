@@ -1,0 +1,22 @@
+{
+  "tariff": ["tariff-0", "tariff-4", "tariff-1"],
+  "export_trend": ["export_trend-0", "export_trend-1", "supply_chain-1"],
+  "export_control": ["export_control-2", "export_control-5", "export_control-3"],
+  "trade_remedy": ["trade_remedy-0", "trade_remedy-1", "trade_remedy-2"],
+  "sanctions": ["sanctions-1", "sanctions-4", "sanctions-5"],
+  "shipping": ["shipping-0", "shipping-3", "shipping-5"],
+  "supply_chain": ["supply_chain-0", "supply_chain-3", "supply_chain-1"],
+  "energy": ["energy-0", "energy-1", "chem-0"],
+  "fx": ["export_trend-1", "tariff-1"],
+  "agreement": ["agreement-2", "tariff-4"],
+  "customs": ["customs-3", "customs-0"],
+  "subsidy": ["subsidy-3", "subsidy-5", "subsidy-4"],
+  "semi": ["semi-2", "export_control-5", "semi-1"],
+  "auto": ["auto-3", "auto-5", "auto-0"],
+  "battery": ["battery-0", "battery-3"],
+  "steel": ["steel-0", "steel-2", "trade_remedy-2"],
+  "chem": ["chem-0", "chem-2", "chem-3"],
+  "ship": ["ship-0", "ship-3"],
+  "machinery": ["machinery-0", "machinery-2"],
+  "consumer": ["consumer-0", "consumer-5", "consumer-3"]
+}

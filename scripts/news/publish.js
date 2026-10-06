@@ -5,13 +5,15 @@ const fs = require("fs");
 const path = require("path");
 const { TOPICS, SECTORS, COUNTRIES, SCORE } = require("./config");
 const { weeklyBrief } = require("./ai");
-const { finalize, outletName, cleanDesc, stripOutlet, rankForIssue, isPromo, isOpinion } = require("./lib");
+const { finalize, outletName, cleanDesc, stripOutlet, rankForIssue, isPromo, isOpinion, issueRelevance, dedupeEvents } = require("./lib");
 const { LEAD_MIN_RELEVANCE } = require("./config");
 
 const ROOT = path.join(__dirname, "..", "..");
 const ARCHIVE = path.join(ROOT, "data", "news", "archive.json");
 const OUT_JSON = path.join(ROOT, "data", "news", "latest.json");
 const OUT_JS = path.join(ROOT, "tradecompass-mvp", "data.js");
+// 주마다 발행한 Top10 기록 (지난주 대비 순위 변화를 보여주려고 남겨요)
+const HISTORY = path.join(ROOT, "data", "news", "history.json");
 const DAY = 86_400_000;
 
 const topicById = Object.fromEntries(TOPICS.map(t => [t.id, t]));
@@ -90,12 +92,12 @@ function pickTop(cands, n) {
   // 같은 섹터의 더 낮은 이슈들에 밀려 Top10에서 빠지는 일이 있었어요)
   for (const c of pool.splice(0, Math.min(SCORE.mmrKeep, n))) {
     picked.push(c);
-    if (c.sectors[0]) perSector[c.sectors[0]] = (perSector[c.sectors[0]] || 0) + 1;
+    if (c.mainSector) perSector[c.mainSector] = (perSector[c.mainSector] || 0) + 1;
   }
   while (picked.length < n && pool.length) {
     let best = -Infinity, bi = -1;
     pool.forEach((c, i) => {
-      const main = c.sectors[0];
+      const main = c.mainSector;
       if (main && (perSector[main] || 0) >= SCORE.maxPerSector) return;
       const red = picked.length ? Math.max(...picked.map(p => similarity(c, p))) : 0;
       const v = SCORE.mmrLambda * (c.score / 100) - (1 - SCORE.mmrLambda) * red;
@@ -104,7 +106,7 @@ function pickTop(cands, n) {
     if (bi < 0) break;
     const [c] = pool.splice(bi, 1);
     picked.push(c);
-    if (c.sectors[0]) perSector[c.sectors[0]] = (perSector[c.sectors[0]] || 0) + 1;
+    if (c.mainSector) perSector[c.mainSector] = (perSector[c.mainSector] || 0) + 1;
   }
   return picked;
 }
@@ -128,22 +130,25 @@ const toNews = (a, rank) => {
   const n = CTX.week.get(key) || 0;
   return {
     time: fmtMD(Date.parse(a.date)), clock: fmtHM(Date.parse(a.date)), at: a.date, rank, source: a.source,
-    outlets: (a.outlets || []).length, tag: topicById[a.topic]?.label || "무역", title: a.title, link: a.link,
+    outlets: (a.outlets || []).length, tag: topicById[a.topic]?.label || "무역", title: a.titleKo || a.title, link: a.link,
+    lang: a.lang === "en" ? "en" : undefined, orig: a.titleKo ? a.title : undefined,
     summary: shortSum(a), direction: a.direction || "neutral", sectors,
     issue: issueName(key), issueReports: n, trend: CTX.trend(key),
     why: `${issueName(key)} 이슈 · 이번 주 ${n}건 보도${sectors.length ? ` · ${sectors.map(id => sectorById[id].name).join("·")} 영향권` : ""}`,
     stocks: [],
   };
 };
-// 무게 순으로 고르되 같은 이슈 기사는 cap 건까지
+// 중요도 순으로 고르되 같은 이슈 기사는 cap 건까지, 같은 사건은 한 줄로 합쳐요
+// 중요도 = 무게 × (0.5 + 이슈 관련도): 제목에 무역 단어가 없는 기사("가축질병 진단능력 평가")가 최신이라는 이유로 위에 오지 않게
 function pickNews(list, n, cap, now) {
   const per = {};
-  return [...list].sort((a, b) => weight(b, now) - weight(a, now))
+  const imp = (a) => weight(a, now) * (0.5 + issueRelevance(a, a.topic, a.country)) * (isOpinion(a.title) ? 0.5 : 1);
+  return dedupeEvents([...list].sort((a, b) => imp(b) - imp(a)))
     .filter(a => { const k = issueKey(a); per[k] = (per[k] || 0) + 1; return per[k] <= cap; }).slice(0, n);
 }
 
 async function main() {
-  const now = Date.now();
+  const now = process.env.TC_NOW ? Date.parse(process.env.TC_NOW) : Date.now();   // TC_NOW: 지난주 기준으로 다시 계산할 때 (history 초기화용)
   // 분류 규칙이 바뀌어도 지난 기사까지 같은 규칙으로 계산하도록, AI가 분류하지 않은 기사는 여기서 다시 분류해요
   const all = JSON.parse(fs.readFileSync(ARCHIVE, "utf8")).items.filter(a => Date.parse(a.date) <= now + DAY).flatMap(a => {
     a.title = stripOutlet(a.title, a.source);
@@ -203,14 +208,18 @@ async function main() {
       const lead = sorted[0] || r.list[0];
       const leadRel = ranked[0] ? ranked[0].rel : 0;
       const sectors = topSectors(r.list, 3);
+      // 섹터당 3개 제한은 그 섹터 기사가 이슈의 40% 이상일 때만 셉니다.
+      // ("미국 관세"처럼 여러 섹터에 걸친 이슈가 기사 몇 건 때문에 석유화학 이슈로 세어져 다른 이슈를 막지 않게)
+      const mainN = sectors[0] ? r.list.filter(a => (a.sectors || []).includes(sectors[0])).length : 0;
+      const mainSector = mainN / r.list.length >= SCORE.mainSectorShare ? sectors[0] : null;
       return {
-        key: r.key, keyword: issueName(r.key), title: lead.title, link: lead.link, source: lead.source,
+        key: r.key, mainSector, keyword: issueName(r.key), title: lead.title, link: lead.link, source: lead.source,
         time: ago(Date.parse(lead.date), now), impact: Math.round(score), tag: topicById[topic]?.label || topic,
         topic, risk: !!topicById[topic]?.risk, sectors, score: round(score), reports: r.list.length, prev: nPrev.get(r.key) || 0, reportsC: nNowC.get(r.key) || 0,
         ...dirCount(r.list), summary: shortSum(lead),
         parts: { volume: round(Vn, 3), momentum: round(r.M, 3), relevance: round(r.R, 3) },
         trend: CTX.trend(r.key), leadRelevance: leadRel,
-        articles: sorted.slice(0, 4).map(a => ({ title: a.title, source: a.source, at: fmtAt(Date.parse(a.date)), link: a.link })),
+        articles: dedupeEvents(sorted).slice(0, 4).map(a => ({ title: a.titleKo || a.title, lang: a.lang === "en" ? "en" : undefined, source: a.source, outlets: a.outlets.length, at: fmtAt(Date.parse(a.date)), link: a.link })),
       };
     })
     .sort((a, b) => b.score - a.score);
@@ -219,6 +228,19 @@ async function main() {
   const eligible = cands.filter(x => x.leadRelevance >= LEAD_MIN_RELEVANCE);
   // MMR 로 고른 10개를 화면에는 점수 순으로 보여줘요
   const issues = pickTop(eligible, 10).sort((a, b) => b.score - a.score);
+  // ── 지난주 대비 순위 변화 ──
+  // history.json 에 주(기간 시작일)별 Top10 이슈 이름을 남기고, 이번 주와 다른 가장 최근 주와 비교해요.
+  // 같은 주에 여러 번 발행해도 그 주 기록만 덮어써서 비교 기준이 흔들리지 않아요.
+  const weekId = fmtDate(now - SCORE.windowDays * DAY);
+  let history = [];
+  try { history = JSON.parse(fs.readFileSync(HISTORY, "utf8")); } catch { history = []; }
+  const last = history.filter(h => h.week !== weekId).slice(-1)[0];
+  issues.forEach((x, i) => {
+    const before = last ? last.top.indexOf(x.keyword) : -1;
+    x.move = !last ? null : before < 0 ? "new" : before - i;     // 양수 = 올라감, "new" = 새로 진입
+  });
+  const dropped = last ? last.top.filter(k => !issues.some(x => x.keyword === k)) : [];
+  history = [...history.filter(h => h.week !== weekId), { week: weekId, top: issues.map(x => x.keyword) }].slice(-12);
   if (process.env.DEBUG_CANDS) eligible.slice(0, 15).forEach(x => console.log("cand", x.score.toFixed(1), x.keyword, x.reports, x.sectors.join(",")));
 
   // ── 섹터 노출도: 이번 주 그 섹터 기사 비중이 평소(직전 4주)보다 높으면 50 위로 ──
@@ -240,7 +262,10 @@ async function main() {
     const summary = list.length
       ? `이번 주 관련 기사 ${list.length}건(직전 4주 주평균 ${round((sCountBase.get(s.id) || 0) / SCORE.baselineWeeks, 1)}건)${its.length ? ` · 주요 이슈: ${its.join(", ")}` : ""}`
       : "이번 주 관련 무역 기사가 거의 없어요.";
-    return { id: s.id, name: s.name, score: round(score), state, ...d, articles: list.length, summary, stocks: s.stocks,
+    // 평소 대비: 같은 출처 기준 이번 주 건수 vs 직전 4주 주평균. 기사 10건 미만이면 화면에 "기사 적음" 표시
+    const baseAvg = (sCountBase.get(s.id) || 0) / SCORE.baselineWeeks;
+    const change = baseAvg >= 1 ? Math.round((nC - baseAvg) / baseAvg * 100) : null;
+    return { id: s.id, name: s.name, score: round(score), state, ...d, articles: list.length, baseAvg: round(baseAvg, 1), change, thin: list.length < 10, summary, stocks: s.stocks,
       news: pickNews(list, 6, 2, now).map((a, i) => toNews(a, i)) };
   }).sort((a, b) => b.score - a.score);
 
@@ -271,14 +296,15 @@ async function main() {
       date: fmtDate(now), updatedAt: fmtHM(now), generated: new Date(now).toISOString(),
       period: `${fmtDate(from)} ~ ${fmtDate(now)}`, cadence: "매주 월요일",
       sources: week.length, outlets: new Set(week.flatMap(a => a.outlets || [a.source])).size,
-      archive: all.length, sample: false, trendWeeks,
+      archive: all.length, sample: false, trendWeeks, lastWeek: last ? last.week : null, dropped,
     },
-    bearing, sectors, issues: issues.map(({ key, risk, reportsC, ...x }) => x), news, risks,
+    bearing, sectors, issues: issues.map(({ key, risk, reportsC, mainSector, ...x }) => x), news, risks,
     trade: null,   // 월간 수출입 통계는 관세청 공공데이터 API 키가 생기면 붙일 자리
   };
 
   fs.mkdirSync(path.dirname(OUT_JSON), { recursive: true });
   fs.writeFileSync(OUT_JSON, JSON.stringify(data, null, 1));
+  fs.writeFileSync(HISTORY, JSON.stringify(history, null, 1) + "\n");
   fs.writeFileSync(OUT_JS, `// 무역나침반 데이터 — scripts/news/publish.js 가 매주 실제 뉴스로 자동 생성해요. 직접 고치지 마세요.\n// 기간: ${data.meta.period} · 기사 ${week.length}건 · 생성 ${data.meta.generated}\nwindow.TC_DATA = ${JSON.stringify(data, null, 1)};\n`);
 
   console.log(`기간 ${data.meta.period} · 이번 주 기사 ${week.length}건(비교 가능 출처 ${weekC.length}건) · 직전 4주 ${base.length}건 · 이슈 후보 ${cands.length}개`);

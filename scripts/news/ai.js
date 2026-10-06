@@ -12,7 +12,8 @@ const SYSTEM = `당신은 한국 수출입 기업을 위한 무역 뉴스 분류
 - direction: 무역 조치가 강화되면 "up", 완화되면 "down", 조치와 무관하거나 판단 어려우면 "neutral"
 - relevance: 한국 기업·수출입에 직접 관련 있으면 1, 간접이면 0.5, 거의 없으면 0
 - summary: 한국 수출입 기업 관점의 한 문장 요약 (60자 이내, 기사에 없는 내용 금지)
-반드시 JSON만 출력: {"items":[{"i":0,"topic":"...","sectors":["..."],"direction":"up|down|neutral","relevance":1,"summary":"..."}]}`;
+- title_ko: 제목이 영어면 한국어 번역(50자 이내, 고유명사·숫자는 그대로), 한국어 제목이면 ""
+반드시 JSON만 출력: {"items":[{"i":0,"topic":"...","sectors":["..."],"direction":"up|down|neutral","relevance":1,"summary":"...","title_ko":""}]}`;
 
 async function call(items) {
   const user = items.map((it, i) => `${i}. [${it.source}] ${it.title}${it.desc ? ` — ${it.desc.slice(0, 160)}` : ""}`).join("\n");
@@ -43,6 +44,8 @@ async function enrich(items, batch = 10) {
         if (["up", "down", "neutral"].includes(res.direction)) it.direction = res.direction;
         if (typeof res.relevance === "number") it.relevance = Math.max(0, Math.min(1, res.relevance));
         if (typeof res.summary === "string" && res.summary.trim()) it.summary = res.summary.trim().slice(0, 120);
+        // 영문 기사 제목 번역 (화면에는 번역을 크게, 원문 제목을 작게 보여줘요)
+        if (it.lang === "en" && typeof res.title_ko === "string" && /[가-힣]/.test(res.title_ko)) it.titleKo = res.title_ko.trim().slice(0, 80);
         it.ai = true; done++;
       }
     } catch (e) { console.log(`AI 분류 건너뜀 (${e.message})`); }

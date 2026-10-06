@@ -61,3 +61,35 @@ test("해외 정부 발표: 한국 언급이 있을 때만 관련도 1, 상대�
   assert.equal(wh.topic, "tariff"); assert.equal(wh.relevance, 0.5);
   assert.equal(classify({ title: "정부, 대미 관세 협상 결과 발표", desc: "", official: true }).relevance, 1);
 });
+
+test("무역 맥락이 없는 기사·증시 시황에는 조치 방향을 붙이지 않아요 (2026-10 사이트 검토)", () => {
+  const { classify } = require("../scripts/news/lib");
+  const yemen = classify({ title: "예멘군, 미국·사우디 지원받아 친이란 후티에 총반격 돌입(종합)", desc: "홍해 항로 차단" });
+  assert.ok(!["up", "down"].includes(yemen.direction), yemen.direction);
+  assert.equal(classify({ title: "[뉴욕증시 3일] 트럼프 관세 부과 강행에 3대 지수 급락", desc: "" }).direction, "info");
+  assert.equal(classify({ title: "美, 한국산 철강에 관세 50% 부과", desc: "" }).direction, "up");
+});
+
+test("마약 단속 기사는 버리고, '유통관리'의 '통관'은 통관 주제로 세지 않아요", () => {
+  const { finalize, classify } = require("../scripts/news/lib");
+  assert.equal(finalize({ title: "마약 공급망 원천차단…밀수·제조사범 검거 34%↑", desc: "" }, "customs"), null);
+  assert.notEqual(classify({ title: "해양보호생물 고래고기 유통관리 '구멍'", desc: "" }).topic, "customs");
+});
+
+test("연설문 제목·영문 Opinion 은 의견 기사로 봐요", () => {
+  assert.ok(isOpinion("대체불가능한 공급망의 핵심국가로 도약해 나가겠습니다"));
+  assert.ok(isOpinion("Opinion: Oil’s New Problem Isn’t Supply. It’s Logistics"));
+});
+
+test("화면에서는 같은 사건 기사를 한 줄로 합치고 언론사 수를 모아요", () => {
+  const { dedupeEvents } = require("../scripts/news/lib");
+  const d = "2026-10-05T00:00:00Z";
+  const out = dedupeEvents([
+    { title: "트럼프 \"美에 공장 안 지으면 관세 300%…1년 반 기회 준다\"", source: "A", date: d, topic: "tariff" },
+    { title: "[속보] 트럼프 “1년 반 안에 美공장 안 지으면 관세 300%까지 부과”", source: "B", date: d, topic: "tariff" },
+    { title: "격전지 간 트럼프 \"美에 공장 안 지으면 관세 300%까지 부과\"", source: "C", outlets: ["C", "D"], date: d, topic: "tariff" },
+    { title: "中, EU산 파라-나이트로톨루엔 반덤핑 조사", source: "E", date: d, topic: "trade_remedy" },
+  ]);
+  assert.equal(out.length, 2);
+  assert.deepEqual(out[0].outlets, ["A", "B", "C", "D"]);
+});

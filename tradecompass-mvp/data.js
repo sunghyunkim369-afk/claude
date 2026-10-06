@@ -1,15 +1,15 @@
 // 무역나침반 데이터 — scripts/news/publish.js 가 매주 실제 뉴스로 자동 생성해요. 직접 고치지 마세요.
-// 기간: 2026-09-29 ~ 2026-10-06 · 기사 396건 · 생성 2026-10-06T03:38:36.527Z
+// 기간: 2026-09-29 ~ 2026-10-06 · 기사 439건 · 생성 2026-10-06T03:46:19.444Z
 window.TC_DATA = {
  "meta": {
   "date": "2026-10-06",
-  "updatedAt": "12:38",
-  "generated": "2026-10-06T03:38:36.527Z",
+  "updatedAt": "12:46",
+  "generated": "2026-10-06T03:46:19.444Z",
   "period": "2026-09-29 ~ 2026-10-06",
   "cadence": "매주 월요일",
-  "sources": 396,
-  "outlets": 51,
-  "archive": 1231,
+  "sources": 439,
+  "outlets": 59,
+  "archive": 1284,
   "sample": false,
   "trendWeeks": [
    "09.02",
@@ -17,27 +17,38 @@ window.TC_DATA = {
    "09.16",
    "09.23",
    "09.30"
+  ],
+  "lastWeek": "2026-09-22",
+  "dropped": [
+   "멕시코 공급망·핵심광물",
+   "멕시코 FTA·통상협정",
+   "EU 경제제재",
+   "반덤핑·무역구제",
+   "통관·원산지"
   ]
  },
  "bearing": {
   "headline": "이번 주 최대 무역 이슈는 '미국 관세'입니다",
   "points": [
-   "미국 관세: 보도 76건(같은 출처 기준 직전 주 대비 +214%) · 석유화학·에너지·조선·해운물류·철강·금속 영향권",
-   "수출입 동향: 보도 54건(같은 출처 기준 직전 주 대비 +422%) · 반도체·소비재·농식품·자동차 영향권",
-   "미국 유가·원자재: 보도 32건(직전 주에는 없던 이슈) · 석유화학·에너지·조선·해운물류 영향권"
+   "미국 관세: 보도 77건(같은 출처 기준 직전 주 대비 +219%) · 석유화학·에너지·조선·해운물류·철강·금속 영향권",
+   "수출입 동향: 보도 56건(같은 출처 기준 직전 주 대비 +433%) · 반도체·소비재·농식품·자동차 영향권",
+   "공급망·핵심광물: 보도 45건(같은 출처 기준 직전 주 대비 +125%) · 철강·금속·자동차·석유화학·에너지 영향권"
   ]
  },
  "sectors": [
   {
    "id": "chem",
    "name": "석유화학·에너지",
-   "score": 65.32,
+   "score": 64.72,
    "state": "보합",
-   "up": 17,
-   "down": 14,
-   "neutral": 58,
-   "articles": 89,
-   "summary": "이번 주 관련 기사 89건(직전 4주 주평균 17.3건) · 주요 이슈: 미국 관세, 미국 유가·원자재",
+   "up": 14,
+   "down": 8,
+   "neutral": 77,
+   "articles": 99,
+   "baseAvg": 17.3,
+   "change": 120,
+   "thin": false,
+   "summary": "이번 주 관련 기사 99건(직전 4주 주평균 17.3건) · 주요 이슈: 미국 관세, 공급망·핵심광물",
    "stocks": [
     {
      "name": "SK이노베이션",
@@ -54,10 +65,66 @@ window.TC_DATA = {
    ],
    "news": [
     {
+     "time": "10.05",
+     "clock": "22:15",
+     "at": "2026-10-05T13:15:36.000Z",
+     "rank": 0,
+     "source": "gCaptain",
+     "outlets": 2,
+     "tag": "해운·물류",
+     "title": "LNG Trade Through Hormuz Extends Rebound Despite Shipping Risks",
+     "link": "https://gcaptain.com/lng-trade-through-hormuz-extends-rebound-despite-shipping-risks/",
+     "lang": "en",
+     "summary": "Shipments of liquefied natural gas through the Strait of Hormuz extended a rebound that began in September, as the regio",
+     "direction": "info",
+     "sectors": [
+      "chem",
+      "ship"
+     ],
+     "issue": "해운·물류",
+     "issueReports": 14,
+     "trend": [
+      3,
+      4,
+      2,
+      4,
+      3
+     ],
+     "why": "해운·물류 이슈 · 이번 주 14건 보도 · 석유화학·에너지·조선·해운물류 영향권",
+     "stocks": []
+    },
+    {
+     "time": "10.06",
+     "clock": "04:57",
+     "at": "2026-10-05T19:57:06.000Z",
+     "rank": 1,
+     "source": "연합뉴스",
+     "outlets": 1,
+     "tag": "유가·원자재",
+     "title": "국제유가, 중동 원유수출 증가·G7 비축유 방출 약속에 1.8%↓",
+     "link": "https://www.yna.co.kr/view/AKR20261006004300072",
+     "summary": "5일(현지시간) 국제유가가 중동 지역의 원유 수출 증가와 주요 7개국(G7)의 비축유 방출 결정으로 2거래일...",
+     "direction": "info",
+     "sectors": [
+      "chem"
+     ],
+     "issue": "중동 유가·원자재",
+     "issueReports": 15,
+     "trend": [
+      0,
+      1,
+      0,
+      0,
+      2
+     ],
+     "why": "중동 유가·원자재 이슈 · 이번 주 15건 보도 · 석유화학·에너지 영향권",
+     "stocks": []
+    },
+    {
      "time": "10.06",
      "clock": "03:00",
      "at": "2026-10-05T18:00:24.000Z",
-     "rank": 0,
+     "rank": 2,
      "source": "연합뉴스",
      "outlets": 1,
      "tag": "유가·원자재",
@@ -82,36 +149,36 @@ window.TC_DATA = {
     },
     {
      "time": "10.06",
-     "clock": "04:57",
-     "at": "2026-10-05T19:57:06.000Z",
-     "rank": 1,
+     "clock": "11:44",
+     "at": "2026-10-06T02:44:43.000Z",
+     "rank": 3,
      "source": "연합뉴스",
      "outlets": 1,
      "tag": "유가·원자재",
-     "title": "국제유가, 중동 원유수출 증가·G7 비축유 방출 약속에 1.8%↓",
-     "link": "https://www.yna.co.kr/view/AKR20261006004300072",
-     "summary": "5일(현지시간) 국제유가가 중동 지역의 원유 수출 증가와 주요 7개국(G7)의 비축유 방출 결정으로 2거래일...",
+     "title": "정부 \"11월 원유 90% 이상 확보…나프타도 90% 이상\"",
+     "link": "https://www.yna.co.kr/view/AKR20261006087900003",
+     "summary": "산업통상부는 11월 원유 물량을 전년 평균 대비 90% 이상 확보했다고 밝혔다.",
      "direction": "info",
      "sectors": [
       "chem"
      ],
-     "issue": "중동 유가·원자재",
-     "issueReports": 13,
+     "issue": "유가·원자재",
+     "issueReports": 15,
      "trend": [
-      0,
-      1,
-      0,
-      0,
-      2
+      3,
+      7,
+      4,
+      2,
+      6
      ],
-     "why": "중동 유가·원자재 이슈 · 이번 주 13건 보도 · 석유화학·에너지 영향권",
+     "why": "유가·원자재 이슈 · 이번 주 15건 보도 · 석유화학·에너지 영향권",
      "stocks": []
     },
     {
      "time": "10.06",
      "clock": "04:55",
      "at": "2026-10-05T19:55:14.000Z",
-     "rank": 2,
+     "rank": 4,
      "source": "연합뉴스",
      "outlets": 1,
      "tag": "유가·원자재",
@@ -123,7 +190,7 @@ window.TC_DATA = {
       "chem"
      ],
      "issue": "중동 유가·원자재",
-     "issueReports": 13,
+     "issueReports": 15,
      "trend": [
       0,
       1,
@@ -131,280 +198,35 @@ window.TC_DATA = {
       0,
       2
      ],
-     "why": "중동 유가·원자재 이슈 · 이번 주 13건 보도 · 석유화학·에너지 영향권",
+     "why": "중동 유가·원자재 이슈 · 이번 주 15건 보도 · 석유화학·에너지 영향권",
      "stocks": []
     },
     {
      "time": "10.06",
-     "clock": "07:24",
-     "at": "2026-10-05T22:24:36.000Z",
-     "rank": 3,
-     "source": "조선일보",
-     "outlets": 1,
-     "tag": "유가·원자재",
-     "title": "Vance: South Korea's Alaska LNG Investment to Proceed",
-     "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPNHJKT1FOaGhsRklqR2ZvR0w3d2VndjBicXF0M2ZaZkhlMHo1Ym5sV3Q3OGFCWUt2UWYxaHF2ejRaT01ubndkbzRwSkIyUUh2djczRjJPNVRHVEh3UUxCRU16NkJjVndqSzI1V3NKUXQxaElPVUNIN3ZwOXZhVlpNenpIdXk?oc=5",
-     "summary": "",
-     "direction": "info",
-     "sectors": [
-      "chem",
-      "ship"
-     ],
-     "issue": "유가·원자재",
-     "issueReports": 12,
-     "trend": [
-      3,
-      7,
-      4,
-      2,
-      6
-     ],
-     "why": "유가·원자재 이슈 · 이번 주 12건 보도 · 석유화학·에너지·조선·해운물류 영향권",
-     "stocks": []
-    },
-    {
-     "time": "10.05",
-     "clock": "10:48",
-     "at": "2026-10-05T01:48:24.000Z",
-     "rank": 4,
-     "source": "연합뉴스",
-     "outlets": 1,
-     "tag": "해운·물류",
-     "title": "호르무즈 봉쇄 후 3번째 한국 선박 수에즈운하로 원유 운송",
-     "link": "https://www.yna.co.kr/view/AKR20261005025400051",
-     "summary": "홍해 북쪽 수에즈운하를 통과한 한국 유조선이 국내로 원유를 운송 중이라고 해양수산부가 5일 밝혔다.",
-     "direction": "info",
-     "sectors": [
-      "ship",
-      "chem"
-     ],
-     "issue": "중동 해운·물류",
-     "issueReports": 3,
-     "trend": [
-      0,
-      3,
-      2,
-      0,
-      0
-     ],
-     "why": "중동 해운·물류 이슈 · 이번 주 3건 보도 · 조선·해운물류·석유화학·에너지 영향권",
-     "stocks": []
-    },
-    {
-     "time": "10.03",
-     "clock": "16:58",
-     "at": "2026-10-03T07:58:32.000Z",
+     "clock": "10:42",
+     "at": "2026-10-06T01:42:28.000Z",
      "rank": 5,
-     "source": "연합뉴스",
-     "outlets": 3,
-     "tag": "반덤핑·무역구제",
-     "title": "中, EU산 파라-나이트로톨루엔 반덤핑 조사",
-     "link": "https://www.yna.co.kr/view/AKR20261003039400009",
-     "summary": "중국 정부가 유럽연합(EU)산 화학 중간체인 파라-나이트로톨루엔에 대한 반덤핑 조사를 시작했다.",
-     "direction": "up",
+     "source": "아시아경제",
+     "outlets": 1,
+     "tag": "공급망·핵심광물",
+     "title": "[2026국감]김정관 \"자원안보 더 단단히\"…원유 非중동산 50%·핵심광물 365일 비축",
+     "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFB1eHpvVnhnZnlGTjBzSjRrLVNMcUFOUkQ2UHhfLUZXWURqZm9FcHpGZ2JnUTFucUdLRGFMa1dfSFJid19EcEZRX2hRNEhoSHg0NzlVQjVvTEpoa2xzU2FRcg?oc=5",
+     "summary": "김정관 \"자원안보 더 단단히\"…원유 非중동산 50%·핵심광물 365일 비축 아시아경제",
+     "direction": "info",
      "sectors": [
+      "steel",
       "chem"
      ],
-     "issue": "EU 반덤핑·무역구제",
+     "issue": "중동 공급망·핵심광물",
      "issueReports": 2,
      "trend": [
       0,
-      0,
-      0,
+      1,
+      2,
       0,
       1
      ],
-     "why": "EU 반덤핑·무역구제 이슈 · 이번 주 2건 보도 · 석유화학·에너지 영향권",
-     "stocks": []
-    }
-   ]
-  },
-  {
-   "id": "auto",
-   "name": "자동차",
-   "score": 63.16,
-   "state": "강화",
-   "up": 5,
-   "down": 0,
-   "neutral": 11,
-   "articles": 16,
-   "summary": "이번 주 관련 기사 16건(직전 4주 주평균 5.8건) · 주요 이슈: 수출입 동향, 공급망·핵심광물",
-   "stocks": [
-    {
-     "name": "현대차",
-     "code": "005380"
-    },
-    {
-     "name": "기아",
-     "code": "000270"
-    },
-    {
-     "name": "HL만도",
-     "code": "204320"
-    }
-   ],
-   "news": [
-    {
-     "time": "10.05",
-     "clock": "09:00",
-     "at": "2026-10-05T00:00:00.000Z",
-     "rank": 0,
-     "source": "뉴시스",
-     "outlets": 1,
-     "tag": "수출입 동향",
-     "title": "반도체 5000억弗·자동차 700억弗…수출 양대품목 연말 희비",
-     "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE1reU1peEYtYnh2WmNqQnZobzBETUFBSU9Dc3RsdDJiWUh5UWlKUEFWMGd3anBsSVhnQWlMWWlBVG9Db3RFM00tM3ZwWjZ5N2E5SnQyYjNJRElfaHAxYlhOUHRJSEU0RmRKVG1hMWMtUzVGdkw3c1BwTtIBeEFVX3lxTE1reU1peEYtYnh2WmNqQnZobzBETUFBSU9Dc3RsdDJiWUh5UWlKUEFWMGd3anBsSVhnQWlMWWlBVG9Db3RFM00tM3ZwWjZ5N2E5SnQyYjNJRElfaHAxYlhOUHRJSEU0RmRKVG1hMWMtUzVGdkw3c1BwTg?oc=5",
-     "summary": "",
-     "direction": "neutral",
-     "sectors": [
-      "semi",
-      "auto"
-     ],
-     "issue": "수출입 동향",
-     "issueReports": 54,
-     "trend": [
-      31,
-      17,
-      30,
-      9,
-      47
-     ],
-     "why": "수출입 동향 이슈 · 이번 주 54건 보도 · 반도체·자동차 영향권",
-     "stocks": []
-    },
-    {
-     "time": "10.05",
-     "clock": "18:30",
-     "at": "2026-10-05T09:30:13.000Z",
-     "rank": 1,
-     "source": "한국경제",
-     "outlets": 1,
-     "tag": "관세",
-     "title": "英, EU 압박에 중국산 전기차 추가관세 검토",
-     "link": "https://www.hankyung.com/article/2026100537651",
-     "summary": "",
-     "direction": "up",
-     "sectors": [
-      "auto"
-     ],
-     "issue": "중국 관세",
-     "issueReports": 7,
-     "trend": [
-      3,
-      3,
-      4,
-      5,
-      6
-     ],
-     "why": "중국 관세 이슈 · 이번 주 7건 보도 · 자동차 영향권",
-     "stocks": []
-    },
-    {
-     "time": "10.05",
-     "clock": "10:29",
-     "at": "2026-10-05T01:29:59.000Z",
-     "rank": 2,
-     "source": "이데일리",
-     "outlets": 1,
-     "tag": "관세",
-     "title": "英, 결국 中전기차 관세 올린다…EU 압박에 '백기'",
-     "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNZDVRZHZGOHRLRnYtYUhiWVBudE1tMzNDQUVYSlpMMFFJODd3OU1fZXZVVzYwamdDc2VBWjBOSFU5dER0ZGF5eGlUSXpxNEpzSDVPNDhzamxFblZ4N1drTUxlbkFYMTNWZ0I5MDlBVUwyUGpWQmN1TWdacjF1cUxsWg?oc=5",
-     "summary": "",
-     "direction": "up",
-     "sectors": [
-      "auto"
-     ],
-     "issue": "중국 관세",
-     "issueReports": 7,
-     "trend": [
-      3,
-      3,
-      4,
-      5,
-      6
-     ],
-     "why": "중국 관세 이슈 · 이번 주 7건 보도 · 자동차 영향권",
-     "stocks": []
-    },
-    {
-     "time": "10.05",
-     "clock": "05:00",
-     "at": "2026-10-04T20:00:00.000Z",
-     "rank": 3,
-     "source": "한겨레",
-     "outlets": 1,
-     "tag": "수출입 동향",
-     "title": "[단독] 전기차 전환 빨라지면 경제 부담?…“GDP·소비·수출 모두 증가”",
-     "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE1UV0k4YUUyMW1RZUdkdUJIM25oUGtpVjRVdzJCWmRKNXloQU9zVFhiZ0lIT19fRDRtU1BuaXoycEdDVjNxS19CYVdBNXdPWFVRQzhHcmF5WlBPMHJxUTFHNDlzbldQSzdaZGxQaw?oc=5",
-     "summary": "전기차 전환 빨라지면 경제 부담?…“GDP·소비·수출 모두 증가” 한겨레",
-     "direction": "neutral",
-     "sectors": [
-      "auto"
-     ],
-     "issue": "수출입 동향",
-     "issueReports": 54,
-     "trend": [
-      31,
-      17,
-      30,
-      9,
-      47
-     ],
-     "why": "수출입 동향 이슈 · 이번 주 54건 보도 · 자동차 영향권",
-     "stocks": []
-    },
-    {
-     "time": "10.05",
-     "clock": "17:24",
-     "at": "2026-10-05T08:24:51.000Z",
-     "rank": 4,
-     "source": "매일경제",
-     "outlets": 1,
-     "tag": "공급망·핵심광물",
-     "title": "Electric Vehicle Factory Is 'Robot Laboratory'… Transplantation of supply chain and production strategies",
-     "link": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE5FUWhkR2lueVdoc3U2bjlUM2ZwZnloWXlrbFo2VVhlOHpqYnZXQnVZLTEtbzFyV3FMTHBDMlU4d3VXOHBMMVM0Rjc5UEhZaHJBYldr?oc=5",
-     "summary": "",
-     "direction": "info",
-     "sectors": [
-      "auto"
-     ],
-     "issue": "공급망·핵심광물",
-     "issueReports": 39,
-     "trend": [
-      32,
-      21,
-      44,
-      20,
-      39
-     ],
-     "why": "공급망·핵심광물 이슈 · 이번 주 39건 보도 · 자동차 영향권",
-     "stocks": []
-    },
-    {
-     "time": "10.04",
-     "clock": "20:53",
-     "at": "2026-10-04T11:53:00.000Z",
-     "rank": 5,
-     "source": "경향신문",
-     "outlets": 1,
-     "tag": "관세",
-     "title": "자동차, 미 관세 10조 타격…부품사 ‘납품단가’ 부담 전가 우려",
-     "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5BenNZMlM4cTc2SURmS2FVRU5jY0tGNERnU3V1OTNVOXpjdnpNbkczMmRzTG1jeGJ0aVdFNkF6bV9xYXR3bUlYdml2cF9PR094c3lrMXFUbFZld9IBX0FVX3lxTE8xWkN4MzcwZG92ZEYzMkdLZzhHUG1TamJsSnN3bFhvS2V1RDhaYWJUYm5kazRpczhFTUJUcVpYUVVVV2c4NHFZVk9CLUtVNlRPV1YtU2pJMlNPemgza3JB?oc=5",
-     "summary": "",
-     "direction": "neutral",
-     "sectors": [
-      "auto"
-     ],
-     "issue": "관세",
-     "issueReports": 14,
-     "trend": [
-      14,
-      9,
-      5,
-      17,
-      14
-     ],
-     "why": "관세 이슈 · 이번 주 14건 보도 · 자동차 영향권",
+     "why": "중동 공급망·핵심광물 이슈 · 이번 주 2건 보도 · 철강·금속·석유화학·에너지 영향권",
      "stocks": []
     }
    ]
@@ -412,13 +234,16 @@ window.TC_DATA = {
   {
    "id": "ship",
    "name": "조선·해운물류",
-   "score": 63.16,
+   "score": 64.21,
    "state": "강화",
    "up": 6,
-   "down": 2,
-   "neutral": 18,
-   "articles": 26,
-   "summary": "이번 주 관련 기사 26건(직전 4주 주평균 5.8건) · 주요 이슈: 미국 관세, 미국 유가·원자재",
+   "down": 1,
+   "neutral": 30,
+   "articles": 37,
+   "baseAvg": 5.8,
+   "change": 143,
+   "thin": false,
+   "summary": "이번 주 관련 기사 37건(직전 4주 주평균 5.8건) · 주요 이슈: 미국 관세, 미국 유가·원자재",
    "stocks": [
     {
      "name": "HMM",
@@ -435,15 +260,45 @@ window.TC_DATA = {
    ],
    "news": [
     {
+     "time": "10.05",
+     "clock": "22:15",
+     "at": "2026-10-05T13:15:36.000Z",
+     "rank": 0,
+     "source": "gCaptain",
+     "outlets": 2,
+     "tag": "해운·물류",
+     "title": "LNG Trade Through Hormuz Extends Rebound Despite Shipping Risks",
+     "link": "https://gcaptain.com/lng-trade-through-hormuz-extends-rebound-despite-shipping-risks/",
+     "lang": "en",
+     "summary": "Shipments of liquefied natural gas through the Strait of Hormuz extended a rebound that began in September, as the regio",
+     "direction": "info",
+     "sectors": [
+      "chem",
+      "ship"
+     ],
+     "issue": "해운·물류",
+     "issueReports": 14,
+     "trend": [
+      3,
+      4,
+      2,
+      4,
+      3
+     ],
+     "why": "해운·물류 이슈 · 이번 주 14건 보도 · 석유화학·에너지·조선·해운물류 영향권",
+     "stocks": []
+    },
+    {
      "time": "10.06",
      "clock": "07:24",
      "at": "2026-10-05T22:24:36.000Z",
-     "rank": 0,
+     "rank": 1,
      "source": "조선일보",
      "outlets": 1,
      "tag": "유가·원자재",
      "title": "Vance: South Korea's Alaska LNG Investment to Proceed",
      "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPNHJKT1FOaGhsRklqR2ZvR0w3d2VndjBicXF0M2ZaZkhlMHo1Ym5sV3Q3OGFCWUt2UWYxaHF2ejRaT01ubndkbzRwSkIyUUh2djczRjJPNVRHVEh3UUxCRU16NkJjVndqSzI1V3NKUXQxaElPVUNIN3ZwOXZhVlpNenpIdXk?oc=5",
+     "lang": "en",
      "summary": "",
      "direction": "info",
      "sectors": [
@@ -451,7 +306,7 @@ window.TC_DATA = {
       "ship"
      ],
      "issue": "유가·원자재",
-     "issueReports": 12,
+     "issueReports": 15,
      "trend": [
       3,
       7,
@@ -459,35 +314,7 @@ window.TC_DATA = {
       2,
       6
      ],
-     "why": "유가·원자재 이슈 · 이번 주 12건 보도 · 석유화학·에너지·조선·해운물류 영향권",
-     "stocks": []
-    },
-    {
-     "time": "10.05",
-     "clock": "10:48",
-     "at": "2026-10-05T01:48:24.000Z",
-     "rank": 1,
-     "source": "연합뉴스",
-     "outlets": 1,
-     "tag": "해운·물류",
-     "title": "호르무즈 봉쇄 후 3번째 한국 선박 수에즈운하로 원유 운송",
-     "link": "https://www.yna.co.kr/view/AKR20261005025400051",
-     "summary": "홍해 북쪽 수에즈운하를 통과한 한국 유조선이 국내로 원유를 운송 중이라고 해양수산부가 5일 밝혔다.",
-     "direction": "info",
-     "sectors": [
-      "ship",
-      "chem"
-     ],
-     "issue": "중동 해운·물류",
-     "issueReports": 3,
-     "trend": [
-      0,
-      3,
-      2,
-      0,
-      0
-     ],
-     "why": "중동 해운·물류 이슈 · 이번 주 3건 보도 · 조선·해운물류·석유화학·에너지 영향권",
+     "why": "유가·원자재 이슈 · 이번 주 15건 보도 · 석유화학·에너지·조선·해운물류 영향권",
      "stocks": []
     },
     {
@@ -501,12 +328,12 @@ window.TC_DATA = {
      "title": "상선까지 덮친 드론 위협…해운사 방어 투자 확대",
      "link": "https://www.hankyung.com/article/202610064355i",
      "summary": "",
-     "direction": "up",
+     "direction": "info",
      "sectors": [
       "ship"
      ],
      "issue": "해운·물류",
-     "issueReports": 9,
+     "issueReports": 14,
      "trend": [
       3,
       4,
@@ -514,34 +341,34 @@ window.TC_DATA = {
       4,
       3
      ],
-     "why": "해운·물류 이슈 · 이번 주 9건 보도 · 조선·해운물류 영향권",
+     "why": "해운·물류 이슈 · 이번 주 14건 보도 · 조선·해운물류 영향권",
      "stocks": []
     },
     {
-     "time": "10.05",
-     "clock": "12:55",
-     "at": "2026-10-05T03:55:11.000Z",
+     "time": "10.06",
+     "clock": "11:16",
+     "at": "2026-10-06T02:16:00.000Z",
      "rank": 3,
-     "source": "연합뉴스",
+     "source": "뉴스핌",
      "outlets": 1,
-     "tag": "해운·물류",
-     "title": "예멘군, 미국·사우디 지원받아 친이란 후티에 총반격 돌입(종합)",
-     "link": "https://www.yna.co.kr/view/AKR20261005030600009",
-     "summary": "예멘 정부군이 미국과 사우디아라비아의 지원을 받아 홍해 무역로를 위협해온 친이란 예...",
+     "tag": "경제제재",
+     "title": "英가디언 \"한국발 석유제품, 제재 유조선 통해 러시아로\"",
+     "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1YeEtBejUwSUMxMklQajlPMUpKLXM4dVE2VHNmU3lpYUZ3UEdWMGE5NjJuZXVTQTFic1dsR1hrZkxJb0NIZE5zS3Y5OUpXTGUzUUphY2R6M2xPc3Ba?oc=5",
+     "summary": "",
      "direction": "up",
      "sectors": [
       "ship"
      ],
-     "issue": "중동 해운·물류",
-     "issueReports": 3,
+     "issue": "러시아 경제제재",
+     "issueReports": 5,
      "trend": [
+      1,
+      1,
+      1,
       0,
-      3,
-      2,
-      0,
-      0
+      2
      ],
-     "why": "중동 해운·물류 이슈 · 이번 주 3건 보도 · 조선·해운물류 영향권",
+     "why": "러시아 경제제재 이슈 · 이번 주 5건 보도 · 조선·해운물류 영향권",
      "stocks": []
     },
     {
@@ -560,7 +387,7 @@ window.TC_DATA = {
       "ship"
      ],
      "issue": "중국 관세",
-     "issueReports": 7,
+     "issueReports": 10,
      "trend": [
       3,
       3,
@@ -568,7 +395,7 @@ window.TC_DATA = {
       5,
       6
      ],
-     "why": "중국 관세 이슈 · 이번 주 7건 보도 · 조선·해운물류 영향권",
+     "why": "중국 관세 이슈 · 이번 주 10건 보도 · 조선·해운물류 영향권",
      "stocks": []
     },
     {
@@ -577,7 +404,7 @@ window.TC_DATA = {
      "at": "2026-10-05T01:05:06.000Z",
      "rank": 5,
      "source": "뉴스1",
-     "outlets": 1,
+     "outlets": 3,
      "tag": "유가·원자재",
      "title": "호르무즈 해협 선박 공격 재개로 중동 원유 수출 회복세 '흔들'",
      "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE1DLXo5SDR2Q1U3ZkxNbUQtY1FXbkxKTXM5ektnT256OTR4LWs2ZzV1X2ZqcWZhWVdwUDRmdnAyMnlnMmFxRlRMZjh1b2l3YkRvN0lUNUtSUEF5aTg1N2fSAV5BVV95cUxNQy16OUg0dkNVN2ZMTW1ELWNRV25MSk1zOXpLZ09uejk0eC1rNmc1dV9manFmYVlXcFA0ZnZwMjJ5ZzJhcUZUTGY4dW9pd2JEbzdJVDVLUlBBeWk4NTdn?oc=5",
@@ -588,7 +415,7 @@ window.TC_DATA = {
       "ship"
      ],
      "issue": "중동 유가·원자재",
-     "issueReports": 13,
+     "issueReports": 15,
      "trend": [
       0,
       1,
@@ -596,7 +423,201 @@ window.TC_DATA = {
       0,
       2
      ],
-     "why": "중동 유가·원자재 이슈 · 이번 주 13건 보도 · 석유화학·에너지·조선·해운물류 영향권",
+     "why": "중동 유가·원자재 이슈 · 이번 주 15건 보도 · 석유화학·에너지·조선·해운물류 영향권",
+     "stocks": []
+    }
+   ]
+  },
+  {
+   "id": "auto",
+   "name": "자동차",
+   "score": 62,
+   "state": "강화",
+   "up": 5,
+   "down": 0,
+   "neutral": 17,
+   "articles": 22,
+   "baseAvg": 5.8,
+   "change": 126,
+   "thin": false,
+   "summary": "이번 주 관련 기사 22건(직전 4주 주평균 5.8건) · 주요 이슈: 수출입 동향, 공급망·핵심광물",
+   "stocks": [
+    {
+     "name": "현대차",
+     "code": "005380"
+    },
+    {
+     "name": "기아",
+     "code": "000270"
+    },
+    {
+     "name": "HL만도",
+     "code": "204320"
+    }
+   ],
+   "news": [
+    {
+     "time": "10.05",
+     "clock": "18:30",
+     "at": "2026-10-05T09:30:13.000Z",
+     "rank": 0,
+     "source": "한국경제",
+     "outlets": 1,
+     "tag": "관세",
+     "title": "英, EU 압박에 중국산 전기차 추가관세 검토",
+     "link": "https://www.hankyung.com/article/2026100537651",
+     "summary": "",
+     "direction": "up",
+     "sectors": [
+      "auto"
+     ],
+     "issue": "중국 관세",
+     "issueReports": 10,
+     "trend": [
+      3,
+      3,
+      4,
+      5,
+      6
+     ],
+     "why": "중국 관세 이슈 · 이번 주 10건 보도 · 자동차 영향권",
+     "stocks": []
+    },
+    {
+     "time": "10.06",
+     "clock": "05:05",
+     "at": "2026-10-05T20:05:00.000Z",
+     "rank": 1,
+     "source": "Financial Times",
+     "outlets": 1,
+     "tag": "반덤핑·무역구제",
+     "title": "Trinity Industries Statement on Antidumping and Countervailing Duty Petition Filed Against Railway Tank Car Imports from Mexico – Company Announcement - FT.com",
+     "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNWk9xbEF4SFA0Y1Fvc1EwcFdSekR6U09fRXAyeGVoamlJTE4yNUlYYlhUZ3VWRVJtb3EzN19DQmJ4dG5mSUJoT0ttbU1PVjlKMHR6NFZ5RnphSEQxNjNsYlhxLXV6RUhwdFpWdVFicUcxOERxQU9xOVh2VWhLdVh1bGpxLXRZQThjMnk5Q3JndDFfVlU0Njdab1pDWFVmeXZUVFNTaTR3?oc=5",
+     "lang": "en",
+     "summary": "",
+     "direction": "neutral",
+     "sectors": [
+      "auto"
+     ],
+     "issue": "멕시코 반덤핑·무역구제",
+     "issueReports": 2,
+     "trend": [
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "why": "멕시코 반덤핑·무역구제 이슈 · 이번 주 2건 보도 · 자동차 영향권",
+     "stocks": []
+    },
+    {
+     "time": "10.05",
+     "clock": "10:29",
+     "at": "2026-10-05T01:29:59.000Z",
+     "rank": 2,
+     "source": "이데일리",
+     "outlets": 1,
+     "tag": "관세",
+     "title": "英, 결국 中전기차 관세 올린다…EU 압박에 '백기'",
+     "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNZDVRZHZGOHRLRnYtYUhiWVBudE1tMzNDQUVYSlpMMFFJODd3OU1fZXZVVzYwamdDc2VBWjBOSFU5dER0ZGF5eGlUSXpxNEpzSDVPNDhzamxFblZ4N1drTUxlbkFYMTNWZ0I5MDlBVUwyUGpWQmN1TWdacjF1cUxsWg?oc=5",
+     "summary": "",
+     "direction": "up",
+     "sectors": [
+      "auto"
+     ],
+     "issue": "중국 관세",
+     "issueReports": 10,
+     "trend": [
+      3,
+      3,
+      4,
+      5,
+      6
+     ],
+     "why": "중국 관세 이슈 · 이번 주 10건 보도 · 자동차 영향권",
+     "stocks": []
+    },
+    {
+     "time": "10.04",
+     "clock": "20:53",
+     "at": "2026-10-04T11:53:00.000Z",
+     "rank": 3,
+     "source": "경향신문",
+     "outlets": 1,
+     "tag": "관세",
+     "title": "자동차, 미 관세 10조 타격…부품사 ‘납품단가’ 부담 전가 우려",
+     "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5BenNZMlM4cTc2SURmS2FVRU5jY0tGNERnU3V1OTNVOXpjdnpNbkczMmRzTG1jeGJ0aVdFNkF6bV9xYXR3bUlYdml2cF9PR094c3lrMXFUbFZld9IBX0FVX3lxTE8xWkN4MzcwZG92ZEYzMkdLZzhHUG1TamJsSnN3bFhvS2V1RDhaYWJUYm5kazRpczhFTUJUcVpYUVVVV2c4NHFZVk9CLUtVNlRPV1YtU2pJMlNPemgza3JB?oc=5",
+     "summary": "",
+     "direction": "neutral",
+     "sectors": [
+      "auto"
+     ],
+     "issue": "관세",
+     "issueReports": 18,
+     "trend": [
+      14,
+      9,
+      5,
+      17,
+      17
+     ],
+     "why": "관세 이슈 · 이번 주 18건 보도 · 자동차 영향권",
+     "stocks": []
+    },
+    {
+     "time": "10.05",
+     "clock": "17:24",
+     "at": "2026-10-05T08:24:51.000Z",
+     "rank": 4,
+     "source": "매일경제",
+     "outlets": 1,
+     "tag": "공급망·핵심광물",
+     "title": "Electric Vehicle Factory Is 'Robot Laboratory'… Transplantation of supply chain and production strategies",
+     "link": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE5FUWhkR2lueVdoc3U2bjlUM2ZwZnloWXlrbFo2VVhlOHpqYnZXQnVZLTEtbzFyV3FMTHBDMlU4d3VXOHBMMVM0Rjc5UEhZaHJBYldr?oc=5",
+     "lang": "en",
+     "summary": "",
+     "direction": "info",
+     "sectors": [
+      "auto"
+     ],
+     "issue": "공급망·핵심광물",
+     "issueReports": 45,
+     "trend": [
+      32,
+      21,
+      44,
+      20,
+      45
+     ],
+     "why": "공급망·핵심광물 이슈 · 이번 주 45건 보도 · 자동차 영향권",
+     "stocks": []
+    },
+    {
+     "time": "10.04",
+     "clock": "15:52",
+     "at": "2026-10-04T06:52:00.000Z",
+     "rank": 5,
+     "source": "경향신문",
+     "outlets": 1,
+     "tag": "관세",
+     "title": "관세 근거 세 번 바뀌어도 자동차는 15%…10조원 부담, 부품사로 번지나",
+     "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE11Um56WC1aY2JEOXFBbVhsR0JiTjU5elFvc2pERVo4UzB4MkpqME02S0pGTklWa20ySFhPd2dTOVRKUHpUUktrQTBKM04wdGt1T05GLXp3UWZ0V3k3V0Vv0gFfQVVfeXFMTXVSbnpYLVpjYkQ5cUFtWGxHQmJONTl6UW9zakRFWjhTMHgySmowTTZLSkZOSVZrbTJIWE93Z1M5VEpQelRSS2tBMEozTjB0a3VPTkYtendRZnRXeTdXRW8?oc=5",
+     "summary": "",
+     "direction": "neutral",
+     "sectors": [
+      "auto"
+     ],
+     "issue": "관세",
+     "issueReports": 18,
+     "trend": [
+      14,
+      9,
+      5,
+      17,
+      17
+     ],
+     "why": "관세 이슈 · 이번 주 18건 보도 · 자동차 영향권",
      "stocks": []
     }
    ]
@@ -604,12 +625,15 @@ window.TC_DATA = {
   {
    "id": "machinery",
    "name": "기계·전자",
-   "score": 55.86,
+   "score": 55.56,
    "state": "보합",
    "up": 0,
    "down": 1,
    "neutral": 4,
    "articles": 5,
+   "baseAvg": 0.8,
+   "change": null,
+   "thin": true,
    "summary": "이번 주 관련 기사 5건(직전 4주 주평균 0.8건) · 주요 이슈: 미국 공급망·핵심광물, 중국 공급망·핵심광물",
    "stocks": [
     {
@@ -628,36 +652,9 @@ window.TC_DATA = {
    "news": [
     {
      "time": "10.05",
-     "clock": "11:10",
-     "at": "2026-10-05T02:10:15.000Z",
-     "rank": 0,
-     "source": "연합뉴스",
-     "outlets": 1,
-     "tag": "공급망·핵심광물",
-     "title": "'코브라' 헬기 명가 벨텍스트론 방한…K-항공부품 러브콜",
-     "link": "https://www.yna.co.kr/view/AKR20261005026700003",
-     "summary": "미국의 글로벌 항공우주 기업인 벨 텍스트론이 국내 소부장(소재·부품·장비) 기업과의 공급망 협력을 위해 방한했...",
-     "direction": "info",
-     "sectors": [
-      "machinery"
-     ],
-     "issue": "미국 공급망·핵심광물",
-     "issueReports": 9,
-     "trend": [
-      7,
-      4,
-      3,
-      6,
-      6
-     ],
-     "why": "미국 공급망·핵심광물 이슈 · 이번 주 9건 보도 · 기계·전자 영향권",
-     "stocks": []
-    },
-    {
-     "time": "10.05",
      "clock": "06:00",
      "at": "2026-10-04T21:00:00.000Z",
-     "rank": 1,
+     "rank": 0,
      "source": "디지털타임스",
      "outlets": 1,
      "tag": "공급망·핵심광물",
@@ -670,7 +667,7 @@ window.TC_DATA = {
       "machinery"
      ],
      "issue": "중국 공급망·핵심광물",
-     "issueReports": 9,
+     "issueReports": 10,
      "trend": [
       4,
       5,
@@ -678,7 +675,34 @@ window.TC_DATA = {
       2,
       8
      ],
-     "why": "중국 공급망·핵심광물 이슈 · 이번 주 9건 보도 · 반도체·기계·전자 영향권",
+     "why": "중국 공급망·핵심광물 이슈 · 이번 주 10건 보도 · 반도체·기계·전자 영향권",
+     "stocks": []
+    },
+    {
+     "time": "10.05",
+     "clock": "11:10",
+     "at": "2026-10-05T02:10:15.000Z",
+     "rank": 1,
+     "source": "연합뉴스",
+     "outlets": 1,
+     "tag": "공급망·핵심광물",
+     "title": "'코브라' 헬기 명가 벨텍스트론 방한…K-항공부품 러브콜",
+     "link": "https://www.yna.co.kr/view/AKR20261005026700003",
+     "summary": "미국의 글로벌 항공우주 기업인 벨 텍스트론이 국내 소부장(소재·부품·장비) 기업과의 공급망 협력을 위해 방한했...",
+     "direction": "info",
+     "sectors": [
+      "machinery"
+     ],
+     "issue": "미국 공급망·핵심광물",
+     "issueReports": 10,
+     "trend": [
+      7,
+      4,
+      3,
+      6,
+      6
+     ],
+     "why": "미국 공급망·핵심광물 이슈 · 이번 주 10건 보도 · 기계·전자 영향권",
      "stocks": []
     },
     {
@@ -698,15 +722,15 @@ window.TC_DATA = {
       "machinery"
      ],
      "issue": "러시아 경제제재",
-     "issueReports": 4,
+     "issueReports": 5,
      "trend": [
       1,
       1,
       1,
       0,
-      1
+      2
      ],
-     "why": "러시아 경제제재 이슈 · 이번 주 4건 보도 · 석유화학·에너지·기계·전자 영향권",
+     "why": "러시아 경제제재 이슈 · 이번 주 5건 보도 · 석유화학·에너지·기계·전자 영향권",
      "stocks": []
     },
     {
@@ -725,15 +749,15 @@ window.TC_DATA = {
       "machinery"
      ],
      "issue": "수출입 동향",
-     "issueReports": 54,
+     "issueReports": 56,
      "trend": [
       31,
       17,
       30,
       9,
-      47
+      48
      ],
-     "why": "수출입 동향 이슈 · 이번 주 54건 보도 · 기계·전자 영향권",
+     "why": "수출입 동향 이슈 · 이번 주 56건 보도 · 기계·전자 영향권",
      "stocks": []
     },
     {
@@ -752,15 +776,15 @@ window.TC_DATA = {
       "machinery"
      ],
      "issue": "수출입 동향",
-     "issueReports": 54,
+     "issueReports": 56,
      "trend": [
       31,
       17,
       30,
       9,
-      47
+      48
      ],
-     "why": "수출입 동향 이슈 · 이번 주 54건 보도 · 기계·전자 영향권",
+     "why": "수출입 동향 이슈 · 이번 주 56건 보도 · 기계·전자 영향권",
      "stocks": []
     }
    ]
@@ -768,12 +792,15 @@ window.TC_DATA = {
   {
    "id": "battery",
    "name": "2차전지",
-   "score": 52.56,
+   "score": 52.36,
    "state": "보합",
    "up": 0,
    "down": 0,
    "neutral": 2,
    "articles": 2,
+   "baseAvg": 0.5,
+   "change": null,
+   "thin": true,
    "summary": "이번 주 관련 기사 2건(직전 4주 주평균 0.5건)",
    "stocks": [
     {
@@ -806,15 +833,15 @@ window.TC_DATA = {
       "battery"
      ],
      "issue": "공급망·핵심광물",
-     "issueReports": 39,
+     "issueReports": 45,
      "trend": [
       32,
       21,
       44,
       20,
-      39
+      45
      ],
-     "why": "공급망·핵심광물 이슈 · 이번 주 39건 보도 · 2차전지 영향권",
+     "why": "공급망·핵심광물 이슈 · 이번 주 45건 보도 · 2차전지 영향권",
      "stocks": []
     },
     {
@@ -834,7 +861,7 @@ window.TC_DATA = {
       "steel"
      ],
      "issue": "미국 공급망·핵심광물",
-     "issueReports": 9,
+     "issueReports": 10,
      "trend": [
       7,
       4,
@@ -842,7 +869,7 @@ window.TC_DATA = {
       6,
       6
      ],
-     "why": "미국 공급망·핵심광물 이슈 · 이번 주 9건 보도 · 2차전지·철강·금속 영향권",
+     "why": "미국 공급망·핵심광물 이슈 · 이번 주 10건 보도 · 2차전지·철강·금속 영향권",
      "stocks": []
     }
    ]
@@ -850,13 +877,16 @@ window.TC_DATA = {
   {
    "id": "consumer",
    "name": "소비재·농식품",
-   "score": 49.47,
+   "score": 52.02,
    "state": "보합",
    "up": 1,
-   "down": 0,
-   "neutral": 6,
-   "articles": 7,
-   "summary": "이번 주 관련 기사 7건(직전 4주 주평균 3.8건) · 주요 이슈: 수출입 동향, 통관·원산지",
+   "down": 1,
+   "neutral": 7,
+   "articles": 9,
+   "baseAvg": 3.8,
+   "change": 60,
+   "thin": true,
+   "summary": "이번 주 관련 기사 9건(직전 4주 주평균 3.8건) · 주요 이슈: 수출입 동향, 관세",
    "stocks": [
     {
      "name": "CJ제일제당",
@@ -874,29 +904,29 @@ window.TC_DATA = {
    "news": [
     {
      "time": "10.06",
-     "clock": "07:45",
-     "at": "2026-10-05T22:45:04.000Z",
+     "clock": "09:21",
+     "at": "2026-10-06T00:21:20.000Z",
      "rank": 0,
-     "source": "이데일리",
+     "source": "머니투데이",
      "outlets": 1,
-     "tag": "수출입 동향",
-     "title": "화장품株, 급락에 '매수 기회왔다'...비용 우려 과도 수출 수요 견조-신한",
-     "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQNGwzOU1ja005TUd1TVpyMllBc1NIZV9aV213STA5Rk5USHFxQUZYY0dfT2FtcDBMS3FxT1JhUnYwSFVaY0J2aTYzTWhQMG9lVE1XODdtY2l1YlJybGszcjRveFAtc0JYeXViVWNpMUt0WlNhbU1vOXN4aGdIMVRGdA?oc=5",
+     "tag": "관세",
+     "title": "CPTPP, 농산물 관세만의 문제 아니다…농가 지원·검역도 '시험대'",
+     "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBXTE9MVHlldjRjNjBzemQ5aTdKaDhoNUxlemlJdUpQVThoeDVpY3U0cmsyajlKSEpZcWlnWF9LRGhDbkNfbDJoX1ZzcXB0eDA2VG1yZDZMWndaV3dvTFFJal9DM3l0NWVxaHBn0gFwQVVfeXFMT01MMWdvWndLelFKczYwbFZ4T2dHbXFjbWQ5S0s1SkJXSU15SlRWb09iU2lxUlFKS0c1SGlGMVJ5ajg0YkdlVGd4VDF1aWpFeXNUVGNGMHlhSl9TTjJzTmdnV0VZY0JrUk5sZXJ4cWJTRg?oc=5",
      "summary": "",
      "direction": "neutral",
      "sectors": [
       "consumer"
      ],
-     "issue": "수출입 동향",
-     "issueReports": 54,
+     "issue": "관세",
+     "issueReports": 18,
      "trend": [
-      31,
-      17,
-      30,
+      14,
       9,
-      47
+      5,
+      17,
+      17
      ],
-     "why": "수출입 동향 이슈 · 이번 주 54건 보도 · 소비재·농식품 영향권",
+     "why": "관세 이슈 · 이번 주 18건 보도 · 소비재·농식품 영향권",
      "stocks": []
     },
     {
@@ -915,42 +945,42 @@ window.TC_DATA = {
       "consumer"
      ],
      "issue": "통관·원산지",
-     "issueReports": 10,
+     "issueReports": 5,
      "trend": [
+      8,
       9,
-      10,
       4,
       6,
-      7
+      3
      ],
-     "why": "통관·원산지 이슈 · 이번 주 10건 보도 · 소비재·농식품 영향권",
+     "why": "통관·원산지 이슈 · 이번 주 5건 보도 · 소비재·농식품 영향권",
      "stocks": []
     },
     {
-     "time": "10.02",
-     "clock": "18:19",
-     "at": "2026-10-02T09:19:05.000Z",
+     "time": "10.06",
+     "clock": "07:45",
+     "at": "2026-10-05T22:45:04.000Z",
      "rank": 2,
-     "source": "연합뉴스",
+     "source": "이데일리",
      "outlets": 1,
      "tag": "수출입 동향",
-     "title": "K뷰티 질주 가속…9월까지 화장품 수출 31%↑ '역대 최대'",
-     "link": "https://www.yna.co.kr/view/AKR20261002164500017",
-     "summary": "한국 화장품이 세계적으로 인기를 끌면서 올해 1∼3분기 수출액이 역대 최대를 기록했다고 식품의약품안전처가 2일...",
-     "direction": "info",
+     "title": "화장품株, 급락에 '매수 기회왔다'...비용 우려 과도 수출 수요 견조-신한",
+     "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQNGwzOU1ja005TUd1TVpyMllBc1NIZV9aV213STA5Rk5USHFxQUZYY0dfT2FtcDBMS3FxT1JhUnYwSFVaY0J2aTYzTWhQMG9lVE1XODdtY2l1YlJybGszcjRveFAtc0JYeXViVWNpMUt0WlNhbU1vOXN4aGdIMVRGdA?oc=5",
+     "summary": "",
+     "direction": "neutral",
      "sectors": [
       "consumer"
      ],
      "issue": "수출입 동향",
-     "issueReports": 54,
+     "issueReports": 56,
      "trend": [
       31,
       17,
       30,
       9,
-      47
+      48
      ],
-     "why": "수출입 동향 이슈 · 이번 주 54건 보도 · 소비재·농식품 영향권",
+     "why": "수출입 동향 이슈 · 이번 주 56건 보도 · 소비재·농식품 영향권",
      "stocks": []
     },
     {
@@ -969,22 +999,49 @@ window.TC_DATA = {
       "consumer"
      ],
      "issue": "통관·원산지",
-     "issueReports": 10,
+     "issueReports": 5,
      "trend": [
+      8,
       9,
-      10,
       4,
       6,
-      7
+      3
      ],
-     "why": "통관·원산지 이슈 · 이번 주 10건 보도 · 소비재·농식품 영향권",
+     "why": "통관·원산지 이슈 · 이번 주 5건 보도 · 소비재·농식품 영향권",
+     "stocks": []
+    },
+    {
+     "time": "10.02",
+     "clock": "18:19",
+     "at": "2026-10-02T09:19:05.000Z",
+     "rank": 4,
+     "source": "연합뉴스",
+     "outlets": 1,
+     "tag": "수출입 동향",
+     "title": "K뷰티 질주 가속…9월까지 화장품 수출 31%↑ '역대 최대'",
+     "link": "https://www.yna.co.kr/view/AKR20261002164500017",
+     "summary": "한국 화장품이 세계적으로 인기를 끌면서 올해 1∼3분기 수출액이 역대 최대를 기록했다고 식품의약품안전처가 2일...",
+     "direction": "info",
+     "sectors": [
+      "consumer"
+     ],
+     "issue": "수출입 동향",
+     "issueReports": 56,
+     "trend": [
+      31,
+      17,
+      30,
+      9,
+      48
+     ],
+     "why": "수출입 동향 이슈 · 이번 주 56건 보도 · 소비재·농식품 영향권",
      "stocks": []
     },
     {
      "time": "10.01",
      "clock": "11:36",
      "at": "2026-10-01T02:36:42.000Z",
-     "rank": 4,
+     "rank": 5,
      "source": "뉴시스",
      "outlets": 1,
      "tag": "관세",
@@ -996,7 +1053,7 @@ window.TC_DATA = {
       "consumer"
      ],
      "issue": "중국 관세",
-     "issueReports": 7,
+     "issueReports": 10,
      "trend": [
       3,
       3,
@@ -1004,7 +1061,7 @@ window.TC_DATA = {
       5,
       6
      ],
-     "why": "중국 관세 이슈 · 이번 주 7건 보도 · 소비재·농식품 영향권",
+     "why": "중국 관세 이슈 · 이번 주 10건 보도 · 소비재·농식품 영향권",
      "stocks": []
     }
    ]
@@ -1012,13 +1069,16 @@ window.TC_DATA = {
   {
    "id": "steel",
    "name": "철강·금속",
-   "score": 38.66,
-   "state": "보합",
-   "up": 1,
+   "score": 38.53,
+   "state": "완화",
+   "up": 0,
    "down": 2,
-   "neutral": 22,
-   "articles": 25,
-   "summary": "이번 주 관련 기사 25건(직전 4주 주평균 20.3건) · 주요 이슈: 미국 관세, 공급망·핵심광물",
+   "neutral": 24,
+   "articles": 26,
+   "baseAvg": 20.3,
+   "change": 9,
+   "thin": false,
+   "summary": "이번 주 관련 기사 26건(직전 4주 주평균 20.3건) · 주요 이슈: 미국 관세, 공급망·핵심광물",
    "stocks": [
     {
      "name": "POSCO홀딩스",
@@ -1035,10 +1095,38 @@ window.TC_DATA = {
    ],
    "news": [
     {
+     "time": "10.06",
+     "clock": "10:42",
+     "at": "2026-10-06T01:42:28.000Z",
+     "rank": 0,
+     "source": "아시아경제",
+     "outlets": 1,
+     "tag": "공급망·핵심광물",
+     "title": "[2026국감]김정관 \"자원안보 더 단단히\"…원유 非중동산 50%·핵심광물 365일 비축",
+     "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFB1eHpvVnhnZnlGTjBzSjRrLVNMcUFOUkQ2UHhfLUZXWURqZm9FcHpGZ2JnUTFucUdLRGFMa1dfSFJid19EcEZRX2hRNEhoSHg0NzlVQjVvTEpoa2xzU2FRcg?oc=5",
+     "summary": "김정관 \"자원안보 더 단단히\"…원유 非중동산 50%·핵심광물 365일 비축 아시아경제",
+     "direction": "info",
+     "sectors": [
+      "steel",
+      "chem"
+     ],
+     "issue": "중동 공급망·핵심광물",
+     "issueReports": 2,
+     "trend": [
+      0,
+      1,
+      2,
+      0,
+      1
+     ],
+     "why": "중동 공급망·핵심광물 이슈 · 이번 주 2건 보도 · 철강·금속·석유화학·에너지 영향권",
+     "stocks": []
+    },
+    {
      "time": "10.05",
      "clock": "17:15",
      "at": "2026-10-05T08:15:04.000Z",
-     "rank": 0,
+     "rank": 1,
      "source": "동아일보",
      "outlets": 1,
      "tag": "공급망·핵심광물",
@@ -1050,22 +1138,22 @@ window.TC_DATA = {
       "steel"
      ],
      "issue": "공급망·핵심광물",
-     "issueReports": 39,
+     "issueReports": 45,
      "trend": [
       32,
       21,
       44,
       20,
-      39
+      45
      ],
-     "why": "공급망·핵심광물 이슈 · 이번 주 39건 보도 · 철강·금속 영향권",
+     "why": "공급망·핵심광물 이슈 · 이번 주 45건 보도 · 철강·금속 영향권",
      "stocks": []
     },
     {
      "time": "10.05",
      "clock": "09:08",
      "at": "2026-10-05T00:08:22.000Z",
-     "rank": 1,
+     "rank": 2,
      "source": "조선일보",
      "outlets": 1,
      "tag": "공급망·핵심광물",
@@ -1077,7 +1165,7 @@ window.TC_DATA = {
       "steel"
      ],
      "issue": "미국 공급망·핵심광물",
-     "issueReports": 9,
+     "issueReports": 10,
      "trend": [
       7,
       4,
@@ -1085,14 +1173,14 @@ window.TC_DATA = {
       6,
       6
      ],
-     "why": "미국 공급망·핵심광물 이슈 · 이번 주 9건 보도 · 철강·금속 영향권",
+     "why": "미국 공급망·핵심광물 이슈 · 이번 주 10건 보도 · 철강·금속 영향권",
      "stocks": []
     },
     {
      "time": "10.05",
      "clock": "05:58",
      "at": "2026-10-04T20:58:01.000Z",
-     "rank": 2,
+     "rank": 3,
      "source": "서울Eye",
      "outlets": 1,
      "tag": "공급망·핵심광물",
@@ -1104,42 +1192,15 @@ window.TC_DATA = {
       "steel"
      ],
      "issue": "공급망·핵심광물",
-     "issueReports": 39,
+     "issueReports": 45,
      "trend": [
       32,
       21,
       44,
       20,
-      39
+      45
      ],
-     "why": "공급망·핵심광물 이슈 · 이번 주 39건 보도 · 철강·금속 영향권",
-     "stocks": []
-    },
-    {
-     "time": "09.30",
-     "clock": "17:52",
-     "at": "2026-09-30T08:52:53.000Z",
-     "rank": 3,
-     "source": "연합뉴스",
-     "outlets": 4,
-     "tag": "수출입 동향",
-     "title": "\"美·日·유럽, 中철강 우회 수출 공동 감시체계 구축\"",
-     "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9ES2JHaktHejF3TG9kWlh3OThqNmtTdE5xcjMtX1JhSk04Uk15MWFlRFV3YXA1NE42N2NIeGVFYmVqaWhtWHl2UjJQLXhJOEVIV1NWQmE2eEpMM2R6RGZadtIBYEFVX3lxTE9ES2JHaktHejF3TG9kWlh3OThqNmtTdE5xcjMtX1JhSk04Uk15MWFlRFV3YXA1NE42N2NIeGVFYmVqaWhtWHl2UjJQLXhJOEVIV1NWQmE2eEpMM2R6RGZadg?oc=5",
-     "summary": "",
-     "direction": "neutral",
-     "sectors": [
-      "steel"
-     ],
-     "issue": "미국 수출입 동향",
-     "issueReports": 10,
-     "trend": [
-      0,
-      4,
-      2,
-      1,
-      10
-     ],
-     "why": "미국 수출입 동향 이슈 · 이번 주 10건 보도 · 철강·금속 영향권",
+     "why": "공급망·핵심광물 이슈 · 이번 주 45건 보도 · 철강·금속 영향권",
      "stocks": []
     },
     {
@@ -1153,7 +1214,7 @@ window.TC_DATA = {
      "title": "이상휘 \"철강도 세액공제 받아야\"…조세특례제한법 개정안 발의",
      "link": "https://www.yna.co.kr/view/AKR20261002141400053",
      "summary": "국민의힘 이상휘 국회의원(경북 포항 남구·울릉)은 2일 철강산업을 국내생산세액공제 대상에 포함하는 내용의 '조...",
-     "direction": "up",
+     "direction": "neutral",
      "sectors": [
       "steel"
      ],
@@ -1185,7 +1246,7 @@ window.TC_DATA = {
       "steel"
      ],
      "issue": "중국 공급망·핵심광물",
-     "issueReports": 9,
+     "issueReports": 10,
      "trend": [
       4,
       5,
@@ -1193,7 +1254,7 @@ window.TC_DATA = {
       2,
       8
      ],
-     "why": "중국 공급망·핵심광물 이슈 · 이번 주 9건 보도 · 철강·금속 영향권",
+     "why": "중국 공급망·핵심광물 이슈 · 이번 주 10건 보도 · 철강·금속 영향권",
      "stocks": []
     }
    ]
@@ -1201,13 +1262,16 @@ window.TC_DATA = {
   {
    "id": "semi",
    "name": "반도체",
-   "score": 27.12,
+   "score": 26.91,
    "state": "강화",
-   "up": 3,
+   "up": 2,
    "down": 0,
-   "neutral": 17,
-   "articles": 20,
-   "summary": "이번 주 관련 기사 20건(직전 4주 주평균 27건) · 주요 이슈: 수출입 동향, 환율",
+   "neutral": 19,
+   "articles": 21,
+   "baseAvg": 27,
+   "change": -33,
+   "thin": false,
+   "summary": "이번 주 관련 기사 21건(직전 4주 주평균 27건) · 주요 이슈: 수출입 동향, 환율",
    "stocks": [
     {
      "name": "삼성전자",
@@ -1224,31 +1288,30 @@ window.TC_DATA = {
    ],
    "news": [
     {
-     "time": "10.05",
-     "clock": "09:00",
-     "at": "2026-10-05T00:00:00.000Z",
+     "time": "10.06",
+     "clock": "11:01",
+     "at": "2026-10-06T02:01:34.000Z",
      "rank": 0,
-     "source": "뉴시스",
+     "source": "아시아경제",
      "outlets": 1,
-     "tag": "수출입 동향",
-     "title": "반도체 5000억弗·자동차 700억弗…수출 양대품목 연말 희비",
-     "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE1reU1peEYtYnh2WmNqQnZobzBETUFBSU9Dc3RsdDJiWUh5UWlKUEFWMGd3anBsSVhnQWlMWWlBVG9Db3RFM00tM3ZwWjZ5N2E5SnQyYjNJRElfaHAxYlhOUHRJSEU0RmRKVG1hMWMtUzVGdkw3c1BwTtIBeEFVX3lxTE1reU1peEYtYnh2WmNqQnZobzBETUFBSU9Dc3RsdDJiWUh5UWlKUEFWMGd3anBsSVhnQWlMWWlBVG9Db3RFM00tM3ZwWjZ5N2E5SnQyYjNJRElfaHAxYlhOUHRJSEU0RmRKVG1hMWMtUzVGdkw3c1BwTg?oc=5",
+     "tag": "공급망·핵심광물",
+     "title": "\"HBM 생산라인 늘려야 산다\"…삼성·SK, 범용 메모리 공급망 해외이전·외주로 재편",
+     "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1lMG94SmxsdU82TGVhUHlvZE16LWZ5RHRCNm1WbzA5bUhLNFp3TmNpN1JHSkZyS2JvZXIxS09peFd0SEpyVmNiNzJFVE5QVmlvaUNsaFZ3N3J6NUVlS3ktaw?oc=5",
      "summary": "",
-     "direction": "neutral",
+     "direction": "info",
      "sectors": [
-      "semi",
-      "auto"
+      "semi"
      ],
-     "issue": "수출입 동향",
-     "issueReports": 54,
+     "issue": "공급망·핵심광물",
+     "issueReports": 45,
      "trend": [
-      31,
-      17,
-      30,
-      9,
-      47
+      32,
+      21,
+      44,
+      20,
+      45
      ],
-     "why": "수출입 동향 이슈 · 이번 주 54건 보도 · 반도체·자동차 영향권",
+     "why": "공급망·핵심광물 이슈 · 이번 주 45건 보도 · 반도체 영향권",
      "stocks": []
     },
     {
@@ -1268,7 +1331,7 @@ window.TC_DATA = {
       "machinery"
      ],
      "issue": "중국 공급망·핵심광물",
-     "issueReports": 9,
+     "issueReports": 10,
      "trend": [
       4,
       5,
@@ -1276,34 +1339,35 @@ window.TC_DATA = {
       2,
       8
      ],
-     "why": "중국 공급망·핵심광물 이슈 · 이번 주 9건 보도 · 반도체·기계·전자 영향권",
+     "why": "중국 공급망·핵심광물 이슈 · 이번 주 10건 보도 · 반도체·기계·전자 영향권",
      "stocks": []
     },
     {
-     "time": "10.01",
-     "clock": "09:03",
-     "at": "2026-10-01T00:03:50.000Z",
+     "time": "10.05",
+     "clock": "09:00",
+     "at": "2026-10-05T00:00:00.000Z",
      "rank": 2,
-     "source": "매일경제",
-     "outlets": 3,
+     "source": "뉴시스",
+     "outlets": 1,
      "tag": "수출입 동향",
-     "title": "[속보] 9월 수출 1209억 달러 ‘사상 최대’…반도체 첫 600억 달러 돌파",
-     "link": "https://www.mk.co.kr/news/economy/12165586",
-     "summary": "올해 9월 우리나라 수출이 1209억 달러로 역대 최대 기록을 경신했다. 산업통상부가 1일 발표한 ’2026년 9월 수출입동향’에 따르면 지난달 수출은 전년 동월 대비 83.5% ..",
-     "direction": "info",
+     "title": "반도체 5000억弗·자동차 700억弗…수출 양대품목 연말 희비",
+     "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE1reU1peEYtYnh2WmNqQnZobzBETUFBSU9Dc3RsdDJiWUh5UWlKUEFWMGd3anBsSVhnQWlMWWlBVG9Db3RFM00tM3ZwWjZ5N2E5SnQyYjNJRElfaHAxYlhOUHRJSEU0RmRKVG1hMWMtUzVGdkw3c1BwTtIBeEFVX3lxTE1reU1peEYtYnh2WmNqQnZobzBETUFBSU9Dc3RsdDJiWUh5UWlKUEFWMGd3anBsSVhnQWlMWWlBVG9Db3RFM00tM3ZwWjZ5N2E5SnQyYjNJRElfaHAxYlhOUHRJSEU0RmRKVG1hMWMtUzVGdkw3c1BwTg?oc=5",
+     "summary": "",
+     "direction": "neutral",
      "sectors": [
-      "semi"
+      "semi",
+      "auto"
      ],
      "issue": "수출입 동향",
-     "issueReports": 54,
+     "issueReports": 56,
      "trend": [
       31,
       17,
       30,
       9,
-      47
+      48
      ],
-     "why": "수출입 동향 이슈 · 이번 주 54건 보도 · 반도체 영향권",
+     "why": "수출입 동향 이슈 · 이번 주 56건 보도 · 반도체·자동차 영향권",
      "stocks": []
     },
     {
@@ -1323,15 +1387,15 @@ window.TC_DATA = {
       "auto"
      ],
      "issue": "환율",
-     "issueReports": 23,
+     "issueReports": 24,
      "trend": [
       30,
       16,
       13,
       10,
-      15
+      16
      ],
-     "why": "환율 이슈 · 이번 주 23건 보도 · 반도체·자동차 영향권",
+     "why": "환율 이슈 · 이번 주 24건 보도 · 반도체·자동차 영향권",
      "stocks": []
     },
     {
@@ -1372,12 +1436,12 @@ window.TC_DATA = {
      "title": "中 관찰자망 “美, 한국 반도체 공급망의 중국 의존 축소 압박”",
      "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE1jeUttaWk5bjRDLW9lQnB2WjRKVHR2NldNQ0VnSlFCdG5IUHp4ZkQ2eUxrU2VGRFVXU2lBM3k0a2kyOHZzZHItdFdzVjFGMDR4bXYwdDRTUW1GTHJJQnpBRW9IbjBfNFk?oc=5",
      "summary": "",
-     "direction": "up",
+     "direction": "info",
      "sectors": [
       "semi"
      ],
      "issue": "중국 공급망·핵심광물",
-     "issueReports": 9,
+     "issueReports": 10,
      "trend": [
       4,
       5,
@@ -1385,7 +1449,7 @@ window.TC_DATA = {
       2,
       8
      ],
-     "why": "중국 공급망·핵심광물 이슈 · 이번 주 9건 보도 · 반도체 영향권",
+     "why": "중국 공급망·핵심광물 이슈 · 이번 주 10건 보도 · 반도체 영향권",
      "stocks": []
     }
    ]
@@ -1406,52 +1470,57 @@ window.TC_DATA = {
     "ship",
     "steel"
    ],
-   "score": 78.19,
-   "reports": 76,
+   "score": 77.76,
+   "reports": 77,
    "prev": 21,
-   "up": 34,
+   "up": 35,
    "down": 12,
    "neutral": 30,
    "summary": "도널드 트럼프 미국 대통령이 3일(현지시간) 11월 중간선거 격전지 중 하나인 오하이오주를 찾아 관세 정책...",
    "parts": {
     "volume": 1,
-    "momentum": 0.585,
+    "momentum": 0.574,
     "relevance": 0.843
    },
    "trend": [
-    38,
+    37,
     48,
     35,
     21,
-    66
+    67
    ],
    "leadRelevance": 1,
    "articles": [
     {
      "title": "격전지 간 트럼프 \"美에 공장 안 지으면 관세 300%까지 부과\"",
      "source": "연합뉴스",
+     "outlets": 17,
      "at": "2026-10-04 10:42",
      "link": "https://www.yna.co.kr/view/AKR20261004013900071"
     },
     {
-     "title": "트럼프 \"美에 공장 안 지으면 관세 300%…1년 반 기회 준다\"",
-     "source": "마켓인",
-     "at": "2026-10-04 13:54",
-     "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9lZ3owRHYzTUx2V0ZzNDhCLXludWxtUmZObU9FVWVJVnB0YklvVEZUVXF4Z1UtS3EtS2R3cmpNQU5BRlpqRlJxUElWRlJmOThUajNseDg3VTNKc1JaVWVfTThJeFQxamxOdDJ0WGFiLWp1N2s?oc=5"
-    },
-    {
-     "title": "[속보] 트럼프 “1년 반 안에 美공장 안 지으면 관세 300%까지 부과”",
-     "source": "매일경제",
-     "at": "2026-10-04 12:15",
-     "link": "https://news.google.com/rss/articles/CBMiVEFVX3lxTFBPb2ZfY004UXNuRDlzenJjbW0yQmRzUmRXNnBOSHJXdFhCM2VhSEhkR2prTjFjWXV2aDVwZDlrYkNGbVlZRGNIVWRJbFY1MlVheW5jcw?oc=5"
-    },
-    {
      "title": "美 의약품 관세 발효…삼성에피스, 테바와 시밀러 동맹 확대 [바이오 주간 결산]",
      "source": "이데일리",
+     "outlets": 2,
      "at": "2026-10-05 08:01",
      "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPWEQwcUxqeWJldHNOZnN2V1FBa19oN2w1RFUxWkRpd2RpcU9yby1KTjQzbHpWOWpRUW1jZlc4bGVUenlqbkluYndJbGZjZU5BZUtYTG43TTlWUkFQbGNLODdNcnVtUGZ0ODgtY0ttOEpCd1lrM0FMTU04TVJCZ2F6UQ?oc=5"
+    },
+    {
+     "title": "\"관세 2배로 올린다\" 협박한 트럼프에 부통령은 \"조율 남았다\" [자막뉴스]",
+     "source": "YTN",
+     "outlets": 1,
+     "at": "2026-10-06 10:07",
+     "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE9rYkE1QTAtOE0tOWRfblZSYzloVnF2dEFIUEJtc25HaldxV19teDNOWTQybU9uU2dYcUtFeFd0Wm9zY3VEbkRVQ3htVnYzcEdKSjhPQzJDcUtPb3lza1E?oc=5"
+    },
+    {
+     "title": "한국에 “더 청구”한다더니…트럼프, 이번엔 “공장 안 지으면 관세 300%” [핫이슈]",
+     "source": "서울신문",
+     "outlets": 2,
+     "at": "2026-10-04 15:56",
+     "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE9LcUo3LWZNaFJLdDRaaUk3S1dPek5Va0tad19QY2dLMEo1XzhCcUpLa2hBeGhHN2hnYlFmcnU5TUZ3QUFTT1c3TDJhUE9ZRjhhYmgzU1RwY0Vqdw?oc=5"
     }
-   ]
+   ],
+   "move": "new"
   },
   {
    "keyword": "수출입 동향",
@@ -1467,52 +1536,124 @@ window.TC_DATA = {
     "consumer",
     "auto"
    ],
-   "score": 73.71,
-   "reports": 54,
+   "score": 73.72,
+   "reports": 56,
    "prev": 9,
    "up": 1,
    "down": 2,
-   "neutral": 51,
+   "neutral": 53,
    "summary": "",
    "parts": {
-    "volume": 0.866,
-    "momentum": 0.647,
-    "relevance": 0.867
+    "volume": 0.875,
+    "momentum": 0.637,
+    "relevance": 0.864
    },
    "trend": [
     31,
     17,
     30,
     9,
-    47
+    48
    ],
    "leadRelevance": 1,
    "articles": [
     {
      "title": "한 달 수출이 31년 전 1년치 육박…韓 경제 체급이 달라졌다[Pick코노미]",
      "source": "서울경제",
+     "outlets": 1,
      "at": "2026-10-04 13:00",
      "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE9wd2tFVEtKdFhCMmNOSWxkdVUxd3EzTjE1OUpiR3h6cm9neHpmN3B3OFBHeFREU3I4bDhSaVZBNGRSSlZMLTF2SjhLVFpGcFB6b3fSAVNBVV95cUxQdXNzNkpuMHhaWXdHRG53OThKSGgtUjRiRUZmZWZKamZzdDRTSVJTUmRIVnJTQWtGQllxaHhkUGFEQUNmZnpmNEJxODdXUmZkWnBJRQ?oc=5"
     },
     {
      "title": "'K기판 르네상스'…역대 최대 수출액 노린다",
      "source": "한국경제",
+     "outlets": 1,
      "at": "2026-10-04 18:16",
      "link": "https://www.hankyung.com/article/2026100426341"
     },
     {
      "title": "[속보]9월 수출액 1209억달러로 전년비 83.5% 증가…‘사상 최대’",
      "source": "이데일리",
+     "outlets": 3,
      "at": "2026-10-01 09:00",
      "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOOTVwMkRBcmJzeUpid0pHVkY0cWFHMTBQOVY3YVB1eEZadmI1QS1PcklXQk05ZncyX3ZhZnNfb0ZsRTZnVU1IMzBBcDlZX2NjempHaWF1Y0xsMjl6UER5cUJiUnktdDZHOG45ODkxYWtnSHpTRTg2b0p5Vl9QSmRJUg?oc=5"
     },
     {
      "title": "한국 수출 8천억달러 첫 돌파…9월 1천209억달러 역대 최대(종합2보)",
      "source": "연합뉴스",
+     "outlets": 4,
      "at": "2026-10-01 12:09",
      "link": "https://www.yna.co.kr/view/AKR20261001033753003"
     }
-   ]
+   ],
+   "move": 3
+  },
+  {
+   "keyword": "공급망·핵심광물",
+   "title": "대·중소기업 협력 기반 기술사업화 R&D 지원… 공급망 자립화 기반 다진다",
+   "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNMDE3Z2dfeElkUzZXRk5JeEloME5CTDF1NTBaU1cyTkVXTlNrMTZ0YXpLNjVPX2pmNVE4aXhpSGVzYm9hRTQ0SWszMjExOTlSN1dJREc3SnhjcUVZeXpJQXo5R0xRVi0yelJBYTFfX2h2Q0VMZmwtV1FQUW5uMEFYRWRUZXNId293WUc0?oc=5",
+   "source": "정책브리핑",
+   "time": "21시간 전",
+   "impact": 66,
+   "tag": "공급망·핵심광물",
+   "topic": "supply_chain",
+   "sectors": [
+    "steel",
+    "auto",
+    "chem"
+   ],
+   "score": 66.01,
+   "reports": 45,
+   "prev": 20,
+   "up": 0,
+   "down": 1,
+   "neutral": 44,
+   "summary": "",
+   "parts": {
+    "volume": 0.863,
+    "momentum": 0.479,
+    "relevance": 0.827
+   },
+   "trend": [
+    32,
+    21,
+    44,
+    20,
+    45
+   ],
+   "leadRelevance": 1,
+   "articles": [
+    {
+     "title": "대·중소기업 협력 기반 기술사업화 R&D 지원… 공급망 자립화 기반 다진다",
+     "source": "정책브리핑",
+     "outlets": 1,
+     "at": "2026-10-05 15:41",
+     "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNMDE3Z2dfeElkUzZXRk5JeEloME5CTDF1NTBaU1cyTkVXTlNrMTZ0YXpLNjVPX2pmNVE4aXhpSGVzYm9hRTQ0SWszMjExOTlSN1dJREc3SnhjcUVZeXpJQXo5R0xRVi0yelJBYTFfX2h2Q0VMZmwtV1FQUW5uMEFYRWRUZXNId293WUc0?oc=5"
+    },
+    {
+     "title": "서상덕 S2W 대표, 韓-英 공급망 보안 협력 제안",
+     "source": "전자신문",
+     "outlets": 2,
+     "at": "2026-10-06 08:56",
+     "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE51dXo0SWpueXdhd3l6N0hrLVFqYnU0NGJEWERoeTR4MGpyRlNlVHhsb3c5QmlEdF9LaUpzWWNOYk9WVmtGNjhVV28wUXlzQQ?oc=5"
+    },
+    {
+     "title": "Busan Youth Startup Breaks Into Dolce & Gabbana Supply Chain... Korea's First Commercial Digital Product Passport Launched",
+     "lang": "en",
+     "source": "아시아경제",
+     "outlets": 1,
+     "at": "2026-10-06 09:26",
+     "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE83RWZTYklBNjdhZ0R2X3JSMkV2S1R2VS0yM2pGRk82YVlldWJmd1R3T3UyNVo0Qkp4cHlydFRqaS1FTVdjbnkyeUFGRUVjMGE5eGNTTDJoZjh3cXpIN2xJcUtDWTk?oc=5"
+    },
+    {
+     "title": "\"HBM 생산라인 늘려야 산다\"…삼성·SK, 범용 메모리 공급망 해외이전·외주로 재편",
+     "source": "아시아경제",
+     "outlets": 1,
+     "at": "2026-10-06 11:01",
+     "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1lMG94SmxsdU82TGVhUHlvZE16LWZ5RHRCNm1WbzA5bUhLNFp3TmNpN1JHSkZyS2JvZXIxS09peFd0SEpyVmNiNzJFVE5QVmlvaUNsaFZ3N3J6NUVlS3ktaw?oc=5"
+    }
+   ],
+   "move": "new"
   },
   {
    "keyword": "미국 유가·원자재",
@@ -1527,15 +1668,15 @@ window.TC_DATA = {
     "chem",
     "ship"
    ],
-   "score": 64.93,
+   "score": 64.67,
    "reports": 32,
    "prev": 0,
-   "up": 4,
-   "down": 3,
-   "neutral": 25,
+   "up": 0,
+   "down": 1,
+   "neutral": 31,
    "summary": "JD 밴스 미국 부통령은 5일(현지시간) 알래스카 액화천연가스(LNG) 개발 사업과 관련, 한국과 세부 사...",
    "parts": {
-    "volume": 0.632,
+    "volume": 0.627,
     "momentum": 0.721,
     "relevance": 0.931
    },
@@ -1551,112 +1692,56 @@ window.TC_DATA = {
     {
      "title": "美부통령 \"알래스카 LNG 사업, 한국과 세부사항 협의해야\"",
      "source": "연합뉴스",
+     "outlets": 1,
      "at": "2026-10-06 03:00",
      "link": "https://www.yna.co.kr/view/AKR20261006002100071"
     },
     {
      "title": "[단독] “美, 20억달러만 보증해주고...韓에 알래스카 LNG 500억달러 압박”",
      "source": "매일경제",
+     "outlets": 1,
      "at": "2026-10-05 15:26",
      "link": "https://www.mk.co.kr/news/economy/12168425"
     },
     {
      "title": "트럼프 압박까지…대미투자, 알래스카 LNG 암초에 산 넘어 산",
      "source": "연합뉴스",
+     "outlets": 2,
      "at": "2026-10-04 05:55",
      "link": "https://www.yna.co.kr/view/AKR20260923183200003"
     },
     {
      "title": "트럼프 알래스카 LNG 투자 압박, 한미 안보협의 새 변수 되나",
      "source": "연합뉴스",
+     "outlets": 1,
      "at": "2026-10-04 12:47",
      "link": "https://www.yna.co.kr/view/AKR20261004016600504"
     }
-   ]
-  },
-  {
-   "keyword": "공급망·핵심광물",
-   "title": "대·중소기업 협력 기반 기술사업화 R&D 지원… 공급망 자립화 기반 다진다",
-   "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNMDE3Z2dfeElkUzZXRk5JeEloME5CTDF1NTBaU1cyTkVXTlNrMTZ0YXpLNjVPX2pmNVE4aXhpSGVzYm9hRTQ0SWszMjExOTlSN1dJREc3SnhjcUVZeXpJQXo5R0xRVi0yelJBYTFfX2h2Q0VMZmwtV1FQUW5uMEFYRWRUZXNId293WUc0?oc=5",
-   "source": "정책브리핑",
-   "time": "21시간 전",
-   "impact": 61,
-   "tag": "공급망·핵심광물",
-   "topic": "supply_chain",
-   "sectors": [
-    "steel",
-    "auto",
-    "chem"
    ],
-   "score": 61.05,
-   "reports": 39,
-   "prev": 20,
-   "up": 0,
-   "down": 1,
-   "neutral": 38,
-   "summary": "",
-   "parts": {
-    "volume": 0.805,
-    "momentum": 0.437,
-    "relevance": 0.821
-   },
-   "trend": [
-    32,
-    21,
-    44,
-    20,
-    39
-   ],
-   "leadRelevance": 1,
-   "articles": [
-    {
-     "title": "대·중소기업 협력 기반 기술사업화 R&D 지원… 공급망 자립화 기반 다진다",
-     "source": "정책브리핑",
-     "at": "2026-10-05 15:41",
-     "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNMDE3Z2dfeElkUzZXRk5JeEloME5CTDF1NTBaU1cyTkVXTlNrMTZ0YXpLNjVPX2pmNVE4aXhpSGVzYm9hRTQ0SWszMjExOTlSN1dJREc3SnhjcUVZeXpJQXo5R0xRVi0yelJBYTFfX2h2Q0VMZmwtV1FQUW5uMEFYRWRUZXNId293WUc0?oc=5"
-    },
-    {
-     "title": "소부장 공급망 다변화에도…‘특정국 의존’ 되레 늘었다",
-     "source": "경향신문",
-     "at": "2026-10-05 20:43",
-     "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1pYzE0WmVsUUloS3dzM2liNzh2QVhFcjBGNUJlVjRIRXE5anlrRjRqWl9JcVJtZ1FGenRWR3JHaXQxVkpoSE5La2FybFlMWGl0NVhFRzJMUnBfaFB4QzZR0gFfQVVfeXFMTWljMTRaZWxRSWhLd3MzaWI3OHZBWEVyMEY1QmVWNEhFcTlqeWtGNGpaX0lxUm1nUUZ6dFZHckdpdDFWSmhITktrYXJsWUxYaXQ1WEVHMkxScF9oUHhDNlE?oc=5"
-    },
-    {
-     "title": "대체불가능한 공급망의 핵심국가로 도약해 나가겠습니다",
-     "source": "대한민국 정책브리핑",
-     "at": "2026-10-04 06:22",
-     "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE9Vc2g2LXpfZkVlbl9LeUZPeHllWWZTREpnSW9lemVwLUo4NG14RGNfT0lJUFltUHNZLWtreWE2YzBuOUhSSE9wdUZDbG9EclZiWkJQOEdZS21yUFFqLWpqUVEwU01BMHUtT0VzZA?oc=5"
-    },
-    {
-     "title": "매장량 세계 2위 몽골 희토류 무관세로 들여온다",
-     "source": "동아일보",
-     "at": "2026-10-05 17:15",
-     "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE1KNG10VnN0WTAtZDhUenQ4QXJrQWkwVTRYTW5rY2pZQUdMVmtPaEU0cE1oRWdyMWVsMkF0UlhYVm9sZFFaZk10VW10dktwS2xoaDhhYy1UNEhIOTVjN2dadkFnbnJ2SVdQcDliekdVY2lvNXo3anc?oc=5"
-    }
-   ]
+   "move": "new"
   },
   {
    "keyword": "일본 경제제재",
-   "title": "\"日, 러 자금줄 '그림자 선단' 겨냥 추가 제재 검토\"(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261002088751073",
+   "title": "푸틴 쿠릴열도 방문 여진…일 \"추가제재\" vs 러 \"맞대응\" 대치",
+   "link": "https://www.yna.co.kr/view/AKR20261006047900009",
    "source": "연합뉴스",
-   "time": "4일 전",
-   "impact": 54,
+   "time": "3시간 전",
+   "impact": 59,
    "tag": "경제제재",
    "topic": "sanctions",
    "sectors": [
     "chem"
    ],
-   "score": 54.03,
-   "reports": 9,
+   "score": 58.52,
+   "reports": 11,
    "prev": 0,
-   "up": 8,
+   "up": 10,
    "down": 1,
    "neutral": 0,
-   "summary": "일본과 러시아의 관계가 냉각된 가운데 일본 정부가 러시아에 대한 추가 제재를 조만간 단행하는 방안을 검토하고...",
+   "summary": "블라디미르 푸틴 러시아 대통령의 쿠릴열도(일본명 북방영토) 방문의 여진이 이어지고 있다.",
    "parts": {
-    "volume": 0.451,
-    "momentum": 0.791,
+    "volume": 0.522,
+    "momentum": 0.807,
     "relevance": 0.8
    },
    "trend": [
@@ -1664,43 +1749,178 @@ window.TC_DATA = {
     0,
     0,
     0,
-    7
+    8
    ],
-   "leadRelevance": 1,
+   "leadRelevance": 0.8,
    "articles": [
+    {
+     "title": "푸틴 쿠릴열도 방문 여진…일 \"추가제재\" vs 러 \"맞대응\" 대치",
+     "source": "연합뉴스",
+     "outlets": 1,
+     "at": "2026-10-06 10:08",
+     "link": "https://www.yna.co.kr/view/AKR20261006047900009"
+    },
+    {
+     "title": "러시아, 日 추가 제재에 보복 예고...\"중요 분야 겨냥\"",
+     "source": "뉴스핌",
+     "outlets": 1,
+     "at": "2026-10-06 10:45",
+     "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1ScF9mUHNYX2tESGVMdXZDcWlHeXo5TXJHaS1KSlp0RTMzZldaUFRpWFY5M05Bc1JOcnVVbF9rUW5SaFFGZXhZUTYteEt1am9HV1NRS2R1bG1FWWJ2?oc=5"
+    },
     {
      "title": "\"日, 러 자금줄 '그림자 선단' 겨냥 추가 제재 검토\"(종합)",
      "source": "연합뉴스",
+     "outlets": 4,
      "at": "2026-10-02 14:49",
      "link": "https://www.yna.co.kr/view/AKR20261002088751073"
     },
     {
-     "title": "日, 대러시아 추가 제재…자금줄 '그림자 선단' 첫 겨냥",
-     "source": "연합뉴스",
-     "at": "2026-10-03 11:50",
-     "link": "https://www.yna.co.kr/view/AKR20261003026900073"
-    },
-    {
      "title": "日, 추가 대러 제재…원유 수출 우회 '그림자 선단' 35척 겨냥",
      "source": "뉴스1",
+     "outlets": 1,
      "at": "2026-10-03 13:58",
      "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE94MlptN0dwT0lCSWk2QXdFRXJBTXBXbTl2Zy14RGw0UHlMX1RyWXU2M2NCcExVa2o5QjVvLWY0bUhVR3FINTNBLTVMVEloQjI5Ujl1XzVTTzlYaTlzOXfSAWNBVV95cUxONUxDRXJ1OG85U2R4T3FSUmZISWdMT3lDS2ItRnVSNTZ6NUFkMGtESWhqT0xQQ1gtR0lBNjFKeC1wSmlFT3llYjVQNW4zZUNLeXBSM0Mtd2o5LUIwNXpYVXhsR00?oc=5"
+    }
+   ],
+   "move": "new"
+  },
+  {
+   "keyword": "중동 유가·원자재",
+   "title": "국제유가, 중동 원유수출 증가·G7 비축유 방출 약속에 1.8%↓",
+   "link": "https://www.yna.co.kr/view/AKR20261006004300072",
+   "source": "연합뉴스",
+   "time": "8시간 전",
+   "impact": 55,
+   "tag": "유가·원자재",
+   "topic": "energy",
+   "sectors": [
+    "chem",
+    "ship"
+   ],
+   "score": 54.87,
+   "reports": 15,
+   "prev": 0,
+   "up": 2,
+   "down": 1,
+   "neutral": 12,
+   "summary": "5일(현지시간) 국제유가가 중동 지역의 원유 수출 증가와 주요 7개국(G7)의 비축유 방출 결정으로 2거래일...",
+   "parts": {
+    "volume": 0.579,
+    "momentum": 0.627,
+    "relevance": 0.793
+   },
+   "trend": [
+    0,
+    1,
+    0,
+    0,
+    2
+   ],
+   "leadRelevance": 1,
+   "articles": [
+    {
+     "title": "국제유가, 중동 원유수출 증가·G7 비축유 방출 약속에 1.8%↓",
+     "source": "연합뉴스",
+     "outlets": 1,
+     "at": "2026-10-06 04:57",
+     "link": "https://www.yna.co.kr/view/AKR20261006004300072"
     },
     {
-     "title": "다카이치표 첫 대러 제재…日, 러 ‘그림자 선단’ 35척 전격 봉쇄 [밀리터리노트]",
-     "source": "서울신문",
-     "at": "2026-10-03 13:59",
-     "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE1Ock1pNlQ0ZlphbUdycjZUQ2tBRW9hWldxa0xOcEVablNPUlcwTEJQUXlRM0ZxY3VuRXlaRWcxWmtWNXFVUlJNMjNleEl2LTdTX1gwR2V5TjNiTDB1dWpvcFhLMGh3OUpxUzIyVUpHLUo3eDB1d3U4YzRSU2tRUW8?oc=5"
+     "title": "이란 위협에도 호르무즈 '셔틀운항'…원유 옮겨싣는데 500억원",
+     "source": "연합뉴스",
+     "outlets": 1,
+     "at": "2026-10-06 04:55",
+     "link": "https://www.yna.co.kr/view/AKR20261006003600072"
+    },
+    {
+     "title": "\"기름값 더 오를 일만 남았나\"…중동 분쟁에 원유 재고 '비상'",
+     "source": "한국경제",
+     "outlets": 1,
+     "at": "2026-10-06 11:37",
+     "link": "https://www.hankyung.com/article/2026100651917"
+    },
+    {
+     "title": "사우디, 11월 아시아 공급용 원유가 대폭 인하",
+     "source": "연합뉴스",
+     "outlets": 1,
+     "at": "2026-10-05 11:25",
+     "link": "https://www.yna.co.kr/view/AKR20261005028100009"
     }
-   ]
+   ],
+   "move": "new"
+  },
+  {
+   "keyword": "관세",
+   "title": "\"낮은 관세 영향\" 영국 초토화…다음 타자는 한국?",
+   "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9Yb2Ywd3NiVUxhelVNUkhuenJjLTFmRTBaTlpKY0NXTE81NjZIaVZpQjhyTkRFMWxhd2FKTkswT3gtaDBtNlJwakRCclpGNm9ZWU5TR1lfNGZTMGo2UmttNEFXajZ3NjBuUHfSAWZBVV95cUxQTjVmNDVmRFF4VGl1emdhTlV6LWk4THBZWGczZmFtdzN3dFhVcExuMHJCcTkzdXBPRVBYN191d0tvWU5QLWFsYTlja3loWElpM0x4WHBVYlV6aEdHLU5MdDJsaUs5OEE?oc=5",
+   "source": "SBS",
+   "time": "1시간 전",
+   "impact": 52,
+   "tag": "관세",
+   "topic": "tariff",
+   "sectors": [
+    "auto",
+    "consumer"
+   ],
+   "score": 52.19,
+   "reports": 18,
+   "prev": 17,
+   "up": 6,
+   "down": 2,
+   "neutral": 10,
+   "summary": "",
+   "parts": {
+    "volume": 0.645,
+    "momentum": 0.479,
+    "relevance": 0.756
+   },
+   "trend": [
+    14,
+    9,
+    5,
+    17,
+    17
+   ],
+   "leadRelevance": 1,
+   "articles": [
+    {
+     "title": "\"낮은 관세 영향\" 영국 초토화…다음 타자는 한국?",
+     "source": "SBS",
+     "outlets": 1,
+     "at": "2026-10-06 11:36",
+     "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9Yb2Ywd3NiVUxhelVNUkhuenJjLTFmRTBaTlpKY0NXTE81NjZIaVZpQjhyTkRFMWxhd2FKTkswT3gtaDBtNlJwakRCclpGNm9ZWU5TR1lfNGZTMGo2UmttNEFXajZ3NjBuUHfSAWZBVV95cUxQTjVmNDVmRFF4VGl1emdhTlV6LWk4THBZWGczZmFtdzN3dFhVcExuMHJCcTkzdXBPRVBYN191d0tvWU5QLWFsYTlja3loWElpM0x4WHBVYlV6aEdHLU5MdDJsaUs5OEE?oc=5"
+    },
+    {
+     "title": "이형일 “대미 관세·CPTPP 불확실성 최소화…공정과세 실현”",
+     "source": "마켓인",
+     "outlets": 1,
+     "at": "2026-10-06 10:16",
+     "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE5CZFFtQklaUjJFZzF5LUFVdjhYVHRkaENMSktSbDVwM1ppTnhOV0FDYk5WSFpsNi04cV85T1JIejNQY3VHdzYtd2lZcmNEZ3RuRGc1bUdhZG9KclZ4YUpQZElvbVFqVjM4MWo1OHpYOXRKdjg?oc=5"
+    },
+    {
+     "title": "CPTPP, 농산물 관세만의 문제 아니다…농가 지원·검역도 '시험대'",
+     "source": "머니투데이",
+     "outlets": 1,
+     "at": "2026-10-06 09:21",
+     "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBXTE9MVHlldjRjNjBzemQ5aTdKaDhoNUxlemlJdUpQVThoeDVpY3U0cmsyajlKSEpZcWlnWF9LRGhDbkNfbDJoX1ZzcXB0eDA2VG1yZDZMWndaV3dvTFFJal9DM3l0NWVxaHBn0gFwQVVfeXFMT01MMWdvWndLelFKczYwbFZ4T2dHbXFjbWQ5S0s1SkJXSU15SlRWb09iU2lxUlFKS0c1SGlGMVJ5ajg0YkdlVGd4VDF1aWpFeXNUVGNGMHlhSl9TTjJzTmdnV0VZY0JrUk5sZXJ4cWJTRg?oc=5"
+    },
+    {
+     "title": "대미투자 산 넘어 산…미 압박에 관세불안까지 고조",
+     "source": "연합뉴스TV",
+     "outlets": 1,
+     "at": "2026-10-05 15:53",
+     "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFB2Zmp0dDFtazdvaFhIZGo2aV9SdEZUUlRUd05nd0Q3bkVZejRvemNZZnNsSUhJRUFmcUxrWXNWM3d6TFhHcGJ1VnJZU05QX1lnakRMSHlWcGxmUDJZenB1c3NVUWJuZ0k?oc=5"
+    }
+   ],
+   "move": -3
   },
   {
    "keyword": "환율",
    "title": "중진공, 환율·재해 피해기업에 긴급경영안정자금 1천억원 지원",
    "link": "https://www.yna.co.kr/view/AKR20261006022900030",
    "source": "연합뉴스",
-   "time": "4시간 전",
-   "impact": 49,
+   "time": "5시간 전",
+   "impact": 50,
    "tag": "환율",
    "topic": "fx",
    "sectors": [
@@ -1708,170 +1928,124 @@ window.TC_DATA = {
     "chem",
     "auto"
    ],
-   "score": 48.73,
-   "reports": 23,
+   "score": 49.67,
+   "reports": 24,
    "prev": 10,
-   "up": 1,
+   "up": 0,
    "down": 0,
-   "neutral": 22,
+   "neutral": 24,
    "summary": "중소벤처기업진흥공단은 환율 변동과 재해 등으로 경영에 어려움을 겪는 중소벤처기업을 지원하기 위해 긴급경영안정자...",
    "parts": {
-    "volume": 0.662,
-    "momentum": 0.312,
-    "relevance": 0.835
+    "volume": 0.678,
+    "momentum": 0.313,
+    "relevance": 0.833
    },
    "trend": [
     30,
     16,
     13,
     10,
-    15
+    16
    ],
    "leadRelevance": 1,
    "articles": [
     {
      "title": "중진공, 환율·재해 피해기업에 긴급경영안정자금 1천억원 지원",
      "source": "연합뉴스",
+     "outlets": 1,
      "at": "2026-10-06 08:13",
      "link": "https://www.yna.co.kr/view/AKR20261006022900030"
     },
     {
      "title": "글로벌 달러 강세에 환율 1340원대 중반 공방 예상[외환브리핑]",
      "source": "이데일리",
+     "outlets": 2,
      "at": "2026-10-06 08:16",
      "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOLWZ2TWJWdThydlZndFIxR0gyWUJXa25iSl9JV25pVUhUVWtTZjlzTHVsb1djODhKdV9Kb3NpcmlQd01nbThJVXVOTUJDaWktOENvd2VZdDdUc1drSVRndUI5b3gxSkdBOVcyRC1heWd4SU9MaTA5UHlobzhWOW1CUw?oc=5"
     },
     {
      "title": "1250원 vs 1400원…엇갈리는 원달러 환율 전망",
      "source": "이데일리",
+     "outlets": 1,
      "at": "2026-10-06 04:30",
      "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOMkZWR2x6eXJrcG9hck5DY2VXZ04xTWFJbXM3bHNkZlhLdGpIMUMxTUI1cGNQUlplaHBFTWFFUDhIeVpuTVRnNEVHWFJKNTNCb1o5X3JZUDh5Q2xkT0ZMUV9FVGFWTVBXclQ4UHlpblFsRzBDZnFZQ3hMcUowcUlRaQ?oc=5"
     },
     {
      "title": "의제 - 환율·글로벌 금융안전망 등 7개 의제 논의",
      "source": "대한민국 정책브리핑",
+     "outlets": 1,
      "at": "2026-10-04 09:40",
      "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE5wbHZOVElBWVl4YUFQNEdrc2FTMlBYV1ltamJ4UVl1RUxtV1dUcEdwVlVtNUdVaEw3RENBbl94dlZGSjJtcl9VWGJySUNUOWdHMVBsNDNRcUZPRHE4ZUxhV1RRLUdBbzVNR0VOag?oc=5"
     }
-   ]
+   ],
+   "move": -1
   },
   {
-   "keyword": "통관·원산지",
-   "title": "‘마약왕’ 박왕열 잡고 공급망 추적까지…밀수·제조사범 검거 34% 증가",
-   "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTFBjcVlBZkZNVU9ESW9aNHdEU09hNTFya21uQ3JlYXJJX1RGWHgzQ2lyNUZ4QnhfUWlESVI5UFlGNTlnTTNXMnZFRnNxTjZ6R2I1MEhPY29qTVNxek9MOXhCY01EbmpLQdIBZkFVX3lxTFBjcVlBZkZNVU9ESW9aNHdEU09hNTFya21uQ3JlYXJJX1RGWHgzQ2lyNUZ4QnhfUWlESVI5UFlGNTlnTTNXMnZFRnNxTjZ6R2I1MEhPY29qTVNxek9MOXhCY01EbmpLQQ?oc=5",
-   "source": "동아일보",
-   "time": "1일 전",
+   "keyword": "해운·물류",
+   "title": "LNG Trade Through Hormuz Extends Rebound Despite Shipping Risks",
+   "link": "https://gcaptain.com/lng-trade-through-hormuz-extends-rebound-despite-shipping-risks/",
+   "source": "gCaptain",
+   "time": "15시간 전",
    "impact": 46,
-   "tag": "통관·원산지",
-   "topic": "customs",
+   "tag": "해운·물류",
+   "topic": "shipping",
    "sectors": [
-    "consumer"
-   ],
-   "score": 45.83,
-   "reports": 10,
-   "prev": 6,
-   "up": 3,
-   "down": 1,
-   "neutral": 6,
-   "summary": "",
-   "parts": {
-    "volume": 0.56,
-    "momentum": 0.384,
-    "relevance": 0.84
-   },
-   "trend": [
-    9,
-    10,
-    4,
-    6,
-    7
-   ],
-   "leadRelevance": 1,
-   "articles": [
-    {
-     "title": "‘마약왕’ 박왕열 잡고 공급망 추적까지…밀수·제조사범 검거 34% 증가",
-     "source": "동아일보",
-     "at": "2026-10-05 09:11",
-     "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTFBjcVlBZkZNVU9ESW9aNHdEU09hNTFya21uQ3JlYXJJX1RGWHgzQ2lyNUZ4QnhfUWlESVI5UFlGNTlnTTNXMnZFRnNxTjZ6R2I1MEhPY29qTVNxek9MOXhCY01EbmpLQdIBZkFVX3lxTFBjcVlBZkZNVU9ESW9aNHdEU09hNTFya21uQ3JlYXJJX1RGWHgzQ2lyNUZ4QnhfUWlESVI5UFlGNTlnTTNXMnZFRnNxTjZ6R2I1MEhPY29qTVNxek9MOXhCY01EbmpLQQ?oc=5"
-    },
-    {
-     "title": "\"위판 따로 판매 따로\"…해양보호생물 고래고기 유통관리 '구멍'",
-     "source": "연합뉴스",
-     "at": "2026-10-06 08:55",
-     "link": "https://www.yna.co.kr/view/AKR20261006031800055"
-    },
-    {
-     "title": "마약 공급망 원천차단…밀수·제조사범 검거 34%↑",
-     "source": "연합뉴스TV",
-     "at": "2026-10-05 13:56",
-     "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE4tekFFdmxaTC1paHdWVWlTT2dKbWY3TkRoeXlsV2NxVVVNTWxpLUFVVW5uSFdOUjNNVi1oOFJKWU92R2JTc2N5c1hXalpDTWhteURTQW4wZU9PQzJnQy04dGFEN3IzNG8?oc=5"
-    },
-    {
-     "title": "경찰, 마약 공급망 집중 수사…밀수·제조범 검거 33.8%↑",
-     "source": "머니투데이",
-     "at": "2026-10-05 09:00",
-     "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTE14YnFEQmNkNlU3SGJYUjZ6NmxaU0FMX2ZEWDI1VEFTVWVpWkdLdjB6X19uWmExNUJpd0U1b0ZBN1g1anZHODVRbzVNTnl0WDlwQnJ6SS1lZmFjMXc1dlUwLXVMZUxlQUxRRHNJ0gFwQVVfeXFMTzVhQTlwWHZlbHBraThZa0V2bEJNLUJDeWlVT3VEMWllelBVWHY5eUhFTkhYZmZxWlJKLThPc0pMQjNUb1lyWk42VVd5bkVkVkRUd1RLNER2RU5pOTZsWFZWbzJnbFR3UjE4UXU5SGN1LQ?oc=5"
-    }
-   ]
-  },
-  {
-   "keyword": "관세",
-   "title": "대미투자 산 넘어 산…미 압박에 관세불안까지 고조",
-   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFB2Zmp0dDFtazdvaFhIZGo2aV9SdEZUUlRUd05nd0Q3bkVZejRvemNZZnNsSUhJRUFmcUxrWXNWM3d6TFhHcGJ1VnJZU05QX1lnakRMSHlWcGxmUDJZenB1c3NVUWJuZ0k?oc=5",
-   "source": "연합뉴스TV",
-   "time": "21시간 전",
-   "impact": 44,
-   "tag": "관세",
-   "topic": "tariff",
-   "sectors": [
+    "ship",
+    "chem",
     "auto"
    ],
-   "score": 43.9,
+   "score": 45.65,
    "reports": 14,
-   "prev": 17,
-   "up": 6,
-   "down": 2,
-   "neutral": 6,
-   "summary": "",
+   "prev": 4,
+   "up": 0,
+   "down": 0,
+   "neutral": 14,
+   "summary": "Shipments of liquefied natural gas through the Strait of Hormuz extended a rebound that began in September, as the regio",
    "parts": {
-    "volume": 0.527,
-    "momentum": 0.429,
-    "relevance": 0.75
+    "volume": 0.576,
+    "momentum": 0.421,
+    "relevance": 0.721
    },
    "trend": [
-    14,
-    9,
-    5,
-    17,
-    14
+    3,
+    4,
+    2,
+    4,
+    3
    ],
    "leadRelevance": 1,
    "articles": [
     {
-     "title": "대미투자 산 넘어 산…미 압박에 관세불안까지 고조",
-     "source": "연합뉴스TV",
-     "at": "2026-10-05 15:53",
-     "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFB2Zmp0dDFtazdvaFhIZGo2aV9SdEZUUlRUd05nd0Q3bkVZejRvemNZZnNsSUhJRUFmcUxrWXNWM3d6TFhHcGJ1VnJZU05QX1lnakRMSHlWcGxmUDJZenB1c3NVUWJuZ0k?oc=5"
+     "title": "LNG Trade Through Hormuz Extends Rebound Despite Shipping Risks",
+     "lang": "en",
+     "source": "gCaptain",
+     "outlets": 2,
+     "at": "2026-10-05 22:15",
+     "link": "https://gcaptain.com/lng-trade-through-hormuz-extends-rebound-despite-shipping-risks/"
     },
     {
-     "title": "자동차, 미 관세 10조 타격…부품사 ‘납품단가’ 부담 전가 우려",
-     "source": "경향신문",
-     "at": "2026-10-04 20:53",
-     "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5BenNZMlM4cTc2SURmS2FVRU5jY0tGNERnU3V1OTNVOXpjdnpNbkczMmRzTG1jeGJ0aVdFNkF6bV9xYXR3bUlYdml2cF9PR094c3lrMXFUbFZld9IBX0FVX3lxTE8xWkN4MzcwZG92ZEYzMkdLZzhHUG1TamJsSnN3bFhvS2V1RDhaYWJUYm5kazRpczhFTUJUcVpYUVVVV2c4NHFZVk9CLUtVNlRPV1YtU2pJMlNPemgza3JB?oc=5"
+     "title": "상선까지 덮친 드론 위협…해운사 방어 투자 확대",
+     "source": "한국경제",
+     "outlets": 1,
+     "at": "2026-10-06 08:30",
+     "link": "https://www.hankyung.com/article/202610064355i"
     },
     {
-     "title": "관세 근거 세 번 바뀌어도 자동차는 15%…10조원 부담, 부품사로 번지나",
-     "source": "경향신문",
-     "at": "2026-10-04 15:52",
-     "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE11Um56WC1aY2JEOXFBbVhsR0JiTjU5elFvc2pERVo4UzB4MkpqME02S0pGTklWa20ySFhPd2dTOVRKUHpUUktrQTBKM04wdGt1T05GLXp3UWZ0V3k3V0Vv0gFfQVVfeXFMTXVSbnpYLVpjYkQ5cUFtWGxHQmJONTl6UW9zakRFWjhTMHgySmowTTZLSkZOSVZrbTJIWE93Z1M5VEpQelRSS2tBMEozTjB0a3VPTkYtendRZnRXeTdXRW8?oc=5"
+     "title": "그리스 해운·기자재 업계, 조선 강국 한국을 찾다.",
+     "source": "정책브리핑",
+     "outlets": 1,
+     "at": "2026-10-04 09:35",
+     "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOYlQ5b1NhblZWbDdFZGtTNm42OFdKQlpxZ0RpTGZKRUdNMHZjSEJQYndhazNRaXRMMS16WEQwYVFYX1dvWUFqX2NVR1B5bl9JZS1CVUlnWnROTi12YXRrcnl5T3V1U1RfdkFGakJYUmpHVy1TVXJ3ZWpOQ25IUENGSkJkWVI?oc=5"
     },
     {
-     "title": "김정관 “대미 투자로 15% 관세 상한선 재확인…혈세 한 푼도 허투루 안써”",
-     "source": "동아일보",
-     "at": "2026-10-01 09:08",
-     "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTFBwNTBuUHpSQnZXQ3dXaVQwSGZCYzU0M2FNNEJFdG04QmtZd3p6a0ktZnVHSlBsb1d1ckRkb2o2QUpxTjA0bzV5d1BtM3BucjhFSVo2S2tIUDlCNEVXWHhBZV9Cdmw4d9IBZkFVX3lxTFBwNTBuUHpSQnZXQ3dXaVQwSGZCYzU0M2FNNEJFdG04QmtZd3p6a0ktZnVHSlBsb1d1ckRkb2o2QUpxTjA0bzV5d1BtM3BucjhFSVo2S2tIUDlCNEVXWHhBZV9Cdmw4dw?oc=5"
+     "title": "위기의 해운업 정책금융 18조로 재건…해양강국 향해 출항",
+     "source": "한국경제",
+     "outlets": 1,
+     "at": "2026-10-05 16:08",
+     "link": "https://www.hankyung.com/article/2026100532111"
     }
-   ]
+   ],
+   "move": -1
   },
   {
    "keyword": "FTA·통상협정",
@@ -1879,13 +2053,13 @@ window.TC_DATA = {
    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE40SU5XMndWSVZLRG1ncU5WZ3hBTDJZcWE0UUd5Z005VEFRcVRKSmVxbWJ3ZW4tcmpmRERnYTdDNFhwUzRVT21IdmxlS3piZTdwRExBZENkQXkwLXV2MS1wUmlyQkRMZFJmTl9rUw?oc=5",
    "source": "대한민국 정책브리핑",
    "time": "2일 전",
-   "impact": 43,
+   "impact": 42,
    "tag": "FTA·통상협정",
    "topic": "agreement",
    "sectors": [
     "ship"
    ],
-   "score": 42.85,
+   "score": 42.15,
    "reports": 11,
    "prev": 23,
    "up": 0,
@@ -1893,8 +2067,8 @@ window.TC_DATA = {
    "neutral": 10,
    "summary": "",
    "parts": {
-    "volume": 0.509,
-    "momentum": 0.388,
+    "volume": 0.505,
+    "momentum": 0.374,
     "relevance": 0.827
    },
    "trend": [
@@ -1909,139 +2083,243 @@ window.TC_DATA = {
     {
      "title": "한미 FTA, 더 미뤄서는 안 돼",
      "source": "대한민국 정책브리핑",
+     "outlets": 1,
      "at": "2026-10-04 02:47",
      "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE40SU5XMndWSVZLRG1ncU5WZ3hBTDJZcWE0UUd5Z005VEFRcVRKSmVxbWJ3ZW4tcmpmRERnYTdDNFhwUzRVT21IdmxlS3piZTdwRExBZENkQXkwLXV2MS1wUmlyQkRMZFJmTl9rUw?oc=5"
     },
     {
      "title": "US, India Officials Signal Trade Deal Talks at an Impasse",
+     "lang": "en",
      "source": "Bloomberg",
+     "outlets": 1,
      "at": "2026-10-05 16:39",
      "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxOcVE1LUh3N29JRWt5a0lIXzZUVTIzUkx4VHBUbGRrUHFJaHVnWm0ycG0wQUhSZDItSkFKZ0hnNTdDN0FFbmRiWUtRRTFkVkJwTE54YjZZSndUcy1qMmZaMU5tM0d5SWhSWGpVcENwLUw3QXNuLVZHNFBLbUFvUzJ3azBPRXN1OUd1UjNzNTl6Zms1dGl1Q3FxaTNxRHNSQmZpNVVLaUJaMkVNZTdXSGdsbXdqVEE?oc=5"
     },
     {
      "title": "CPTPP 가입 효과, 5년 새 제조업 3.7배로…농업 피해도 1.6배",
      "source": "뉴시스",
+     "outlets": 1,
      "at": "2026-10-04 07:00",
      "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE01Nk1EVUR3d0twb2ctLUxhMXFSZXgtMHl6SFFGbC05Mk5QZjFuTU56dVZ0OHZSLTlLNFZRejBtNkEyU0Rna3VEc0hqdXpIOXAtOEhhcENFX1ppN0s5NTVzR0xPUF9NTExHOXpvM19vcERRRFVNRDZYStIBeEFVX3lxTE01Nk1EVUR3d0twb2ctLUxhMXFSZXgtMHl6SFFGbC05Mk5QZjFuTU56dVZ0OHZSLTlLNFZRejBtNkEyU0Rna3VEc0hqdXpIOXAtOEhhcENFX1ppN0s5NTVzR0xPUF9NTExHOXpvM19vcERRRFVNRDZYSg?oc=5"
     },
     {
      "title": "[정책 인사이트] ‘아시아·태평양 FTA’ 검토하는 정부… “효율성 있는 농어업 지원 방안 고민해야”",
      "source": "Chosunbiz",
+     "outlets": 1,
      "at": "2026-10-04 06:03",
      "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxQdUJkQU5Kcm1lcTlEMUZpSTZBWUV3bVVnbVZnMldHd2VmY1VsR1VFUHV0UTJ3bjRrYmNKeEp2Wi1lN2hpLWhHMl9sbTlqY3JJbW0zVlg1U2c4dWloWVB1X1hkTlAtTFZIcTRDMkVSZHlPbmxXY200ejFBMS1xckNzVHByNl9OZ9IBmgFBVV95cUxON1NZRDVzQ2dJbGdiOHYzSFF1NzVpOGpFRnJpQ0tzSkNSWTdSM0FkdkxINUNLdkJMN2Fjb2JydXo2RG5MbUJTMlRWSENxaWRhSHVSMXNzN3BiZGJWMDVkLXBLV1Nzc1kySm9VdHJhZkVzc2ZCZ0ZwVFZyclBraDE0WnU2Njg2ZGVoRzRmbVBxWWtZTnM0RUFQNFF3?oc=5"
     }
-   ]
-  },
-  {
-   "keyword": "해운·물류",
-   "title": "상선까지 덮친 드론 위협…해운사 방어 투자 확대",
-   "link": "https://www.hankyung.com/article/202610064355i",
-   "source": "한국경제",
-   "time": "4시간 전",
-   "impact": 41,
-   "tag": "해운·물류",
-   "topic": "shipping",
-   "sectors": [
-    "ship",
-    "chem"
    ],
-   "score": 41.36,
-   "reports": 9,
-   "prev": 4,
-   "up": 1,
-   "down": 1,
-   "neutral": 7,
-   "summary": "",
-   "parts": {
-    "volume": 0.449,
-    "momentum": 0.428,
-    "relevance": 0.844
-   },
-   "trend": [
-    3,
-    4,
-    2,
-    4,
-    3
-   ],
-   "leadRelevance": 1,
-   "articles": [
-    {
-     "title": "상선까지 덮친 드론 위협…해운사 방어 투자 확대",
-     "source": "한국경제",
-     "at": "2026-10-06 08:30",
-     "link": "https://www.hankyung.com/article/202610064355i"
-    },
-    {
-     "title": "그리스 해운·기자재 업계, 조선 강국 한국을 찾다.",
-     "source": "정책브리핑",
-     "at": "2026-10-04 09:35",
-     "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOYlQ5b1NhblZWbDdFZGtTNm42OFdKQlpxZ0RpTGZKRUdNMHZjSEJQYndhazNRaXRMMS16WEQwYVFYX1dvWUFqX2NVR1B5bl9JZS1CVUlnWnROTi12YXRrcnl5T3V1U1RfdkFGakJYUmpHVy1TVXJ3ZWpOQ25IUENGSkJkWVI?oc=5"
-    },
-    {
-     "title": "위기의 해운업 정책금융 18조로 재건…해양강국 향해 출항",
-     "source": "한국경제",
-     "at": "2026-10-05 16:08",
-     "link": "https://www.hankyung.com/article/2026100532111"
-    },
-    {
-     "title": "[단독] 한앤코, SK해운 매각 대신 IPO로 선회",
-     "source": "한국경제",
-     "at": "2026-10-02 17:26",
-     "link": "https://www.hankyung.com/article/2026100209441"
-    }
-   ]
+   "move": -9
   }
  ],
  "news": [
   {
    "time": "10.06",
-   "clock": "09:05",
-   "at": "2026-10-06T00:05:00.000Z",
-   "rank": 5,
+   "clock": "11:44",
+   "at": "2026-10-06T02:44:43.000Z",
+   "rank": 9,
    "source": "연합뉴스",
    "outlets": 1,
-   "tag": "통관·원산지",
-   "title": "울산보건환경연구원, 가축질병 진단능력 평가 모든 분야 '적합'",
-   "link": "https://www.yna.co.kr/view/AKR20261005058900057",
-   "summary": "울산시 보건환경연구원은 농림축산검역본부가 실시한 '2026년 가축질병 진단능력 정도관리 평가'에서 평가 대상 ...",
-   "direction": "neutral",
-   "sectors": [],
-   "issue": "통관·원산지",
-   "issueReports": 10,
-   "trend": [
-    9,
-    10,
-    4,
-    6,
-    7
+   "tag": "유가·원자재",
+   "title": "정부 \"11월 원유 90% 이상 확보…나프타도 90% 이상\"",
+   "link": "https://www.yna.co.kr/view/AKR20261006087900003",
+   "summary": "산업통상부는 11월 원유 물량을 전년 평균 대비 90% 이상 확보했다고 밝혔다.",
+   "direction": "info",
+   "sectors": [
+    "chem"
    ],
-   "why": "통관·원산지 이슈 · 이번 주 10건 보도",
+   "issue": "유가·원자재",
+   "issueReports": 15,
+   "trend": [
+    3,
+    7,
+    4,
+    2,
+    6
+   ],
+   "why": "유가·원자재 이슈 · 이번 주 15건 보도 · 석유화학·에너지 영향권",
    "stocks": []
   },
   {
    "time": "10.06",
-   "clock": "08:55",
-   "at": "2026-10-05T23:55:43.000Z",
-   "rank": 6,
-   "source": "연합뉴스",
+   "clock": "11:36",
+   "at": "2026-10-06T02:36:17.000Z",
+   "rank": 5,
+   "source": "SBS",
    "outlets": 1,
-   "tag": "통관·원산지",
-   "title": "\"위판 따로 판매 따로\"…해양보호생물 고래고기 유통관리 '구멍'",
-   "link": "https://www.yna.co.kr/view/AKR20261006031800055",
-   "summary": "현행법상 포획과 유통이 금지된 해양보호생물 고래의 고기가 버젓이 판매되고 있는 것으로 드러났다.",
+   "tag": "관세",
+   "title": "\"낮은 관세 영향\" 영국 초토화…다음 타자는 한국?",
+   "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9Yb2Ywd3NiVUxhelVNUkhuenJjLTFmRTBaTlpKY0NXTE81NjZIaVZpQjhyTkRFMWxhd2FKTkswT3gtaDBtNlJwakRCclpGNm9ZWU5TR1lfNGZTMGo2UmttNEFXajZ3NjBuUHfSAWZBVV95cUxQTjVmNDVmRFF4VGl1emdhTlV6LWk4THBZWGczZmFtdzN3dFhVcExuMHJCcTkzdXBPRVBYN191d0tvWU5QLWFsYTlja3loWElpM0x4WHBVYlV6aEdHLU5MdDJsaUs5OEE?oc=5",
+   "summary": "",
+   "direction": "neutral",
+   "sectors": [],
+   "issue": "관세",
+   "issueReports": 18,
+   "trend": [
+    14,
+    9,
+    5,
+    17,
+    17
+   ],
+   "why": "관세 이슈 · 이번 주 18건 보도",
+   "stocks": []
+  },
+  {
+   "time": "10.06",
+   "clock": "10:42",
+   "at": "2026-10-06T01:42:28.000Z",
+   "rank": 13,
+   "source": "아시아경제",
+   "outlets": 1,
+   "tag": "공급망·핵심광물",
+   "title": "[2026국감]김정관 \"자원안보 더 단단히\"…원유 非중동산 50%·핵심광물 365일 비축",
+   "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFB1eHpvVnhnZnlGTjBzSjRrLVNMcUFOUkQ2UHhfLUZXWURqZm9FcHpGZ2JnUTFucUdLRGFMa1dfSFJid19EcEZRX2hRNEhoSHg0NzlVQjVvTEpoa2xzU2FRcg?oc=5",
+   "summary": "김정관 \"자원안보 더 단단히\"…원유 非중동산 50%·핵심광물 365일 비축 아시아경제",
+   "direction": "info",
+   "sectors": [
+    "steel",
+    "chem"
+   ],
+   "issue": "중동 공급망·핵심광물",
+   "issueReports": 2,
+   "trend": [
+    0,
+    1,
+    2,
+    0,
+    1
+   ],
+   "why": "중동 공급망·핵심광물 이슈 · 이번 주 2건 보도 · 철강·금속·석유화학·에너지 영향권",
+   "stocks": []
+  },
+  {
+   "time": "10.06",
+   "clock": "10:16",
+   "at": "2026-10-06T01:16:17.000Z",
+   "rank": 14,
+   "source": "마켓인",
+   "outlets": 1,
+   "tag": "관세",
+   "title": "이형일 “대미 관세·CPTPP 불확실성 최소화…공정과세 실현”",
+   "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE5CZFFtQklaUjJFZzF5LUFVdjhYVHRkaENMSktSbDVwM1ppTnhOV0FDYk5WSFpsNi04cV85T1JIejNQY3VHdzYtd2lZcmNEZ3RuRGc1bUdhZG9KclZ4YUpQZElvbVFqVjM4MWo1OHpYOXRKdjg?oc=5",
+   "summary": "",
+   "direction": "neutral",
+   "sectors": [],
+   "issue": "관세",
+   "issueReports": 18,
+   "trend": [
+    14,
+    9,
+    5,
+    17,
+    17
+   ],
+   "why": "관세 이슈 · 이번 주 18건 보도",
+   "stocks": []
+  },
+  {
+   "time": "10.06",
+   "clock": "10:07",
+   "at": "2026-10-06T01:07:00.000Z",
+   "rank": 15,
+   "source": "YTN",
+   "outlets": 1,
+   "tag": "관세",
+   "title": "\"관세 2배로 올린다\" 협박한 트럼프에 부통령은 \"조율 남았다\" [자막뉴스]",
+   "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE9rYkE1QTAtOE0tOWRfblZSYzloVnF2dEFIUEJtc25HaldxV19teDNOWTQybU9uU2dYcUtFeFd0Wm9zY3VEbkRVQ3htVnYzcEdKSjhPQzJDcUtPb3lza1E?oc=5",
+   "summary": "",
    "direction": "up",
    "sectors": [],
-   "issue": "통관·원산지",
-   "issueReports": 10,
+   "issue": "미국 관세",
+   "issueReports": 77,
    "trend": [
-    9,
-    10,
-    4,
-    6,
-    7
+    37,
+    48,
+    35,
+    21,
+    67
    ],
-   "why": "통관·원산지 이슈 · 이번 주 10건 보도",
+   "why": "미국 관세 이슈 · 이번 주 77건 보도",
+   "stocks": []
+  },
+  {
+   "time": "10.06",
+   "clock": "09:26",
+   "at": "2026-10-06T00:26:22.000Z",
+   "rank": 10,
+   "source": "아시아경제",
+   "outlets": 1,
+   "tag": "공급망·핵심광물",
+   "title": "Busan Youth Startup Breaks Into Dolce & Gabbana Supply Chain... Korea's First Commercial Digital Product Passport Launched",
+   "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE83RWZTYklBNjdhZ0R2X3JSMkV2S1R2VS0yM2pGRk82YVlldWJmd1R3T3UyNVo0Qkp4cHlydFRqaS1FTVdjbnkyeUFGRUVjMGE5eGNTTDJoZjh3cXpIN2xJcUtDWTk?oc=5",
+   "lang": "en",
+   "summary": "",
+   "direction": "info",
+   "sectors": [],
+   "issue": "공급망·핵심광물",
+   "issueReports": 45,
+   "trend": [
+    32,
+    21,
+    44,
+    20,
+    45
+   ],
+   "why": "공급망·핵심광물 이슈 · 이번 주 45건 보도",
+   "stocks": []
+  },
+  {
+   "time": "10.06",
+   "clock": "09:21",
+   "at": "2026-10-06T00:21:20.000Z",
+   "rank": 16,
+   "source": "머니투데이",
+   "outlets": 1,
+   "tag": "관세",
+   "title": "CPTPP, 농산물 관세만의 문제 아니다…농가 지원·검역도 '시험대'",
+   "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBXTE9MVHlldjRjNjBzemQ5aTdKaDhoNUxlemlJdUpQVThoeDVpY3U0cmsyajlKSEpZcWlnWF9LRGhDbkNfbDJoX1ZzcXB0eDA2VG1yZDZMWndaV3dvTFFJal9DM3l0NWVxaHBn0gFwQVVfeXFMT01MMWdvWndLelFKczYwbFZ4T2dHbXFjbWQ5S0s1SkJXSU15SlRWb09iU2lxUlFKS0c1SGlGMVJ5ajg0YkdlVGd4VDF1aWpFeXNUVGNGMHlhSl9TTjJzTmdnV0VZY0JrUk5sZXJ4cWJTRg?oc=5",
+   "summary": "",
+   "direction": "neutral",
+   "sectors": [
+    "consumer"
+   ],
+   "issue": "관세",
+   "issueReports": 18,
+   "trend": [
+    14,
+    9,
+    5,
+    17,
+    17
+   ],
+   "why": "관세 이슈 · 이번 주 18건 보도 · 소비재·농식품 영향권",
+   "stocks": []
+  },
+  {
+   "time": "10.06",
+   "clock": "08:56",
+   "at": "2026-10-05T23:56:26.000Z",
+   "rank": 7,
+   "source": "전자신문",
+   "outlets": 2,
+   "tag": "공급망·핵심광물",
+   "title": "서상덕 S2W 대표, 韓-英 공급망 보안 협력 제안",
+   "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE51dXo0SWpueXdhd3l6N0hrLVFqYnU0NGJEWERoeTR4MGpyRlNlVHhsb3c5QmlEdF9LaUpzWWNOYk9WVmtGNjhVV28wUXlzQQ?oc=5",
+   "summary": "",
+   "direction": "info",
+   "sectors": [],
+   "issue": "공급망·핵심광물",
+   "issueReports": 45,
+   "trend": [
+    32,
+    21,
+    44,
+    20,
+    45
+   ],
+   "why": "공급망·핵심광물 이슈 · 이번 주 45건 보도",
    "stocks": []
   },
   {
@@ -2055,12 +2333,12 @@ window.TC_DATA = {
    "title": "상선까지 덮친 드론 위협…해운사 방어 투자 확대",
    "link": "https://www.hankyung.com/article/202610064355i",
    "summary": "",
-   "direction": "up",
+   "direction": "info",
    "sectors": [
     "ship"
    ],
    "issue": "해운·물류",
-   "issueReports": 9,
+   "issueReports": 14,
    "trend": [
     3,
     4,
@@ -2068,14 +2346,14 @@ window.TC_DATA = {
     4,
     3
    ],
-   "why": "해운·물류 이슈 · 이번 주 9건 보도 · 조선·해운물류 영향권",
+   "why": "해운·물류 이슈 · 이번 주 14건 보도 · 조선·해운물류 영향권",
    "stocks": []
   },
   {
    "time": "10.06",
    "clock": "08:13",
    "at": "2026-10-05T23:13:05.000Z",
-   "rank": 7,
+   "rank": 3,
    "source": "연합뉴스",
    "outlets": 1,
    "tag": "환율",
@@ -2085,27 +2363,28 @@ window.TC_DATA = {
    "direction": "info",
    "sectors": [],
    "issue": "환율",
-   "issueReports": 23,
+   "issueReports": 24,
    "trend": [
     30,
     16,
     13,
     10,
-    15
+    16
    ],
-   "why": "환율 이슈 · 이번 주 23건 보도",
+   "why": "환율 이슈 · 이번 주 24건 보도",
    "stocks": []
   },
   {
    "time": "10.06",
    "clock": "07:24",
    "at": "2026-10-05T22:24:36.000Z",
-   "rank": 11,
+   "rank": 17,
    "source": "조선일보",
    "outlets": 1,
    "tag": "유가·원자재",
    "title": "Vance: South Korea's Alaska LNG Investment to Proceed",
    "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPNHJKT1FOaGhsRklqR2ZvR0w3d2VndjBicXF0M2ZaZkhlMHo1Ym5sV3Q3OGFCWUt2UWYxaHF2ejRaT01ubndkbzRwSkIyUUh2djczRjJPNVRHVEh3UUxCRU16NkJjVndqSzI1V3NKUXQxaElPVUNIN3ZwOXZhVlpNenpIdXk?oc=5",
+   "lang": "en",
    "summary": "",
    "direction": "info",
    "sectors": [
@@ -2113,7 +2392,7 @@ window.TC_DATA = {
     "ship"
    ],
    "issue": "유가·원자재",
-   "issueReports": 12,
+   "issueReports": 15,
    "trend": [
     3,
     7,
@@ -2121,14 +2400,14 @@ window.TC_DATA = {
     2,
     6
    ],
-   "why": "유가·원자재 이슈 · 이번 주 12건 보도 · 석유화학·에너지·조선·해운물류 영향권",
+   "why": "유가·원자재 이슈 · 이번 주 15건 보도 · 석유화학·에너지·조선·해운물류 영향권",
    "stocks": []
   },
   {
    "time": "10.06",
    "clock": "04:57",
    "at": "2026-10-05T19:57:06.000Z",
-   "rank": 9,
+   "rank": 6,
    "source": "연합뉴스",
    "outlets": 1,
    "tag": "유가·원자재",
@@ -2140,7 +2419,7 @@ window.TC_DATA = {
     "chem"
    ],
    "issue": "중동 유가·원자재",
-   "issueReports": 13,
+   "issueReports": 15,
    "trend": [
     0,
     1,
@@ -2148,14 +2427,14 @@ window.TC_DATA = {
     0,
     2
    ],
-   "why": "중동 유가·원자재 이슈 · 이번 주 13건 보도 · 석유화학·에너지 영향권",
+   "why": "중동 유가·원자재 이슈 · 이번 주 15건 보도 · 석유화학·에너지 영향권",
    "stocks": []
   },
   {
    "time": "10.06",
    "clock": "04:55",
    "at": "2026-10-05T19:55:14.000Z",
-   "rank": 10,
+   "rank": 12,
    "source": "연합뉴스",
    "outlets": 1,
    "tag": "유가·원자재",
@@ -2167,7 +2446,7 @@ window.TC_DATA = {
     "chem"
    ],
    "issue": "중동 유가·원자재",
-   "issueReports": 13,
+   "issueReports": 15,
    "trend": [
     0,
     1,
@@ -2175,14 +2454,14 @@ window.TC_DATA = {
     0,
     2
    ],
-   "why": "중동 유가·원자재 이슈 · 이번 주 13건 보도 · 석유화학·에너지 영향권",
+   "why": "중동 유가·원자재 이슈 · 이번 주 15건 보도 · 석유화학·에너지 영향권",
    "stocks": []
   },
   {
    "time": "10.06",
    "clock": "03:00",
    "at": "2026-10-05T18:00:24.000Z",
-   "rank": 3,
+   "rank": 8,
    "source": "연합뉴스",
    "outlets": 1,
    "tag": "유가·원자재",
@@ -2207,34 +2486,38 @@ window.TC_DATA = {
   },
   {
    "time": "10.05",
-   "clock": "19:48",
-   "at": "2026-10-05T10:48:02.000Z",
-   "rank": 17,
-   "source": "연합뉴스",
-   "outlets": 1,
-   "tag": "수출입 동향",
-   "title": "인도 재무장관 \"대미 무역협상 정체기…양보·타협 어려워\"",
-   "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE53X2xTSXVPRkJoOWw2WVpFRlBxMk1WNndVb3o1ejJpQW82RlRjeWZQWkt3cnpjUjBLejVpYkRibzFjdDdXbnZlLUJNaHZjLXY1V2g2U0FQNVl4Wk5WUjlNVdIBYEFVX3lxTE53X2xTSXVPRkJoOWw2WVpFRlBxMk1WNndVb3o1ejJpQW82RlRjeWZQWkt3cnpjUjBLejVpYkRibzFjdDdXbnZlLUJNaHZjLXY1V2g2U0FQNVl4Wk5WUjlNVQ?oc=5",
-   "summary": "",
-   "direction": "neutral",
-   "sectors": [],
-   "issue": "수출입 동향",
-   "issueReports": 54,
-   "trend": [
-    31,
-    17,
-    30,
-    9,
-    47
+   "clock": "22:15",
+   "at": "2026-10-05T13:15:36.000Z",
+   "rank": 2,
+   "source": "gCaptain",
+   "outlets": 2,
+   "tag": "해운·물류",
+   "title": "LNG Trade Through Hormuz Extends Rebound Despite Shipping Risks",
+   "link": "https://gcaptain.com/lng-trade-through-hormuz-extends-rebound-despite-shipping-risks/",
+   "lang": "en",
+   "summary": "Shipments of liquefied natural gas through the Strait of Hormuz extended a rebound that began in September, as the regio",
+   "direction": "info",
+   "sectors": [
+    "chem",
+    "ship"
    ],
-   "why": "수출입 동향 이슈 · 이번 주 54건 보도",
+   "issue": "해운·물류",
+   "issueReports": 14,
+   "trend": [
+    3,
+    4,
+    2,
+    4,
+    3
+   ],
+   "why": "해운·물류 이슈 · 이번 주 14건 보도 · 석유화학·에너지·조선·해운물류 영향권",
    "stocks": []
   },
   {
    "time": "10.05",
    "clock": "17:22",
    "at": "2026-10-05T08:22:11.000Z",
-   "rank": 1,
+   "rank": 4,
    "source": "매일경제",
    "outlets": 2,
    "tag": "FTA·통상협정",
@@ -2257,34 +2540,9 @@ window.TC_DATA = {
   },
   {
    "time": "10.05",
-   "clock": "16:12",
-   "at": "2026-10-05T07:12:32.000Z",
-   "rank": 8,
-   "source": "매일경제",
-   "outlets": 2,
-   "tag": "경제제재",
-   "title": "[단독] 美 블랙리스트 中기업에...‘안보’ 검토 없이 발전사업 허가",
-   "link": "https://www.mk.co.kr/news/economy/12168468",
-   "summary": "CGN, 美제재 기업 분류됐는데 전기위원회 2021년 발전승인 허가 이전 산업부 고위직 영입도 英, 신규원전 사업서 CGN 배제 日도 ‘핵 우려기업’ 별도 관리미국 정부 블랙리스..",
-   "direction": "neutral",
-   "sectors": [],
-   "issue": "미국 경제제재",
-   "issueReports": 9,
-   "trend": [
-    3,
-    3,
-    6,
-    2,
-    4
-   ],
-   "why": "미국 경제제재 이슈 · 이번 주 9건 보도",
-   "stocks": []
-  },
-  {
-   "time": "10.05",
    "clock": "15:41",
    "at": "2026-10-05T06:41:36.000Z",
-   "rank": 2,
+   "rank": 1,
    "source": "정책브리핑",
    "outlets": 1,
    "tag": "공급망·핵심광물",
@@ -2294,145 +2552,40 @@ window.TC_DATA = {
    "direction": "info",
    "sectors": [],
    "issue": "공급망·핵심광물",
-   "issueReports": 39,
+   "issueReports": 45,
    "trend": [
     32,
     21,
     44,
     20,
-    39
+    45
    ],
-   "why": "공급망·핵심광물 이슈 · 이번 주 39건 보도",
+   "why": "공급망·핵심광물 이슈 · 이번 주 45건 보도",
    "stocks": []
   },
   {
    "time": "10.05",
-   "clock": "11:10",
-   "at": "2026-10-05T02:10:15.000Z",
-   "rank": 15,
-   "source": "연합뉴스",
-   "outlets": 1,
-   "tag": "공급망·핵심광물",
-   "title": "'코브라' 헬기 명가 벨텍스트론 방한…K-항공부품 러브콜",
-   "link": "https://www.yna.co.kr/view/AKR20261005026700003",
-   "summary": "미국의 글로벌 항공우주 기업인 벨 텍스트론이 국내 소부장(소재·부품·장비) 기업과의 공급망 협력을 위해 방한했...",
-   "direction": "info",
-   "sectors": [
-    "machinery"
-   ],
-   "issue": "미국 공급망·핵심광물",
-   "issueReports": 9,
-   "trend": [
-    7,
-    4,
-    3,
-    6,
-    6
-   ],
-   "why": "미국 공급망·핵심광물 이슈 · 이번 주 9건 보도 · 기계·전자 영향권",
-   "stocks": []
-  },
-  {
-   "time": "10.05",
-   "clock": "10:48",
-   "at": "2026-10-05T01:48:24.000Z",
-   "rank": 16,
-   "source": "연합뉴스",
-   "outlets": 1,
-   "tag": "해운·물류",
-   "title": "호르무즈 봉쇄 후 3번째 한국 선박 수에즈운하로 원유 운송",
-   "link": "https://www.yna.co.kr/view/AKR20261005025400051",
-   "summary": "홍해 북쪽 수에즈운하를 통과한 한국 유조선이 국내로 원유를 운송 중이라고 해양수산부가 5일 밝혔다.",
-   "direction": "info",
-   "sectors": [
-    "ship",
-    "chem"
-   ],
-   "issue": "중동 해운·물류",
-   "issueReports": 3,
-   "trend": [
-    0,
-    3,
-    2,
-    0,
-    0
-   ],
-   "why": "중동 해운·물류 이슈 · 이번 주 3건 보도 · 조선·해운물류·석유화학·에너지 영향권",
-   "stocks": []
-  },
-  {
-   "time": "10.05",
-   "clock": "09:11",
-   "at": "2026-10-05T00:11:29.000Z",
-   "rank": 4,
-   "source": "동아일보",
+   "clock": "08:01",
+   "at": "2026-10-04T23:01:01.000Z",
+   "rank": 11,
+   "source": "이데일리",
    "outlets": 2,
-   "tag": "통관·원산지",
-   "title": "‘마약왕’ 박왕열 잡고 공급망 추적까지…밀수·제조사범 검거 34% 증가",
-   "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTFBjcVlBZkZNVU9ESW9aNHdEU09hNTFya21uQ3JlYXJJX1RGWHgzQ2lyNUZ4QnhfUWlESVI5UFlGNTlnTTNXMnZFRnNxTjZ6R2I1MEhPY29qTVNxek9MOXhCY01EbmpLQdIBZkFVX3lxTFBjcVlBZkZNVU9ESW9aNHdEU09hNTFya21uQ3JlYXJJX1RGWHgzQ2lyNUZ4QnhfUWlESVI5UFlGNTlnTTNXMnZFRnNxTjZ6R2I1MEhPY29qTVNxek9MOXhCY01EbmpLQQ?oc=5",
-   "summary": "",
-   "direction": "neutral",
-   "sectors": [],
-   "issue": "통관·원산지",
-   "issueReports": 10,
-   "trend": [
-    9,
-    10,
-    4,
-    6,
-    7
-   ],
-   "why": "통관·원산지 이슈 · 이번 주 10건 보도",
-   "stocks": []
-  },
-  {
-   "time": "10.04",
-   "clock": "13:54",
-   "at": "2026-10-04T04:54:36.000Z",
-   "rank": 12,
-   "source": "마켓인",
-   "outlets": 3,
    "tag": "관세",
-   "title": "트럼프 \"美에 공장 안 지으면 관세 300%…1년 반 기회 준다\"",
-   "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9lZ3owRHYzTUx2V0ZzNDhCLXludWxtUmZObU9FVWVJVnB0YklvVEZUVXF4Z1UtS3EtS2R3cmpNQU5BRlpqRlJxUElWRlJmOThUajNseDg3VTNKc1JaVWVfTThJeFQxamxOdDJ0WGFiLWp1N2s?oc=5",
+   "title": "美 의약품 관세 발효…삼성에피스, 테바와 시밀러 동맹 확대 [바이오 주간 결산]",
+   "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPWEQwcUxqeWJldHNOZnN2V1FBa19oN2w1RFUxWkRpd2RpcU9yby1KTjQzbHpWOWpRUW1jZlc4bGVUenlqbkluYndJbGZjZU5BZUtYTG43TTlWUkFQbGNLODdNcnVtUGZ0ODgtY0ttOEpCd1lrM0FMTU04TVJCZ2F6UQ?oc=5",
    "summary": "",
-   "direction": "neutral",
-   "sectors": [],
-   "issue": "미국 관세",
-   "issueReports": 76,
-   "trend": [
-    38,
-    48,
-    35,
-    21,
-    66
-   ],
-   "why": "미국 관세 이슈 · 이번 주 76건 보도",
-   "stocks": []
-  },
-  {
-   "time": "10.04",
-   "clock": "12:15",
-   "at": "2026-10-04T03:15:17.000Z",
-   "rank": 13,
-   "source": "매일경제",
-   "outlets": 3,
-   "tag": "관세",
-   "title": "[속보] 트럼프 “1년 반 안에 美공장 안 지으면 관세 300%까지 부과”",
-   "link": "https://news.google.com/rss/articles/CBMiVEFVX3lxTFBPb2ZfY004UXNuRDlzenJjbW0yQmRzUmRXNnBOSHJXdFhCM2VhSEhkR2prTjFjWXV2aDVwZDlrYkNGbVlZRGNIVWRJbFY1MlVheW5jcw?oc=5",
-   "summary": "트럼프 “1년 반 안에 美공장 안 지으면 관세 300%까지 부과” 매일경제",
    "direction": "up",
    "sectors": [],
    "issue": "미국 관세",
-   "issueReports": 76,
+   "issueReports": 77,
    "trend": [
-    38,
+    37,
     48,
     35,
     21,
-    66
+    67
    ],
-   "why": "미국 관세 이슈 · 이번 주 76건 보도",
+   "why": "미국 관세 이슈 · 이번 주 77건 보도",
    "stocks": []
   },
   {
@@ -2441,7 +2594,7 @@ window.TC_DATA = {
    "at": "2026-10-04T01:42:08.000Z",
    "rank": 0,
    "source": "연합뉴스",
-   "outlets": 7,
+   "outlets": 17,
    "tag": "관세",
    "title": "격전지 간 트럼프 \"美에 공장 안 지으면 관세 300%까지 부과\"",
    "link": "https://www.yna.co.kr/view/AKR20261004013900071",
@@ -2449,40 +2602,15 @@ window.TC_DATA = {
    "direction": "up",
    "sectors": [],
    "issue": "미국 관세",
-   "issueReports": 76,
+   "issueReports": 77,
    "trend": [
-    38,
+    37,
     48,
     35,
     21,
-    66
+    67
    ],
-   "why": "미국 관세 이슈 · 이번 주 76건 보도",
-   "stocks": []
-  },
-  {
-   "time": "10.04",
-   "clock": "08:32",
-   "at": "2026-10-03T23:32:40.000Z",
-   "rank": 14,
-   "source": "연합뉴스",
-   "outlets": 2,
-   "tag": "수출입 동향",
-   "title": "\"국내 펫푸드 시장 2.5조 규모…수입산 점유율 통계는 '없음'\"",
-   "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFAxR3YxOE82ZlRkM3ZscWRZTGRQY190ZThxVDM4RkNLeHpJakVLUG93bzhPYlVSR1MtRGRIX2ZmQm9XMHN0bU1TbmdEN3NzUjFCZmVUQW9OekxmZDJnbjBUV9IBYEFVX3lxTFAxR3YxOE82ZlRkM3ZscWRZTGRQY190ZThxVDM4RkNLeHpJakVLUG93bzhPYlVSR1MtRGRIX2ZmQm9XMHN0bU1TbmdEN3NzUjFCZmVUQW9OekxmZDJnbjBUVw?oc=5",
-   "summary": "",
-   "direction": "neutral",
-   "sectors": [],
-   "issue": "수출입 동향",
-   "issueReports": 54,
-   "trend": [
-    31,
-    17,
-    30,
-    9,
-    47
-   ],
-   "why": "수출입 동향 이슈 · 이번 주 54건 보도",
+   "why": "미국 관세 이슈 · 이번 주 77건 보도",
    "stocks": []
   },
   {
@@ -2516,6 +2644,13 @@ window.TC_DATA = {
  "risks": [
   {
    "level": "주의",
+   "title": "공급망·핵심광물",
+   "detail": "대·중소기업 협력 기반 기술사업화 R&D 지원… 공급망 자립화 기반 다진다",
+   "effect": "보도 45건 (+125%)",
+   "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNMDE3Z2dfeElkUzZXRk5JeEloME5CTDF1NTBaU1cyTkVXTlNrMTZ0YXpLNjVPX2pmNVE4aXhpSGVzYm9hRTQ0SWszMjExOTlSN1dJREc3SnhjcUVZeXpJQXo5R0xRVi0yelJBYTFfX2h2Q0VMZmwtV1FQUW5uMEFYRWRUZXNId293WUc0?oc=5"
+  },
+  {
+   "level": "주의",
    "title": "미국 유가·원자재",
    "detail": "美부통령 \"알래스카 LNG 사업, 한국과 세부사항 협의해야\"",
    "effect": "보도 32건 (신규)",
@@ -2523,31 +2658,24 @@ window.TC_DATA = {
   },
   {
    "level": "주의",
-   "title": "공급망·핵심광물",
-   "detail": "대·중소기업 협력 기반 기술사업화 R&D 지원… 공급망 자립화 기반 다진다",
-   "effect": "보도 39건 (+95%)",
-   "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNMDE3Z2dfeElkUzZXRk5JeEloME5CTDF1NTBaU1cyTkVXTlNrMTZ0YXpLNjVPX2pmNVE4aXhpSGVzYm9hRTQ0SWszMjExOTlSN1dJREc3SnhjcUVZeXpJQXo5R0xRVi0yelJBYTFfX2h2Q0VMZmwtV1FQUW5uMEFYRWRUZXNId293WUc0?oc=5"
-  },
-  {
-   "level": "관찰",
    "title": "일본 경제제재",
-   "detail": "\"日, 러 자금줄 '그림자 선단' 겨냥 추가 제재 검토\"(종합)",
-   "effect": "보도 9건 (신규)",
-   "link": "https://www.yna.co.kr/view/AKR20261002088751073"
+   "detail": "푸틴 쿠릴열도 방문 여진…일 \"추가제재\" vs 러 \"맞대응\" 대치",
+   "effect": "보도 11건 (신규)",
+   "link": "https://www.yna.co.kr/view/AKR20261006047900009"
   },
   {
    "level": "관찰",
    "title": "중동 유가·원자재",
    "detail": "국제유가, 중동 원유수출 증가·G7 비축유 방출 약속에 1.8%↓",
-   "effect": "보도 13건 (신규)",
+   "effect": "보도 15건 (신규)",
    "link": "https://www.yna.co.kr/view/AKR20261006004300072"
   },
   {
    "level": "관찰",
    "title": "유가·원자재",
-   "detail": "Vance: South Korea's Alaska LNG Investment to Proceed",
-   "effect": "보도 12건 (+200%)",
-   "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPNHJKT1FOaGhsRklqR2ZvR0w3d2VndjBicXF0M2ZaZkhlMHo1Ym5sV3Q3OGFCWUt2UWYxaHF2ejRaT01ubndkbzRwSkIyUUh2djczRjJPNVRHVEh3UUxCRU16NkJjVndqSzI1V3NKUXQxaElPVUNIN3ZwOXZhVlpNenpIdXk?oc=5"
+   "detail": "정부 \"11월 원유 90% 이상 확보…나프타도 90% 이상\"",
+   "effect": "보도 15건 (+200%)",
+   "link": "https://www.yna.co.kr/view/AKR20261006087900003"
   }
  ],
  "trade": null

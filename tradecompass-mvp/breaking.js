@@ -1,6 +1,6 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-06T03:40:03.299Z",
+ "generated": "2026-10-06T03:46:19.932Z",
  "hours": 24,
  "items": [
   {
@@ -156,6 +156,7 @@ window.TC_BREAKING = {
   },
   {
    "title": "Busan Youth Startup Breaks Into Dolce & Gabbana Supply Chain... Korea's First Commercial Digital Product Passport Launched",
+   "lang": "en",
    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE83RWZTYklBNjdhZ0R2X3JSMkV2S1R2VS0yM2pGRk82YVlldWJmd1R3T3UyNVo0Qkp4cHlydFRqaS1FTVdjbnkyeUFGRUVjMGE5eGNTTDJoZjh3cXpIN2xJcUtDWTk?oc=5",
    "source": "아시아경제",
    "outlets": 1,

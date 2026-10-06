@@ -100,8 +100,8 @@ const countHits = (text, words) => words.reduce((n, w) => n + (hit(text, w) ? 1 
 // 피드 기사 거르기: 주제 단어가 하나라도 있어야 무역 기사로 봐요 ("수입"만 있으면 소득 기사일 수 있어서)
 function isTrade(text) { return TOPICS.some(t => has(text, t.kw)); }
 
-// 지명·고유명사 안에 우연히 들어간 단어는 지워요 (해운대 → "해운", 관세음 → "관세")
-const FALSE_HITS = /해운대|관세음/g;
+// 지명·고유명사·다른 낱말 안에 우연히 들어간 단어는 지워요 (해운대 → "해운", 관세음 → "관세", 유통관리 → "통관")
+const FALSE_HITS = /해운대|관세음|유통관/g;
 function classify(item) {
   const text = lower(`${item.title} ${item.desc}`).replace(FALSE_HITS, "");
   const titleText = lower(item.title).replace(FALSE_HITS, "");
@@ -115,7 +115,7 @@ function classify(item) {
   const ctext = text.replace(/中企|中小/g, ""), ctitle = titleText.replace(/中企|中小/g, "");
   const cs = (words) => countHits(ctitle, words) * 2 + countHits(ctext, words);
   const countries = COUNTRIES.map(c => ({ id: c.id, s: cs(c.kw) })).filter(c => c.s > 0).sort((a, b) => b.s - a.s);
-  const direction = actionDirection(text, topics[0] ? topics[0].id : "");
+  const direction = MARKET_TITLE.test(item.title) ? "info" : actionDirection(text, topics[0] ? topics[0].id : "");
   // 우리 정부 발표는 1, 해외 정부 발표는 한국이 언급될 때만 1 (USTR·백악관 발표 전부가 한국 관련은 아니라서)
   const relevance = (item.official && item.lang !== "en") || has(text, KOREA_WORDS) ? 1 : (item.lang === "en" ? 0.5 : 0.8);
   return {
@@ -145,7 +145,13 @@ const EASE_EXTRA = /(fta|협정)['’"”)\]\s]*(발효|서명|타결)|zero[- ]t
 const SUPPORT_CTX = /(지원|혜택|특례|우대)[^.,…·]{0,8}(확대|강화)/;
 // 정책 조치가 아닌 주제(환율·운임·수출 실적·원자재·공급망)는 방향이 없으면 "동향"으로 표시해요
 const INFO_TOPICS = ["fx", "shipping", "export_trend", "energy", "supply_chain"];
+// 무역 조치 맥락: 이런 단어가 하나도 없으면 "총반격"·"차단" 같은 단어가 있어도 무역 조치 방향을 붙이지 않아요
+// (2026-10 사이트 검토: "예멘군 총반격" 기사가 '조치 강화'로 표시됨)
+const TRADE_CTX = /관세|제재|규제|통제|수출|수입|무역|통상|반덤핑|상계|세이프가드|쿼터|협정|fta|엔티티|보조금|tariff|sanction|export|import|trade|dut(y|ies)|embargo|quota/i;
+// 증시 시황 기사: 조치가 아니라 시장 반응이라 방향 대신 "동향"
+const MARKET_TITLE = /증시|코스피|코스닥|나스닥|뉴욕증시|다우|주가|특징주|목표가|stocks? (fall|rise|slump|rally)|wall street/i;
 function actionDirection(text, topic) {
+  if (!TRADE_CTX.test(text)) return INFO_TOPICS.includes(topic) ? "info" : "neutral";
   const up = countHits(text, TIGHTEN) + (TIGHT_RE.test(text) && !SUPPORT_CTX.test(text) ? 2 : 0);
   const down = countHits(text, EASE) + (EASE_RE.test(text) || EASE_EXTRA.test(text) ? 2 : 0);
   if (up > down) return "up";
@@ -160,8 +166,10 @@ function actionDirection(text, topic) {
 //   (Google 뉴스 검색은 본문·비슷한 말로도 결과를 줘서 "세이프가드" 검색에 안전경영 기사가 섞여요)
 // 게시판·인사·부고·사진 같은 단신은 무역 이슈가 아니라서 버려요
 const SKIP_TITLE = /^\s*[\[【(]\s*(게시판|인사|부고|포토|사진|화보|운세|날씨|알림|모집|행사|표|그래픽)\s*[\]】)]/;
+// 마약 단속은 관세청·세관 기사여도 무역 이슈가 아니라서 버려요 (2026-10: "마약 공급망 원천차단"이 통관 이슈 대표 기사로 나옴)
+const NON_TRADE_TITLE = /마약/;
 function finalize(item, hint) {
-  if (SKIP_TITLE.test(item.title) || isPromo(item.title)) return null;
+  if (SKIP_TITLE.test(item.title) || NON_TRADE_TITLE.test(item.title) || isPromo(item.title)) return null;
   const c = classify(item);
   if (hint && c.topics.includes(hint)) { c.topic = hint; c.topics = [hint, ...c.topics.filter(t => t !== hint)]; return c; }
   if (c.topics.length) return c;
@@ -177,11 +185,11 @@ function isPromo(title = "") {
   return PROMO.some(w => t.includes(lower(w))) && !CORE_TRADE.some(w => hit(t, w));
 }
 
-// ── 의견·증권 단신 ──
-// 사설·칼럼·기고·기자수첩과 특징주·목표가 같은 증권 단신은 사실 보도가 아니라서
+// ── 의견·시황·홍보 문구 ──
+// 사설·칼럼·기고·기자수첩, 증시 시황·특징주·목표가, 연설문 제목("~해 나가겠습니다")은 사실 보도가 아니라서
 // 이슈 무게를 절반으로 하고, 대표 기사·속보로 쓰지 않아요
-const OPINION_TITLE = /^\s*[\[【(<]\s*([^\]】)>]{0,6}(사설|칼럼|기고|시론|기자수첩|데스크|오피니언|논단|시평|특징주))\s*[\]】)>]|목표가|특징주/;
-const isOpinion = (title = "") => OPINION_TITLE.test(title);
+const OPINION_TITLE = /^\s*[\[【(<]\s*([^\]】)>]{0,6}(사설|칼럼|기고|시론|기자수첩|데스크|오피니언|논단|시평|특징주))\s*[\]】)>]|목표가|특징주|겠습니다["”’']?\s*$|^\s*(opinion|analysis|commentary|editorial|column)\s*[:|]/i;
+const isOpinion = (title = "") => OPINION_TITLE.test(title) || MARKET_TITLE.test(title);
 
 // ── 이슈 대표 기사 고르기 ──
 // 관련도(0~1) = 주제 단어가 제목에 있으면 0.6 (요약에만 있으면 0.25)
@@ -213,11 +221,26 @@ function rankForIssue(list, topicId, countryId, weightOf) {
 const BREAKING_HOURS = 24;
 function breakingFrom(items, now = Date.now(), limit = 15) {
   const from = now - BREAKING_HOURS * 3_600_000, until = now + 10 * 60_000;
-  return items
+  return dedupeEvents(items
     .filter(a => { const t = Date.parse(a.date); return t >= from && t <= until; })
-    .filter(a => (a.tier || outletTier(a.source)) >= 0.7 && !isPromo(a.title) && !isOpinion(a.title))
-    .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
+    .filter(a => (a.tier || outletTier(a.source)) >= 0.7 && !isPromo(a.title) && !isOpinion(a.title) && !NON_TRADE_TITLE.test(a.title))
+    .sort((a, b) => Date.parse(b.date) - Date.parse(a.date)))
     .slice(0, limit);
+}
+
+// ── 화면용 같은 사건 합치기 ──
+// 수집 때는 제목 유사도 0.55 이상만 같은 기사로 묶어요(다른 사건을 잘못 합치지 않게).
+// 화면에서는 같은 이슈 안에서 3일 이내·유사도 0.35 이상이면 한 줄로 합치고 "N곳 보도"로 보여줘요.
+// 예) "트럼프 '美에 공장 안 지으면 관세 300%'" 세 언론사 기사(유사도 0.45~0.53) → 한 줄
+function dedupeEvents(list, threshold = 0.35) {
+  const out = [];
+  for (const a of list) {
+    const sh = shingles(a.title), t = Date.parse(a.date);
+    const same = out.find(x => Math.abs(x.t - t) < 3 * 86_400_000 && (x.a.topic || "") === (a.topic || "") && jaccard(x.sh, sh) >= threshold);
+    if (same) { for (const o of a.outlets || [a.source]) if (!same.a.outlets.includes(o)) same.a.outlets.push(o); continue; }
+    out.push({ a: { ...a, outlets: [...(a.outlets || [a.source])] }, sh, t });
+  }
+  return out.map(x => x.a);
 }
 
 // ── 중복 묶기 (제목 2글자 조각의 Jaccard 유사도, Broder 1997 shingling) ──
@@ -225,4 +248,4 @@ const normTitle = (t) => t.replace(/\[[^\]]*\]|\([^)]*\)|【[^】]*】/g, "").re
 function shingles(t) { const s = normTitle(t), set = new Set(); for (let i = 0; i < s.length - 1; i++) set.add(s.slice(i, i + 2)); return set; }
 function jaccard(a, b) { let inter = 0; for (const x of a) if (b.has(x)) inter++; return inter / (a.size + b.size - inter || 1); }
 
-module.exports = { isOpinion, findOutlet, breakingFrom, BREAKING_HOURS, isPromo, issueRelevance, rankForIssue, cleanDesc, actionDirection, fetchText, parseFeed, stripOutlet, outletTier, outletName, finalize, hostOf, isTrade, classify, shingles, jaccard, normTitle, sleep };
+module.exports = { dedupeEvents, isOpinion, findOutlet, breakingFrom, BREAKING_HOURS, isPromo, issueRelevance, rankForIssue, cleanDesc, actionDirection, fetchText, parseFeed, stripOutlet, outletTier, outletName, finalize, hostOf, isTrade, classify, shingles, jaccard, normTitle, sleep };

@@ -856,3 +856,28 @@ dialog.auth::backdrop{background:rgba(19,35,63,.45);backdrop-filter:blur(3px)}
 .br-body .dir{font-size:.74rem}
 @media (max-width:820px){ .br-list{grid-template-columns:minmax(0,1fr)} .br-list li{grid-template-columns:60px minmax(0,1fr)} }
 .ai-notice{margin:0 0 10px;padding:8px 12px;border-radius:8px;background:var(--tint-amber);color:var(--amber-ink);font-size:.84rem;line-height:1.5}
+
+/* ── 2026-10 사이트 검토 반영: EN 배지, 순위 변화, 평소 대비, 목적별 바로가기, 내 섹터 피드 ── */
+.en{display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.06em;color:var(--ink-soft);border:1px solid var(--line-2);border-radius:4px;padding:0 5px;margin:0 6px 0 0;vertical-align:1px}
+.orig{display:block;margin-top:2px;font-size:.76rem;color:var(--ink-soft);overflow-wrap:anywhere}
+.mv{display:block;font-size:.66rem;font-weight:700;line-height:1.2;margin-top:2px;letter-spacing:0}
+.mv.up{color:var(--red)} .mv.down{color:var(--green)} .mv.same{color:var(--ink-soft)}
+.mv.new{color:var(--brass-ink)}
+.chg{display:inline-block;font-size:.74rem;color:var(--ink-soft)}
+.thin{display:inline-block;font-size:.72rem;font-weight:700;color:var(--brass-ink);background:var(--tint-brass);border-radius:99px;padding:1px 8px}
+.sp-base{margin:4px 0 0;font-size:.84rem;color:var(--ink-soft);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.persona{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:6px 0 16px}
+.persona>span{align-self:center;font-size:.82rem;color:var(--ink-soft);margin-right:2px}
+.persona a{display:flex;flex-direction:column;gap:1px;padding:8px 12px;border:1px solid var(--line-2);border-radius:10px;background:var(--card);text-decoration:none;color:inherit;min-width:0}
+.persona a b{font-size:.88rem}
+.persona a small{font-size:.72rem;color:var(--ink-soft)}
+.persona a.on,.persona a:hover{border-color:var(--brass)}
+.my-feed{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:14px}
+.my-feed h3{font-size:.86rem;margin:0 0 6px}
+.my-feed h3 small{font-weight:400;color:var(--ink-soft)}
+.my-feed ul,.my-feed ol{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.my-feed li{font-size:.86rem;line-height:1.45;overflow-wrap:anywhere}
+.my-feed li .br-time,.my-feed li b{margin-right:6px;font-size:.76rem;color:var(--ink-soft)}
+.my-feed li small{color:var(--ink-soft)}
+.my-feed .mv{display:inline;margin-right:4px}
+@media (max-width:640px){.persona>span{flex:1 1 100%}.persona a{flex:1 1 0;padding:8px 10px;align-items:center;text-align:center}.persona a small{display:none}}

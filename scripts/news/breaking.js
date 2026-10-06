@@ -22,7 +22,8 @@ const items = JSON.parse(fs.readFileSync(ARCHIVE, "utf8")).items.flatMap(a => {
   return c ? [{ ...base, ...c }] : [];
 });
 const list = breakingFrom(items, now).map(a => ({
-  title: a.title, link: a.link, source: a.source, outlets: (a.outlets || [a.source]).length,
+  title: a.titleKo || a.title, orig: a.titleKo ? a.title : undefined, lang: a.lang === "en" ? "en" : undefined,
+  link: a.link, source: a.source, outlets: (a.outlets || [a.source]).length,
   at: a.date, tag: topicById[a.topic]?.label || "무역", direction: a.direction || "neutral",
   sectors: (a.sectors || []).filter(id => sectorIds.has(id)),
 }));

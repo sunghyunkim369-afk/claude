@@ -56,7 +56,8 @@ const sectorCard = (s, i) => `
     ${compass(s.score)}
     <span class="name">${esc(s.name)}</span>
     <div class="score">${countUp(s.score, 2)}</div>
-    <div class="state ${s.state}"><i></i>${s.state}</div>
+    ${D.meta.sample ? "" : sectorChange(s)}
+    <div class="state ${s.state}" title="기사 속 무역 조치 방향"><i></i>조치 ${s.state}</div>
     <div class="split"><span>▲ 강화 ${s.up}</span><span>▼ 완화 ${s.down}</span><span>● ${D.meta.sample ? "중립" : "중립·동향"} ${s.neutral}</span></div>
     <div class="meter"><b data-w="${s.score}"></b></div>
   </a>`;
@@ -85,6 +86,15 @@ function ago(iso) {
   return m < 60 ? `${m}분 전` : m < 1440 ? `${Math.round(m / 60)}시간 전` : `${Math.round(m / 1440)}일 전`;
 }
 const reach = n => n.outlets > 1 ? `<span class="reach">${n.outlets}곳 보도</span>` : "";
+// 영문 기사 표시: EN 배지 + (AI 번역이 있으면) 원문 제목
+const enBadge = n => n.lang === "en" ? `<span class="en" title="영문 기사${n.orig ? " · 제목은 AI 번역" : ""}">EN</span>` : "";
+const origLine = n => n.orig ? `<small class="orig">원문: ${esc(n.orig)}</small>` : "";
+// 지난주 대비 순위 변화: 숫자 = 오른 칸 수, "new" = 새로 진입
+const moveBadge = x => x.move == null ? "" : x.move === "new" ? `<span class="mv new" title="지난주 Top 10에 없던 이슈">NEW</span>`
+  : x.move > 0 ? `<span class="mv up" title="지난주보다 ${x.move}계단 상승">▲${x.move}</span>` : x.move < 0 ? `<span class="mv down" title="지난주보다 ${-x.move}계단 하락">▼${-x.move}</span>` : `<span class="mv same" title="지난주와 같은 순위">–</span>`;
+// 섹터 노출도 옆 한 줄: 평소(직전 4주 주평균)보다 기사가 얼마나 늘었나 + 기사가 적으면 경고
+const sectorChange = s => s.thin ? `<span class="thin" title="이번 주 기사 ${s.articles}건뿐이라 점수가 크게 흔들릴 수 있어요">기사 적음 · ${s.articles}건</span>`
+  : s.change != null ? `<span class="chg">평소 대비 ${s.change >= 0 ? "+" : ""}${s.change}%</span>` : "";
 const sectorChips = ids => (ids || []).map(id => sectorById[id] ? `<a class="sc" href="#/sectors/${id}">${esc(sectorById[id].name)}</a>` : "").join("");
 
 // 홈 "주요 무역 뉴스": 머리기사 1건 크게 + 헤드라인 6건 (중요도 순)
@@ -96,8 +106,8 @@ function newsFront(list) {
   return `
     <article class="lead">
       <div class="lead-main">
-        <div class="kick"><span class="tag">${esc(lead.tag)}</span><em class="dir ${act(lead.direction)[1]}">${act(lead.direction)[0]}</em>${reach(lead)}</div>
-        <h3>${ext(lead.link, esc(lead.title))}</h3>
+        <div class="kick"><span class="tag">${esc(lead.tag)}</span><em class="dir ${act(lead.direction)[1]}">${act(lead.direction)[0]}</em>${reach(lead)}${enBadge(lead)}</div>
+        <h3>${ext(lead.link, esc(lead.title))}</h3>${origLine(lead)}
         <p>${esc(lead.summary || lead.why || "")}</p>
         <div class="meta">${esc(lead.source)} · ${esc(ago(lead.at) || lead.time)}${sectorChips(lead.sectors)}</div>
       </div>
@@ -105,7 +115,7 @@ function newsFront(list) {
     </article>
     <ol class="heads">${heads.map(n => `
       <li>
-        <div class="kick"><span class="tag">${esc(n.tag)}</span>${reach(n)}</div>
+        <div class="kick"><span class="tag">${esc(n.tag)}</span>${reach(n)}${enBadge(n)}</div>
         <h4>${ext(n.link, esc(n.title))}</h4>
         <p>${esc(n.summary && n.summary.length < 90 ? n.summary : (n.why || n.summary || ""))}</p>
         <small>${esc(n.source)} · ${esc(ago(n.at) || n.time)}</small>
@@ -114,7 +124,7 @@ function newsFront(list) {
 
 const issueItem = (x, i) => `
   <li class="issue">
-    <span class="rank">${String(i + 1).padStart(2, "0")}</span>
+    <span class="rank">${String(i + 1).padStart(2, "0")}${moveBadge(x)}</span>
     <div>
       <h3>${ext(x.link, esc(x.title))}</h3>
       <div class="src">${x.keyword ? `<b>${esc(x.keyword)}</b> · ` : ""}${esc(x.source)} · ${esc(x.time)}${x.reports ? ` · 보도 ${x.reports}건` : ""}</div>
@@ -131,7 +141,7 @@ const newsLinks = n => n.sectors
 const newsRow = n => `
   <li class="news-row">
     <div class="t"><b class="num">${esc(n.time)}</b><small>${esc(n.source)}${n.outlets > 1 ? ` 외 ${n.outlets - 1}곳` : ""}</small>${n.at ? `<small>${esc(ago(n.at))}</small>` : ""}</div>
-    <div><h3><span class="tag">${esc(n.tag)}</span>${ext(n.link, esc(n.title))}</h3>${n.summary ? `<p>${D.meta.sample ? "AI 요약 · " : ""}${esc(n.summary)}</p>` : ""}${n.why ? `<p class="why">${esc(n.why)}</p>` : ""}</div>
+    <div><h3><span class="tag">${esc(n.tag)}</span>${enBadge(n)}${ext(n.link, esc(n.title))}</h3>${origLine(n)}${n.summary ? `<p>${D.meta.sample ? "AI 요약 · " : ""}${esc(n.summary)}</p>` : ""}${n.why ? `<p class="why">${esc(n.why)}</p>` : ""}</div>
     <div class="links">${newsLinks(n)}</div>
   </li>`;
 
@@ -156,7 +166,7 @@ const pct = (now, prev) => prev ? Math.round((now - prev) / prev * 100) : 0;
 // 섹터 뉴스: 발행 데이터의 섹터별 기사(없으면 전체 뉴스에서 이 섹터 기사)
 const sectorNews = s => s.news || D.news.filter(n => (n.sectors || []).includes(s.id));
 const newsMeta = n => `${esc(n.source)}${n.outlets > 1 ? ` 외 ${n.outlets - 1}곳` : ""} · ${esc(n.time)}${n.clock ? " " + esc(n.clock) : ""}`;
-const newsBadges = n => `<span class="tag">${esc(n.tag)}</span>${n.direction ? `<em class="dir ${act(n.direction)[1]}">${act(n.direction)[0]}</em>` : ""}`;
+const newsBadges = n => `<span class="tag">${esc(n.tag)}</span>${n.direction ? `<em class="dir ${act(n.direction)[1]}">${act(n.direction)[0]}</em>` : ""}${enBadge(n)}`;
 function sectorNewsBlock(s, i) {
   const ns = sectorNews(s);
   if (!ns.length) return `<section class="sp-news rise" style="--i:${i}"><h2 class="sp-h">이번 주 ${esc(s.name)} 뉴스</h2><p class="muted">이번 주 이 섹터와 연결된 무역 기사가 없어요.</p></section>`;
@@ -166,7 +176,7 @@ function sectorNewsBlock(s, i) {
       <div class="sp-news-h"><h2 class="sp-h">이번 주 ${esc(s.name)} 뉴스</h2><span>${s.articles ? `관련 기사 ${s.articles}건 중 ` : ""}영향 큰 순 · 제목을 누르면 원문</span></div>
       <article class="card lift nf">
         <div class="nb">${newsBadges(f)}</div>
-        <h3>${ext(f.link, esc(f.title))}</h3>
+        <h3>${ext(f.link, esc(f.title))}</h3>${origLine(f)}
         ${f.summary ? `<p>${esc(f.summary)}</p>` : ""}
         <small>${newsMeta(f)}</small>
       </article>
@@ -187,7 +197,8 @@ function sectorPage(s) {
       <a class="back-link rise" href="#/">← 홈으로</a>
       <div class="sp-head rise" style="--i:1">
         ${compass(s.score)}
-        <div><h1>${esc(s.name)}</h1><div class="state ${s.state}"><i></i>${s.state} · 노출도 <b class="num">${s.score.toFixed(2)}</b></div></div>
+        <div><h1>${esc(s.name)}</h1><div class="state ${s.state}"><i></i>노출도 <b class="num">${s.score.toFixed(2)}</b> · 조치 방향 ${s.state}</div>
+          ${D.meta.sample ? "" : `<p class="sp-base">이번 주 기사 ${s.articles}건 · 평소 주 ${s.baseAvg ?? "-"}건 ${sectorChange(s)}</p>`}</div>
         ${star(s.id)}
       </div>
       ${s.summary ? `<p class="sp-sum rise" style="--i:1">${esc(s.summary)}</p>` : ""}
@@ -203,16 +214,16 @@ function sectorPage(s) {
             <div class="chips-row">${x.sectors.map(id => sectorById[id] ? `<a class="schip${id === s.id ? " on" : ""}" href="#/sectors/${id}">${esc(sectorById[id].name)}</a>` : "").join("")}</div>
             <p class="meta">점수 ${x.score.toFixed(2)} · 최근 7일 보도 ${x.reports}건(직전 7일 ${x.prev}건) · ${x.prev ? signed(pct(x.reports, x.prev)) : "신규"}</p>
             <p class="meta">▲ 조치 강화 ${x.up}&nbsp;&nbsp;▼ 완화 ${x.down}&nbsp;&nbsp;● ${D.meta.sample ? "중립" : "중립·동향"} ${x.neutral}</p>
-            <ul class="arts">${x.articles.map(a => `<li><span class="at">${ext(a.link, esc(a.title))}</span><small>${esc(a.source)} · ${esc(a.at)}</small></li>`).join("")}</ul>
+            <ul class="arts">${x.articles.map(a => `<li><span class="at">${enBadge(a)}${ext(a.link, esc(a.title))}</span><small>${esc(a.source)}${a.outlets > 1 ? ` 외 ${a.outlets - 1}곳` : ""} · ${esc(a.at)}</small></li>`).join("")}</ul>
           </div>
         </li>`).join("")}</ol>` : `<p class="muted rise" style="--i:3">최근 7일 동안 이 섹터와 연결된 이슈가 없어요.</p>`}
 
       ${aiCard("sector", s.id, list.length + 3)}
 
       <section class="card rise sort-card" style="--i:${list.length + 4}">
-        <h2>종목 정렬 결과</h2>
-        <ul class="sort-list">${s.stocks.map(k => `<li><span>${esc(k.name)}</span><small class="num">${k.code}</small></li>`).join("")}</ul>
-        <div class="pending">시세 데이터 준비 중</div>
+        <h2>참고용 관련 기업</h2>
+        <p class="muted">이 섹터 무역 뉴스의 영향권에 있는 대표 기업 예시예요(순서에 의미 없음). <b>투자 추천이 아니며</b>, 시세·주가 전망은 제공하지 않아요.</p>
+        <ul class="sort-list">${s.stocks.map(k => `<li><span>${esc(k.name)}</span></li>`).join("")}</ul>
       </section>
     </div>`;
 }
@@ -243,7 +254,7 @@ function sectorContext(s) {
   return [
     `섹터: ${s.name} / 노출도 ${s.score} (${s.state}, 50=중립) / 조치 강화 ${s.up} · 완화 ${s.down} · 중립 ${s.neutral}`,
     `요약: ${s.summary}`,
-    `관련 종목: ${s.stocks.map(k => k.name).join(", ")}`,
+    `영향권 대표 기업(참고용, 투자 판단 대상 아님): ${s.stocks.map(k => k.name).join(", ")}`,
     `관련 이슈:`,
     ...iss.map(x => `- ${x.keyword}: ${x.title} (점수 ${x.score}, 최근 7일 보도 ${x.reports}건·직전 ${x.prev}건, 강화 ${x.up}·완화 ${x.down}) ${x.summary}`),
   ].join("\n");
@@ -321,8 +332,8 @@ function breakingBlock(i, full) {
         <li>
           <span class="br-time${Date.now() - Date.parse(a.at) < 3 * 3600 * 1000 ? " new" : ""}">${esc(ago(a.at))}</span>
           <div class="br-body">
-            <h3>${ext(a.link, esc(a.title))}</h3>
-            <p><span class="tag">${esc(a.tag)}</span><em class="dir ${act(a.direction)[1]}">${act(a.direction)[0]}</em><span class="src">${esc(a.source)}${a.outlets > 1 ? ` 외 ${a.outlets - 1}곳` : ""}</span></p>
+            <h3>${ext(a.link, esc(a.title))}</h3>${origLine(a)}
+            <p><span class="tag">${esc(a.tag)}</span>${enBadge(a)}<em class="dir ${act(a.direction)[1]}">${act(a.direction)[0]}</em><span class="src">${esc(a.source)}${a.outlets > 1 ? ` 외 ${a.outlets - 1}곳` : ""}</span></p>
           </div>
         </li>`).join("")}</ol>`
       : `<p class="muted">최근 24시간 동안 새로 들어온 무역 기사가 없어요. 다음 수집 때 다시 확인해 주세요.</p>`}
@@ -338,9 +349,9 @@ function myBlock() {
   const who = u ? `${esc(u.name)}님의 관심 섹터` : "내 관심 섹터";
   if (!mine.length) return `
     <section class="my rise" id="my-sectors" style="--i:2">
-      <div class="my-h"><h2>${who}</h2><span>고르면 여기에 모아 보여드려요</span></div>
+      <div class="my-h"><h2>나만의 화면 만들기</h2><span>섹터 1~3개를 고르면 이 자리에 내 섹터의 속보·이슈가 먼저 나와요</span></div>
       <div class="my-empty">
-        <p>관심 있는 섹터를 눌러 추가하세요.${u ? "" : ` <button type="button" class="linkish" data-auth="open-signup">회원가입</button>하면 휴대폰·PC 어디서나 같아요.`}</p>
+        <p>우리 회사·관심 분야와 가까운 섹터를 눌러 주세요.${u ? "" : ` <button type="button" class="linkish" data-auth="open-signup">회원가입</button>하면 휴대폰·PC 어디서나 같아요.`}</p>
         <div class="my-picks">${D.sectors.map(s => `<button type="button" class="pick-chip" data-star="${s.id}" aria-pressed="false">+ ${esc(s.name)}</button>`).join("")}</div>
       </div>
     </section>`;
@@ -351,11 +362,38 @@ function myBlock() {
         const n = (s.news || [])[0];
         return `<article class="my-card">
           <a class="my-top" href="#/sectors/${s.id}">${compass(s.score, "compass sm")}<span class="nm">${esc(s.name)}</span><b class="num">${s.score.toFixed(1)}</b><span class="state ${s.state}"><i></i>${s.state}</span></a>
-          ${n ? `<p class="my-news"><span class="tag">${esc(n.tag)}</span>${ext(n.link, esc(n.title))}</p>` : `<p class="my-news muted">이번 주 관련 기사가 거의 없어요.</p>`}
-          <small>기사 ${s.articles ?? (s.up + s.down + s.neutral)}건 · ▲${s.up} ▼${s.down}</small>
+          ${n ? `<p class="my-news"><span class="tag">${esc(n.tag)}</span>${enBadge(n)}${ext(n.link, esc(n.title))}</p>` : `<p class="my-news muted">이번 주 관련 기사가 거의 없어요.</p>`}
+          <small>기사 ${s.articles ?? (s.up + s.down + s.neutral)}건 · ▲${s.up} ▼${s.down}${D.meta.sample ? "" : " · " + sectorChange(s)}</small>
         </article>`; }).join("")}</div>
+      ${myFeed(mine)}
     </section>`;
 }
+// 내 섹터의 Top10 이슈와 24시간 속보를 한곳에 (로그인·관심 섹터의 이유가 되는 "내 화면")
+function myFeed(mine) {
+  const ids = new Set(mine.map(s => s.id));
+  const iss = D.issues.filter(x => x.sectors.some(id => ids.has(id))).slice(0, 3);
+  const br = BR ? (BR.items || []).filter(a => within24(a.at) && (a.sectors || []).some(id => ids.has(id))).slice(0, 4) : [];
+  if (!iss.length && !br.length) return "";
+  return `<div class="my-feed">
+    ${br.length ? `<div><h3>내 섹터 속보 <small>최근 24시간</small></h3><ul>${br.map(a => `<li><span class="br-time">${esc(ago(a.at))}</span>${enBadge(a)}${ext(a.link, esc(a.title))} <small>${esc(a.source)}</small></li>`).join("")}</ul></div>` : ""}
+    ${iss.length ? `<div><h3>내 섹터 Top 10 이슈</h3><ol>${iss.map(x => `<li><b class="num">${D.issues.indexOf(x) + 1}위</b>${moveBadge(x)} ${esc(x.keyword)} — ${ext(x.link, esc(x.title))}</li>`).join("")}</ol></div>` : ""}
+  </div>`;
+}
+
+// 첫 화면 "나는 누구?" 바로가기: 수출입 실무·직구/여행·공부 목적에 맞는 메뉴로 바로 보내요. 고른 것은 이 브라우저에 기억해요.
+const PKEY = "tc-persona";
+const PERSONAS = [
+  ["biz", "수출입 기업", "#/sectors", "섹터 노출도·Top 10 이슈"],
+  ["life", "직구·해외여행", "#/tools", "면세 계산·직구 반입·통관 조회"],
+  ["study", "공부·리서치", "#/method", "순위 산정 방법·출처"],
+];
+function personaBar() {
+  if (D.meta.sample) return "";
+  let cur = ""; try { cur = localStorage.getItem(PKEY) || ""; } catch {}
+  return `<nav class="persona rise" aria-label="목적별 바로가기"><span>무엇이 필요하세요?</span>${PERSONAS.map(([id, t, href, d]) =>
+    `<a href="${href}" data-persona="${id}" class="${cur === id ? "on" : ""}" title="${esc(d)}"><b>${t}</b><small>${esc(d)}</small></a>`).join("")}</nav>`;
+}
+document.addEventListener("click", e => { const p = e.target.closest("[data-persona]"); if (p) try { localStorage.setItem(PKEY, p.dataset.persona); } catch {} });
 const refreshMy = () => { const el = document.getElementById("my-sectors"); if (el) { el.outerHTML = myBlock(); animate(document.getElementById("my-sectors")); } };
 
 // ── 화면 ──
@@ -370,6 +408,9 @@ const views = {
         <h1 class="display">Global Trade <em>Intelligence</em></h1>
         <p>${D.meta.sample ? "무역 이슈가 국내 섹터와 종목에 주는 영향을 정리합니다." : `${esc(D.meta.period)} 동안 신뢰할 수 있는 언론·기관 ${D.meta.outlets}곳의 무역 기사 ${D.meta.sources.toLocaleString()}건을 분석했어요.`}</p>
       </header>
+      ${personaBar()}
+
+      ${myBlock()}
 
       <section class="bearing rise" style="--i:1">
         <svg class="rose" viewBox="0 0 300 300" aria-hidden="true">
@@ -389,8 +430,6 @@ const views = {
       </section>
 
       ${breakingBlock(2, false)}
-
-      ${myBlock()}
 
       <div class="grid g-2" style="margin-top:22px">
         <section class="card rise" style="--i:7">
@@ -444,7 +483,7 @@ const views = {
           <ul class="news">${list.map(newsRow).join("")}</ul>
         </section>
         <section class="card rise" style="--i:2">
-          <div class="card-h"><h2>${D.meta.sample ? "핵심 이슈 전체" : "이번 주 Top 10 이슈"}</h2></div>
+          <div class="card-h"><div><h2>${D.meta.sample ? "핵심 이슈 전체" : "이번 주 Top 10 이슈"}</h2>${D.meta.lastWeek ? `<p>▲▼ 지난주(${esc(D.meta.lastWeek)} 주) 대비 순위${D.meta.dropped && D.meta.dropped.length ? ` · 빠진 이슈: ${D.meta.dropped.map(esc).join(", ")}` : ""}</p>` : ""}</div></div>
           <ol class="issues">${D.issues.map(issueItem).join("")}</ol>
         </section>
       </div>`;
@@ -515,6 +554,14 @@ const views = {
         <p>이번 주 무역 기사 중 그 섹터 기사의 비중을 직전 4주 평균과 비교해 0~100으로 나타내요. 50은 평소 수준, 높을수록 평소보다 뉴스에 많이 노출됐다는 뜻이에요. 강화·완화·보합은 기사 속 무역 조치(부과·통제 vs 인하·유예)의 방향이에요.</p>
         <h2>4. 언제 바뀌나요?</h2>
         <p>기사는 6시간마다 쌓이고, 순위는 <b>매주 월요일 아침</b> 새로 계산돼요.${m.sample ? "" : ` 지금 화면: ${esc(m.period)} · 기사 ${m.sources.toLocaleString()}건 · 언론사·기관 ${m.outlets}곳.`}</p>
+        <h2>5. 출처는 어디이고, 틀리면 어떻게 하나요?</h2>
+        <ul>
+          <li><b>출처 종류</b>: 정부·국제기구 발표(1.0) · 통신사(0.9) · 주요 경제지·일간지·방송·해외 경제지(0.8) · 전문지(0.7). 숫자는 점수에 곱하는 신뢰도예요. 목록에 없는 매체와 스포츠·연예 매체는 쓰지 않아요.</li>
+          <li><b>덜 세는 기사</b>: 사설·칼럼·기고, 증시 시황·목표가, 연설문 제목("~해 나가겠습니다")은 사실 보도가 아니라서 무게를 절반으로 하고 대표 기사·속보에서 빼요.</li>
+          <li><b>같은 사건</b>은 한 줄로 합치고 "N곳 보도"로 보여줘요. 영문 기사는 <span class="en">EN</span> 표시가 붙어요.</li>
+          <li><b>조치 방향</b>(강화·완화)은 관세·제재·수출입 같은 무역 맥락이 있는 기사에만 붙여요. 단어 규칙이라 틀릴 수 있어요. 2026-10 점검에서 표본 75건 중 88%가 사람 판단과 같았어요.</li>
+          <li><b>정정</b>: 분류·대표 기사가 틀렸다면 원문 링크와 함께 알려 주세요. 규칙을 고쳐 다음 수집(6시간 이내)부터 반영하고, 고친 내용은 계산 방법 문서에 남겨요.</li>
+        </ul>
         <p class="muted">근거 논문: Baker·Bloom·Davis(2016) 경제정책 불확실성 지수, Caldara 외(2020) 무역정책 불확실성 지수, Carbonell·Goldstein(1998) MMR, Broder(1997) 문서 유사도.</p>
       </section>`;
   },

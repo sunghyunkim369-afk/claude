@@ -1,7 +1,67 @@
 {
- "generated": "2026-10-06T12:41:04.460Z",
+ "generated": "2026-10-06T18:38:39.507Z",
  "hours": 24,
  "items": [
+  {
+   "title": "South Korean Operator Emerges as New Force in Arctic LNG Shipping",
+   "lang": "en",
+   "link": "https://gcaptain.com/south-korean-operator-emerges-as-new-force-in-arctic-lng-shipping/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-06T18:06:23.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "chem",
+    "ship"
+   ]
+  },
+  {
+   "title": "Volare Jumps in Oslo Debut as Wave of Shipping IPOs Builds",
+   "lang": "en",
+   "link": "https://gcaptain.com/volare-jumps-in-oslo-debut-as-wave-of-shipping-ipos-builds/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-06T17:42:17.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "캐나다 8월 무역흑자 4년만에 최대…관세 앞두고 대미수출 급증",
+   "link": "https://www.yna.co.kr/view/AKR20261007001100072",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-06T16:15:40.000Z",
+   "tag": "관세",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "Panama Canal Expands Advance Transit Reservations for 2027 Dry Season",
+   "lang": "en",
+   "link": "https://gcaptain.com/panama-canal-expands-advance-transit-reservations-for-2027-dry-season/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-06T15:58:38.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "美 8월 무역적자 작년 3월 이후 최대…수입은 사상 최대",
+   "link": "https://www.yna.co.kr/view/AKR20261006201700072",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-06T14:38:49.000Z",
+   "tag": "수출입 동향",
+   "direction": "info",
+   "sectors": []
+  },
   {
    "title": "Flexport lets AI agents book freight – who signed the contract?",
    "lang": "en",
@@ -115,63 +175,6 @@
     "semi",
     "chem"
    ]
-  },
-  {
-   "title": "'에너지안보 강화' 중국, 지하 6천m 사막유전서 원유·가스 생산",
-   "link": "https://www.yna.co.kr/view/AKR20261006138400089",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-06T06:44:30.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "“첨단산업에 필수”…수은, 구리 등 ‘7대 핵심광물’에 3조원 풀었다",
-   "link": "https://www.mk.co.kr/news/economy/12169308",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-06T06:22:39.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": [
-    "steel",
-    "semi"
-   ]
-  },
-  {
-   "title": "그래도 버틴다…\"이란, 원유수출 막혀도 美 지치기 기다려\"",
-   "link": "https://www.yna.co.kr/view/AKR20261006129700009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-06T06:17:06.000Z",
-   "tag": "유가·원자재",
-   "direction": "up",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "알시시 이집트 대통령 7~9일 국빈 방한…공급망 등 협의",
-   "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBEcDV2QzVKTHdONXVRbzFyTEVNdXRkeGdaX3ctcEo0SXNxZ2JyUXh3SHhoTGNDZTJvWktzVFZjbE5qMzN1V25JbmtjdUVvZGFENUFtd3lLc0tMdUxCalViVVFnSFZFMW95cFBr?oc=5",
-   "source": "한겨레",
-   "outlets": 1,
-   "at": "2026-10-06T06:13:00.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "李, 알시시 이집트 대통령과 8일 정상회담…교역·공급망 협력 논의",
-   "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBxZEFicmZvMVRiTERhMk9CaExhR2YzNU5WQW91cUZjOFh5TllNR25ldkZMZEZON3ZKeXJxUUs2cU5DSjRFd3dGTjE0OUZubHZYb3EtVk1vNjhMZw?oc=5",
-   "source": "파이낸셜뉴스",
-   "outlets": 1,
-   "at": "2026-10-06T06:11:13.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": []
   }
  ]
 }

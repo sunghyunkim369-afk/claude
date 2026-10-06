@@ -1,65 +1,27 @@
 // 뉴스 수집: 공식·유명 출처에서 무역 관련 기사를 모아 data/news/archive.json 에 쌓아요.
-// 실행: node scripts/news/collect.js            (최근 이틀치, 6시간마다 자동 실행)
-//       node scripts/news/collect.js --backfill (직전 5주치를 주 단위로 한 번에 채우기, 처음 한 번)
+// 실행: node scripts/news/collect.js   (6시간마다 자동 실행)
+// 출처는 config.js FEEDS 중 enabled 인 RSS 만. Google 뉴스 검색과 과거 채우기(--backfill)는 2026-10-06 삭제 (docs/sources.md)
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
-const { FEEDS, GOV_QUERY, EN_QUERY, GLOBAL_EN_QUERY, TOPICS, SCORE } = require("./config");
-const { fetchText, parseFeed, stripOutlet, outletTier, outletName, isTrade, finalize, shingles, jaccard, sleep } = require("./lib");
+const { FEEDS, SCORE } = require("./config");
+const { fetchText, parseFeed, isTrade, finalize, shingles, jaccard, sleep } = require("./lib");
 const { enrich } = require("./ai");
 
 const ARCHIVE = path.join(__dirname, "..", "..", "data", "news", "archive.json");
 const DAY = 86_400_000;
-const backfill = process.argv.includes("--backfill");
 
 const load = () => { try { return JSON.parse(fs.readFileSync(ARCHIVE, "utf8")); } catch { return { items: [] }; } };
 const toISO = (d) => { const t = new Date(d); return isNaN(t) ? new Date().toISOString() : t.toISOString(); };
-const ymd = (t) => new Date(t).toISOString().slice(0, 10);
-const gnews = (q, en) => en
-  ? `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-US&gl=US&ceid=US:en`
-  : `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=ko&gl=KR&ceid=KR:ko`;
-
 async function fromFeeds() {
   const out = [], report = [];
   for (const f of FEEDS) {
+    if (f.enabled === false) { report.push(`${f.id}: 꺼져 있음 (건너뜀)`); continue; }
     const items = parseFeed(await fetchText(f.url));
-    const kept = items.filter(i => !(f.skip && f.skip.test(i.title)) && (f.all || f.id === "wto-news" || isTrade(`${i.title} ${i.desc}`.toLowerCase())));
+    const kept = items.filter(i => !(f.skip && f.skip.test(i.title)) && (f.all || isTrade(`${i.title} ${i.desc}`.toLowerCase())));
     report.push(`${f.id}: ${items.length}건 중 무역 관련 ${kept.length}건`);
     for (const i of kept) out.push({ ...i, source: f.name, tier: f.tier, official: !!f.official, lang: f.lang || "ko", feed: f.id, countryHint: f.country });
     await sleep(2000);   // 같은 곳에 보내는 요청 사이 2초 이상 (팀 규칙 C4)
-  }
-  return { out, report };
-}
-
-async function fromGoogleNews() {
-  const out = [], report = [];
-  const now = Date.now();
-  // 평소: 최근 2일 · 백필: 직전 5주를 1주씩 (주당 검색 결과 상한 때문에 나눠서 받아요)
-  const windows = backfill
-    ? Array.from({ length: 5 }, (_, w) => ` after:${ymd(now - (w + 1) * 7 * DAY)} before:${ymd(now - w * 7 * DAY + DAY)}`)
-    : [" when:2d"];
-  // 주제별 검색 + 정부 발표(정책브리핑) + 해외 통신사 영문 기사
-  const queries = [
-    ...TOPICS.map(t => ({ id: t.id, q: t.q, hint: t.id })),
-    { id: "gov", q: GOV_QUERY },
-    { id: "en", q: EN_QUERY, en: true },
-    // en-global(Reuters·AP·Bloomberg·FT 세계 무역 검색)은 2026-10-06 팀 규칙에 따라 뺐어요:
-    // Google 뉴스 robots.txt 가 /rss 를 허용하지 않아서, Google 뉴스에 새로 기대는 수집은 늘리지 않아요 (docs/sources.md)
-  ];
-  for (const t of queries) {
-    let n = 0, kept = 0;
-    for (const win of windows) {
-      const items = parseFeed(await fetchText(gnews(t.q + win, t.en)));
-      n += items.length;
-      for (const i of items) {
-        const tier = outletTier(i.source, i.sourceUrl);
-        if (!tier) continue;                 // 화이트리스트에 없는 언론사는 제외
-        kept++;
-        out.push({ ...i, title: stripOutlet(i.title, i.source), source: outletName(i.source, i.sourceUrl), tier, official: tier >= 1, lang: t.en ? "en" : "ko", feed: `gnews:${t.id}`, hint: t.hint });
-      }
-      await sleep(2000);   // 같은 곳(Google 뉴스)에 보내는 요청 사이 2초 이상 (팀 규칙 C4)
-    }
-    report.push(`gnews ${t.id}: ${n}건 중 신뢰 언론사 ${kept}건`);
   }
   return { out, report };
 }
@@ -71,9 +33,8 @@ async function main() {
   const recent = items.filter(i => Date.now() - Date.parse(i.date) < 45 * DAY).map(i => ({ i, sh: shingles(i.title) }));
 
   const a = await fromFeeds();
-  const b = await fromGoogleNews();
   let added = 0, merged = 0;
-  for (const raw of [...a.out, ...b.out]) {
+  for (const raw of a.out) {
     if (byLink.has(raw.link)) continue;
     byLink.add(raw.link);
     const date = toISO(raw.date);
@@ -107,7 +68,7 @@ async function main() {
   // 한 줄에 기사 하나: 용량을 줄이면서 git diff 는 읽을 수 있게
   fs.writeFileSync(ARCHIVE, `{"updated":${JSON.stringify(new Date().toISOString())},"items":[\n${keep.map(i => JSON.stringify(i)).join(",\n")}\n]}\n`);
 
-  console.log([...a.report, ...b.report].join("\n"));
+  console.log(a.report.join("\n"));
   console.log(`새 기사 ${added}건 · 중복으로 묶음 ${merged}건 · AI 분류 ${ai}건 · 보관 ${keep.length}건`);
 }
 

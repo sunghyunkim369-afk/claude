@@ -2,46 +2,39 @@
 // 바꿀 일이 생기면 이 파일만 고치면 돼요. (자세한 근거: docs/news-algorithm.md)
 
 // ── 1. 출처 ─────────────────────────────────────────────────────────
-// tier: 신뢰도 가중치 (정부·국제기구 1.0 > 통신사 0.9 > 주요 경제지·방송 0.8)
-// kind: "rss" 는 피드 전체를 받아 무역 관련 기사만 남기고, "gnews" 는 Google 뉴스 검색 결과에서
-//       아래 OUTLETS 화이트리스트에 있는 언론사 기사만 남겨요.
+// tier: 신뢰도 가중치 (정부·국제기구 1.0 > 통신사 0.9 > 주요 경제지·방송 0.8 > 전문지 0.7)
+// enabled: false 면 수집기가 건너뛰어요. 이용약관 확인이 끝나지 않았거나 robots.txt 가 막은 출처는 꺼 둬요 (docs/sources.md)
+// 2026-10-06 팀 규칙: Google 뉴스 검색(robots.txt 가 /rss 미허용)과 WTO RSS(robots.txt 전체 금지)는 삭제,
+//                    한국경제는 이용약관(자동 수집 조항) 확인 전까지 꺼 둠
 const FEEDS = [
-  { id: "yna-economy", name: "연합뉴스", tier: 0.9, url: "https://www.yna.co.kr/rss/economy.xml" },
-  { id: "yna-industry", name: "연합뉴스", tier: 0.9, url: "https://www.yna.co.kr/rss/industry.xml" },
-  { id: "yna-international", name: "연합뉴스", tier: 0.9, url: "https://www.yna.co.kr/rss/international.xml" },
-  { id: "hankyung-economy", name: "한국경제", tier: 0.8, url: "https://www.hankyung.com/feed/economy" },
-  { id: "hankyung-intl", name: "한국경제", tier: 0.8, url: "https://www.hankyung.com/feed/international" },
-  { id: "mk-economy", name: "매일경제", tier: 0.8, url: "https://www.mk.co.kr/rss/30100041/" },
-  { id: "wto-news", name: "WTO", tier: 1.0, url: "https://www.wto.org/library/rss/latest_news_e.xml", official: true, lang: "en" },
+  { id: "yna-economy", name: "연합뉴스", tier: 0.9, enabled: true, url: "https://www.yna.co.kr/rss/economy.xml" },
+  { id: "yna-industry", name: "연합뉴스", tier: 0.9, enabled: true, url: "https://www.yna.co.kr/rss/industry.xml" },
+  { id: "yna-international", name: "연합뉴스", tier: 0.9, enabled: true, url: "https://www.yna.co.kr/rss/international.xml" },
+  { id: "hankyung-economy", name: "한국경제", tier: 0.8, enabled: false, url: "https://www.hankyung.com/feed/economy" },
+  { id: "hankyung-intl", name: "한국경제", tier: 0.8, enabled: false, url: "https://www.hankyung.com/feed/international" },
+  { id: "mk-economy", name: "매일경제", tier: 0.8, enabled: true, url: "https://www.mk.co.kr/rss/30100041/" },
   // 정책브리핑(korea.kr) 부처별 RSS, USTR, 미 상무부, KOTRA 는 2026-10 점검 때 404/403/빈 피드라 뺐어요.
-  // 정부 발표는 아래 GOV_QUERY(Google 뉴스의 정책브리핑 검색)로 받아요.
+  // (정부 발표를 받던 Google 뉴스의 정책브리핑 검색은 삭제했어요. 정책브리핑 직접 RSS 는 docs/sources.md 후보 참고)
 
   // ── 해외 1차 출처 (2026-10 추가, feed-probe.yml 로 200 응답 확인) ──
   // country: 본문에 상대국이 없을 때 쓰는 기본 상대국 (미국 정부 발표 → "미국 ○○" 이슈)
   // skip: 매달 반복되는 행정 공고처럼 뉴스가 아닌 제목은 버려요
-  { id: "ustr", name: "USTR", tier: 1.0, url: "https://ustr.gov/rss.xml", official: true, lang: "en", country: "us" },
-  { id: "whitehouse", name: "White House", tier: 1.0, url: "https://www.whitehouse.gov/presidential-actions/feed/", official: true, lang: "en", country: "us" },
+  { id: "ustr", name: "USTR", tier: 1.0, enabled: true, url: "https://ustr.gov/rss.xml", official: true, lang: "en", country: "us" },
+  { id: "whitehouse", name: "White House", tier: 1.0, enabled: true, url: "https://www.whitehouse.gov/presidential-actions/feed/", official: true, lang: "en", country: "us" },
   // 미 관보: 상무부 국제무역청(반덤핑·상계관세)·산업안보국(수출통제)·USTR 의 한국 관련 결정
-  { id: "fedreg-korea", name: "Federal Register", tier: 1.0, official: true, lang: "en", country: "us", all: true,
+  { id: "fedreg-korea", name: "Federal Register", tier: 1.0, enabled: true, official: true, lang: "en", country: "us", all: true,
     url: "https://www.federalregister.gov/api/v1/documents.rss?conditions%5Bterm%5D=Korea&conditions%5Bagencies%5D%5B%5D=international-trade-administration&conditions%5Bagencies%5D%5B%5D=industry-and-security-bureau&conditions%5Bagencies%5D%5B%5D=trade-representative-office-of-united-states&order=newest",
     skip: /opportunity to request|initiation of (antidumping|five-year)|sunshine act|meeting|information collection|agency information|correction/i },
-  { id: "eu-press", name: "European Commission", tier: 1.0, url: "https://ec.europa.eu/commission/presscorner/api/rss?language=en&pagesize=50", official: true, lang: "en", country: "eu" },
+  { id: "eu-press", name: "European Commission", tier: 1.0, enabled: true, url: "https://ec.europa.eu/commission/presscorner/api/rss?language=en&pagesize=50", official: true, lang: "en", country: "eu" },
   // ── 해외 언론 ──
-  { id: "nikkei-asia", name: "Nikkei Asia", tier: 0.8, url: "https://asia.nikkei.com/rss/feed/nar", lang: "en" },
-  { id: "scmp-economy", name: "SCMP", tier: 0.8, url: "https://www.scmp.com/rss/318421/feed", lang: "en" },
+  { id: "nikkei-asia", name: "Nikkei Asia", tier: 0.8, enabled: true, url: "https://asia.nikkei.com/rss/feed/nar", lang: "en" },
+  { id: "scmp-economy", name: "SCMP", tier: 0.8, enabled: true, url: "https://www.scmp.com/rss/318421/feed", lang: "en" },
   // ── 해운 전문지 (운임·항로·항만) — Splash247 은 선박 금융·수주 기사가 대부분이라 2026-10 에 뺐어요 ──
-  { id: "gcaptain", name: "gCaptain", tier: 0.7, url: "https://gcaptain.com/feed/", lang: "en" },
-  { id: "loadstar", name: "The Loadstar", tier: 0.7, url: "https://theloadstar.com/feed/", lang: "en" },
+  { id: "gcaptain", name: "gCaptain", tier: 0.7, enabled: true, url: "https://gcaptain.com/feed/", lang: "en" },
+  { id: "loadstar", name: "The Loadstar", tier: 0.7, enabled: true, url: "https://theloadstar.com/feed/", lang: "en" },
 ];
 
-// 정부 발표 (정책브리핑) · 해외 통신사 영문 기사도 Google 뉴스 검색으로 받아요
-const GOV_QUERY = "site:korea.kr 관세 OR 수출 OR 통상 OR 무역 OR 공급망";
-// "supply chain" 은 기업 투자·제휴 기사까지 끌어와서 뺐어요 (2026-10)
-const EN_QUERY = "Korea tariff OR \"export controls\" OR \"trade deal\" OR \"anti-dumping\" OR \"critical minerals\"";
-// 해외 통신사·경제지의 세계 무역 기사 (한국 언급이 없어도). 한국 관련도가 낮아 점수에는 0.5배쯤만 반영돼요.
-const GLOBAL_EN_QUERY = "(site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:ft.com OR site:asia.nikkei.com) (tariff OR \"export controls\" OR sanctions OR \"trade deal\" OR antidumping)";
-
-// Google 뉴스 검색에서 받아들이는 언론사: 이름 앞부분 또는 원문 도메인이 맞아야 통과 (스포츠·연예 계열 제외)
+// 신뢰 언론사 목록: 이름 앞부분 또는 원문 도메인이 맞아야 통과 (스포츠·연예 계열 제외). 지금은 출처 이름 정리·속보 신뢰도 확인에 써요
 // (Daum 등 포털 재전송은 원 언론사를 알 수 없어서 제외)
 const OUTLETS = [
   { tier: 1.0, match: ["정책브리핑", "대한민국 정책브리핑", "산업통상자원부", "관세청", "기획재정부"], domains: ["korea.kr", "motie.go.kr", "customs.go.kr", "moef.go.kr"] },
@@ -83,20 +76,20 @@ const OUTLETS = [
 
 // ── 2. 이슈 분류표 ───────────────────────────────────────────────────
 // 무역 이슈를 고정된 주제로 나눠요. 같은 주제 기사들이 하나의 "이슈"가 돼요.
-// q: Google 뉴스 검색어 (Korean outlets) · kw: 기사 제목·요약에서 찾는 단어 · risk: 공급망 리스크로도 보여줄지
+// kw: 기사 제목·요약에서 찾는 단어 · risk: 공급망 리스크로도 보여줄지
 const TOPICS = [
-  { id: "tariff", label: "관세", q: "관세 OR 상호관세 OR 보복관세", kw: ["관세", "상호관세", "보복관세", "tariff", "duties", "section 232", "section 301", "adjusting imports"] },
-  { id: "export_control", label: "수출통제", q: "수출통제 OR 수출 규제 OR 엔티티리스트", kw: ["수출통제", "수출 통제", "수출규제", "수출 규제", "수출제한", "엔티티 리스트", "엔티티리스트", "export control", "entity list"], risk: true },
-  { id: "trade_remedy", label: "반덤핑·무역구제", q: "반덤핑 OR 상계관세 OR 세이프가드", kw: ["반덤핑", "상계관세", "세이프가드", "무역구제", "anti-dumping", "antidumping", "countervailing", "safeguard"] },
-  { id: "agreement", label: "FTA·통상협정", q: "FTA OR 통상협정 OR 통상장관", kw: ["FTA", "자유무역협정", "통상협정", "CEPA", "RCEP", "CPTPP", "IPEF", "통상장관", "통상교섭", "trade agreement", "trade deal"] },
-  { id: "sanctions", label: "경제제재", q: "경제제재 OR 대러 제재 OR 이란 제재", kw: ["제재", "sanction"], risk: true },
-  { id: "shipping", label: "해운·물류", q: "해상운임 OR 컨테이너 운임 OR 홍해 해운", kw: ["해운", "운임", "컨테이너", "홍해", "수에즈", "파나마 운하", "물류대란", "항만", "freight", "shipping"], risk: true },
-  { id: "supply_chain", label: "공급망·핵심광물", q: "공급망 OR 핵심광물 OR 희토류", kw: ["공급망", "핵심광물", "희토류", "요소수", "supply chain", "critical mineral", "rare earth"], risk: true },
-  { id: "fx", label: "환율", q: "원달러 환율 수출", kw: ["환율", "원·달러", "원/달러", "원달러", "exchange rate"] },
-  { id: "energy", label: "유가·원자재", q: "국제유가 OR 원자재 가격 수입", kw: ["국제유가", "유가 상승", "유가 하락", "유가 급등", "원유", "브렌트유", "WTI", "LNG", "원자재", "oil price", "crude"], risk: true },
-  { id: "subsidy", label: "보조금·산업정책", q: "IRA 보조금 OR 반도체법 OR 칩스법", kw: ["IRA", "인플레이션감축법", "칩스법", "반도체법", "반도체 보조금", "산업 보조금", "생산 보조금", "세액공제", "CHIPS Act", "subsid"] },
-  { id: "customs", label: "통관·원산지", q: "관세청 통관 OR 원산지 단속", kw: ["통관", "관세청", "원산지", "수입 검역", "수입검역", "검역 협상", "밀수", "customs"] },
-  { id: "export_trend", label: "수출입 동향", q: "수출 증가 OR 수출 감소 OR 무역수지", kw: ["수출액", "수입액", "무역수지", "수출 증가", "수출 감소", "수출이", "수출입동향", "exports rose", "exports fell", "trade balance"] },
+  { id: "tariff", label: "관세", kw: ["관세", "상호관세", "보복관세", "tariff", "duties", "section 232", "section 301", "adjusting imports"] },
+  { id: "export_control", label: "수출통제", kw: ["수출통제", "수출 통제", "수출규제", "수출 규제", "수출제한", "엔티티 리스트", "엔티티리스트", "export control", "entity list"], risk: true },
+  { id: "trade_remedy", label: "반덤핑·무역구제", kw: ["반덤핑", "상계관세", "세이프가드", "무역구제", "anti-dumping", "antidumping", "countervailing", "safeguard"] },
+  { id: "agreement", label: "FTA·통상협정", kw: ["FTA", "자유무역협정", "통상협정", "CEPA", "RCEP", "CPTPP", "IPEF", "통상장관", "통상교섭", "trade agreement", "trade deal"] },
+  { id: "sanctions", label: "경제제재", kw: ["제재", "sanction"], risk: true },
+  { id: "shipping", label: "해운·물류", kw: ["해운", "운임", "컨테이너", "홍해", "수에즈", "파나마 운하", "물류대란", "항만", "freight", "shipping"], risk: true },
+  { id: "supply_chain", label: "공급망·핵심광물", kw: ["공급망", "핵심광물", "희토류", "요소수", "supply chain", "critical mineral", "rare earth"], risk: true },
+  { id: "fx", label: "환율", kw: ["환율", "원·달러", "원/달러", "원달러", "exchange rate"] },
+  { id: "energy", label: "유가·원자재", kw: ["국제유가", "유가 상승", "유가 하락", "유가 급등", "원유", "브렌트유", "WTI", "LNG", "원자재", "oil price", "crude"], risk: true },
+  { id: "subsidy", label: "보조금·산업정책", kw: ["IRA", "인플레이션감축법", "칩스법", "반도체법", "반도체 보조금", "산업 보조금", "생산 보조금", "세액공제", "CHIPS Act", "subsid"] },
+  { id: "customs", label: "통관·원산지", kw: ["통관", "관세청", "원산지", "수입 검역", "수입검역", "검역 협상", "밀수", "customs"] },
+  { id: "export_trend", label: "수출입 동향", kw: ["수출액", "수입액", "무역수지", "수출 증가", "수출 감소", "수출이", "수출입동향", "exports rose", "exports fell", "trade balance"] },
 ];
 
 // 무역 관련 기사인지 거르는 기본 단어 (RSS 피드는 TOPICS 단어가 하나라도 있어야 남겨요)
@@ -171,4 +164,4 @@ const SCORE = {
   outletDecay: 0.5,       // 한 이슈에서 같은 언론사 k번째 기사는 무게 × 1/k^0.5 (속보·2보·종합 반복 보도 억제, 2026-10)
 };
 
-module.exports = { TOPIC_EXCLUDE, CORE_TRADE, PROMO, LEAD_MIN_RELEVANCE, FEEDS, GOV_QUERY, EN_QUERY, GLOBAL_EN_QUERY, COUNTRIES, OUTLETS, TOPICS, TRADE_WORDS, SECTORS, TIGHTEN, EASE, KOREA_WORDS, SCORE };
+module.exports = { TOPIC_EXCLUDE, CORE_TRADE, PROMO, LEAD_MIN_RELEVANCE, FEEDS, COUNTRIES, OUTLETS, TOPICS, TRADE_WORDS, SECTORS, TIGHTEN, EASE, KOREA_WORDS, SCORE };

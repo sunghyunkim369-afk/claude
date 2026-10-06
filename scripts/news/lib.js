@@ -4,7 +4,9 @@ const { OUTLETS, TOPICS, TRADE_WORDS, SECTORS, COUNTRIES, TIGHTEN, EASE, KOREA_W
 const UA = "Mozilla/5.0 (compatible; TradeCompassBot/1.0; +https://tcmvp.eyefeet.com)";
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-async function fetchText(url, tries = 2) {
+// 실패하면 최대 2번까지 다시 시도하고, 간격은 5초 → 15초로 늘려요 (팀 규칙 C4)
+const RETRY_WAIT = [5000, 15000];
+async function fetchText(url, tries = 3) {
   for (let i = 0; i < tries; i++) {
     try {
       const ctrl = new AbortController();
@@ -14,7 +16,7 @@ async function fetchText(url, tries = 2) {
       if (r.ok) return await r.text();
       if (r.status < 500) return null;
     } catch { /* 재시도 */ }
-    await sleep(2000 * (i + 1));   // 재시도 간격은 점점 늘려요 (2초, 4초…)
+    if (i < tries - 1) await sleep(RETRY_WAIT[i] || 15000);
   }
   return null;
 }

@@ -23,7 +23,7 @@
 - 수집: `.github/workflows/news-collect.yml` 이 6시간마다 `data/news/archive.json` 에 기사를 쌓아요.
 - 발행: `.github/workflows/news-publish.yml` 이 매주 월요일 06:47(KST)에 `tradecompass-mvp/data.js`, `data/news/latest.json` 을 만들어 두 브랜치에 올리고 GitHub Pages 를 다시 배포해요.
 - eyefeet: `/api/data` 가 `main` 의 `latest.json` 을 전달해서, 재배포 없이 새 주간 데이터가 보여요.
-- 직접 실행: `node scripts/news/collect.js --backfill` → `node scripts/news/publish.js`
+- 직접 실행: `node scripts/news/collect.js` → `node scripts/news/publish.js` (출처는 `scripts/news/config.js` 의 enabled RSS, 확인 기록은 `docs/sources.md`)
 - (선택) GitHub → Settings → Secrets → Actions 에 `AI_API_KEY` 를 넣으면 Eyefeet AI 가 기사 분류·주간 요약을 보완해요.
 
 ## 직구·여행 통관 도우미

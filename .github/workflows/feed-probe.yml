@@ -1,6 +1,6 @@
 name: News feed probe
 
-# 뉴스 출처 후보의 RSS가 실제로 받아지는지 확인하는 수동 점검
+# 뉴스 출처 후보의 RSS가 실제로 받아지는지 확인하는 수동 점검 (Google 뉴스는 robots.txt 미허용이라 점검하지 않아요)
 on:
   workflow_dispatch:
 
@@ -34,9 +34,6 @@ jobs:
           check "hankyung-economy" "https://www.hankyung.com/feed/economy"
           check "hankyung-intl"    "https://www.hankyung.com/feed/international"
           check "mk-economy"       "https://www.mk.co.kr/rss/30100041/"
-          check "gnews-ko-tariff"  "https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%20when%3A7d&hl=ko&gl=KR&ceid=KR%3Ako"
-          check "gnews-ko-export"  "https://news.google.com/rss/search?q=%EC%88%98%EC%B6%9C%20%EA%B7%9C%EC%A0%9C%20when%3A7d&hl=ko&gl=KR&ceid=KR%3Ako"
-          check "gnews-en-tariff"  "https://news.google.com/rss/search?q=tariff%20Korea%20when%3A7d&hl=en-US&gl=US&ceid=US%3Aen"
           check "wto-news"         "https://www.wto.org/library/rss/latest_news_e.xml"
           check "ustr-press"       "https://ustr.gov/about-us/policy-offices/press-office/press-releases/feed"
           check "commerce-news"    "https://www.commerce.gov/feeds/news"
@@ -64,10 +61,3 @@ jobs:
           check "splash247"        "https://splash247.com/feed/"
           check "loadstar"         "https://theloadstar.com/feed/"
           check "freightwaves"     "https://www.freightwaves.com/news/feed"
-          for site in reuters.com apnews.com bloomberg.com ft.com asia.nikkei.com scmp.com; do
-            check "gnews-$site" "https://news.google.com/rss/search?q=site%3A$site%20(tariff%20OR%20%22export%20controls%22%20OR%20sanctions%20OR%20%22trade%20deal%22)%20when%3A7d&hl=en-US&gl=US&ceid=US%3Aen"
-          done
-          echo "--- google news EN global trade sources ---"
-          curl -sL -A "Mozilla/5.0" --max-time 25 "https://news.google.com/rss/search?q=tariff%20OR%20%22export%20controls%22%20OR%20%22trade%20deal%22%20when%3A2d&hl=en-US&gl=US&ceid=US%3Aen" | grep -o '<source url="[^"]*">[^<]*' | sort | uniq -c | sort -rn | head -30
-          echo "--- google news sample sources ---"
-          curl -sL -A "Mozilla/5.0" --max-time 25 "https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%20when%3A7d&hl=ko&gl=KR&ceid=KR%3Ako" | grep -o '<source url="[^"]*">[^<]*' | sort | uniq -c | sort -rn | head -25

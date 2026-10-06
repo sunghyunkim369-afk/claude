@@ -2,16 +2,11 @@ name: News collect
 
 # 6시간마다 공식·유명 출처에서 무역 기사를 모아 data/news/archive.json 에 쌓고,
 # 최근 24시간 속보(data/news/breaking.json, tradecompass-mvp/breaking.js)를 새로 만들어 두 브랜치에 올린 뒤 GitHub Pages 를 다시 배포해요.
-# 처음 한 번은 Actions 화면에서 backfill 을 켜고 실행하면 직전 5주치를 채워요.
+# 출처는 scripts/news/config.js 의 enabled RSS 만 (Google 뉴스 검색·과거 채우기는 2026-10-06 삭제)
 on:
   schedule:
     - cron: "17 */6 * * *"
   workflow_dispatch:
-    inputs:
-      backfill:
-        description: "직전 5주치를 한 번에 채우기"
-        type: boolean
-        default: false
 
 permissions:
   contents: write
@@ -37,7 +32,7 @@ jobs:
       - name: Collect
         env:
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
-        run: node scripts/news/collect.js ${{ inputs.backfill && '--backfill' || '' }}
+        run: node scripts/news/collect.js
       - name: Breaking news (last 24h)
         run: node scripts/news/breaking.js
       - name: Commit and push

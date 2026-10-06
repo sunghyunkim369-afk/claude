@@ -127,3 +127,12 @@ eyefeet 주소에서만 동작하고, GitHub Pages·아티팩트에서는 버튼
 - `api/` 응답은 캐시하지 않아요 (`no-store`)
 
 GitHub Pages는 헤더를 설정할 수 없어서 이 헤더가 적용되지 않아요.
+
+## GitSalt 제출 (과제)
+
+교수님 안내에 따라 코드를 GitSalt(https://gitsalt.com/ksunghyun0125/tradecompass)에도 올려요. GitHub `main` 에 변경이 생기면 `.github/workflows/gitsalt-mirror.yml` 이 GitSalt 로 그대로 복사해요(뉴스 수집·발행 뒤에도).
+
+처음 한 번 설정:
+1. GitSalt 로그인 → 오른쪽 위 프로필 → **설정 → 애플리케이션 → 새 토큰 생성**, 권한에서 **repository: 읽기 및 쓰기** 선택
+2. GitHub 저장소 **Settings → Secrets and variables → Actions → New repository secret**, 이름 `GITSALT_TOKEN`, 값에 토큰 붙여넣기 (토큰은 채팅·코드에 쓰지 않아요)
+3. GitHub **Actions → GitSalt mirror → Run workflow**. 처음 실행 때 원래 저장소 `calc` 를 `tradecompass` 로 이름을 바꾸고 내용을 덮어써요.

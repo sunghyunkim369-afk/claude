@@ -1,0 +1,68 @@
+name: GitSalt mirror
+
+# 과제 제출용: GitHub main 을 GitSalt(gitsalt.com) 저장소로 그대로 복사해요.
+# - 필요한 것: GitHub Secrets 의 GITSALT_TOKEN (GitSalt 설정 → 애플리케이션 → 토큰, 저장소 읽기·쓰기 권한)
+# - 처음 한 번은 원래 있던 저장소 calc 를 tradecompass 로 이름을 바꾸고, 그 내용을 이 저장소로 덮어써요 (과제 담당자 동의).
+# - 봇(GITHUB_TOKEN)이 올린 커밋은 push 이벤트를 만들지 않아서, 뉴스 수집·발행이 끝날 때도 다시 복사해요.
+on:
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: ["News collect", "News publish"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gitsalt-mirror
+  cancel-in-progress: true
+
+env:
+  GS_HOST: gitsalt.com
+  GS_USER: ksunghyun0125
+  GS_OLD: calc
+  GS_REPO: tradecompass
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check token
+        id: tok
+        env:
+          TOKEN: ${{ secrets.GITSALT_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then echo "GITSALT_TOKEN 이 없어서 건너뛰어요 (README 의 GitSalt 제출 안내 참고)"; echo "ok=0" >> "$GITHUB_OUTPUT"; else echo "ok=1" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v4
+        if: steps.tok.outputs.ok == '1'
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Rename calc → tradecompass (처음 한 번만)
+        if: steps.tok.outputs.ok == '1'
+        env:
+          TOKEN: ${{ secrets.GITSALT_TOKEN }}
+        run: |
+          api="https://$GS_HOST/api/v1/repos/$GS_USER"
+          new=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: token $TOKEN" "$api/$GS_REPO")
+          if [ "$new" = "200" ]; then echo "$GS_REPO 저장소가 이미 있어요"; exit 0; fi
+          old=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: token $TOKEN" "$api/$GS_OLD")
+          if [ "$old" = "200" ]; then
+            curl -sf -X PATCH -H "Authorization: token $TOKEN" -H "Content-Type: application/json" \
+              -d "{\"name\":\"$GS_REPO\",\"description\":\"TradeCompass(무역나침반) — 무역 뉴스 대시보드와 HS·면세·직구 통관 도구\",\"website\":\"https://tcmvp.eyefeet.com\"}" \
+              "$api/$GS_OLD" > /dev/null && echo "$GS_OLD → $GS_REPO 로 이름을 바꿨어요"
+          else
+            echo "::error::GitSalt 에 $GS_REPO 도 $GS_OLD 도 없어요 (HTTP $new/$old). 토큰 권한이나 사용자 이름을 확인하세요."; exit 1
+          fi
+      - name: Push main
+        if: steps.tok.outputs.ok == '1'
+        env:
+          TOKEN: ${{ secrets.GITSALT_TOKEN }}
+        run: |
+          api="https://$GS_HOST/api/v1/repos/$GS_USER/$GS_REPO"
+          git push --force "https://$GS_USER:$TOKEN@$GS_HOST/$GS_USER/$GS_REPO.git" HEAD:refs/heads/main
+          # 기본 브랜치를 main 으로 (원래 저장소가 master 였을 수 있어서)
+          curl -sf -X PATCH -H "Authorization: token $TOKEN" -H "Content-Type: application/json" -d '{"default_branch":"main"}' "$api" > /dev/null || true
+          echo "https://$GS_HOST/$GS_USER/$GS_REPO 에 $(git rev-parse --short HEAD) 를 올렸어요"

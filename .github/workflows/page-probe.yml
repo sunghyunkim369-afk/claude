@@ -1,0 +1,29 @@
+name: Page probe
+
+# 외부 서비스 페이지를 받아 글자만 보여주는 수동 점검 (작업 공간에서 직접 못 여는 사이트 확인용)
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "확인할 주소"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        env:
+          URL: ${{ inputs.url }}
+        run: |
+          set +e
+          host=$(echo "$URL" | sed -E 's#https?://([^/]+).*#\1#')
+          echo "host=$host IP=$(getent hosts "$host" | awk '{print $1}' | head -1)"
+          curl -sSL -A "Mozilla/5.0" --max-time 20 -o page.html -w 'HTTP %{http_code} · %{url_effective}\n' "$URL"
+          echo "--- 링크 ---"
+          grep -oE 'href="[^"#]+"' page.html | sort -u | head -60
+          echo "--- 본문 글자 ---"
+          sed -E 's/<script[^>]*>.*<\/script>//g; s/<style[^>]*>.*<\/style>//g; s/<[^>]+>/ /g' page.html | tr -s ' \t' ' ' | grep -v '^\s*$' | head -c 8000

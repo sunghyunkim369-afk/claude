@@ -27,7 +27,7 @@ robots.txt 는 `.github/workflows/robots-probe.yml` 로 다시 확인할 수 있
 ## 정책브리핑(korea.kr) 직접 RSS — 후보 조사 중
 
 - robots.txt: `User-Agent: *` 에 `Allow: /` (전체 허용)
-- 짐작한 주소 `/rss/policy.xml`·`/rss/pressrelease.xml`·`/rss/dept_motie.xml` 은 404, `/rss/dept_kcs.xml`·`/etc/rss.do` 는 15초 안에 응답 없음 → **아직 쓸 수 있는 RSS 주소를 찾지 못함.** RSS 안내 페이지에서 실제 주소를 찾는 점검을 다시 돌리는 중
+- 짐작한 주소 `/rss/policy.xml`·`/rss/pressrelease.xml`·`/rss/dept_motie.xml` 은 404, `/rss/dept_kcs.xml`·`/etc/rss.do` 는 15초 안에 응답 없음 → **쓸 수 있는 RSS 주소를 찾지 못함.** 다시 점검해 보니 `/etc/rss.do` 는 메인 화면으로 넘어가고, `/etc/rssGuide.do`(200) 안에도 `.xml` 주소가 글자로 들어 있지 않아요 (화면 스크립트로 만드는 것으로 보임). 브라우저로 안내 페이지를 열어 주소를 직접 확인해야 해요
 - 이용약관·저작권: 정책브리핑 콘텐츠는 대부분 공공누리 표시가 붙어 있지만 기사마다 유형이 달라요. 제목·링크만 쓰더라도 쓰기 전에 약관을 확인해 여기에 적어요
 - 아직 `config.js` 에 넣지 않았어요
 

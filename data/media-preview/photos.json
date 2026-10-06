@@ -1,89 +1,542 @@
 {
  "tariff": [
   {
+   "file": "tariff-0.jpg",
+   "title": "Container cranes at the Port of Oakland-.jpg",
+   "creator": "Yair-haklai",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Container_cranes_at_the_Port_of_Oakland-.jpg"
+  },
+  {
+   "file": "tariff-1.jpg",
+   "title": "Container cranes at the Port of Oakland.jpg",
+   "creator": "Cullen328",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Container_cranes_at_the_Port_of_Oakland.jpg"
+  },
+  {
+   "file": "tariff-2.jpg",
+   "title": "Port cranes, Container-Terminal Bremerhaven.jpg",
+   "creator": "Olga Ernst",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Port_cranes,_Container-Terminal_Bremerhaven.jpg"
+  },
+  {
    "file": "tariff-3.jpg",
-   "title": "Quay cranes Port",
-   "creator": null,
-   "license": "cc0 1.0",
-   "source": "https://www.rawpixel.com/image/8732370/photo-image-public-domain-water",
-   "provider": "rawpixel"
+   "title": "Container-Terminal Bremerhaven 02.jpg",
+   "creator": "H. Zell",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Container-Terminal_Bremerhaven_02.jpg"
   }
  ],
- "export_control": [],
- "trade_remedy": [],
- "shipping": [],
- "supply_chain": [],
- "energy": [],
- "fx": [],
+ "export_control": [
+  {
+   "file": "export_control-0.jpg",
+   "title": "A semiconductor wafer being removed from processing equipment.jpg",
+   "creator": "YouTube — Purdue Engineering",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:A_semiconductor_wafer_being_removed_from_processing_equipment.jpg"
+  },
+  {
+   "file": "export_control-1.jpg",
+   "title": "Wafer 20110212.jpg",
+   "creator": "Sangitiana Fararano",
+   "license": "CC BY-SA 2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Wafer_20110212.jpg"
+  },
+  {
+   "file": "export_control-2.jpg",
+   "title": "Semiconductor Wafer of Microelectronics.jpg",
+   "creator": "DrHughManning",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Semiconductor_Wafer_of_Microelectronics.jpg"
+  },
+  {
+   "file": "export_control-3.jpg",
+   "title": "Wafer - 2.jpg",
+   "creator": "Windell Oskay",
+   "license": "CC BY 2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Wafer_-_2.jpg"
+  }
+ ],
+ "trade_remedy": [
+  {
+   "file": "trade_remedy-0.jpg",
+   "title": "Steel coils loaded on truck deck.jpg",
+   "creator": "Fumikas Sagisavas",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:Steel_coils_loaded_on_truck_deck.jpg"
+  },
+  {
+   "file": "trade_remedy-1.jpg",
+   "title": "Colored steel coils.jpg",
+   "creator": "Fumikas Sagisavas",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:Colored_steel_coils.jpg"
+  },
+  {
+   "file": "trade_remedy-2.jpg",
+   "title": "HDG Coils - Leeco Steel Trading - Antonio Carlos Rosset.jpg",
+   "creator": "Arosset",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:HDG_Coils_-_Leeco_Steel_Trading_-_Antonio_Carlos_Rosset.jpg"
+  },
+  {
+   "file": "trade_remedy-3.jpg",
+   "title": "Steel Coils - Leeco Steel - Antonio Rosset.jpg",
+   "creator": "Arosset",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Steel_Coils_-_Leeco_Steel_-_Antonio_Rosset.jpg"
+  }
+ ],
+ "shipping": [
+  {
+   "file": "shipping-0.jpg",
+   "title": "MSC HARMONY III (container ship, 2006) in Port Koper (SIKOP, 2024).jpg",
+   "creator": "Petar Milošević",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:MSC_HARMONY_III_(container_ship,_2006)_in_Port_Koper_(SIKOP,_2024).jpg"
+  },
+  {
+   "file": "shipping-1.jpg",
+   "title": "Container ship Reecon Whale on Black Sea near Constanța Romania.jpg",
+   "creator": "HopsonRoad",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Container_ship_Reecon_Whale_on_Black_Sea_near_Constan%C8%9Ba_Romania.jpg"
+  },
+  {
+   "file": "shipping-2.jpg",
+   "title": "Container ship Express Black Sea in Fremantle Harbour, April 2026 02.jpg",
+   "creator": "Calistemon",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Container_ship_Express_Black_Sea_in_Fremantle_Harbour,_April_2026_02.jpg"
+  },
+  {
+   "file": "shipping-3.jpg",
+   "title": "Container ship Express Black Sea in Fremantle Harbour, April 2026 01.jpg",
+   "creator": "Calistemon",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Container_ship_Express_Black_Sea_in_Fremantle_Harbour,_April_2026_01.jpg"
+  }
+ ],
+ "supply_chain": [
+  {
+   "file": "supply_chain-0.jpg",
+   "title": "Container-Terminal Bremerhaven 02.jpg",
+   "creator": "H. Zell",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Container-Terminal_Bremerhaven_02.jpg"
+  },
+  {
+   "file": "supply_chain-1.jpg",
+   "title": "Singapore Cargo-Terminal-02.jpg",
+   "creator": "CEphoto, Uwe Aranas",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Singapore_Cargo-Terminal-02.jpg"
+  },
+  {
+   "file": "supply_chain-2.jpg",
+   "title": "2025-08-31 D300-7711 Achim-Lammerts Mannheim-Rheinhafen.jpg",
+   "creator": "Achim Lammerts (Syntaxys)",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:2025-08-31_D300-7711_Achim-Lammerts_Mannheim-Rheinhafen.jpg"
+  },
+  {
+   "file": "supply_chain-3.jpg",
+   "title": "Singapore Cargo-Terminal-01.jpg",
+   "creator": "CEphoto, Uwe Aranas",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Singapore_Cargo-Terminal-01.jpg"
+  }
+ ],
+ "energy": [
+  {
+   "file": "energy-0.jpg",
+   "title": "2022-09-04 01 ACADIAN - IMO 9298715 tanker – St. John’s NL Canada.jpg",
+   "creator": "Gordon Leggett",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:2022-09-04_01_ACADIAN_-_IMO_9298715_tanker_%E2%80%93_St._John%E2%80%99s_NL_Canada.jpg"
+  },
+  {
+   "file": "energy-1.jpg",
+   "title": "Anna Chemical Oil tanker - IMO 7384986 on Deûle (3).jpg",
+   "creator": "Pierre André Leclercq",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Anna_Chemical_Oil_tanker_-_IMO_7384986_on_De%C3%BBle_(3).jpg"
+  },
+  {
+   "file": "energy-2.jpg",
+   "title": "VIew of Oil Tanker in 1972, facing Stern.png",
+   "creator": "Roger Vreeland",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:VIew_of_Oil_Tanker_in_1972,_facing_Stern.png"
+  },
+  {
+   "file": "energy-3.jpg",
+   "title": "VIew of Oil Tanker in 1972, facing Bow.png",
+   "creator": "Roger Vreeland",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:VIew_of_Oil_Tanker_in_1972,_facing_Bow.png"
+  }
+ ],
+ "fx": [
+  {
+   "file": "fx-0.jpg",
+   "title": "USD to Argentina Currency Exchange Rates.webp",
+   "creator": "Wikideas1",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:USD_to_Argentina_Currency_Exchange_Rates.webp"
+  },
+  {
+   "file": "fx-1.jpg",
+   "title": "Currency Exchange - Moldova (by David Stanley).jpg",
+   "creator": "D-Stanley",
+   "license": "CC BY 2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Currency_Exchange_-_Moldova_(by_David_Stanley).jpg"
+  },
+  {
+   "file": "fx-2.jpg",
+   "title": "Currency exchange, Route 49, Csengersima, Hungary - panoramio (5).jpg",
+   "creator": "Szemes Elek",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Currency_exchange,_Route_49,_Csengersima,_Hungary_-_panoramio_(5).jpg"
+  },
+  {
+   "file": "fx-3.jpg",
+   "title": "Currency Exchange Corporation, Oakwood tube station.jpg",
+   "creator": "Philafrenzy",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Currency_Exchange_Corporation,_Oakwood_tube_station.jpg"
+  }
+ ],
  "sanctions": [
   {
+   "file": "sanctions-0.jpg",
+   "title": "Oil Tanker in North Sea 3928.jpg",
+   "creator": "ImagePerson",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Oil_Tanker_in_North_Sea_3928.jpg"
+  },
+  {
+   "file": "sanctions-1.jpg",
+   "title": "Solomon Sea (oil tanker), in the Solent, England.jpg",
+   "creator": "ITookSomePhotos",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Solomon_Sea_(oil_tanker),_in_the_Solent,_England.jpg"
+  },
+  {
+   "file": "sanctions-2.jpg",
+   "title": "Oil tankers, Tranmere Oil Terminal (geograph 4548088).jpg",
+   "creator": "El Pollock",
+   "license": "CC BY-SA 2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Oil_tankers,_Tranmere_Oil_Terminal_(geograph_4548088).jpg"
+  },
+  {
    "file": "sanctions-3.jpg",
-   "title": "Original public domain image Wikimedia",
-   "creator": null,
-   "license": "cc0 1.0",
-   "source": "https://www.rawpixel.com/image/3304390/free-photo-image-sea-and-boat-oil-tanker-vessel-sea",
-   "provider": "rawpixel"
+   "title": "Oil tanker, gas tanker in the high sea Refinery Industry cargo ship (52848038105).jpg",
+   "creator": "Jernej Furman from Slovenia",
+   "license": "CC BY 2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Oil_tanker,_gas_tanker_in_the_high_sea_Refinery_Industry_cargo_ship_(52848038105).jpg"
   }
  ],
- "agreement": [],
+ "agreement": [
+  {
+   "file": "agreement-0.jpg",
+   "title": "Montgomery County Conference Center entrance North Bethesda MD 2023-05-22 18-36-28.jpg",
+   "creator": "G. Edward Johnson",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Montgomery_County_Conference_Center_entrance_North_Bethesda_MD_2023-05-22_18-36-28.jpg"
+  },
+  {
+   "file": "agreement-1.jpg",
+   "title": "Yalta Conference (Churchill, Roosevelt, Stalin) (B&W).jpg",
+   "creator": "US government photographer",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Yalta_Conference_(Churchill,_Roosevelt,_Stalin)_(B%26W).jpg"
+  },
+  {
+   "file": "agreement-2.jpg",
+   "title": "National Secular Conference Flag.png",
+   "creator": "Jbt498",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:National_Secular_Conference_Flag.png"
+  },
+  {
+   "file": "agreement-3.jpg",
+   "title": "The Web Conference 2019 May 13, 9 06 34 AM.jpg",
+   "creator": "Victor Grigas",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:The_Web_Conference_2019_May_13,_9_06_34_AM.jpg"
+  }
+ ],
  "customs": [
   {
    "file": "customs-0.jpg",
-   "title": "U.S. Customs Border Protection Homeland",
-   "creator": null,
-   "license": "cc0 1.0",
-   "source": "https://www.rawpixel.com/image/8738684/photo-image-public-domain-dog-animal",
-   "provider": "rawpixel"
+   "title": "The disused cargo inspection park at ROI Customs Depot at Carrickarnon on the R132 - geograph.org.uk - 6086426.jpg",
+   "creator": "Eric Jones",
+   "license": "CC BY-SA 2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:The_disused_cargo_inspection_park_at_ROI_Customs_Depot_at_Carrickarnon_on_the_R132_-_geograph.org.uk_-_6086426.jpg"
   },
   {
    "file": "customs-1.jpg",
-   "title": "Agriculture inspection specialists U.S. Customs",
-   "creator": null,
-   "license": "cc0 1.0",
-   "source": "https://www.rawpixel.com/image/8738791/photo-image-public-domain-truck",
-   "provider": "rawpixel"
+   "title": "Sandy Hurricane Cargo Inspection NYNJ-110512-1 (8467632859).jpg",
+   "creator": "CBP Photography",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Sandy_Hurricane_Cargo_Inspection_NYNJ-110512-1_(8467632859).jpg"
   },
   {
    "file": "customs-2.jpg",
-   "title": "Agriculture inspection specialists U.S. Customs",
-   "creator": null,
-   "license": "cc0 1.0",
-   "source": "https://www.rawpixel.com/image/8738826/photo-image-public-domain-usa",
-   "provider": "rawpixel"
+   "title": "U S Customs & Border Protection Port of New York - Newark Resumes Vessel and Cargo Container Inspection Following Hurricane Sandy (8167655254).jpg",
+   "creator": "CBP Photography",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:U_S_Customs_%26_Border_Protection_Port_of_New_York_-_Newark_Resumes_Vessel_and_Cargo_Container_Inspection_Following_Hurricane_Sandy_(8167655254).jpg"
   },
   {
    "file": "customs-3.jpg",
-   "title": "U.S. Customs Border Protection Homeland",
-   "creator": null,
-   "license": "cc0 1.0",
-   "source": "https://www.rawpixel.com/image/8723889/photo-image-border-public-domain-person",
-   "provider": "rawpixel"
+   "title": "Vehicle & Cargo Inspection System (VACIS) (5764600811).jpg",
+   "creator": "CBP Photography",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Vehicle_%26_Cargo_Inspection_System_(VACIS)_(5764600811).jpg"
   }
  ],
  "semi": [
   {
+   "file": "semi-0.jpg",
+   "title": "HP 1820-0250.jpg",
+   "creator": "Mister rf",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:HP_1820-0250.jpg"
+  },
+  {
+   "file": "semi-1.jpg",
+   "title": "Dallas-semiconductor-chip-art, LSU Tigers Football.jpg",
+   "creator": "KenShirriff",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Dallas-semiconductor-chip-art,_LSU_Tigers_Football.jpg"
+  },
+  {
+   "file": "semi-2.jpg",
+   "title": "Integrated circuit in a removed package.jpg",
+   "creator": "Unknown authorUnknown author",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Integrated_circuit_in_a_removed_package.jpg"
+  },
+  {
    "file": "semi-3.jpg",
-   "title": "Circuit Chip",
-   "creator": "Lenharth Systems",
-   "license": "cc0 1.0",
-   "source": "https://stocksnap.io/photo/circuit-chip-JVXOVVIZYP",
-   "provider": "stocksnap"
+   "title": "Integrated circuit on microchip.jpg",
+   "creator": "",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Integrated_circuit_on_microchip.jpg"
   }
  ],
- "auto": [],
- "battery": [],
- "steel": [],
+ "auto": [
+  {
+   "file": "auto-0.jpg",
+   "title": "Car carrier vessel LIBERTY PEACE, sailing in the Puget Sound (20240219).jpg",
+   "creator": "FPTI",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:Car_carrier_vessel_LIBERTY_PEACE,_sailing_in_the_Puget_Sound_(20240219).jpg"
+  },
+  {
+   "file": "auto-1.jpg",
+   "title": "Car carrier in Veracruz.jpg",
+   "creator": "Koffermejia",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Car_carrier_in_Veracruz.jpg"
+  },
+  {
+   "file": "auto-2.jpg",
+   "title": "Car carrier ship 'Neptune Hellas' entering the port of Haifa, Israel - 2023-03-15 (DSC1328).jpg",
+   "creator": "DmitTrix",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Car_carrier_ship_%27Neptune_Hellas%27_entering_the_port_of_Haifa,_Israel_-_2023-03-15_(DSC1328).jpg"
+  },
+  {
+   "file": "auto-3.jpg",
+   "title": "Car carrier GLOVIS SIGMA à quai.jpg",
+   "creator": "Farid mernissi",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Car_carrier_GLOVIS_SIGMA_%C3%A0_quai.jpg"
+  }
+ ],
+ "battery": [
+  {
+   "file": "battery-0.jpg",
+   "title": "18650 and 21700 lithium ion battery cell.jpg",
+   "creator": "Sevenethics",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:18650_and_21700_lithium_ion_battery_cell.jpg"
+  },
+  {
+   "file": "battery-1.jpg",
+   "title": "FC-LiB-Zn-V-1947.png",
+   "creator": "Walter Tau",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:FC-LiB-Zn-V-1947.png"
+  },
+  {
+   "file": "battery-2.jpg",
+   "title": "Lithium Iron Phosphate LiFePO4 Cells 700 Ah Amp Hours 3.25 Volts - 7.jpg",
+   "creator": "Yo-Co-Man",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Lithium_Iron_Phosphate_LiFePO4_Cells_700_Ah_Amp_Hours_3.25_Volts_-_7.jpg"
+  },
+  {
+   "file": "battery-3.jpg",
+   "title": "Pentax Optio P70 - Lithium-Ion Battery D-LI88-7555.jpg",
+   "creator": "Raimond Spekking",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Pentax_Optio_P70_-_Lithium-Ion_Battery_D-LI88-7555.jpg"
+  }
+ ],
+ "steel": [
+  {
+   "file": "steel-0.jpg",
+   "title": "13 Industry of Australia - Steelworks of BlueScope Steel Limited company in Port Kembla, Australia.jpg",
+   "creator": "Marek Ślusarczyk (Tupungato) Photo gallery",
+   "license": "CC BY 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:13_Industry_of_Australia_-_Steelworks_of_BlueScope_Steel_Limited_company_in_Port_Kembla,_Australia.jpg"
+  },
+  {
+   "file": "steel-1.jpg",
+   "title": "Katowice Steelworks bridge.jpg",
+   "creator": "Peter.shaman",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Katowice_Steelworks_bridge.jpg"
+  },
+  {
+   "file": "steel-2.jpg",
+   "title": "Steel Mill in Hamilton, Ontario 02.jpg",
+   "creator": "K2HWY",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Steel_Mill_in_Hamilton,_Ontario_02.jpg"
+  },
+  {
+   "file": "steel-3.jpg",
+   "title": "Katowice Steelworks Gate.jpg",
+   "creator": "Peter.shaman",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Katowice_Steelworks_Gate.jpg"
+  }
+ ],
  "chem": [
   {
    "file": "chem-0.jpg",
-   "title": "Petrochemical Plant Coastal Area",
-   "creator": "U.S. National Archives",
-   "license": "cc0 1.0",
-   "source": "https://www.rawpixel.com/image/8800160/photo-image-vintage-public-domain-construction",
-   "provider": "rawpixel"
+   "title": "Combinatul de cauciuc sintetic și produse petrochimice Onești aerial.jpg",
+   "creator": "Unknown authorUnknown author",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Combinatul_de_cauciuc_sintetic_%C8%99i_produse_petrochimice_One%C8%99ti_aerial.jpg"
+  },
+  {
+   "file": "chem-1.jpg",
+   "title": "Clădiri la Combinatul de cauciuc sintetic și produse petrochimice Onești.jpg",
+   "creator": "D-tru F. Dumitru",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Cl%C4%83diri_la_Combinatul_de_cauciuc_sintetic_%C8%99i_produse_petrochimice_One%C8%99ti.jpg"
+  },
+  {
+   "file": "chem-2.jpg",
+   "title": "Социалистическая Республика Румыния. Онешти.jpg",
+   "creator": "Советский художник, Москва",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%A1%D0%BE%D1%86%D0%B8%D0%B0%D0%BB%D0%B8%D1%81%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B0%D1%8F_%D0%A0%D0%B5%D1%81%D0%BF%D1%83%D0%B1%D0%BB%D0%B8%D0%BA%D0%B0_%D0%A0%D1%83%D0%BC%D1%8B%D0%BD%D0%B8%D1%8F._%D0%9E%D0%BD%D0%B5%D1%88%D1%82%D0%B8.jpg"
+  },
+  {
+   "file": "chem-3.jpg",
+   "title": "Petrochemical plant - Norway.jpg",
+   "creator": "Bitjungle",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Petrochemical_plant_-_Norway.jpg"
   }
  ],
- "ship": [],
- "machinery": [],
- "consumer": []
+ "ship": [
+  {
+   "file": "ship-0.jpg",
+   "title": "Eriksberg shipyard crane.jpg",
+   "creator": "W.carter",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:Eriksberg_shipyard_crane.jpg"
+  },
+  {
+   "file": "ship-1.jpg",
+   "title": "Ploughing at Shipyard Belize.jpg",
+   "creator": "Sipyardbelize",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Ploughing_at_Shipyard_Belize.jpg"
+  },
+  {
+   "file": "ship-2.jpg",
+   "title": "Pacific Fishermen Shipyard Ballard Seattle Washington 2023.jpg",
+   "creator": "Guywelch2000",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Pacific_Fishermen_Shipyard_Ballard_Seattle_Washington_2023.jpg"
+  },
+  {
+   "file": "ship-3.jpg",
+   "title": "Shipyard with fully enclosed assembly building.webp",
+   "creator": "OSHA - Occupational Safety and Health Administration",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Shipyard_with_fully_enclosed_assembly_building.webp"
+  }
+ ],
+ "machinery": [
+  {
+   "file": "machinery-0.jpg",
+   "title": "Billur B3-18A.jpg",
+   "creator": "Sergei Frolov, Soviet Digital Electronics Museum, http://www.leningrad.su/museum",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Billur_B3-18A.jpg"
+  },
+  {
+   "file": "machinery-1.jpg",
+   "title": "Electronics factory in Shenzhen.jpg",
+   "creator": "Steve Jurvetson from Menlo Park, USA",
+   "license": "CC BY 2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Electronics_factory_in_Shenzhen.jpg"
+  },
+  {
+   "file": "machinery-2.jpg",
+   "title": "Salora electronics factory in Salo, in South-Western Finland, in 1973 (JOKAVKH2E09-3).tif",
+   "creator": "V. K. Hietanen",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Salora_electronics_factory_in_Salo,_in_South-Western_Finland,_in_1973_(JOKAVKH2E09-3).tif"
+  },
+  {
+   "file": "machinery-3.jpg",
+   "title": "Salora electronics factory in Salo, in South-Western Finland, in 1973 (JOKAVKH2E09-6).tif",
+   "creator": "V. K. Hietanen",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Salora_electronics_factory_in_Salo,_in_South-Western_Finland,_in_1973_(JOKAVKH2E09-6).tif"
+  }
+ ],
+ "consumer": [
+  {
+   "file": "consumer-0.jpg",
+   "title": "Ensenada fish market 2.jpg",
+   "creator": "Tomascastelazo",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Ensenada_fish_market_2.jpg"
+  },
+  {
+   "file": "consumer-1.jpg",
+   "title": "Food Market in Bizerte 03.jpg",
+   "creator": "Kritzolina",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Food_Market_in_Bizerte_03.jpg"
+  },
+  {
+   "file": "consumer-2.jpg",
+   "title": "Food Market in Bizerte 01.jpg",
+   "creator": "Kritzolina",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Food_Market_in_Bizerte_01.jpg"
+  },
+  {
+   "file": "consumer-3.jpg",
+   "title": "Open street food market in Bizerte 02.jpg",
+   "creator": "Kritzolina",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Open_street_food_market_in_Bizerte_02.jpg"
+  }
+ ]
 }

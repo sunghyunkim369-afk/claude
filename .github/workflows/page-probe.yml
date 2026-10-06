@@ -23,7 +23,14 @@ jobs:
           host=$(echo "$URL" | sed -E 's#https?://([^/]+).*#\1#')
           echo "host=$host IP=$(getent hosts "$host" | awk '{print $1}' | head -1)"
           curl -sSL -A "Mozilla/5.0" --max-time 20 -o page.html -w 'HTTP %{http_code} · %{url_effective}\n' "$URL"
-          echo "--- 링크 ---"
-          grep -oE 'href="[^"#]+"' page.html | sort -u | head -60
-          echo "--- 본문 글자 ---"
-          sed -E 's/<script[^>]*>.*<\/script>//g; s/<style[^>]*>.*<\/style>//g; s/<[^>]+>/ /g' page.html | tr -s ' \t' ' ' | grep -v '^\s*$' | head -c 8000
+          python3 - <<'PY'
+          import re, html
+          t = open("page.html", encoding="utf-8", errors="ignore").read()
+          print("--- 제목 ---", re.findall(r"<title>(.*?)</title>", t, re.S)[:1])
+          print("--- 링크 ---")
+          for h in sorted(set(re.findall(r'href="([^"#]+)"', t)))[:60]: print(h)
+          t = re.sub(r"(?is)<(script|style|svg)[^>]*>.*?</\1>", " ", t)
+          t = html.unescape(re.sub(r"(?s)<[^>]+>", "\n", t))
+          lines = [l.strip() for l in t.splitlines() if l.strip()]
+          print("--- 본문 ---"); print("\n".join(lines)[:6000])
+          PY

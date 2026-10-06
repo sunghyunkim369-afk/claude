@@ -1,19 +1,15 @@
 // 주간 발행: data/news/archive.json 의 실제 기사로 이번 주 Top10 이슈·섹터 노출도·리스크·뉴스 피드를 계산해
 // tradecompass-mvp/data.js (사이트가 바로 읽는 파일) 와 data/news/latest.json (eyefeet /api/data 가 읽는 파일) 을 만들어요.
 // 실행: node scripts/news/publish.js   (매주 월요일 아침 자동 실행 · 계산 근거는 docs/news-algorithm.md)
+// 파일 위치는 환경변수 NEWS_DATA_DIR·NEWS_WEB_DIR 로 바꿀 수 있어요 (paths.js)
 const fs = require("fs");
-const path = require("path");
 const { TOPICS, SECTORS, COUNTRIES, SCORE } = require("./config");
 const { weeklyBrief } = require("./ai");
 const { finalize, outletName, stripOutlet, rankForIssue, isPromo, isOpinion, issueRelevance, dedupeEvents } = require("./lib");
 const { LEAD_MIN_RELEVANCE } = require("./config");
 
-const ROOT = path.join(__dirname, "..", "..");
-const ARCHIVE = path.join(ROOT, "data", "news", "archive.json");
-const OUT_JSON = path.join(ROOT, "data", "news", "latest.json");
-const OUT_JS = path.join(ROOT, "tradecompass-mvp", "data.js");
-// 주마다 발행한 Top10 기록 (지난주 대비 순위 변화를 보여주려고 남겨요)
-const HISTORY = path.join(ROOT, "data", "news", "history.json");
+// HISTORY: 주마다 발행한 Top10 기록 (지난주 대비 순위 변화를 보여주려고 남겨요)
+const { ARCHIVE, LATEST: OUT_JSON, DATA_JS: OUT_JS, HISTORY, write } = require("./paths");
 const DAY = 86_400_000;
 
 const topicById = Object.fromEntries(TOPICS.map(t => [t.id, t]));
@@ -306,10 +302,9 @@ async function main() {
     trade: null,   // 월간 수출입 통계는 관세청 공공데이터 API 키가 생기면 붙일 자리
   };
 
-  fs.mkdirSync(path.dirname(OUT_JSON), { recursive: true });
-  fs.writeFileSync(OUT_JSON, JSON.stringify(data, null, 1));
-  fs.writeFileSync(HISTORY, JSON.stringify(history, null, 1) + "\n");
-  fs.writeFileSync(OUT_JS, `// 무역나침반 데이터 — scripts/news/publish.js 가 매주 실제 뉴스로 자동 생성해요. 직접 고치지 마세요.\n// 기간: ${data.meta.period} · 기사 ${week.length}건 · 생성 ${data.meta.generated}\nwindow.TC_DATA = ${JSON.stringify(data, null, 1)};\n`);
+  write(OUT_JSON, JSON.stringify(data, null, 1));
+  write(HISTORY, JSON.stringify(history, null, 1) + "\n");
+  write(OUT_JS, `// 무역나침반 데이터 — scripts/news/publish.js 가 매주 실제 뉴스로 자동 생성해요. 직접 고치지 마세요.\n// 기간: ${data.meta.period} · 기사 ${week.length}건 · 생성 ${data.meta.generated}\nwindow.TC_DATA = ${JSON.stringify(data, null, 1)};\n`);
 
   console.log(`기간 ${data.meta.period} · 이번 주 기사 ${week.length}건(비교 가능 출처 ${weekC.length}건) · 직전 4주 ${base.length}건 · 이슈 후보 ${cands.length}개`);
   // 대표 기사 점검표: 이슈 ↔ 대표 기사 제목 ↔ 관련도 (기준 미만이면 ⚠)

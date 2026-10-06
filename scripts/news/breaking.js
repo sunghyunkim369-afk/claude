@@ -1,14 +1,12 @@
 // 24시간 속보: 6시간마다 수집 직후 실행해서, 최근 24시간 신뢰 언론사 기사를 최신순으로 내보내요.
 //   data/news/breaking.json        eyefeet /api/breaking 이 읽는 파일
 //   tradecompass-mvp/breaking.js   GitHub Pages 등 정적 사이트가 바로 읽는 파일
-// 실행: node scripts/news/breaking.js
+// 실행: node scripts/news/breaking.js   (파일 위치는 NEWS_DATA_DIR·NEWS_WEB_DIR 로 바꿀 수 있어요, paths.js)
 const fs = require("fs");
-const path = require("path");
 const { TOPICS, SECTORS } = require("./config");
 const { breakingFrom, finalize, outletName, stripOutlet, BREAKING_HOURS } = require("./lib");
 
-const ROOT = path.join(__dirname, "..", "..");
-const ARCHIVE = path.join(ROOT, "data", "news", "archive.json");
+const { ARCHIVE, BREAKING, BREAKING_JS, write } = require("./paths");
 const topicById = Object.fromEntries(TOPICS.map(t => [t.id, t]));
 const sectorIds = new Set(SECTORS.map(s => s.id));
 
@@ -28,8 +26,8 @@ const list = breakingFrom(items, now).map(a => ({
   sectors: (a.sectors || []).filter(id => sectorIds.has(id)),
 }));
 const out = { generated: new Date(now).toISOString(), hours: BREAKING_HOURS, items: list };
-fs.writeFileSync(path.join(ROOT, "data", "news", "breaking.json"), JSON.stringify(out, null, 1));
-fs.writeFileSync(path.join(ROOT, "tradecompass-mvp", "breaking.js"),
+write(BREAKING, JSON.stringify(out, null, 1));
+write(BREAKING_JS,
   `// 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.\nwindow.TC_BREAKING = ${JSON.stringify(out, null, 1)};\n`);
 console.log(`속보 ${list.length}건 (최근 ${BREAKING_HOURS}시간, 생성 ${out.generated})`);
 list.slice(0, 5).forEach(a => console.log(`- ${a.at.slice(5, 16)} ${a.source} · ${a.title}`));

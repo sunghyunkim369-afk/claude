@@ -264,12 +264,15 @@ function sectorPage(s) {
 
 // ── AI 분석 (Eyefeet AI) ──
 // 화면에 있는 데이터를 글로 정리해 /api/ai 로 보내고, 돌아온 분석을 카드에 그려요.
+// 섹터 'AI 영향 분석'·대시보드 'AI에게 묻기'는 통합 단계에서 숨겨 둬요 (false). 통관 도구 AI 4개는 tools.js 에서 그대로 써요.
+const NEWS_AI = false;
 const AI_EXAMPLES = ["반도체 수출기업은 지금 무엇을 확인해야 하나요?", "홍해 리스크가 유럽 수출 물류비에 주는 영향은?", "이번 주 가장 주의할 섹터와 이유는?"];
 // 섹터 AI: 이슈별 보도량 방향과 무역 조치 방향만 보여줘요 (기업·업종에 긍정/부정 평가를 붙이지 않아요)
 const TREND = { up: "보도 ▲ 늘어남", down: "보도 ▼ 줄어듦", flat: "보도 – 비슷" };
 const MEASURE = { tighten: ["조치 강화", "up"], ease: ["조치 완화", "down"], none: ["조치 방향 없음", "flat"] };
 
 function aiCard(kind, id, i) {
+  if (!NEWS_AI) return "";
   const sector = kind === "sector";
   const off = !window.tcAI || !tcAI.enabled;
   return `<section class="card rise ai-card" style="--i:${i}" data-ai="${kind}" data-id="${id}">
@@ -748,16 +751,23 @@ function header() {
   const d = new Date(D.meta.date + "T00:00:00");
   $("#top-date").textContent = D.meta.period ? `${D.meta.period} 기준` : d.toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "long" });
   $("#upd").textContent = D.meta.sample ? `AI 요약 · 매일 ${D.meta.updatedAt} 갱신` : `실제 뉴스 · ${D.meta.cadence || "매주"} 갱신 (${d.getMonth() + 1}/${d.getDate()})`;
-  $("#sample-pill").hidden = !D.meta.sample;
+  // 저장소에 들어 있는 data.js·breaking.js 로 그리는 동안은 '샘플 데이터' 표시를 켜 둬요. 서버(/api/data·/api/breaking)에서 둘 다 받아오면 꺼요.
+  const pill = $("#sample-pill");
+  pill.hidden = !D.meta.sample && LIVE.data && LIVE.breaking;
+  pill.title = D.meta.sample ? "예시로 만든 데이터예요" : "사이트에 함께 들어 있는 데이터로 보여주고 있어요. 서버에서 최신 데이터를 받으면 사라져요.";
   $("#nav-news").textContent = D.issues.length;
 }
+const LIVE = { data: false, breaking: false };
 header();
 
 // eyefeet 에서는 6시간마다 갱신되는 속보도 다시 배포 없이 받아와요
 if (window.tcAI && tcAI.enabled) {
   fetch("/api/breaking", { headers: { Accept: "application/json" } })
     .then(r => r.ok ? r.json() : null)
-    .then(n => { if (n && Array.isArray(n.items) && (!BR || (n.generated || "") > (BR.generated || ""))) { BR = n; refreshBreaking(); } })
+    .then(n => {
+      if (!n || !Array.isArray(n.items) || (BR && (n.generated || "") < (BR.generated || ""))) return;
+      BR = n; LIVE.breaking = true; header(); refreshBreaking();
+    })
     .catch(() => {});
 }
 
@@ -767,8 +777,8 @@ if (window.tcAI && tcAI.enabled) {
     .then(r => r.ok ? r.json() : null)
     .then(n => {
       if (!n || !n.meta || !Array.isArray(n.sectors) || !Array.isArray(n.issues)) return;
-      if (!D.meta.sample && (n.meta.generated || "") <= (D.meta.generated || "")) return;
-      D = window.TC_DATA = n;
+      if (!D.meta.sample && (n.meta.generated || "") < (D.meta.generated || "")) return;
+      D = window.TC_DATA = n; LIVE.data = true;
       sectorById = Object.fromEntries(D.sectors.map(s => [s.id, s]));
       header(); route();
     })

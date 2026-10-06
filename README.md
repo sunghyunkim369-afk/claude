@@ -24,6 +24,7 @@
 - 발행: `.github/workflows/news-publish.yml` 이 매주 월요일 06:47(KST)에 `tradecompass-mvp/data.js`, `data/news/latest.json` 을 만들어 두 브랜치에 올리고 GitHub Pages 를 다시 배포해요.
 - eyefeet: `/api/data` 가 `main` 의 `latest.json` 을 전달해서, 재배포 없이 새 주간 데이터가 보여요.
 - 직접 실행: `node scripts/news/collect.js` → `node scripts/news/publish.js` (출처는 `scripts/news/config.js` 의 enabled RSS, 확인 기록은 `docs/sources.md`)
+- 파일 위치 바꾸기: `NEWS_DATA_DIR` (archive·latest·history·breaking.json, 기본 `data/news`), `NEWS_WEB_DIR` (data.js·breaking.js, 기본 `tradecompass-mvp`, `off` 면 쓰지 않음). Node 기본 모듈만 써요 (`scripts/news/paths.js`)
 - (선택) GitHub → Settings → Secrets → Actions 에 `AI_API_KEY` 를 넣으면 Eyefeet AI 가 기사 분류·주간 요약을 보완해요.
 
 ## 직구·여행 통관 도우미
@@ -74,8 +75,8 @@ eyefeet 주소에서만 동작하고, GitHub Pages·아티팩트에서는 버튼
 | 작업 | 쓰는 곳 | 내용 |
 |---|---|---|
 | `hs` | HS코드 페이지 "AI에게 설명해서 찾기" | 품목 설명 → HS 6자리 후보 3개 + 확인 질문. 류별 분류 기준표를 함께 보내 오답을 줄이고, 화면에서 목록 품목·규칙과 대조해 다르면 경고해요 |
-| `sector` | 대시보드 섹터 상세 "AI 영향 분석" | 섹터 노출도·관련 이슈 → 영향받는 기업 유형, 지켜볼 점, 지금 확인할 일 |
-| `ask` | 대시보드 "오늘 브리핑에 대해 AI에게 묻기" | 오늘 데이터만 근거로 질문에 답변 (자료에 없으면 없다고 답함) |
+| `sector` | 대시보드 섹터 상세 "AI 영향 분석" (**지금은 숨김**, `app.js` `NEWS_AI`) | 섹터 노출도·관련 이슈 → 이슈별 보도 흐름과 조치 방향(강화·완화), 지켜볼 점, 지금 확인할 일 |
+| `ask` | 대시보드 "오늘 브리핑에 대해 AI에게 묻기" (**지금은 숨김**, `app.js` `NEWS_AI`) | 오늘 데이터만 근거로 질문에 답변 (자료에 없으면 없다고 답함) |
 
 - 응답은 20~40초 걸려요. 화면에 경과 시간을 보여주고 1분이 넘으면 멈춰요.
 - IP당 분당 6회로 제한하고, 질문 400자·참고 자료 6,000자까지만 받아요.

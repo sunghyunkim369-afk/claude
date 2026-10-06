@@ -1,14 +1,14 @@
 // 뉴스 수집: 공식·유명 출처에서 무역 관련 기사를 모아 data/news/archive.json 에 쌓아요.
 // 실행: node scripts/news/collect.js   (6시간마다 자동 실행)
+// 파일 위치는 환경변수 NEWS_DATA_DIR 로 바꿀 수 있어요 (paths.js)
 // 출처는 config.js FEEDS 중 enabled 인 RSS 만. Google 뉴스 검색과 과거 채우기(--backfill)는 2026-10-06 삭제 (docs/sources.md)
 const fs = require("fs");
-const path = require("path");
 const crypto = require("crypto");
 const { FEEDS, SCORE } = require("./config");
 const { fetchText, parseFeed, isTrade, finalize, shingles, jaccard, sleep } = require("./lib");
 const { enrich } = require("./ai");
 
-const ARCHIVE = path.join(__dirname, "..", "..", "data", "news", "archive.json");
+const { ARCHIVE, write } = require("./paths");
 const DAY = 86_400_000;
 
 const load = () => { try { return JSON.parse(fs.readFileSync(ARCHIVE, "utf8")); } catch { return { items: [] }; } };
@@ -64,9 +64,8 @@ async function main() {
 
   const keep = items.filter(i => Date.now() - Date.parse(i.date) < SCORE.archiveDays * DAY)
     .sort((x, y) => Date.parse(y.date) - Date.parse(x.date));
-  fs.mkdirSync(path.dirname(ARCHIVE), { recursive: true });
   // 한 줄에 기사 하나: 용량을 줄이면서 git diff 는 읽을 수 있게
-  fs.writeFileSync(ARCHIVE, `{"updated":${JSON.stringify(new Date().toISOString())},"items":[\n${keep.map(i => JSON.stringify(i)).join(",\n")}\n]}\n`);
+  write(ARCHIVE, `{"updated":${JSON.stringify(new Date().toISOString())},"items":[\n${keep.map(i => JSON.stringify(i)).join(",\n")}\n]}\n`);
 
   console.log(a.report.join("\n"));
   console.log(`새 기사 ${added}건 · 중복으로 묶음 ${merged}건 · AI 분류 ${ai}건 · 보관 ${keep.length}건`);

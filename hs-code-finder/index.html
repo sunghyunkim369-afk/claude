@@ -236,7 +236,7 @@ footer{margin-top:48px;font-size:.82rem;color:var(--ink-soft);border-top:1px sol
 
   <section class="ai" id="ai" aria-labelledby="ai-title">
     <div class="ai-head">
-      <h2 id="ai-title">AI에게 설명해서 찾기 <span class="beta">AI 추천 · 참고용</span></h2>
+      <h2 id="ai-title">AI에게 설명해서 찾기 <span class="beta">AI 후보 · 참고용</span></h2>
       <p>목록에 없는 물건은 재질·용도·생김새를 설명해 주세요. AI 후보를 이 페이지의 분류 규칙과 대조해 보여드려요.</p>
     </div>
     <form id="ai-form" class="ai-form">
@@ -991,7 +991,7 @@ function renderAI(r, text){
   let check = "";
   if(local){
     check = local.d.c===top.hs6
-      ? `<div class="ai-check same">이 페이지 분류 규칙으로도 <b>${escapeHtml(local.d.n)} ${fmt(local.d.c)}</b>예요. AI 추천과 같아요.</div>`
+      ? `<div class="ai-check same">이 페이지 분류 규칙으로도 <b>${escapeHtml(local.d.n)} ${fmt(local.d.c)}</b>예요. AI 후보와 같아요.</div>`
       : `<div class="ai-check diff">이 페이지 분류 규칙으로는 <b>${escapeHtml(local.d.n)} ${fmt(local.d.c)}</b>에 가까워요. AI 1순위(${fmt(top.hs6)})와 달라요.
           질문에 답하며 코드를 확인해 보세요. <button type="button" class="mini" data-open="${local.i}">${escapeHtml(local.d.n)} 열기</button></div>`;
   }
@@ -1002,7 +1002,7 @@ function renderAI(r, text){
         <div class="verify ${v.cls}">${escapeHtml(v.text)} ${v.i!==undefined?`<button type="button" class="mini" data-open="${v.i}">열기</button>`:""}</div></li>`;
     }).join("")}</ol>`
     + (r.questions.length ? `<ul class="ai-qs">${r.questions.map(q=>`<li>${escapeHtml(q)}</li>`).join("")}</ul>` : "")
-    + `<p class="ai-foot">${r.caution?escapeHtml(r.caution)+" ":""}AI 추천은 참고용이에요. 신고 전에는 CLIP이나 관세사에게 확인하세요.</p>`;
+    + `<p class="ai-foot">${r.caution?escapeHtml(r.caution)+" ":""}AI 후보는 참고용이에요. 신고 전에는 CLIP이나 관세사에게 확인하세요.</p>`;
   out.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openDetail(+b.dataset.open));
 }
 

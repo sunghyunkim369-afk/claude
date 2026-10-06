@@ -45,6 +45,7 @@ jobs:
         env:
           TOKEN: ${{ secrets.GITSALT_TOKEN }}
         run: |
+          TOKEN=$(printf '%s' "$TOKEN" | tr -d '[:space:]')   # 붙여넣을 때 섞인 줄바꿈·공백 제거
           api="https://$GS_HOST/api/v1/repos/$GS_USER"
           new=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: token $TOKEN" "$api/$GS_REPO")
           if [ "$new" = "200" ]; then echo "$GS_REPO 저장소가 이미 있어요"; exit 0; fi
@@ -61,6 +62,7 @@ jobs:
         env:
           TOKEN: ${{ secrets.GITSALT_TOKEN }}
         run: |
+          TOKEN=$(printf '%s' "$TOKEN" | tr -d '[:space:]')   # 붙여넣을 때 섞인 줄바꿈·공백 제거
           api="https://$GS_HOST/api/v1/repos/$GS_USER/$GS_REPO"
           git push --force "https://$GS_USER:$TOKEN@$GS_HOST/$GS_USER/$GS_REPO.git" HEAD:refs/heads/main
           # 기본 브랜치를 main 으로 (원래 저장소가 master 였을 수 있어서)

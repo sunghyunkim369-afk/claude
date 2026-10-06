@@ -307,18 +307,534 @@
    "creator": "Tosaka",
    "license": "CC BY 3.0",
    "source": "https://commons.wikimedia.org/wiki/File:LNG_tanker_2_types_(front_view).PNG"
+  },
+  {
+   "file": "energy-3.jpg",
+   "title": "Snowfall at night over Brofjorden and Preemraff oil refinery.jpg",
+   "creator": "W.carter",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:Snowfall_at_night_over_Brofjorden_and_Preemraff_oil_refinery.jpg"
+  },
+  {
+   "file": "energy-4.jpg",
+   "title": "Blue hour fog over Preemraff oil refinery by Brofjorden.jpg",
+   "creator": "W.carter",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Blue_hour_fog_over_Preemraff_oil_refinery_by_Brofjorden.jpg"
+  },
+  {
+   "file": "energy-5.jpg",
+   "title": "Moscow Oil Refinery 01.jpg",
+   "creator": "MBH",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Moscow_Oil_Refinery_01.jpg"
   }
  ],
- "fx": [],
- "agreement": [],
- "customs": [],
- "subsidy": [],
- "semi": [],
- "auto": [],
- "battery": [],
- "steel": [],
- "chem": [],
- "ship": [],
- "machinery": [],
- "consumer": []
+ "fx": [
+  {
+   "file": "fx-0.jpg",
+   "title": "Won of the Red Army command - 5 won - back.jpg",
+   "creator": "Goznak",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Won_of_the_Red_Army_command_-_5_won_-_back.jpg"
+  },
+  {
+   "file": "fx-1.jpg",
+   "title": "Won of the Red Army command - 5 won - front.jpg",
+   "creator": "Goznak",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Won_of_the_Red_Army_command_-_5_won_-_front.jpg"
+  },
+  {
+   "file": "fx-2.jpg",
+   "title": "Won of the Red Army command - 10 won - front.jpg",
+   "creator": "Goznak",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Won_of_the_Red_Army_command_-_10_won_-_front.jpg"
+  },
+  {
+   "file": "fx-3.jpg",
+   "title": "Confederate 100 Dollars.jpg",
+   "creator": "Confederate States of America.",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Confederate_100_Dollars.jpg"
+  },
+  {
+   "file": "fx-4.jpg",
+   "title": "1907 Series United States five-dollar bill obverse.jpg",
+   "creator": "Various artists and engravers at the US Bureau of Engraving and Printing",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:1907_Series_United_States_five-dollar_bill_obverse.jpg"
+  },
+  {
+   "file": "fx-5.jpg",
+   "title": "1907 Series United States five-dollar bill reverse.jpg",
+   "creator": "Various artists and engravers at the US Bureau of Engraving and Printing",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:1907_Series_United_States_five-dollar_bill_reverse.jpg"
+  }
+ ],
+ "agreement": [
+  {
+   "file": "agreement-0.jpg",
+   "title": "United Nations Command and United States Forces Korea Participate in Ulchi Freedom Shield 2024 (8616516).jpg",
+   "creator": "U.S. Army photo by Spc. Joshua Holladay",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:United_Nations_Command_and_United_States_Forces_Korea_Participate_in_Ulchi_Freedom_Shield_2024_(8616516).jpg"
+  },
+  {
+   "file": "agreement-1.jpg",
+   "title": "United Nations Command and United States Forces Korea Participate in Ulchi Freedom Shield 2024 (8616517).jpg",
+   "creator": "U.S. Army photo by Spc. Joshua Holladay",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:United_Nations_Command_and_United_States_Forces_Korea_Participate_in_Ulchi_Freedom_Shield_2024_(8616517).jpg"
+  },
+  {
+   "file": "agreement-2.jpg",
+   "title": "United Nations Memorial Cemetery 03.jpg",
+   "creator": "Bernard Gagnon",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:United_Nations_Memorial_Cemetery_03.jpg"
+  },
+  {
+   "file": "agreement-3.jpg",
+   "title": "EU-New Zealand Free Trade Agreement signing ceremony, Brussels, 2023.png",
+   "creator": "European Commission",
+   "license": "CC BY 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:EU-New_Zealand_Free_Trade_Agreement_signing_ceremony,_Brussels,_2023.png"
+  },
+  {
+   "file": "agreement-4.jpg",
+   "title": "The United States-Korea Free Trade Agreement Signing Ceremony (43084046140).jpg",
+   "creator": "The White House from Washington, DC",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:The_United_States-Korea_Free_Trade_Agreement_Signing_Ceremony_(43084046140).jpg"
+  },
+  {
+   "file": "agreement-5.jpg",
+   "title": "Signing Ceremony Phase One Trade Deal Between the U.S. & China (49390959873).jpg",
+   "creator": "The White House from Washington, DC",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Signing_Ceremony_Phase_One_Trade_Deal_Between_the_U.S._%26_China_(49390959873).jpg"
+  }
+ ],
+ "customs": [
+  {
+   "file": "customs-0.jpg",
+   "title": "Egg-Großdorf-customs engine-SCANIA 460 (Nuctech MT1213DE Container and Vehicle Scanner)-02ASD.jpg",
+   "creator": "Asurnipal",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Egg-Gro%C3%9Fdorf-customs_engine-SCANIA_460_(Nuctech_MT1213DE_Container_and_Vehicle_Scanner)-02ASD.jpg"
+  },
+  {
+   "file": "customs-1.jpg",
+   "title": "Egg-Großdorf-customs engine-SCANIA 460 (Nuctech MT1213DE Container and Vehicle Scanner)-01ASD.jpg",
+   "creator": "Asurnipal",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Egg-Gro%C3%9Fdorf-customs_engine-SCANIA_460_(Nuctech_MT1213DE_Container_and_Vehicle_Scanner)-01ASD.jpg"
+  },
+  {
+   "file": "customs-2.jpg",
+   "title": "Egg-Großdorf-customs engine-SCANIA 460 (Nuctech MT1213DE Container and Vehicle Scanner)-03ASD.jpg",
+   "creator": "Asurnipal",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Egg-Gro%C3%9Fdorf-customs_engine-SCANIA_460_(Nuctech_MT1213DE_Container_and_Vehicle_Scanner)-03ASD.jpg"
+  },
+  {
+   "file": "customs-3.jpg",
+   "title": "U S Customs and Border Protection Seattle Washington Inspection (5764585803).jpg",
+   "creator": "CBP Photography",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:U_S_Customs_and_Border_Protection_Seattle_Washington_Inspection_(5764585803).jpg"
+  },
+  {
+   "file": "customs-4.jpg",
+   "title": "U S Customs & Border Protection Port of New York - Newark Resumes Vessel and Cargo Container Inspection Following Hurricane Sandy (8167655254).jpg",
+   "creator": "CBP Photography",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:U_S_Customs_%26_Border_Protection_Port_of_New_York_-_Newark_Resumes_Vessel_and_Cargo_Container_Inspection_Following_Hurricane_Sandy_(8167655254).jpg"
+  },
+  {
+   "file": "customs-5.jpg",
+   "title": "U S Customs & Border Protection Port of New York - Newark Conduct First Cargo Container Inspection After Hurricane Sandy (8167432445).jpg",
+   "creator": "CBP Photography",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:U_S_Customs_%26_Border_Protection_Port_of_New_York_-_Newark_Conduct_First_Cargo_Container_Inspection_After_Hurricane_Sandy_(8167432445).jpg"
+  }
+ ],
+ "subsidy": [
+  {
+   "file": "subsidy-0.jpg",
+   "title": "Firestone Factory and Exhibition Building, Chicago World's Fair, 1933 (4342747175).jpg",
+   "creator": "Steve Shook from Moscow, Idaho, USA",
+   "license": "CC BY 2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Firestone_Factory_and_Exhibition_Building,_Chicago_World%27s_Fair,_1933_(4342747175).jpg"
+  },
+  {
+   "file": "subsidy-1.jpg",
+   "title": "TV-009-0233 (14295349053).jpg",
+   "creator": "André Carrotflower",
+   "license": "CC BY-SA 2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:TV-009-0233_(14295349053).jpg"
+  },
+  {
+   "file": "subsidy-2.jpg",
+   "title": "The Coffin Works - Newman Bros - Fleet Street, Birmingham (15184139688).jpg",
+   "creator": "Elliott Brown from Birmingham, United Kingdom",
+   "license": "CC BY-SA 2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:The_Coffin_Works_-_Newman_Bros_-_Fleet_Street,_Birmingham_(15184139688).jpg"
+  },
+  {
+   "file": "subsidy-3.jpg",
+   "title": "Tesla Gigafactory Shanghai assembly line 01.png",
+   "creator": "China News Service",
+   "license": "CC BY 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Tesla_Gigafactory_Shanghai_assembly_line_01.png"
+  },
+  {
+   "file": "subsidy-4.jpg",
+   "title": "Tesla Gigafactory Shanghai aerial view 03.png",
+   "creator": "China News Service",
+   "license": "CC BY 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Tesla_Gigafactory_Shanghai_aerial_view_03.png"
+  },
+  {
+   "file": "subsidy-5.jpg",
+   "title": "Tesla Gigafactory Shanghai aerial view 02.png",
+   "creator": "China News Service",
+   "license": "CC BY 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Tesla_Gigafactory_Shanghai_aerial_view_02.png"
+  }
+ ],
+ "semi": [
+  {
+   "file": "semi-0.jpg",
+   "title": "A semiconductor wafer being removed from processing equipment.jpg",
+   "creator": "YouTube — Purdue Engineering",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:A_semiconductor_wafer_being_removed_from_processing_equipment.jpg"
+  },
+  {
+   "file": "semi-1.jpg",
+   "title": "Wafer 20110212.jpg",
+   "creator": "Sangitiana Fararano",
+   "license": "CC BY-SA 2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Wafer_20110212.jpg"
+  },
+  {
+   "file": "semi-2.jpg",
+   "title": "Semiconductor Wafer of Microelectronics.jpg",
+   "creator": "DrHughManning",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Semiconductor_Wafer_of_Microelectronics.jpg"
+  }
+ ],
+ "auto": [
+  {
+   "file": "auto-0.jpg",
+   "title": "Car carrier vessel LIBERTY PEACE, sailing in the Puget Sound (20240219).jpg",
+   "creator": "FPTI",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:Car_carrier_vessel_LIBERTY_PEACE,_sailing_in_the_Puget_Sound_(20240219).jpg"
+  },
+  {
+   "file": "auto-1.jpg",
+   "title": "Car carrier in Veracruz.jpg",
+   "creator": "Koffermejia",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Car_carrier_in_Veracruz.jpg"
+  },
+  {
+   "file": "auto-2.jpg",
+   "title": "Car carrier ship 'Neptune Hellas' entering the port of Haifa, Israel - 2023-03-15 (DSC1328).jpg",
+   "creator": "DmitTrix",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Car_carrier_ship_%27Neptune_Hellas%27_entering_the_port_of_Haifa,_Israel_-_2023-03-15_(DSC1328).jpg"
+  },
+  {
+   "file": "auto-3.jpg",
+   "title": "Glovis Sunrise, Fremantle, 2015 (02).JPG",
+   "creator": "Bahnfrend",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Glovis_Sunrise,_Fremantle,_2015_(02).JPG"
+  },
+  {
+   "file": "auto-4.jpg",
+   "title": "Hyundai Glovis car carrier, Port of Santander.jpg",
+   "creator": "Emilio Gómez Fernández",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Hyundai_Glovis_car_carrier,_Port_of_Santander.jpg"
+  },
+  {
+   "file": "auto-5.jpg",
+   "title": "Glovis Sunrise, Fremantle, 2015 (03).JPG",
+   "creator": "Bahnfrend",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Glovis_Sunrise,_Fremantle,_2015_(03).JPG"
+  }
+ ],
+ "battery": [
+  {
+   "file": "battery-0.jpg",
+   "title": "18650 and 21700 lithium ion battery cell.jpg",
+   "creator": "Sevenethics",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:18650_and_21700_lithium_ion_battery_cell.jpg"
+  },
+  {
+   "file": "battery-1.jpg",
+   "title": "Pentax Optio P70 - Lithium-Ion Battery D-LI88-7555.jpg",
+   "creator": "Raimond Spekking",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Pentax_Optio_P70_-_Lithium-Ion_Battery_D-LI88-7555.jpg"
+  },
+  {
+   "file": "battery-2.jpg",
+   "title": "Lithium ion battery.png",
+   "creator": "Walter Davison",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Lithium_ion_battery.png"
+  },
+  {
+   "file": "battery-3.jpg",
+   "title": "Aricell battery factory fire.jpg",
+   "creator": "CCTV at Aricell factory, Hwaseong, Gyeonggi, South Korea",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Aricell_battery_factory_fire.jpg"
+  },
+  {
+   "file": "battery-4.jpg",
+   "title": "A Duracell battery factory in Cleveland, Tennessee 02.jpg",
+   "creator": "Harrison Keely",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:A_Duracell_battery_factory_in_Cleveland,_Tennessee_02.jpg"
+  },
+  {
+   "file": "battery-5.jpg",
+   "title": "Aricell battery factory fire 2.jpg",
+   "creator": "CCTV at Aricell factory, Hwaseong, Gyeonggi, South Korea",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Aricell_battery_factory_fire_2.jpg"
+  }
+ ],
+ "steel": [
+  {
+   "file": "steel-0.jpg",
+   "title": "13 Industry of Australia - Steelworks of BlueScope Steel Limited company in Port Kembla, Australia.jpg",
+   "creator": "Marek Ślusarczyk (Tupungato) Photo gallery",
+   "license": "CC BY 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:13_Industry_of_Australia_-_Steelworks_of_BlueScope_Steel_Limited_company_in_Port_Kembla,_Australia.jpg"
+  },
+  {
+   "file": "steel-1.jpg",
+   "title": "Katowice Steelworks bridge.jpg",
+   "creator": "Peter.shaman",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Katowice_Steelworks_bridge.jpg"
+  },
+  {
+   "file": "steel-2.jpg",
+   "title": "Steel Mill in Hamilton, Ontario 02.jpg",
+   "creator": "K2HWY",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Steel_Mill_in_Hamilton,_Ontario_02.jpg"
+  },
+  {
+   "file": "steel-3.jpg",
+   "title": "POSCO (POhang Steel Corp.) Entrance - panoramio.jpg",
+   "creator": "Cho's",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:POSCO_(POhang_Steel_Corp.)_Entrance_-_panoramio.jpg"
+  },
+  {
+   "file": "steel-4.jpg",
+   "title": "Expo 2012 Posco Pavilion3.JPG",
+   "creator": "hyolee2",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Expo_2012_Posco_Pavilion3.JPG"
+  },
+  {
+   "file": "steel-5.jpg",
+   "title": "Expo 2012 Posco Pavilion2.JPG",
+   "creator": "hyolee2",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Expo_2012_Posco_Pavilion2.JPG"
+  }
+ ],
+ "chem": [
+  {
+   "file": "chem-0.jpg",
+   "title": "KKPC ulsan resin 01.jpg",
+   "creator": "Kumho Petrochemical",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:KKPC_ulsan_resin_01.jpg"
+  },
+  {
+   "file": "chem-1.jpg",
+   "title": "Blue hour fog over Preemraff oil refinery by Brofjorden.jpg",
+   "creator": "W.carter",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Blue_hour_fog_over_Preemraff_oil_refinery_by_Brofjorden.jpg"
+  },
+  {
+   "file": "chem-2.jpg",
+   "title": "Altona Oil Refinery Victoria.jpg",
+   "creator": "Sgroey",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Altona_Oil_Refinery_Victoria.jpg"
+  },
+  {
+   "file": "chem-3.jpg",
+   "title": "Altona oil refinery 2.jpg",
+   "creator": "Sgroey",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Altona_oil_refinery_2.jpg"
+  },
+  {
+   "file": "chem-4.jpg",
+   "title": "Oil refinery, Port Dickson.jpg",
+   "creator": "AyyanD",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Oil_refinery,_Port_Dickson.jpg"
+  },
+  {
+   "file": "chem-5.jpg",
+   "title": "Coryton Oil Refinery - geograph.org.uk - 2191154.jpg",
+   "creator": "terry joyce",
+   "license": "CC BY-SA 2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Coryton_Oil_Refinery_-_geograph.org.uk_-_2191154.jpg"
+  }
+ ],
+ "ship": [
+  {
+   "file": "ship-0.jpg",
+   "title": "Hyundai Heavy Industries Ulsan Shipyard from Jujeon Beacon Mound - 2023-07-24.jpg",
+   "creator": "Wvdp",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:Hyundai_Heavy_Industries_Ulsan_Shipyard_from_Jujeon_Beacon_Mound_-_2023-07-24.jpg"
+  },
+  {
+   "file": "ship-1.jpg",
+   "title": "Hyundai Heavy Industries Shipbuilding facilities - model - 080923-N-5549O-025.jpg",
+   "creator": "Mass Communication Specialist 2nd Class Kevin S. O'Brien, U.S. Navy",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Hyundai_Heavy_Industries_Shipbuilding_facilities_-_model_-_080923-N-5549O-025.jpg"
+  },
+  {
+   "file": "ship-2.jpg",
+   "title": "Global Santa Fe Rig 140.jpg",
+   "creator": "ST33VO",
+   "license": "CC BY 2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Global_Santa_Fe_Rig_140.jpg"
+  },
+  {
+   "file": "ship-3.jpg",
+   "title": "Ships under construction at Chantiers de l'Atlantique shipyard, 2025 (3).jpg",
+   "creator": "Ibex73",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Ships_under_construction_at_Chantiers_de_l%27Atlantique_shipyard,_2025_(3).jpg"
+  },
+  {
+   "file": "ship-4.jpg",
+   "title": "Ships under construction at Chantiers de l'Atlantique shipyard, 2025 (2).jpg",
+   "creator": "Ibex73",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Ships_under_construction_at_Chantiers_de_l%27Atlantique_shipyard,_2025_(2).jpg"
+  },
+  {
+   "file": "ship-5.jpg",
+   "title": "Ships under construction at Chantiers de l'Atlantique shipyard, 2025 (5).jpg",
+   "creator": "Ibex73",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Ships_under_construction_at_Chantiers_de_l%27Atlantique_shipyard,_2025_(5).jpg"
+  }
+ ],
+ "machinery": [
+  {
+   "file": "machinery-0.jpg",
+   "title": "Factory Automation Robotics Palettizing Bread.jpg",
+   "creator": "KUKA Roboter GmbH, Bachmann",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Factory_Automation_Robotics_Palettizing_Bread.jpg"
+  },
+  {
+   "file": "machinery-1.jpg",
+   "title": "2024-07-26 Rechenwerk, Halle (Saale), 07.jpg",
+   "creator": "Stefan Kühn",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:2024-07-26_Rechenwerk,_Halle_(Saale),_07.jpg"
+  },
+  {
+   "file": "machinery-2.jpg",
+   "title": "Robots empaquetado automatico.jpg",
+   "creator": "Tecnowey",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Robots_empaquetado_automatico.jpg"
+  },
+  {
+   "file": "machinery-3.jpg",
+   "title": "Billur B3-18A.jpg",
+   "creator": "Sergei Frolov, Soviet Digital Electronics Museum, http://www.leningrad.su/museum",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Billur_B3-18A.jpg"
+  },
+  {
+   "file": "machinery-4.jpg",
+   "title": "Electronics factory in Shenzhen.jpg",
+   "creator": "Steve Jurvetson from Menlo Park, USA",
+   "license": "CC BY 2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Electronics_factory_in_Shenzhen.jpg"
+  },
+  {
+   "file": "machinery-5.jpg",
+   "title": "Salora electronics factory in Salo, in South-Western Finland, in 1973 (JOKAVKH2E09-3).tif",
+   "creator": "V. K. Hietanen",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Salora_electronics_factory_in_Salo,_in_South-Western_Finland,_in_1973_(JOKAVKH2E09-3).tif"
+  }
+ ],
+ "consumer": [
+  {
+   "file": "consumer-0.jpg",
+   "title": "Supermarket in recife, pernambuco, Brazil.jpg",
+   "creator": "Wilfredor",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Supermarket_in_recife,_pernambuco,_Brazil.jpg"
+  },
+  {
+   "file": "consumer-1.jpg",
+   "title": "2020-03-15 Empty supermarket shelves in Australian supermarket 05.jpg",
+   "creator": "Maksym Kozlenko",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:2020-03-15_Empty_supermarket_shelves_in_Australian_supermarket_05.jpg"
+  },
+  {
+   "file": "consumer-2.jpg",
+   "title": "Octopus as food at Noryangjin Fisheries Wholesale Market in Seoul South Korea.jpg",
+   "creator": "Basile Morin",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Octopus_as_food_at_Noryangjin_Fisheries_Wholesale_Market_in_Seoul_South_Korea.jpg"
+  },
+  {
+   "file": "consumer-3.jpg",
+   "title": "Korean pancakes and pan-fried foods at Gwangjang Market.jpg",
+   "creator": "Pfc. Bo Park, 2ID PAO, US Army",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Korean_pancakes_and_pan-fried_foods_at_Gwangjang_Market.jpg"
+  },
+  {
+   "file": "consumer-4.jpg",
+   "title": "20230217 Dior Cosmetics Store at DL Department Store in Xinxiang.jpg",
+   "creator": "Windmemories",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:20230217_Dior_Cosmetics_Store_at_DL_Department_Store_in_Xinxiang.jpg"
+  },
+  {
+   "file": "consumer-5.jpg",
+   "title": "Cosmetics Hall, Liverpool department store, Polanco, Mexico City - View from above.jpg",
+   "creator": "Keizers",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Cosmetics_Hall,_Liverpool_department_store,_Polanco,_Mexico_City_-_View_from_above.jpg"
+  }
+ ]
 }

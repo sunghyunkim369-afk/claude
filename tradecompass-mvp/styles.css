@@ -881,3 +881,14 @@ dialog.auth::backdrop{background:rgba(19,35,63,.45);backdrop-filter:blur(3px)}
 .my-feed li small{color:var(--ink-soft)}
 .my-feed .mv{display:inline;margin-right:4px}
 @media (max-width:640px){.persona>span{flex:1 1 100%}.persona a{flex:1 1 0;padding:8px 10px;align-items:center;text-align:center}.persona a small{display:none}}
+
+/* ── 2026-10 UX 점검: 모바일 홈 길이 줄이기·겹침 수정 ── */
+.sec-h{flex-wrap:wrap;gap:4px 12px}
+@media (max-width:640px){
+  .my-h{flex-direction:column;align-items:flex-start;gap:2px}
+  .issue .sum{display:none}                                      /* 핵심 이슈 요약은 Top 10 화면에서 */
+  .breaking .br-list:not(.full) li:nth-child(n+5){display:none}  /* 홈 속보는 4건만, 전체는 뉴스 화면에서 */
+  .risk{grid-template-columns:auto minmax(0,1fr);align-items:start}
+  .risk .eff{grid-column:2;white-space:normal}
+  .hero .display{font-size:2.3rem}
+}

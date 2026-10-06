@@ -1,10 +1,10 @@
 // 무역나침반 데이터 — scripts/news/publish.js 가 매주 실제 뉴스로 자동 생성해요. 직접 고치지 마세요.
-// 기간: 2026-09-29 ~ 2026-10-06 · 기사 439건 · 생성 2026-10-06T03:46:19.444Z
+// 기간: 2026-09-29 ~ 2026-10-06 · 기사 439건 · 생성 2026-10-06T03:58:51.006Z
 window.TC_DATA = {
  "meta": {
   "date": "2026-10-06",
-  "updatedAt": "12:46",
-  "generated": "2026-10-06T03:46:19.444Z",
+  "updatedAt": "12:58",
+  "generated": "2026-10-06T03:58:51.006Z",
   "period": "2026-09-29 ~ 2026-10-06",
   "cadence": "매주 월요일",
   "sources": 439,
@@ -30,9 +30,9 @@ window.TC_DATA = {
  "bearing": {
   "headline": "이번 주 최대 무역 이슈는 '미국 관세'입니다",
   "points": [
-   "미국 관세: 보도 77건(같은 출처 기준 직전 주 대비 +219%) · 석유화학·에너지·조선·해운물류·철강·금속 영향권",
-   "수출입 동향: 보도 56건(같은 출처 기준 직전 주 대비 +433%) · 반도체·소비재·농식품·자동차 영향권",
-   "공급망·핵심광물: 보도 45건(같은 출처 기준 직전 주 대비 +125%) · 철강·금속·자동차·석유화학·에너지 영향권"
+   "미국 관세: 보도 77건(지난주의 3.2배) · 석유화학·에너지·조선·해운물류·철강·금속 영향권",
+   "수출입 동향: 보도 56건(지난주의 5.3배) · 반도체·소비재·농식품·자동차 영향권",
+   "공급망·핵심광물: 보도 45건(지난주의 2.3배) · 철강·금속·자동차·석유화학·에너지 영향권"
   ]
  },
  "sectors": [
@@ -1473,6 +1473,8 @@ window.TC_DATA = {
    "score": 77.76,
    "reports": 77,
    "prev": 21,
+   "change": 219,
+   "ratio": 3.2,
    "up": 35,
    "down": 12,
    "neutral": 30,
@@ -1536,9 +1538,11 @@ window.TC_DATA = {
     "consumer",
     "auto"
    ],
-   "score": 73.72,
+   "score": 73.71,
    "reports": 56,
    "prev": 9,
+   "change": 433,
+   "ratio": 5.3,
    "up": 1,
    "down": 2,
    "neutral": 53,
@@ -1605,6 +1609,8 @@ window.TC_DATA = {
    "score": 66.01,
    "reports": 45,
    "prev": 20,
+   "change": 125,
+   "ratio": 2.3,
    "up": 0,
    "down": 1,
    "neutral": 44,
@@ -1668,9 +1674,11 @@ window.TC_DATA = {
     "chem",
     "ship"
    ],
-   "score": 64.67,
+   "score": 64.66,
    "reports": 32,
    "prev": 0,
+   "change": null,
+   "ratio": null,
    "up": 0,
    "down": 1,
    "neutral": 31,
@@ -1732,9 +1740,11 @@ window.TC_DATA = {
    "sectors": [
     "chem"
    ],
-   "score": 58.52,
+   "score": 58.51,
    "reports": 11,
    "prev": 0,
+   "change": null,
+   "ratio": null,
    "up": 10,
    "down": 1,
    "neutral": 0,
@@ -1797,9 +1807,11 @@ window.TC_DATA = {
     "chem",
     "ship"
    ],
-   "score": 54.87,
+   "score": 54.86,
    "reports": 15,
    "prev": 0,
+   "change": null,
+   "ratio": null,
    "up": 2,
    "down": 1,
    "neutral": 12,
@@ -1862,9 +1874,11 @@ window.TC_DATA = {
     "auto",
     "consumer"
    ],
-   "score": 52.19,
+   "score": 52.18,
    "reports": 18,
    "prev": 17,
+   "change": 0,
+   "ratio": 1,
    "up": 6,
    "down": 2,
    "neutral": 10,
@@ -1931,6 +1945,8 @@ window.TC_DATA = {
    "score": 49.67,
    "reports": 24,
    "prev": 10,
+   "change": 60,
+   "ratio": 1.6,
    "up": 0,
    "down": 0,
    "neutral": 24,
@@ -1985,6 +2001,7 @@ window.TC_DATA = {
    "title": "LNG Trade Through Hormuz Extends Rebound Despite Shipping Risks",
    "link": "https://gcaptain.com/lng-trade-through-hormuz-extends-rebound-despite-shipping-risks/",
    "source": "gCaptain",
+   "lang": "en",
    "time": "15시간 전",
    "impact": 46,
    "tag": "해운·물류",
@@ -1994,15 +2011,17 @@ window.TC_DATA = {
     "chem",
     "auto"
    ],
-   "score": 45.65,
+   "score": 45.64,
    "reports": 14,
    "prev": 4,
+   "change": -25,
+   "ratio": 0.8,
    "up": 0,
    "down": 0,
    "neutral": 14,
    "summary": "Shipments of liquefied natural gas through the Strait of Hormuz extended a rebound that began in September, as the regio",
    "parts": {
-    "volume": 0.576,
+    "volume": 0.575,
     "momentum": 0.421,
     "relevance": 0.721
    },
@@ -2059,9 +2078,11 @@ window.TC_DATA = {
    "sectors": [
     "ship"
    ],
-   "score": 42.15,
+   "score": 42.14,
    "reports": 11,
    "prev": 23,
+   "change": -57,
+   "ratio": 0.4,
    "up": 0,
    "down": 1,
    "neutral": 10,
@@ -2646,7 +2667,7 @@ window.TC_DATA = {
    "level": "주의",
    "title": "공급망·핵심광물",
    "detail": "대·중소기업 협력 기반 기술사업화 R&D 지원… 공급망 자립화 기반 다진다",
-   "effect": "보도 45건 (+125%)",
+   "effect": "보도 45건 (2.3배)",
    "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNMDE3Z2dfeElkUzZXRk5JeEloME5CTDF1NTBaU1cyTkVXTlNrMTZ0YXpLNjVPX2pmNVE4aXhpSGVzYm9hRTQ0SWszMjExOTlSN1dJREc3SnhjcUVZeXpJQXo5R0xRVi0yelJBYTFfX2h2Q0VMZmwtV1FQUW5uMEFYRWRUZXNId293WUc0?oc=5"
   },
   {
@@ -2674,7 +2695,7 @@ window.TC_DATA = {
    "level": "관찰",
    "title": "유가·원자재",
    "detail": "정부 \"11월 원유 90% 이상 확보…나프타도 90% 이상\"",
-   "effect": "보도 15건 (+200%)",
+   "effect": "보도 15건 (3배)",
    "link": "https://www.yna.co.kr/view/AKR20261006087900003"
   }
  ],

@@ -289,5 +289,7 @@ module.exports.parseResult = parseResult;
 // 테스트용: AI 호출을 가짜 함수로 바꿔 끼울 수 있어요
 let caller = callAI;
 module.exports._setCaller = (fn) => { caller = fn || callAI; };
+// 다른 서버 기능(영문 제목 번역 등)이 같은 AI 설정으로 부를 수 있게 열어 둬요 (테스트에서는 _setCaller 로 바꿔 끼워요)
+module.exports.callAI = (...args) => caller(...args);
 module.exports._filter = (v) => { const hits = []; return { out: filterAdvice(v, hits), hits }; };
 module.exports.SAFETY = SAFETY;

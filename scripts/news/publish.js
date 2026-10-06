@@ -213,9 +213,12 @@ async function main() {
       const mainN = sectors[0] ? r.list.filter(a => (a.sectors || []).includes(sectors[0])).length : 0;
       const mainSector = mainN / r.list.length >= SCORE.mainSectorShare ? sectors[0] : null;
       return {
-        key: r.key, mainSector, keyword: issueName(r.key), title: lead.title, link: lead.link, source: lead.source,
+        key: r.key, mainSector, keyword: issueName(r.key), title: lead.titleKo || lead.title, link: lead.link, source: lead.source,
+        lang: lead.lang === "en" ? "en" : undefined, orig: lead.titleKo ? lead.title : undefined,
         time: ago(Date.parse(lead.date), now), impact: Math.round(score), tag: topicById[topic]?.label || topic,
         topic, risk: !!topicById[topic]?.risk, sectors, score: round(score), reports: r.list.length, prev: nPrev.get(r.key) || 0, reportsC: nNowC.get(r.key) || 0,
+        // 지난주 대비 (같은 출처 기준): 증감률과 배수. 직전 주가 0건이면 null(새 이슈)
+        ...(() => { const p = nPrev.get(r.key) || 0, c = nNowC.get(r.key) || 0; return p ? { change: Math.round((c - p) / p * 100), ratio: round(c / p, 1) } : { change: null, ratio: null }; })(),
         ...dirCount(r.list), summary: shortSum(lead),
         parts: { volume: round(Vn, 3), momentum: round(r.M, 3), relevance: round(r.R, 3) },
         trend: CTX.trend(r.key), leadRelevance: leadRel,
@@ -273,7 +276,7 @@ async function main() {
   const risks = cands.filter(x => x.risk).slice(0, 5).map(x => ({
     level: x.score >= 70 ? "심각" : x.score >= 55 ? "주의" : "관찰",
     title: x.keyword, detail: x.title,
-    effect: `보도 ${x.reports}건 (${x.prev ? signed(Math.round((x.reportsC - x.prev) / x.prev * 100)) : "신규"})`,
+    effect: `보도 ${x.reports}건 (${x.change == null ? "신규" : x.ratio >= 2 ? `${x.ratio}배` : signed(x.change)})`,
     link: x.link,
   }));
 
@@ -283,8 +286,8 @@ async function main() {
 
   // ── 이번 주 요약 (AI 키가 있으면 AI, 없으면 규칙) ──
   const top = issues[0];
-  // 증감률은 같은 출처끼리 비교한 건수로 계산해요
-  const pctTxt = (x) => x.prev ? `같은 출처 기준 직전 주 대비 ${signed(Math.round((x.reportsC - x.prev) / x.prev * 100))}` : "직전 주에는 없던 이슈";
+  // 증감은 같은 출처끼리 비교한 값. 2배 이상이면 "지난주의 N배"가 읽기 쉬워요
+  const pctTxt = (x) => x.change == null ? "새 이슈" : x.ratio >= 2 ? `지난주의 ${x.ratio}배` : `지난주 대비 ${signed(x.change)}`;
   const bearing = (await weeklyBrief(issues)) || {
     headline: `이번 주 최대 무역 이슈는 '${top.keyword}'입니다`,
     points: issues.slice(0, 3).map(x => `${x.keyword}: 보도 ${x.reports}건(${pctTxt(x)})${x.sectors.length ? ` · ${x.sectors.map(id => sectorById[id].name).join("·")} 영향권` : ""}`),

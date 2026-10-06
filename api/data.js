@@ -3,6 +3,7 @@
 // 다른 저장소를 쓰려면 환경변수 NEWS_DATA_URL 로 바꿀 수 있어요.
 
 const metrics = require("./_metrics");
+const { localize } = require("./_translate");
 const SOURCE = process.env.NEWS_DATA_URL ||
   "https://raw.githubusercontent.com/sunghyunkim369-afk/claude/main/data/news/latest.json";
 const TTL = 10 * 60_000;     // 10분 동안은 받아 둔 것을 다시 써요
@@ -30,7 +31,10 @@ module.exports = async function handler(req, res) {
       if (!cache.body) { res.statusCode = 502; return res.end('{"error":"data unavailable"}'); }
     }
   }
+  // 영문 기사 제목은 한국어로 번역해서 보내요 (AI 가 없거나 느리면 원문 그대로)
+  let body = cache.body;
+  try { body = JSON.stringify(await localize(JSON.parse(cache.body))); } catch (e) { metrics.record("translate", e.message); }
   res.setHeader("Cache-Control", "public, max-age=300");
   res.statusCode = 200;
-  res.end(cache.body);
+  res.end(body);
 };

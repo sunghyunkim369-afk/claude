@@ -1,6 +1,7 @@
 // 24시간 속보: 6시간마다 GitHub 에 올라가는 data/news/breaking.json 을 대신 받아 전달해요 (10분 캐시).
 // 실패하면 페이지에 들어 있는 breaking.js 를 그대로 써요. 다른 저장소를 쓰려면 BREAKING_DATA_URL 로 바꿀 수 있어요.
 const metrics = require("./_metrics");
+const { localize } = require("./_translate");
 const SOURCE = process.env.BREAKING_DATA_URL ||
   "https://raw.githubusercontent.com/sunghyunkim369-afk/claude/main/data/news/breaking.json";
 const TTL = 10 * 60_000;
@@ -26,7 +27,10 @@ module.exports = async function handler(req, res) {
       if (!cache.body) { res.statusCode = 502; return res.end('{"error":"data unavailable"}'); }
     }
   }
+  // 영문 기사 제목은 한국어로 번역해서 보내요 (AI 가 없거나 느리면 원문 그대로)
+  let body = cache.body;
+  try { body = JSON.stringify(await localize(JSON.parse(cache.body))); } catch (e) { metrics.record("translate", e.message); }
   res.setHeader("Cache-Control", "public, max-age=300");
   res.statusCode = 200;
-  res.end(cache.body);
+  res.end(body);
 };

@@ -55,9 +55,9 @@ const sectorCard = (s, i) => `
   <a class="card lift sector tilt rise" style="--i:${i}" href="#/sectors/${s.id}">
     ${compass(s.score)}
     <span class="name">${esc(s.name)}</span>
-    <div class="score">${countUp(s.score, 2)}</div>
+    <div class="score">${countUp(s.score, 0)}</div>
     ${D.meta.sample ? "" : sectorChange(s)}
-    <div class="state ${s.state}" title="기사 속 무역 조치 방향"><i></i>조치 ${s.state}</div>
+    <div class="state ${s.state}" title="기사 속 무역 조치 방향"><i></i>${stateLabel(s.state)}</div>
     <div class="split"><span>▲ 강화 ${s.up}</span><span>▼ 완화 ${s.down}</span><span>● ${D.meta.sample ? "중립" : "중립·동향"} ${s.neutral}</span></div>
     <div class="meter"><b data-w="${s.score}"></b></div>
   </a>`;
@@ -92,6 +92,11 @@ const origLine = n => n.orig ? `<small class="orig">원문: ${esc(n.orig)}</smal
 // 지난주 대비 순위 변화: 숫자 = 오른 칸 수, "new" = 새로 진입
 const moveBadge = x => x.move == null ? "" : x.move === "new" ? `<span class="mv new" title="지난주 Top 10에 없던 이슈">NEW</span>`
   : x.move > 0 ? `<span class="mv up" title="지난주보다 ${x.move}계단 상승">▲${x.move}</span>` : x.move < 0 ? `<span class="mv down" title="지난주보다 ${-x.move}계단 하락">▼${-x.move}</span>` : `<span class="mv same" title="지난주와 같은 순위">–</span>`;
+// 섹터 조치 상태 표시: "보합"은 주식 용어라 "중립"으로 보여줘요 (데이터 값은 그대로)
+const stateLabel = st => st === "보합" ? "조치 중립" : st ? `조치 ${st}` : "";
+// 이슈 보도 변화: 같은 출처 기준으로 계산한 값(change, ratio)을 써요. 2배 이상이면 "N배"가 읽기 쉬워요
+const changeText = x => x.change == null ? (x.prev ? "" : "새 이슈")
+  : x.ratio >= 2 ? `지난주의 ${x.ratio}배` : `지난주 대비 ${x.change >= 0 ? "+" : ""}${x.change}%`;
 // 섹터 노출도 옆 한 줄: 평소(직전 4주 주평균)보다 기사가 얼마나 늘었나 + 기사가 적으면 경고
 const sectorChange = s => s.thin ? `<span class="thin" title="이번 주 기사 ${s.articles}건뿐이라 점수가 크게 흔들릴 수 있어요">기사 적음 · ${s.articles}건</span>`
   : s.change != null ? `<span class="chg">평소 대비 ${s.change >= 0 ? "+" : ""}${s.change}%</span>` : "";
@@ -197,7 +202,7 @@ function sectorPage(s) {
       <a class="back-link rise" href="#/">← 홈으로</a>
       <div class="sp-head rise" style="--i:1">
         ${compass(s.score)}
-        <div><h1>${esc(s.name)}</h1><div class="state ${s.state}"><i></i>노출도 <b class="num">${s.score.toFixed(2)}</b> · 조치 방향 ${s.state}</div>
+        <div><h1>${esc(s.name)}</h1><div class="state ${s.state}"><i></i>노출도 <b class="num">${Math.round(s.score)}</b> · ${stateLabel(s.state)}</div>
           ${D.meta.sample ? "" : `<p class="sp-base">이번 주 기사 ${s.articles}건 · 평소 주 ${s.baseAvg ?? "-"}건 ${sectorChange(s)}</p>`}</div>
         ${star(s.id)}
       </div>
@@ -212,7 +217,7 @@ function sectorPage(s) {
           <div class="t10">
             <a class="kw" href="#/news">${esc(x.keyword)}</a>
             <div class="chips-row">${x.sectors.map(id => sectorById[id] ? `<a class="schip${id === s.id ? " on" : ""}" href="#/sectors/${id}">${esc(sectorById[id].name)}</a>` : "").join("")}</div>
-            <p class="meta">점수 ${x.score.toFixed(2)} · 최근 7일 보도 ${x.reports}건(직전 7일 ${x.prev}건) · ${x.prev ? signed(pct(x.reports, x.prev)) : "신규"}</p>
+            <p class="meta">점수 ${Math.round(x.score)} · 이번 주 보도 ${x.reports}건 · ${changeText(x)}</p>
             <p class="meta">▲ 조치 강화 ${x.up}&nbsp;&nbsp;▼ 완화 ${x.down}&nbsp;&nbsp;● ${D.meta.sample ? "중립" : "중립·동향"} ${x.neutral}</p>
             <ul class="arts">${x.articles.map(a => `<li><span class="at">${enBadge(a)}${ext(a.link, esc(a.title))}</span><small>${esc(a.source)}${a.outlets > 1 ? ` 외 ${a.outlets - 1}곳` : ""} · ${esc(a.at)}</small></li>`).join("")}</ul>
           </div>
@@ -361,7 +366,7 @@ function myBlock() {
       <div class="my-grid">${mine.map(s => {
         const n = (s.news || [])[0];
         return `<article class="my-card">
-          <a class="my-top" href="#/sectors/${s.id}">${compass(s.score, "compass sm")}<span class="nm">${esc(s.name)}</span><b class="num">${s.score.toFixed(1)}</b><span class="state ${s.state}"><i></i>${s.state}</span></a>
+          <a class="my-top" href="#/sectors/${s.id}">${compass(s.score, "compass sm")}<span class="nm">${esc(s.name)}</span><b class="num">${Math.round(s.score)}</b><span class="state ${s.state}"><i></i>${stateLabel(s.state)}</span></a>
           ${n ? `<p class="my-news"><span class="tag">${esc(n.tag)}</span>${enBadge(n)}${ext(n.link, esc(n.title))}</p>` : `<p class="my-news muted">이번 주 관련 기사가 거의 없어요.</p>`}
           <small>기사 ${s.articles ?? (s.up + s.down + s.neutral)}건 · ▲${s.up} ▼${s.down}${D.meta.sample ? "" : " · " + sectorChange(s)}</small>
         </article>`; }).join("")}</div>
@@ -497,10 +502,10 @@ const views = {
         <a class="card lift rise sector-row" style="--i:${i + 1}" href="#/sectors/${s.id}">
           ${compass(s.score)}
           <div>
-            <h2>${esc(s.name)} <span class="state ${s.state}"><i></i>${s.state}</span></h2>
+            <h2>${esc(s.name)} <span class="state ${s.state}"><i></i>${stateLabel(s.state)}</span></h2>
             <p>${esc(s.summary)}</p>
           </div>
-          <div class="big">${countUp(s.score, 2)}</div>
+          <div class="big">${countUp(s.score, 0)}</div>
         </a>`).join("")}</div>`;
   },
 
@@ -509,7 +514,7 @@ const views = {
     return `
       <div class="page-h rise"><p class="kicker">Watchlist</p><h1 class="display sm">My <em>Sectors</em></h1><p>별을 눌러 관심 섹터를 고르면 대시보드처럼 모아 볼 수 있어요. (이 브라우저에만 저장돼요)</p></div>
       <section class="card rise" style="--i:1">
-        ${D.sectors.map(s => `<div class="watch-row">${star(s.id)}<div><h3>${esc(s.name)}</h3><p>${esc(s.summary)}</p></div><b class="num">${s.score.toFixed(2)}</b></div>`).join("")}
+        ${D.sectors.map(s => `<div class="watch-row">${star(s.id)}<div><h3>${esc(s.name)}</h3><p>${esc(s.summary)}</p></div><b class="num">${Math.round(s.score)}</b></div>`).join("")}
       </section>
       <div class="sec-h rise" style="--i:2"><h2>내 관심 섹터</h2><span>${mine.length}개</span></div>
       ${mine.length ? `<div class="sectors">${mine.map((s, i) => sectorCard(s, i + 3)).join("")}</div>` : `<div class="card empty rise" style="--i:3">아직 고른 섹터가 없어요. 위 목록에서 ★을 눌러 보세요.</div>`}`;

@@ -68,8 +68,9 @@ jobs:
           # 기본 브랜치를 main 으로 (원래 저장소가 master 였을 수 있어서)
           curl -sf -X PATCH -H "Authorization: token $TOKEN" -H "Content-Type: application/json" -d '{"default_branch":"main"}' "$api" > /dev/null || true
           # 원래 calc 과제가 남아 있던 다른 브랜치(master 등)는 지워서 제출 저장소에 이 프로젝트만 남겨요
-          for b in $(curl -s -H "Authorization: token $TOKEN" "$api/branches?limit=50" | python3 -c 'import sys,json; print(" ".join(x["name"] for x in json.load(sys.stdin)))'); do
+          remote="https://$GS_USER:$TOKEN@$GS_HOST/$GS_USER/$GS_REPO.git"
+          for b in $(git ls-remote --heads "$remote" | sed 's#.*refs/heads/##'); do
             [ "$b" = "main" ] && continue
-            curl -s -o /dev/null -w "브랜치 $b 삭제: HTTP %{http_code}\n" -X DELETE -H "Authorization: token $TOKEN" "$api/branches/$b"
+            git push "$remote" --delete "$b" && echo "이전 브랜치 $b 삭제"
           done
           echo "https://$GS_HOST/$GS_USER/$GS_REPO 에 $(git rev-parse --short HEAD) 를 올렸어요"

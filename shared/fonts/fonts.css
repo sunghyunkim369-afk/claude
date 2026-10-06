@@ -1,0 +1,9 @@
+/* 사이트 글꼴 — 직접 제공 (외부 요청 없음). SIL Open Font License 1.1: OFL-NotoSansKR.txt · OFL-Fraunces.txt
+   만드는 방법: .github/workflows/fonts-build.yml → scripts/fonts/build.py (Google Fonts 원본에서 사이트에 쓰는 글자만 남김)
+   Noto Sans KR: 400·500·700, 한글 KS X 1001 2,350자 + 기본 라틴·기호 + 사이트 글자
+   Fraunces: 라틴만, 가변 굵기 400–700 (보통·기울임) */
+@font-face{font-family:"Noto Sans KR";font-style:normal;font-weight:400;font-display:swap;src:url("NotoSansKR-400.woff2") format("woff2")}
+@font-face{font-family:"Noto Sans KR";font-style:normal;font-weight:500;font-display:swap;src:url("NotoSansKR-500.woff2") format("woff2")}
+@font-face{font-family:"Noto Sans KR";font-style:normal;font-weight:700;font-display:swap;src:url("NotoSansKR-700.woff2") format("woff2")}
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 700;font-display:swap;src:url("Fraunces.woff2") format("woff2");unicode-range:U+0000-024F,U+2000-206F,U+20AC,U+2122}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 700;font-display:swap;src:url("Fraunces-Italic.woff2") format("woff2");unicode-range:U+0000-024F,U+2000-206F,U+20AC,U+2122}

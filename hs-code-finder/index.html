@@ -4,15 +4,13 @@
 <meta charset="UTF-8">
 <!-- 보안 정책: eyefeet 는 vercel.json 의 응답 헤더를 붙이지 않아서(2026-10 확인: server 헤더만 옴) 같은 정책을 페이지 안에 넣어요.
      frame-ancestors 는 meta 로는 동작하지 않아요. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-src 'self'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; frame-src 'self'; base-uri 'self'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>HS코드 쉽게 찾기</title>
 <script src="../shared/error-logger.js"></script>
 <script src="../shared/ai-client.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/fonts/fonts.css">
 <style>
 :root{
   --paper:#F5F0E6; --sheet:#FFFDF9; --ink:#13233F; --ink-soft:#6E6A62; --line:#E4DCCB;
@@ -33,7 +31,7 @@
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--paper);color:var(--ink);
-  font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
   font-size:16px;line-height:1.6}
 .wrap{max-width:760px;margin:0 auto;padding:32px 20px 64px}
 header h1{font-size:2rem;line-height:1.25;margin:0 0 8px;font-weight:700;letter-spacing:-.01em}

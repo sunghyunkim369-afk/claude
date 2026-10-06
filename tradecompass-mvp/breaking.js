@@ -1,6 +1,6 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-06T03:58:57.154Z",
+ "generated": "2026-10-06T04:31:26.335Z",
  "hours": 24,
  "items": [
   {
@@ -155,15 +155,16 @@ window.TC_BREAKING = {
    "sectors": []
   },
   {
-   "title": "Busan Youth Startup Breaks Into Dolce & Gabbana Supply Chain... Korea's First Commercial Digital Product Passport Launched",
-   "lang": "en",
-   "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE83RWZTYklBNjdhZ0R2X3JSMkV2S1R2VS0yM2pGRk82YVlldWJmd1R3T3UyNVo0Qkp4cHlydFRqaS1FTVdjbnkyeUFGRUVjMGE5eGNTTDJoZjh3cXpIN2xJcUtDWTk?oc=5",
-   "source": "아시아경제",
+   "title": "CPTPP, 농산물 관세만의 문제 아니다…농가 지원·검역도 '시험대'",
+   "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBXTE9MVHlldjRjNjBzemQ5aTdKaDhoNUxlemlJdUpQVThoeDVpY3U0cmsyajlKSEpZcWlnWF9LRGhDbkNfbDJoX1ZzcXB0eDA2VG1yZDZMWndaV3dvTFFJal9DM3l0NWVxaHBn0gFwQVVfeXFMT01MMWdvWndLelFKczYwbFZ4T2dHbXFjbWQ5S0s1SkJXSU15SlRWb09iU2lxUlFKS0c1SGlGMVJ5ajg0YkdlVGd4VDF1aWpFeXNUVGNGMHlhSl9TTjJzTmdnV0VZY0JrUk5sZXJ4cWJTRg?oc=5",
+   "source": "머니투데이",
    "outlets": 1,
-   "at": "2026-10-06T00:26:22.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": []
+   "at": "2026-10-06T00:21:20.000Z",
+   "tag": "관세",
+   "direction": "neutral",
+   "sectors": [
+    "consumer"
+   ]
   }
  ]
 };

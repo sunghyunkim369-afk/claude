@@ -22,7 +22,7 @@ TradeCompass 대시보드의 **이번 주 Top10 무역 이슈**, **섹터 노출
 | 1.0 정부·국제기구 | WTO 공식 뉴스(RSS), 정책브리핑·산업통상자원부·관세청·기획재정부 |
 | 0.9 통신사 | 연합뉴스(RSS: 경제·산업·국제), 뉴시스, 뉴스1, Reuters, Bloomberg, AP |
 | 0.8 주요 경제지·일간지·방송 | 한국경제·매일경제(RSS), 서울경제, 머니투데이, 이데일리, 아시아경제, 헤럴드경제, 파이낸셜뉴스, 조선비즈, 전자신문, 디지털타임스, 연합인포맥스, 중앙·조선·동아·한겨레·경향·서울신문, KBS·MBC·SBS·YTN, FT, WSJ, Nikkei, CNBC |
-| 0.7 | 뉴스핌, 해운 전문지(gCaptain·Splash247·The Loadstar) |
+| 0.7 | 뉴스핌, 해운 전문지(gCaptain·The Loadstar) |
 | 1.0 해외 정부 (2026-10 추가) | USTR, 백악관 대통령 조치, 미 관보(Federal Register: 국제무역청·산업안보국·USTR의 한국 관련 결정), EU 집행위원회 발표 |
 | 0.8 해외 언론 (2026-10 추가) | Nikkei Asia·SCMP(RSS), Reuters·AP·Bloomberg·FT·Nikkei 세계 무역 기사(Google 뉴스 `site:` 검색) |
 
@@ -135,6 +135,7 @@ TradeCompass 대시보드의 **이번 주 Top10 무역 이슈**, **섹터 노출
 - **섹터 "평소 대비"와 "기사 적음"**: 노출도 옆에 같은 출처 기준 직전 4주 주평균 대비 증감률을 표시하고, 기사 10건 미만이면 "기사 적음"을 붙입니다.
 - **섹터당 3개 제한**: 이슈 기사의 40% 이상이 그 섹터일 때만 셉니다(`mainSectorShare`). "미국 관세"가 기사 몇 건 때문에 석유화학 이슈로 세어져 점수 4위 이슈를 막던 문제.
 - **지난주 대비 순위**: `data/news/history.json` 에 주별 Top10을 남겨 ▲▼·NEW와 빠진 이슈를 보여줍니다.
+- **영문 홍보성 기사 제외**: 영문 제목에 기업 거래·투자·제휴·행사 단어(invest, partners with, deals, start-up…)가 있고 무역 정책 단어(tariff, export, sanction…)도 정부·정상 단어(Trump, minister, talks…)도 없으면 뺍니다. 선박 금융·수주 기사가 대부분인 Splash247 피드와 기업 기사를 끌어오던 영문 검색어 "supply chain" 도 뺐습니다.
 - **영문 제목 번역**: eyefeet 서버가 `/api/data`·`/api/breaking` 응답을 보내기 직전에 영문 기사 제목을 AI(서버 환경변수의 AI 설정)로 번역해 붙입니다(`api/_translate.js`). 번역은 메모리에 기억해 같은 제목은 다시 묻지 않고, AI 가 없거나 6초 안에 답하지 않으면 원문 그대로 보냅니다. 화면에는 번역 제목을 크게, "원문: …"을 작게 보여줍니다. GitHub Secrets 에 `AI_API_KEY` 를 넣으면 수집 단계에서도 번역(`titleKo`)해 GitHub Pages 사본에도 반영됩니다.
 
 ### Top10 고르기

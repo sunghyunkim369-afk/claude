@@ -182,8 +182,15 @@ function finalize(item, hint) {
 // 예) "HD현대사이트솔루션, 국내 최대 18t급 전동지게차 출시" → true (해운·물류 이슈에서 빠져요)
 function isPromo(title = "") {
   const t = lower(title);
+  if (!/[가-힣]/.test(title)) return EN_PROMO.test(title) && !EN_CORE.test(title) && !EN_GOV.test(title);
   return PROMO.some(w => t.includes(lower(w))) && !CORE_TRADE.some(w => hit(t, w));
 }
+// 영문 기사: 기업 거래·투자·행사 소식(투자·수주·제휴·스타트업…)은 무역 정책 단어도, 정부·정상 단어도 없으면 홍보성으로 봐요
+// 예) "Busan Youth Startup Breaks Into Dolce & Gabbana Supply Chain", "KKR Bets on Korea AI Supply Chain After Record Deals" → 제외
+//     "Trump Announces $54 Billion Korea Alaska LNG Investment" → 유지 (정부 단어)
+const EN_PROMO = /\b(launch\w*|unveil\w*|partners? with|partnership|signs?|mou|invest(s|ment)?|acquir\w*|orders?|orderbook|bags|expands?|raises|ipo|deals?|matchmaking|event|awards?|hires|appoint\w*|ceo|bulker|newcastlemax|ultramax|suezmax|fsru|start-?up|labs?|plaintiffs|headline war|professor)\b/i;
+const EN_CORE = /tariff|dut(y|ies)|export|import|trade|sanction|embargo|dumping|countervailing|safeguard|quota|customs|cptpp|fta\b|wto|ustr|curbs?|freight rate/i;
+const EN_GOV = /trump|vance|biden|xi\b|government|minister|ministry|president|council|talks|summit|bok\b|countries|nations|\b(korea|japan|china|us|u\.s\.|eu|mexico|india|sweden|france),? (and|to|,|–|-)|s\. korea,/i;
 
 // ── 의견·시황·홍보 문구 ──
 // 사설·칼럼·기고·기자수첩, 증시 시황·특징주·목표가, 연설문 제목("~해 나가겠습니다")은 사실 보도가 아니라서

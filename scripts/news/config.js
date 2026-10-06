@@ -29,15 +29,15 @@ const FEEDS = [
   // ── 해외 언론 ──
   { id: "nikkei-asia", name: "Nikkei Asia", tier: 0.8, url: "https://asia.nikkei.com/rss/feed/nar", lang: "en" },
   { id: "scmp-economy", name: "SCMP", tier: 0.8, url: "https://www.scmp.com/rss/318421/feed", lang: "en" },
-  // ── 해운 전문지 (운임·항로·항만) ──
+  // ── 해운 전문지 (운임·항로·항만) — Splash247 은 선박 금융·수주 기사가 대부분이라 2026-10 에 뺐어요 ──
   { id: "gcaptain", name: "gCaptain", tier: 0.7, url: "https://gcaptain.com/feed/", lang: "en" },
-  { id: "splash247", name: "Splash247", tier: 0.7, url: "https://splash247.com/feed/", lang: "en" },
   { id: "loadstar", name: "The Loadstar", tier: 0.7, url: "https://theloadstar.com/feed/", lang: "en" },
 ];
 
 // 정부 발표 (정책브리핑) · 해외 통신사 영문 기사도 Google 뉴스 검색으로 받아요
 const GOV_QUERY = "site:korea.kr 관세 OR 수출 OR 통상 OR 무역 OR 공급망";
-const EN_QUERY = "Korea tariff OR \"export controls\" OR \"trade deal\" OR \"anti-dumping\" OR \"supply chain\"";
+// "supply chain" 은 기업 투자·제휴 기사까지 끌어와서 뺐어요 (2026-10)
+const EN_QUERY = "Korea tariff OR \"export controls\" OR \"trade deal\" OR \"anti-dumping\" OR \"critical minerals\"";
 // 해외 통신사·경제지의 세계 무역 기사 (한국 언급이 없어도). 한국 관련도가 낮아 점수에는 0.5배쯤만 반영돼요.
 const GLOBAL_EN_QUERY = "(site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:ft.com OR site:asia.nikkei.com) (tariff OR \"export controls\" OR sanctions OR \"trade deal\" OR antidumping)";
 

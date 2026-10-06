@@ -104,14 +104,24 @@ const sectorChips = ids => (ids || []).map(id => sectorById[id] ? `<a class="sc"
 
 // 홈 "주요 무역 뉴스": 머리기사 1건 크게 + 헤드라인 6건 (중요도 순)
 function newsFront(list) {
+  // 머리기사는 1위 이슈가 아닌 기사에서 골라요. 1위 이슈는 이번 주 요약·핵심 이슈 1위에 이미 나와서
+  // 같은 기사가 홈에 세 번 반복되지 않게 해요. 1위 이슈의 대표 기사는 헤드라인에서도 빼요.
   const ranked = [...list].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
-  const [lead, ...rest] = ranked;
+  const top1 = D.meta.sample ? null : D.issues[0];
+  const pool = top1 ? ranked.filter(n => n.link !== top1.link) : ranked;
+  // 머리기사 = 2위 이슈의 대표 기사 (뉴스 목록에 있으면 그 기사, 없으면 이슈 정보로 만들어요)
+  const second = D.meta.sample ? null : D.issues[1];
+  const fromIssue = x => ({ tag: x.tag, title: x.title, link: x.link, source: x.source, time: x.time, summary: x.summary,
+    lang: x.lang, orig: x.orig, issue: x.keyword, issueReports: x.reports, trend: x.trend });
+  const lead = (second && (pool.find(n => n.link === second.link) || fromIssue(second)))
+    || (top1 && pool.find(n => n.issue !== top1.keyword)) || pool[0];
+  const rest = pool.filter(n => n !== lead && n.link !== lead.link);
   if (!lead) return `<p class="muted">이번 주 주요 뉴스가 없어요.</p>`;
   const heads = rest.slice(0, 6);
   return `
     <article class="lead">
       <div class="lead-main">
-        <div class="kick"><span class="tag">${esc(lead.tag)}</span><em class="dir ${act(lead.direction)[1]}">${act(lead.direction)[0]}</em>${reach(lead)}${enBadge(lead)}</div>
+        <div class="kick"><span class="tag">${esc(lead.tag)}</span>${lead.direction ? `<em class="dir ${act(lead.direction)[1]}">${act(lead.direction)[0]}</em>` : ""}${reach(lead)}${enBadge(lead)}</div>
         <h3>${ext(lead.link, esc(lead.title))}</h3>${origLine(lead)}
         <p>${esc(lead.summary || lead.why || "")}</p>
         <div class="meta">${esc(lead.source)} · ${esc(ago(lead.at) || lead.time)}${sectorChips(lead.sectors)}</div>
@@ -385,20 +395,60 @@ function myFeed(mine) {
   </div>`;
 }
 
+const TOOLS = [
+  ["hs", "HS 코드 · 통관 계산", "품목의 HS 코드를 찾고 관세·부가세와 FTA 협정을 확인해요.", "HS"],
+  ["travel", "여행자 면세 계산기", "귀국할 때 산 물건이 면세인지, 자진신고하면 얼마 아끼는지.", "$800"],
+  ["check", "직구 반입 체커", "멜라토닌·육포·전자제품… 직구해도 되는지와 잘 모르는 함정.", "OK?"],
+  ["track", "통관 진행 조회", "유니패스 단계 풀이와 받은 문자가 사칭인지 확인.", "B/L"],
+];
 // 첫 화면 "나는 누구?" 바로가기: 수출입 실무·직구/여행·공부 목적에 맞는 메뉴로 바로 보내요. 고른 것은 이 브라우저에 기억해요.
 const PKEY = "tc-persona";
 const PERSONAS = [
-  ["biz", "수출입 기업", "#/sectors", "섹터 노출도·Top 10 이슈"],
-  ["life", "직구·해외여행", "#/tools", "면세 계산·직구 반입·통관 조회"],
-  ["study", "공부·리서치", "#/method", "순위 산정 방법·출처"],
+  ["biz", "수출입 기업", "Top 10 이슈·섹터 노출도를 먼저"],
+  ["life", "직구·해외여행", "면세 계산·직구 반입·통관 조회를 먼저"],
+  ["study", "공부·리서치", "이번 주 흐름과 순위 산정 방법을 먼저"],
 ];
+const getPersona = () => { try { return localStorage.getItem(PKEY) || ""; } catch { return ""; } };
 function personaBar() {
   if (D.meta.sample) return "";
-  let cur = ""; try { cur = localStorage.getItem(PKEY) || ""; } catch {}
-  return `<nav class="persona rise" aria-label="목적별 바로가기"><span>무엇이 필요하세요?</span>${PERSONAS.map(([id, t, href, d]) =>
-    `<a href="${href}" data-persona="${id}" class="${cur === id ? "on" : ""}" title="${esc(d)}"><b>${t}</b><small>${esc(d)}</small></a>`).join("")}</nav>`;
+  const cur = getPersona();
+  return `<nav class="persona rise" aria-label="목적에 맞게 홈 순서 바꾸기"><span>무엇이 필요하세요? <small>고르면 홈 순서가 바뀌어요</small></span>${PERSONAS.map(([id, t, d]) =>
+    `<button type="button" data-persona="${id}" aria-pressed="${cur === id}" class="${cur === id ? "on" : ""}"><b>${t}</b><small>${esc(d)}</small></button>`).join("")}</nav>`;
 }
-document.addEventListener("click", e => { const p = e.target.closest("[data-persona]"); if (p) try { localStorage.setItem(PKEY, p.dataset.persona); } catch {} });
+// 같은 버튼을 다시 누르면 기본 순서로 돌아가요
+document.addEventListener("click", e => {
+  const p = e.target.closest("[data-persona]");
+  if (!p) return;
+  const next = getPersona() === p.dataset.persona ? "" : p.dataset.persona;
+  try { next ? localStorage.setItem(PKEY, next) : localStorage.removeItem(PKEY); } catch {}
+  const y = window.scrollY; route(); window.scrollTo(0, y);
+});
+// 홈 블록 순서: 모바일은 Top 10 이슈를 속보보다 먼저(가장 중요한 정보가 첫 두 화면 안에 들어오게)
+const MOBILE = window.matchMedia ? window.matchMedia("(max-width:640px)") : { matches: false };
+function homeOrder() {
+  const p = getPersona(), m = MOBILE.matches;
+  if (p === "biz") return ["hero", "persona", "my", "issues", "sectors", "breaking", "bearing", "news", "ai", "trade"];
+  if (p === "life") return ["hero", "persona", "tools", "breaking", "bearing", "news", "issues", "my", "sectors", "ai", "trade"];
+  if (p === "study") return ["hero", "persona", "bearing", "method", "issues", "sectors", "news", "breaking", "my", "ai", "trade"];
+  return m ? ["hero", "persona", "my", "bearing", "issues", "breaking", "news", "sectors", "ai", "trade"]
+           : ["hero", "persona", "my", "bearing", "breaking", "issues", "news", "sectors", "ai", "trade"];
+}
+// 화면 폭이 모바일 경계를 넘으면 홈 순서를 다시 맞춰요
+if (MOBILE.addEventListener) MOBILE.addEventListener("change", () => { if (!location.hash || location.hash === "#/") route(); });
+
+// 목적별 블록: 생활 통관 도구 바로가기, 순위 산정 방법 요약
+function toolsQuick() {
+  return `<section class="card rise quick-tools" style="--i:2"><div class="card-h"><div><h2>생활 통관 도구</h2><p>여행·직구할 때 바로 쓰는 계산기와 체커예요</p></div><a class="more" href="#/tools">전체 →</a></div>
+    <div class="qt-grid">${TOOLS.map(([id, t, d, mark]) => `<a class="qt" href="#/${id}"><span class="hub-mark">${mark}</span><b>${t}</b><small>${d}</small></a>`).join("")}</div></section>`;
+}
+function methodQuick() {
+  return `<section class="card rise" style="--i:2"><div class="card-h"><div><h2>이 순위는 어떻게 만들어지나요?</h2><p>공부·발표 자료로 쓸 때 알아 두면 좋은 기준</p></div><a class="more" href="#/method">자세히 →</a></div>
+    <ul class="mq">
+      <li><b>출처</b> 정부·국제기구, 통신사, 주요 경제지·방송, 해외 정부·경제지 ${D.meta.outlets}곳의 기사 ${D.meta.sources.toLocaleString()}건 (목록에 없는 매체는 쓰지 않아요)</li>
+      <li><b>점수</b> = 100 × (0.6 × 보도량 + 0.4 × 평소 대비 추세) × (0.6 + 0.4 × 한국 관련도)</li>
+      <li><b>한계</b> 조치 방향은 단어 규칙이라 틀릴 수 있어요(표본 점검 88% 일치). 판단은 원문으로 확인하세요.</li>
+    </ul></section>`;
+}
 const refreshMy = () => { const el = document.getElementById("my-sectors"); if (el) { el.outerHTML = myBlock(); animate(document.getElementById("my-sectors")); } };
 
 // ── 화면 ──
@@ -407,16 +457,17 @@ const views = {
     const b = D.bearing;
     const top = [...D.sectors].sort((a, b) => Math.abs(b.score - 50) - Math.abs(a.score - 50))[0];
     const t = D.trade;
-    return `
+    // 홈은 블록을 이어 붙여 만들어요. 순서는 기기(모바일)와 "무엇이 필요하세요?"에서 고른 목적에 따라 달라져요.
+    const B = {
+      hero: `
       <header class="hero rise">
         <p class="kicker">Weekly Brief · ${esc(enDate())}</p>
         <h1 class="display">Global Trade <em>Intelligence</em></h1>
         <p>${D.meta.sample ? "무역 이슈가 국내 섹터와 종목에 주는 영향을 정리합니다." : `${esc(D.meta.period)} 동안 신뢰할 수 있는 언론·기관 ${D.meta.outlets}곳의 무역 기사 ${D.meta.sources.toLocaleString()}건을 분석했어요.`}</p>
-      </header>
-      ${personaBar()}
-
-      ${myBlock()}
-
+      </header>`,
+      persona: personaBar(),
+      my: myBlock(),
+      bearing: `
       <section class="bearing rise" style="--i:1">
         <svg class="rose" viewBox="0 0 300 300" aria-hidden="true">
           <g class="ring" fill="none" stroke="currentColor">
@@ -432,10 +483,9 @@ const views = {
         <div class="eyebrow">THIS WEEK'S BEARING</div>
         <h2>${esc(b.headline)}</h2>
         <ul>${b.points.map(p => `<li>${esc(p)}</li>`).join("")}</ul>
-      </section>
-
-      ${breakingBlock(2, false)}
-
+      </section>`,
+      breaking: breakingBlock(2, false),
+      issues: `
       <div class="grid g-2" style="margin-top:22px">
         <section class="card rise" style="--i:7">
           <div class="card-h"><div><h2>이번 주 핵심 무역 이슈</h2><p>보도량 · 증가 추세 · 한국 관련도 기준</p></div><a class="more" href="#/news">Top 10 →</a></div>
@@ -445,22 +495,18 @@ const views = {
           <div class="card-h"><div><h2>공급망 리스크 신호</h2><p>${D.risks.length ? `수출통제·제재·해운·공급망·원자재 이슈 ${D.risks.length}개` : "이번 주 두드러진 신호 없음"}</p></div></div>
           <ul class="risks">${D.risks.map(riskItem).join("")}</ul>
         </section>
-      </div>
-
+      </div>`,
+      news: `
       <section class="card rise" style="--i:9;margin-top:18px">
         <div class="card-h"><div><h2>${D.meta.sample ? "뉴스 × 연관 종목 분석" : "주요 무역 뉴스"}</h2><p>${D.meta.sample ? "AI가 뉴스에서 종목 영향 경로를 추출했어요" : "이번 주 중요도 순 · 제목을 누르면 원문으로 이동해요"}</p></div><a class="more" href="#/news">뉴스 피드 →</a></div>
         ${D.meta.sample ? `<ul class="news">${D.news.slice(0, 3).map(newsRow).join("")}</ul>` : `<div class="front">${newsFront(D.news)}</div>`}
-      </section>
-
-
+      </section>`,
+      sectors: `
       <div class="sec-h rise" style="--i:10;margin-top:28px"><h2>섹터별 노출도</h2><span>${D.meta.sample ? "최근 7일 뉴스 기준 · 50 = 중립" : "직전 4주 대비 뉴스 비중 · 50 = 평소 수준"}</span></div>
       <div class="sectors">${D.sectors.map((s, i) => sectorCard(s, i + 3)).join("")}</div>
-      <p class="note rise" style="--i:6">노출도는 이번 주 무역 기사 중 그 섹터 기사의 비중이 직전 4주 평균보다 얼마나 높은지를 나타낸 지표예요(50 = 평소 수준). 강화·완화는 기사 속 무역 조치 방향입니다. 실제 판단은 원문을 함께 확인하신 뒤 직접 하시기 바랍니다. <a href="#/method">계산 방법 보기</a></p>
-
-
-      ${aiCard("ask", "", 11)}
-
-      ${t ? `<section class="card rise" style="--i:10;margin-top:18px">
+      <p class="note rise" style="--i:6">노출도는 이번 주 무역 기사 중 그 섹터 기사의 비중이 직전 4주 평균보다 얼마나 높은지를 나타낸 지표예요(50 = 평소 수준). 강화·완화는 기사 속 무역 조치 방향입니다. 실제 판단은 원문을 함께 확인하신 뒤 직접 하시기 바랍니다. <a href="#/method">계산 방법 보기</a></p>`,
+      ai: aiCard("ask", "", 11),
+      trade: t ? `<section class="card rise" style="--i:10;margin-top:18px">
         <div class="card-h"><div><h2>국가·품목별 무역 흐름</h2><p>대한민국 월간 수출 · ${esc(t.period)}</p></div></div>
         <div class="kpis">
           <div class="kpi"><small>총 수출액</small><b>${countUp(t.total, 1, "$", "B")}</b></div>
@@ -471,7 +517,11 @@ const views = {
           <div><p class="flow-h">주요 수출국</p>${bars(t.countries, r => r.name)}</div>
           <div><p class="flow-h">주요 수출 품목</p>${bars(t.items, r => r.name)}</div>
         </div>
-      </section>` : ""}`;
+      </section>` : "",
+      tools: toolsQuick(),
+      method: methodQuick(),
+    };
+    return homeOrder().map(k => B[k] || "").join("\n");
   },
 
   news(q) {
@@ -521,12 +571,7 @@ const views = {
   },
 
   tools() {
-    const T = [
-      ["hs", "HS 코드 · 통관 계산", "품목의 HS 코드를 찾고 관세·부가세와 FTA 협정을 확인해요.", "HS"],
-      ["travel", "여행자 면세 계산기", "귀국할 때 산 물건이 면세인지, 자진신고하면 얼마 아끼는지.", "$800"],
-      ["check", "직구 반입 체커", "멜라토닌·육포·전자제품… 직구해도 되는지와 잘 모르는 함정.", "OK?"],
-      ["track", "통관 진행 조회", "유니패스 단계 풀이와 받은 문자가 사칭인지 확인.", "B/L"],
-    ];
+    const T = TOOLS;
     return `
       <div class="page-h rise"><p class="kicker">Tools</p><h1 class="display sm">Trade <em>Tools</em></h1><p>무역·직구·여행 통관에 바로 쓰는 도구 모음이에요.</p></div>
       <div class="tool-hub">${T.map(([id, t, d, mark], i) => `
@@ -541,7 +586,7 @@ const views = {
         <h2>1. 어떤 뉴스를 모으나요?</h2>
         <ul>
           <li><b>통신사·경제지 RSS</b>: 연합뉴스(경제·산업·국제), 한국경제(경제·국제), 매일경제(경제), WTO 공식 뉴스</li>
-          <li><b>해외 1차 출처</b>: 미국 무역대표부(USTR)·백악관 대통령 조치·미 관보(한국 관련 반덤핑·수출통제 결정)·EU 집행위원회 발표, Nikkei Asia·SCMP, 해운 전문지(gCaptain·Splash247·The Loadstar)</li>
+          <li><b>해외 1차 출처</b>: 미국 무역대표부(USTR)·백악관 대통령 조치·미 관보(한국 관련 반덤핑·수출통제 결정)·EU 집행위원회 발표, Nikkei Asia·SCMP, 해운 전문지(gCaptain·The Loadstar)</li>
           <li><b>Google 뉴스 검색</b>: 관세·수출통제·반덤핑·FTA·제재·해운·공급망·환율·원자재·보조금·통관·수출입 동향 12개 주제와 정책브리핑(정부 발표), Reuters·AP·Bloomberg·FT·Nikkei의 세계 무역 기사. 검색 결과 중 <b>신뢰 언론사 목록</b>(통신사, 주요 경제지·일간지·방송, Reuters·Bloomberg 등 30여 곳)에 있는 기사만 남겨요.</li>
           <li>6시간마다 수집하고, 같은 사건을 다룬 기사는 제목 유사도로 하나로 묶어 몇 곳이 보도했는지만 셉니다.</li>
         </ul>

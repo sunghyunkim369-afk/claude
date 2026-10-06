@@ -27,5 +27,18 @@ jobs:
             code=$(curl -sL -A "Mozilla/5.0 (TradeCompass)" --max-time 15 -o f.xml -w '%{http_code}' "$u"); n=$(grep -o '<item' f.xml | wc -l)
             echo "$code items=$n  $u  $(grep -o '<title>[^<]*' f.xml | sed -n 2p | head -c 60)"; sleep 2
           done
+          echo "===== 정책브리핑 RSS 안내 페이지에서 찾은 주소 ====="
+          i=0
+          for g in https://www.korea.kr/etc/rss.do https://www.korea.kr/etc/rssGuide.do https://www.korea.kr/main.do; do
+            i=$((i + 1)); touch g$i.html
+            code=$(curl -sL -A "Mozilla/5.0 (compatible; TradeCompassBot/1.0)" --max-time 40 -o g$i.html -w '%{http_code}' "$g" || true)
+            echo "$code $g ($(wc -c < g$i.html) bytes)"
+            grep -oiE '(https?://(www\.)?korea\.kr)?/[^"'"'"' ]*rss[^"'"'"' ]*' g$i.html | sort -u | head -40 || true
+            sleep 2
+          done
+          for u in $(cat g*.html 2>/dev/null | grep -oiE '(https?://(www\.)?korea\.kr)?/rss/[A-Za-z0-9_./-]*\.xml' | sed 's#^/#https://www.korea.kr/#' | sort -u | head -12); do
+            code=$(curl -sL -A "Mozilla/5.0 (compatible; TradeCompassBot/1.0)" --max-time 30 -o f.xml -w '%{http_code}' "$u" || true); touch f.xml; n=$(grep -o '<item' f.xml | wc -l)
+            echo "$code items=$n  $u  $(grep -o '<title>[^<]*' f.xml | sed -n 2p | head -c 60)"; sleep 2
+          done
           echo "===== tcmvp.eyefeet.com 응답 헤더 ====="
           curl -sI --max-time 15 https://tcmvp.eyefeet.com/tradecompass-mvp/ | grep -iE '^(HTTP|content-security|x-frame|x-content-type|referrer-policy|strict-transport|permissions-policy|server)'

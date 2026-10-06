@@ -3,7 +3,7 @@
 # - Noto Sans KR: 굵기 400·500·700 고정본. KS X 1001 한글 2,350자 + 사이트 파일·기사 제목에 나오는 글자(한자 포함)
 # - Fraunces: 영문 제목용 가변 글꼴(굵기 400~700, opsz), 보통·기울임 2개. 라틴 문자만
 # 실행: python scripts/fonts/build.py <원본 폴더> <출력 폴더>
-import sys, os, json, glob
+import sys, os, json, glob, io
 from fontTools.ttLib import TTFont
 from fontTools.varLib import instancer
 from fontTools import subset
@@ -35,7 +35,13 @@ base = set(chr(c) for c in list(range(0x20, 0x7F)) + list(range(0xA0, 0x100)) + 
 kr_chars = ks | base | site_chars()
 print("Noto Sans KR 글자 수:", len(kr_chars), "(KS X 1001 한글", len(ks), ")")
 
+def reload(font):
+    # 가변 글꼴을 일부만 고정(instancer)한 뒤 바로 subset 하면 gvar 를 늦게 읽다가 KeyError 가 나요 → 한 번 저장했다가 다시 열어요
+    buf = io.BytesIO(); font.save(buf); buf.seek(0)
+    return TTFont(buf, lazy=False)
+
 def save(font, text, path, keep_layout=True):
+    font = reload(font)
     opts = subset.Options(); opts.flavor = "woff2"; opts.layout_features = ["*"] if keep_layout else []
     opts.name_IDs = ["*"]; opts.notdef_outline = True
     s = subset.Subsetter(opts); s.populate(text="".join(sorted(text))); s.subset(font)

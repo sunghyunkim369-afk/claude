@@ -1,0 +1,28 @@
+name: Media preview
+
+# 이미지 기능 미리보기: 유튜브 썸네일 매칭과 무료 사진 후보를 받아 작업 브랜치에 올려요 (수동 실행)
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/elegant-heisenberg-s2a9ar
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/media/preview.js
+      - run: |
+          git config user.name "tradecompass-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/media-preview
+          git diff --cached --quiet && exit 0
+          git commit -m "Media preview candidates"
+          git pull --rebase origin claude/elegant-heisenberg-s2a9ar
+          git push origin HEAD:claude/elegant-heisenberg-s2a9ar

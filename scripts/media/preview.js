@@ -24,12 +24,18 @@ async function channelId(handles) {
   }
   return null;
 }
+// 키(주제·섹터)마다 검색어 여러 개 → 후보 최대 6장
 const PHOTO_QUERIES = {
-  tariff: "container port cranes", export_control: "semiconductor wafer", trade_remedy: "steel coils",
-  shipping: "container ship sea", supply_chain: "cargo terminal", energy: "oil tanker", fx: "currency exchange",
-  sanctions: "oil tanker sea", agreement: "flags conference", customs: "customs cargo inspection",
-  semi: "semiconductor chip", auto: "car carrier ship", battery: "lithium battery cells", steel: "steel mill",
-  chem: "petrochemical plant", ship: "shipyard", machinery: "electronics factory", consumer: "food market",
+  tariff: ["Busan port container terminal", "container cranes port"], export_trend: ["Busan New Port", "Incheon port container"],
+  export_control: ["semiconductor wafer", "semiconductor cleanroom"], trade_remedy: ["steel coils", "steel plates warehouse"],
+  sanctions: ["oil tanker sea", "tanker ship strait"], shipping: ["container ship sea", "HMM container ship"],
+  supply_chain: ["container terminal aerial", "rare earth minerals"], energy: ["LNG carrier", "oil refinery night"],
+  fx: ["Korean won banknotes", "United States dollar banknotes"], agreement: ["flags South Korea United States", "trade agreement signing ceremony"],
+  customs: ["container x-ray scanner", "customs inspection container"], subsidy: ["battery factory production line", "electric vehicle factory"],
+  semi: ["semiconductor wafer", "semiconductor chip macro"], auto: ["car carrier ship", "Hyundai Glovis"],
+  battery: ["lithium ion battery cells", "battery factory"], steel: ["steel mill", "POSCO Pohang"],
+  chem: ["Ulsan petrochemical", "oil refinery"], ship: ["Hyundai Heavy Industries shipyard", "Okpo shipyard", "shipyard crane ship construction"],
+  machinery: ["industrial robot factory", "electronics factory"], consumer: ["supermarket shelves", "Korean food market", "cosmetics store"],
 };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function get(url, asBuf) {
@@ -80,11 +86,12 @@ const OK_LICENSE = /^(cc0|public domain|pd|cc by(-sa)? [1-4]\.0)/i;
 async function photos() {
   const out = {};
   fs.mkdirSync(path.join(OUT, "photos"), { recursive: true });
-  for (const [key, q] of Object.entries(PHOTO_QUERIES)) {
+  for (const [key, qs] of Object.entries(PHOTO_QUERIES)) {
+   out[key] = [];
+   for (const q of qs) {
     try {
       const api = `https://commons.wikimedia.org/w/api.php?action=query&format=json&generator=search&gsrnamespace=6&gsrlimit=20&gsrsearch=${encodeURIComponent(q + " filetype:bitmap")}&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=960`;
       const pages = Object.values(JSON.parse(await get(api)).query?.pages || {}).sort((a, b) => a.index - b.index);
-      out[key] = [];
       for (const pg of pages) {
         const ii = (pg.imageinfo || [])[0]; if (!ii) continue;
         const md = ii.extmetadata || {}, lic = (md.LicenseShortName?.value || "").trim();
@@ -93,13 +100,14 @@ async function photos() {
         try { fs.writeFileSync(path.join(OUT, "photos", file), await get(ii.thumburl, true)); } catch { continue; }
         out[key].push({ file, title: pg.title.replace(/^File:/, ""), creator: (md.Artist?.value || "").replace(/<[^>]+>/g, "").trim().slice(0, 80), license: lic, source: ii.descriptionurl });
         await sleep(300);
-        if (out[key].length >= 4) break;
+        if (out[key].length >= Math.ceil(6 * (qs.indexOf(q) + 1) / qs.length)) break;
       }
-      console.log(`photo ${key} (${q}): 후보 ${pages.length} → ${out[key].length}장`);
+      console.log(`photo ${key} (${q}): 후보 ${pages.length} → 누적 ${out[key].length}장`);
     } catch (e) { console.log(`photo ${key}: 실패 ${e.message}`); }
     await sleep(600);
+   }
   }
   fs.writeFileSync(path.join(OUT, "photos.json"), JSON.stringify(out, null, 1));
 }
 
-(async () => { await youtube(); await photos(); })();
+(async () => { await photos(); })();   // 유튜브는 GitHub 서버에서 막혀 있어 API 키가 생기면 다시 켜요

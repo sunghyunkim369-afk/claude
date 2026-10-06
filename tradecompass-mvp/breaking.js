@@ -1,6 +1,6 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-06T06:42:09.960Z",
+ "generated": "2026-10-06T11:27:15.154Z",
  "hours": 24,
  "items": [
   {

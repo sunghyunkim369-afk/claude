@@ -44,7 +44,6 @@ const compass = (score, cls = "compass") => `
   </svg>`;
 const countUp = (to, dec = 0, pre = "", suf = "") =>
   `<span class="num" data-to="${to}" data-dec="${dec}" data-pre="${esc(pre)}" data-suf="${esc(suf)}">${pre}${Number(to).toFixed(dec)}${suf}</span>`;
-const dirLabel = { up: "▲ 긍정", down: "▼ 부정", flat: "● 중립" };
 // up/down: 기사 속 무역 조치가 강화·완화 / neutral: 조치 기사지만 방향 없음 / info: 환율·운임·실적 같은 동향 기사
 const actLabel = { up: ["▲ 조치 강화", "up"], down: ["▼ 조치 완화", "down"], neutral: ["● 중립", "flat"], info: ["● 동향", "flat"] };
 const act = d => actLabel[d] || actLabel.neutral;
@@ -174,10 +173,10 @@ const issueItem = (x, i) => `
     <div class="impact ${x.impact >= 80 ? "hi" : ""}"><b class="num">${countUp(x.impact)}</b><small>${D.meta.sample ? "영향도" : "이슈 점수"}</small>${x.trend ? spark(x.trend, { w: 64, h: 20, label: `${x.keyword} 보도 추이` }) : ""}</div>
   </li>`;
 
-// 실제 데이터: 기사별 관련 섹터와 무역 조치 방향 / 예전 샘플: 종목별 방향
+// 기사별 관련 섹터와 무역 조치 방향 (뉴스와 종목을 잇는 표시는 하지 않아요)
 const newsLinks = n => n.sectors
   ? `<span><em class="dir ${act(n.direction)[1]}">${act(n.direction)[0]}</em></span>${n.sectors.map(id => sectorById[id] ? `<a href="#/sectors/${id}">${esc(sectorById[id].name)}</a>` : "").join("")}${n.trend ? spark(n.trend, { w: 64, h: 18, label: `${n.issue} 보도 추이` }) : ""}`
-  : (n.stocks.length ? n.stocks.map(s => `<span>${esc(s.name)} <em class="dir ${s.dir}">${dirLabel[s.dir]}</em></span>`).join("") : `<span class="muted">연관 종목 없음</span>`);
+  : "";
 const newsRow = n => `
   <li class="news-row">
     <div class="t"><b class="num">${esc(n.time)}</b><small>${esc(n.source)}${n.outlets > 1 ? ` 외 ${n.outlets - 1}곳` : ""}</small>${n.at ? `<small>${esc(ago(n.at))}</small>` : ""}</div>
@@ -201,7 +200,7 @@ const bars = (rows, label) => {
       <span class="y ${r.yoy >= 0 ? "pos" : "neg"}">${signed(r.yoy)}</span></li>`).join("")}</ul>`;
 };
 
-// 섹터 상세: 이 섹터의 Top10 이슈 + 대표 기사 + 종목 정렬 결과
+// 섹터 상세: 이 섹터의 Top10 이슈 + 대표 기사
 const pct = (now, prev) => prev ? Math.round((now - prev) / prev * 100) : 0;
 // 섹터 뉴스: 발행 데이터의 섹터별 기사(없으면 전체 뉴스에서 이 섹터 기사)
 const sectorNews = s => s.news || D.news.filter(n => (n.sectors || []).includes(s.id));
@@ -261,25 +260,22 @@ function sectorPage(s) {
 
       ${aiCard("sector", s.id, list.length + 3)}
 
-      <section class="card rise sort-card" style="--i:${list.length + 4}">
-        <h2>참고용 관련 기업</h2>
-        <p class="muted">이 섹터 무역 뉴스의 영향권에 있는 대표 기업 예시예요(순서에 의미 없음). <b>투자 추천이 아니며</b>, 시세·주가 전망은 제공하지 않아요.</p>
-        <ul class="sort-list">${s.stocks.map(k => `<li><span>${esc(k.name)}</span></li>`).join("")}</ul>
-      </section>
     </div>`;
 }
 
 // ── AI 분석 (Eyefeet AI) ──
 // 화면에 있는 데이터를 글로 정리해 /api/ai 로 보내고, 돌아온 분석을 카드에 그려요.
 const AI_EXAMPLES = ["반도체 수출기업은 지금 무엇을 확인해야 하나요?", "홍해 리스크가 유럽 수출 물류비에 주는 영향은?", "이번 주 가장 주의할 섹터와 이유는?"];
-const DIR = { positive: ["긍정", "pos"], negative: ["부정", "neg"], mixed: ["혼재", "mix"] };
+// 섹터 AI: 이슈별 보도량 방향과 무역 조치 방향만 보여줘요 (기업·업종에 긍정/부정 평가를 붙이지 않아요)
+const TREND = { up: "보도 ▲ 늘어남", down: "보도 ▼ 줄어듦", flat: "보도 – 비슷" };
+const MEASURE = { tighten: ["조치 강화", "up"], ease: ["조치 완화", "down"], none: ["조치 방향 없음", "flat"] };
 
 function aiCard(kind, id, i) {
   const sector = kind === "sector";
   const off = !window.tcAI || !tcAI.enabled;
   return `<section class="card rise ai-card" style="--i:${i}" data-ai="${kind}" data-id="${id}">
     <div class="ai-card-h"><h2>${sector ? "AI 영향 분석" : "이번 주 브리핑에 대해 AI에게 묻기"}</h2><span class="ai-badge">AI · 참고용</span></div>
-    <p class="muted">${sector ? "이 섹터의 노출도와 관련 이슈를 바탕으로 국내 기업이 받을 영향을 정리해요." : "이번 주 정리된 이슈·섹터 자료만 근거로 답해요."}${D.meta.sample ? " 지금은 샘플 데이터라 분석도 예시예요." : ""}</p>
+    <p class="muted">${sector ? "이 섹터와 관련된 무역 뉴스의 보도 흐름과 조치 방향(강화·완화)을 정리해요. 기업·업종에 대한 평가는 하지 않아요." : "이번 주 정리된 이슈·섹터 자료만 근거로 답해요."}${D.meta.sample ? " 지금은 샘플 데이터라 분석도 예시예요." : ""}</p>
     ${sector
       ? `<button type="button" class="ai-btn" data-ai-run ${off ? "disabled" : ""}>AI로 분석하기</button>`
       : `<form class="ai-ask" data-ai-ask><label for="ask-q" class="sr">질문</label>
@@ -295,7 +291,6 @@ function sectorContext(s) {
   return [
     `섹터: ${s.name} / 노출도 ${s.score} (${s.state}, 50=중립) / 조치 강화 ${s.up} · 완화 ${s.down} · 중립 ${s.neutral}`,
     `요약: ${s.summary}`,
-    `영향권 대표 기업(참고용, 투자 판단 대상 아님): ${s.stocks.map(k => k.name).join(", ")}`,
     `관련 이슈:`,
     ...iss.map(x => `- ${x.keyword}: ${x.title} (점수 ${x.score}, 최근 7일 보도 ${x.reports}건·직전 ${x.prev}건, 강화 ${x.up}·완화 ${x.down}) ${x.summary}`),
   ].join("\n");
@@ -316,7 +311,7 @@ function briefContext() {
 const li = (xs) => xs.length ? `<ul class="ai-list">${xs.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : "";
 function renderSectorAI(r) {
   return `<p class="ai-sum">${esc(r.summary)}</p>
-    ${r.impacts.length ? `<ul class="ai-impacts">${r.impacts.map(i => `<li><span class="ai-dir ${DIR[i.direction][1]}">${DIR[i.direction][0]}</span><b>${esc(i.who)}</b> ${esc(i.effect)}</li>`).join("")}</ul>` : ""}
+    ${r.flows.length ? `<ul class="ai-impacts">${r.flows.map(f => `<li><b>${esc(f.issue)}</b> <span class="ai-flow">${TREND[f.trend]}</span><em class="dir ${MEASURE[f.measure][1]}">${MEASURE[f.measure][0]}</em><br>${esc(f.note)}</li>`).join("")}</ul>` : ""}
     ${r.watch.length ? `<h3 class="ai-h">지켜볼 점</h3>${li(r.watch)}` : ""}
     ${r.actions.length ? `<h3 class="ai-h">지금 확인할 일</h3>${li(r.actions)}` : ""}`;
 }
@@ -489,7 +484,7 @@ const views = {
       <header class="hero rise">
         <p class="kicker">Weekly Brief · ${esc(enDate())}</p>
         <h1 class="display">Global Trade <em>Intelligence</em></h1>
-        <p>${D.meta.sample ? "무역 이슈가 국내 섹터와 종목에 주는 영향을 정리합니다." : `${esc(D.meta.period)} 동안 신뢰할 수 있는 언론·기관 ${D.meta.outlets}곳의 무역 기사 ${D.meta.sources.toLocaleString()}건을 분석했어요.`}</p>
+        <p>${D.meta.sample ? "무역 뉴스 흐름을 섹터별로 정리합니다." : `${esc(D.meta.period)} 동안 신뢰할 수 있는 언론·기관 ${D.meta.outlets}곳의 무역 기사 ${D.meta.sources.toLocaleString()}건을 분석했어요.`}</p>
       </header>`,
       persona: personaBar(),
       my: myBlock(),
@@ -524,7 +519,7 @@ const views = {
       </div>`,
       news: `
       <section class="card rise" style="--i:9;margin-top:18px">
-        <div class="card-h"><div><h2>${D.meta.sample ? "뉴스 × 연관 종목 분석" : "주요 무역 뉴스"}</h2><p>${D.meta.sample ? "AI가 뉴스에서 종목 영향 경로를 추출했어요" : "이번 주 중요도 순 · 제목을 누르면 원문으로 이동해요"}</p></div><a class="more" href="#/news">뉴스 피드 →</a></div>
+        <div class="card-h"><div><h2>주요 무역 뉴스</h2><p>${D.meta.sample ? "샘플 데이터예요" : "이번 주 중요도 순 · 제목을 누르면 원문으로 이동해요"}</p></div><a class="more" href="#/news">뉴스 피드 →</a></div>
         ${D.meta.sample ? `<ul class="news">${D.news.slice(0, 3).map(newsRow).join("")}</ul>` : `<div class="front">${newsFront(D.news)}</div>`}
       </section>`,
       sectors: `
@@ -559,7 +554,7 @@ const views = {
       ${breakingBlock(1, true)}
       <div class="grid g-2">
         <section class="card rise" style="--i:1">
-          <div class="card-h"><h2>${D.meta.sample ? "뉴스 × 연관 종목" : "주요 뉴스"}</h2></div>
+          <div class="card-h"><h2>주요 뉴스</h2></div>
           <div class="filters">${tags.map(t => `<a class="chip" href="#/news/${encodeURIComponent(t)}" aria-pressed="${t === cur}">${esc(t)}</a>`).join("")}</div>
           <ul class="news">${list.map(newsRow).join("")}</ul>
         </section>

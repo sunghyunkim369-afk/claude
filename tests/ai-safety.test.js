@@ -82,3 +82,26 @@ test("로그에 이메일·전화번호는 가려서 남겨요", async () => {
   assert.ok(log.includes("[email]") && log.includes("[phone]"));
   assert.ok(!log.includes("kim@test.kr") && !log.includes("1234-5678"));
 });
+
+test("섹터 AI 는 이슈별 보도 흐름·조치 방향만 돌려주고, 긍정/부정 평가 칸은 없어요 (팀 규칙)", () => {
+  const ai = require("../api/ai");
+  const r = ai.parseResult(JSON.stringify({
+    summary: "반도체 관련 관세 보도가 늘었어요.",
+    flows: [{ issue: "미국 관세", trend: "up", measure: "tighten", note: "미국이 반도체 관세 부과를 예고했어요." },
+            { issue: "환율", trend: "sideways", measure: "positive", note: "원·달러 환율이 내렸어요." }],
+    impacts: [{ who: "수출기업", effect: "불리", direction: "negative" }],
+  }), "sector");
+  assert.equal(r.impacts, undefined);
+  assert.equal(r.flows[0].measure, "tighten");
+  assert.equal(r.flows[1].trend, "flat");        // 정해진 값이 아니면 중립값으로
+  assert.equal(r.flows[1].measure, "none");
+  assert.ok(/긍정·부정·유리·불리·수혜·호재·악재·유망/.test(ai.SAFETY));
+});
+
+test("수혜·호재·악재·유망 같은 평가 문장은 걸러요", () => {
+  const ai = require("../api/ai");
+  const { out, hits } = ai._filter("관세 인하로 자동차 업종이 수혜를 볼 전망이에요. 다음 주 협상 결과를 확인하세요.");
+  assert.ok(!/수혜/.test(out));
+  assert.ok(hits.length >= 1);
+  assert.ok(/협상 결과/.test(out));
+});

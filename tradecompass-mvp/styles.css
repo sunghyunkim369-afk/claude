@@ -918,3 +918,6 @@ dialog.auth::backdrop{background:rgba(19,35,63,.45);backdrop-filter:blur(3px)}
 .credits{margin:0;padding-left:18px;columns:2 320px;font-size:.78rem;color:var(--ink-soft)}
 .credits li{break-inside:avoid;margin-bottom:3px}
 @media (max-width:640px){.ph-th{width:64px;height:46px;margin-left:8px}.ph.sp-ph{aspect-ratio:16/8}.ph.lead-ph{aspect-ratio:16/9}}
+
+/* 섹터 AI: 이슈별 보도 흐름 */
+.ai-flow{font-size:.78rem;color:var(--ink-soft);margin:0 6px}

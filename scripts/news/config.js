@@ -116,24 +116,16 @@ const COUNTRIES = [
 ];
 
 // ── 3. 섹터 ──────────────────────────────────────────────────────────
-// stocks: 섹터 대표 종목 (시세가 아니라 "어느 기업들이 영향권인지" 보여주는 용도)
+// (예전에 있던 섹터별 대표 종목 목록은 2026-10-06 팀 규칙에 따라 뺐어요: 뉴스와 종목을 잇는 표시 금지)
 const SECTORS = [
-  { id: "semi", name: "반도체", kw: ["반도체", "메모리", "HBM", "D램", "낸드", "파운드리", "칩", "semiconductor", "chip"],
-    stocks: [{ name: "삼성전자", code: "005930" }, { name: "SK하이닉스", code: "000660" }, { name: "한미반도체", code: "042700" }] },
-  { id: "auto", name: "자동차", kw: ["자동차", "완성차", "전기차", "하이브리드", "자동차부품", "automobile", "vehicle", " car"],
-    stocks: [{ name: "현대차", code: "005380" }, { name: "기아", code: "000270" }, { name: "HL만도", code: "204320" }] },
-  { id: "battery", name: "2차전지", kw: ["배터리", "2차전지", "이차전지", "양극재", "음극재", "리튬", "battery", "lithium"],
-    stocks: [{ name: "LG에너지솔루션", code: "373220" }, { name: "삼성SDI", code: "006400" }, { name: "포스코퓨처엠", code: "003670" }] },
-  { id: "steel", name: "철강·금속", kw: ["철강", "강판", "알루미늄", "구리", "아연", "희토류", "핵심광물", "steel", "aluminum", "copper"],
-    stocks: [{ name: "POSCO홀딩스", code: "005490" }, { name: "현대제철", code: "004020" }, { name: "고려아연", code: "010130" }] },
-  { id: "chem", name: "석유화학·에너지", kw: ["석유화학", "정유", "국제유가", "원유", "LNG", "화학", "에너지", "oil", "petrochemical", "energy"],
-    stocks: [{ name: "SK이노베이션", code: "096770" }, { name: "LG화학", code: "051910" }, { name: "S-Oil", code: "010950" }] },
-  { id: "ship", name: "조선·해운물류", kw: ["조선", "선박", "해운", "운임", "컨테이너", "항만", "물류", "홍해", "shipbuilding", "shipping", "freight"],
-    stocks: [{ name: "HMM", code: "011200" }, { name: "HD한국조선해양", code: "009540" }, { name: "팬오션", code: "028670" }] },
-  { id: "machinery", name: "기계·전자", kw: ["기계", "장비", "가전", "디스플레이", "전자부품", "스마트폰", "machinery", "electronics", "display"],
-    stocks: [{ name: "LG전자", code: "066570" }, { name: "두산에너빌리티", code: "034020" }, { name: "삼성전기", code: "009150" }] },
-  { id: "consumer", name: "소비재·농식품", kw: ["농산물", "식품", "화장품", "K-푸드", "라면", "쌀", "소고기", "농축산", "food", "cosmetic", "agricultur"],
-    stocks: [{ name: "CJ제일제당", code: "097950" }, { name: "농심", code: "004370" }, { name: "아모레퍼시픽", code: "090430" }] },
+  { id: "semi", name: "반도체", kw: ["반도체", "메모리", "HBM", "D램", "낸드", "파운드리", "칩", "semiconductor", "chip"] },
+  { id: "auto", name: "자동차", kw: ["자동차", "완성차", "전기차", "하이브리드", "자동차부품", "automobile", "vehicle", " car"] },
+  { id: "battery", name: "2차전지", kw: ["배터리", "2차전지", "이차전지", "양극재", "음극재", "리튬", "battery", "lithium"] },
+  { id: "steel", name: "철강·금속", kw: ["철강", "강판", "알루미늄", "구리", "아연", "희토류", "핵심광물", "steel", "aluminum", "copper"] },
+  { id: "chem", name: "석유화학·에너지", kw: ["석유화학", "정유", "국제유가", "원유", "LNG", "화학", "에너지", "oil", "petrochemical", "energy"] },
+  { id: "ship", name: "조선·해운물류", kw: ["조선", "선박", "해운", "운임", "컨테이너", "항만", "물류", "홍해", "shipbuilding", "shipping", "freight"] },
+  { id: "machinery", name: "기계·전자", kw: ["기계", "장비", "가전", "디스플레이", "전자부품", "스마트폰", "machinery", "electronics", "display"] },
+  { id: "consumer", name: "소비재·농식품", kw: ["농산물", "식품", "화장품", "K-푸드", "라면", "쌀", "소고기", "농축산", "food", "cosmetic", "agricultur"] },
 ];
 
 // ── 4. 조치 방향 (강화/완화) 단어 ────────────────────────────────────

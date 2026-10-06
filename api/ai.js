@@ -29,7 +29,8 @@ const metrics = require("./_metrics");
 const SAFETY = `[반드시 지킬 규칙]
 - 특정 종목·주식·코인·자산을 사라/팔라고 권하지 마세요. "매수", "매도", "목표가", "수익 보장", "지금이 살 때" 같은 표현을 쓰지 마세요.
 - 주가·수익률을 예측하거나 보장하지 마세요. 투자 판단을 묻는 질문에는 "투자 판단은 안내하지 않아요"라고 말하고, 관련된 무역 사실만 정리하세요.
-- 확실하지 않으면 모른다고 답하고, 관세청·산업통상자원부·공시(DART) 같은 공식 출처를 확인하라고 안내하세요.`;
+- 확실하지 않으면 모른다고 답하고, 관세청·산업통상자원부·공시(DART) 같은 공식 출처를 확인하라고 안내하세요.
+- 뉴스 흐름의 방향(보도가 늘었는지 줄었는지, 무역 조치가 강화됐는지 완화됐는지)만 말하세요. 특정 기업이나 업종에 "긍정·부정·유리·불리·수혜·호재·악재·유망" 같은 평가를 붙이지 말고, 기업 이름을 들어 영향을 말하지 마세요.`;
 
 // ── 안전장치 (b) 응답 후처리 필터: 투자자문성 문장을 지우거나 중립 문구로 바꿔요 ──
 const ADVICE = [
@@ -38,6 +39,7 @@ const ADVICE = [
   /수익(을|률)?\s*(이\s*)?(보장|확실|확정)|원금\s*보장|무조건\s*(오|올|상승|수익)|반드시\s*(오를|상승|수익)/,
   /(종목|주식|ETF|코인|펀드)\s*(을|를)?\s*추천|추천\s*(종목|주식)|투자\s*(를\s*)?추천|비중\s*(확대|축소)/,
   /\b(buy|sell)\s+(now|rating|signal)\b|\bprice\s+target\b/i,
+  /수혜|호재|악재|유망|오를\s*(종목|기업)|떨어질\s*(종목|기업)/,   // 기업·업종 평가 딱지 (팀 규칙: 흐름 방향만 말해요)
 ];
 const NEUTRAL = "투자 판단(매수·매도)은 안내하지 않아요. 공시와 공식 자료를 함께 확인해 주세요.";
 const INVEST_Q = /사도\s*(돼|될|되나)|팔아도|팔까|살까|매수|매도|주가|주식|종목|코인|투자해도|오를까|떨어질까|목표가|수익/;
@@ -90,18 +92,20 @@ ${JSON_ONLY}
   },
   sector: {
     max: 900,
-    system: `당신은 한국 수출입 기업을 돕는 무역 애널리스트입니다.
-주어진 섹터 정보와 관련 이슈만 근거로, 이 섹터의 국내 기업이 받을 영향을 정리하세요.
-자료에 없는 수치나 사실은 만들지 말고, 투자 권유 표현은 쓰지 마세요. 문장은 짧고 쉬운 한국어로 쓰세요.
+    system: `당신은 무역 뉴스 흐름을 정리하는 보조자입니다.
+주어진 섹터 정보와 관련 이슈만 근거로, 이 섹터와 관련된 무역 뉴스가 어떻게 움직였는지 정리하세요.
+이슈마다 보도량 방향(trend: up=지난주보다 늘어남, down=줄어듦, flat=비슷함, 자료의 건수로 판단)과 무역 조치 방향(measure: tighten=강화, ease=완화, none=뚜렷한 방향 없음, 자료의 강화·완화 건수로 판단)만 고르고, 무슨 일이 있었는지 사실 한 문장을 쓰세요.
+기업이나 업종에 긍정·부정·유리·불리 같은 평가를 붙이지 말고, 기업 이름을 들어 영향을 말하지 마세요. 자료에 없는 수치나 사실은 만들지 마세요. 문장은 짧고 쉬운 한국어로 쓰세요.
 ${JSON_ONLY}
-{"summary":"두 문장 이내 요약","impacts":[{"who":"영향받는 기업 유형","effect":"영향 한 문장","direction":"positive|negative|mixed"}],"watch":["앞으로 지켜볼 점"],"actions":["수출입 실무자가 지금 확인할 일"]}`,
+{"summary":"두 문장 이내 흐름 요약","flows":[{"issue":"이슈 이름","trend":"up|down|flat","measure":"tighten|ease|none","note":"무슨 일이 있었는지 사실 한 문장"}],"watch":["앞으로 지켜볼 발표·일정"],"actions":["수출입 실무자가 확인할 공식 자료"]}`,
     user: (q, ctx) => `[섹터 자료]\n${ctx}`,
     parse: (j) => ({
       summary: str(j.summary, 400),
-      impacts: arr(j.impacts).map(i => ({
-        who: str(i.who, 60), effect: str(i.effect, 200),
-        direction: ["positive", "negative", "mixed"].includes(i.direction) ? i.direction : "mixed",
-      })).filter(i => i.who && i.effect).slice(0, 4),
+      flows: arr(j.flows).map(f => ({
+        issue: str(f.issue, 60), note: str(f.note, 200),
+        trend: ["up", "down", "flat"].includes(f.trend) ? f.trend : "flat",
+        measure: ["tighten", "ease", "none"].includes(f.measure) ? f.measure : "none",
+      })).filter(f => f.issue && f.note).slice(0, 4),
       watch: arr(j.watch).map(w => str(w, 160)).slice(0, 3),
       actions: arr(j.actions).map(a => str(a, 160)).slice(0, 3),
     }),
@@ -165,7 +169,7 @@ ${JSON_ONLY}
   },
   ask: {
     max: 800,
-    system: `당신은 한국 수출입 기업을 돕는 무역 애널리스트입니다.
+    system: `당신은 무역 뉴스 흐름을 정리하는 보조자입니다.
 아래 오늘의 브리핑 자료만 근거로 사용자의 질문에 답하세요. 자료에 없는 내용은 "오늘 자료에는 없어요"라고 말하고 추측하지 마세요.
 투자 권유 표현은 쓰지 말고, 짧고 쉬운 한국어로 답하세요.
 ${JSON_ONLY}

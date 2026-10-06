@@ -135,7 +135,6 @@ const toNews = (a, rank) => {
     summary: shortSum(a), direction: a.direction || "neutral", sectors,
     issue: issueName(key), issueReports: n, trend: CTX.trend(key),
     why: `${issueName(key)} 이슈 · 이번 주 ${n}건 보도${sectors.length ? ` · ${sectors.map(id => sectorById[id].name).join("·")} 영향권` : ""}`,
-    stocks: [],
   };
 };
 // 중요도 순으로 고르되 같은 이슈 기사는 cap 건까지, 같은 사건은 한 줄로 합쳐요
@@ -268,7 +267,7 @@ async function main() {
     // 평소 대비: 같은 출처 기준 이번 주 건수 vs 직전 4주 주평균. 기사 10건 미만이면 화면에 "기사 적음" 표시
     const baseAvg = (sCountBase.get(s.id) || 0) / SCORE.baselineWeeks;
     const change = baseAvg >= 1 ? Math.round((nC - baseAvg) / baseAvg * 100) : null;
-    return { id: s.id, name: s.name, score: round(score), state, ...d, articles: list.length, baseAvg: round(baseAvg, 1), change, thin: list.length < 10, summary, stocks: s.stocks,
+    return { id: s.id, name: s.name, score: round(score), state, ...d, articles: list.length, baseAvg: round(baseAvg, 1), change, thin: list.length < 10, summary,
       news: pickNews(list, 6, 2, now).map((a, i) => toNews(a, i)) };
   }).sort((a, b) => b.score - a.score);
 

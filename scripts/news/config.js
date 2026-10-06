@@ -116,8 +116,10 @@ const SECTORS = [
 ];
 
 // ── 4. 조치 방향 (강화/완화) 단어 ────────────────────────────────────
-const TIGHTEN = ["부과", "인상", "강화", "제재", "금지", "제한", "통제", "발동", "조사 착수", "보복", "확대 적용", "압박", "위협", "협박", "단속", "장벽", "엔티티 리스트", "impose", "raise", "hike", "tighten", "ban", "restrict", "curb", "threat"];
-const EASE = ["인하", "철폐", "면제", "유예", "완화", "해제", "타결", "철회", "감면", "합의", "폐지", "재개", "허용", "승인", "해소", "lower", "cut", "exempt", "suspend", "ease", "lift", "waive", "deal", "agreement"];
+// 단어 하나로 판단하는 강화·완화 단어. "강화"는 "협력 강화"처럼 반대 뜻에도 쓰여서 빼고, "관세 강화" 같은 짝 규칙(lib.js)으로만 봐요.
+const TIGHTEN = ["부과", "인상", "제재", "금지", "제한", "통제", "발동", "조사 착수", "보복", "맞불", "확대 적용", "압박", "위협", "협박", "단속", "장벽", "차단", "엔티티 리스트", "impose", "hike", "tighten", "ban", "restrict", "curb", "threat", "retaliat"];
+// "deal"·"agreement" 단독은 기업 거래("KKR deals")에도 쓰여서 "trade deal"처럼 무역 맥락일 때만 봐요
+const EASE = ["인하", "철폐", "면제", "유예", "완화", "해제", "타결", "철회", "감면", "합의", "폐지", "재개", "허용", "승인", "해소", "무관세", "exempt", "suspend", "ease", "lift", "waive", "trade deal", "trade agreement", "tariff cut"];
 // 제목에 이 단어가 하나도 없고 홍보성 단어(PROMO)만 있으면 제품 출시·행사 홍보 기사로 보고 이슈에서 빼요
 const CORE_TRADE = ["관세", "수출", "수입", "무역", "통상", "제재", "통제", "규제", "FTA", "협정", "반덤핑", "상계관세", "세이프가드",
   "공급망", "핵심광물", "희토류", "운임", "해운", "환율", "유가", "원자재", "보조금", "IRA", "통관", "원산지", "tariff", "export", "import", "trade", "sanction"];
@@ -149,7 +151,8 @@ const SCORE = {
   minReports: 2,          // 이번 주 기사가 이보다 적으면 Top10 후보에서 제외 (정부 발표는 1건도 허용)
   mmrLambda: 0.7,         // Top10 고를 때 점수 vs 다양성 비중 (MMR, 1이면 점수만)
   newsCount: 20,
-  sectorPrior: 8,         // 섹터 노출도 축소 강도: 기사 8건이면 평소 대비 차이의 절반만 반영          // 뉴스 피드에 싣는 기사 수
+  sectorPrior: 8,
+  momentumPrior: 5,       // 이슈 추세 축소 강도: 기사 5건이면 평소 대비 차이의 절반만 반영 (2026-10 검토로 추가)         // 섹터 노출도 축소 강도: 기사 8건이면 평소 대비 차이의 절반만 반영          // 뉴스 피드에 싣는 기사 수
 };
 
 module.exports = { TOPIC_EXCLUDE, CORE_TRADE, PROMO, LEAD_MIN_RELEVANCE, FEEDS, GOV_QUERY, EN_QUERY, COUNTRIES, OUTLETS, TOPICS, TRADE_WORDS, SECTORS, TIGHTEN, EASE, KOREA_WORDS, SCORE };

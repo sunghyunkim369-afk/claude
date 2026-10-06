@@ -122,13 +122,23 @@ function classify(item) {
 // 단어 하나씩만 세면 "제재 면제"가 제재(강화) 1 : 면제(완화) 1 로 비겨서 중립이 돼요.
 // 그래서 "조치 대상 + 방향 동사" 짝(관세 인하, 제재 면제, 추가 관세, 관세 압박)을 먼저 찾아 2점을 줘요.
 const MEASURE = "(관세|제재|규제|통제|제한|반덤핑|상계관세|세이프가드|쿼터|수입금지|tariffs?|sanctions?|duties|export controls?)";
-const EASE_RE = new RegExp(`${MEASURE}[^.,…·]{0,12}?(면제|유예|완화|해제|철회|인하|폐지|철폐|연기|낮춰|낮춘|감면|상한|제외|0%|exempt|waive|lift|cut|lower|pause|delay)`, "i");
-const TIGHT_RE = new RegExp(`(추가|보복|고율|폭탄|징벌적|new|higher|additional)\\s*${MEASURE}|${MEASURE}[^.,…·]{0,12}?(부과|인상|강화|확대|발동|폭탄|압박|위협|협박|발효|착수|상향|껑충|impose|hike|raise|expand|tighten)`, "i");
+// "0%"는 무관세를 뜻할 때만: 앞에 숫자가 붙은 "10%"·"300%"는 아니에요 (이전 버그: "관세 300%"가 완화로 분류됨)
+const EASE_RE = new RegExp(`${MEASURE}[^.,…·]{0,12}?(면제|유예|완화|해제|철회|인하|폐지|철폐|연기|낮춰|낮춘|감면|상한|제외|(?<![\\d.])0\\s*%|exempt|waive|lift|cut|lower|pause|delay)|(관세|무역|통상)\\s*(합의|협정 타결)`, "i");
+const TIGHT_RE = new RegExp([
+  `(추가|보복|맞불|고율|폭탄|징벌적|new|higher|additional|retaliatory)\\s*${MEASURE}`,
+  `${MEASURE}[^.,…·]{0,12}?(부과|인상|강화|확대|발동|폭탄|압박|위협|협박|발효|착수|상향|껑충|조사|가결|impose|hike|raise|expand|tighten)`,
+  `(?<![\\d.])[1-9]\\d*\\s*%\\s*(까지\\s*)?(의\\s*)?(추가\\s*|보복\\s*|맞불\\s*)?(관세|tariff)`,   // "300% 관세", "50% 맞불관세"
+  `반덤핑\\s*관세`,
+].join("|"), "i");
+// FTA·협정 발효·서명, 무관세 지위는 완화 쪽으로 봐요
+const EASE_EXTRA = /(fta|협정)['’"”)\]\s]*(발효|서명|타결)|zero[- ]tariff|duty[- ]free|tariff[- ]free/i;
+// "관세행정 지원대책 확대"처럼 지원·혜택을 늘리는 건 규제 강화가 아니에요
+const SUPPORT_CTX = /(지원|혜택|특례|우대)[^.,…·]{0,8}(확대|강화)/;
 // 정책 조치가 아닌 주제(환율·운임·수출 실적·원자재·공급망)는 방향이 없으면 "동향"으로 표시해요
 const INFO_TOPICS = ["fx", "shipping", "export_trend", "energy", "supply_chain"];
 function actionDirection(text, topic) {
-  const up = countHits(text, TIGHTEN) + (TIGHT_RE.test(text) ? 2 : 0);
-  const down = countHits(text, EASE) + (EASE_RE.test(text) ? 2 : 0);
+  const up = countHits(text, TIGHTEN) + (TIGHT_RE.test(text) && !SUPPORT_CTX.test(text) ? 2 : 0);
+  const down = countHits(text, EASE) + (EASE_RE.test(text) || EASE_EXTRA.test(text) ? 2 : 0);
   if (up > down) return "up";
   if (down > up) return "down";
   return INFO_TOPICS.includes(topic) ? "info" : "neutral";

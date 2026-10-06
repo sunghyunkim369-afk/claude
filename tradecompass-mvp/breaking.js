@@ -1,6 +1,6 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-06T00:45:24.909Z",
+ "generated": "2026-10-06T03:26:31.791Z",
  "hours": 24,
  "items": [
   {
@@ -163,7 +163,7 @@ window.TC_BREAKING = {
    "outlets": 1,
    "at": "2026-10-05T17:36:48.000Z",
    "tag": "관세",
-   "direction": "neutral",
+   "direction": "up",
    "sectors": [
     "auto",
     "ship"

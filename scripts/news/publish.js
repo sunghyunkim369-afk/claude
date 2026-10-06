@@ -158,7 +158,9 @@ async function main() {
   const raw = [...groups].map(([key, list]) => {
     const V = list.reduce((s, a) => s + weight(a, now), 0);
     const R = list.reduce((s, a) => s + (a.relevance ?? 0.8), 0) / list.length;
-    const M = momentum(list.length, week.length, nBase.get(key) || 0, base.length, kinds);
+    // 추세는 기사가 적을수록 평소(0.5) 쪽으로 당겨요: n/(n+k). 3건짜리 신규 이슈가 추세 만점(1.0)을 받아 Top 10에 들어가는 것을 막아요.
+    const M0 = momentum(list.length, week.length, nBase.get(key) || 0, base.length, kinds);
+    const M = 0.5 + (M0 - 0.5) * list.length / (list.length + SCORE.momentumPrior);
     return { key, list, V, R, M };
   });
   const vMax = Math.max(...raw.map(r => r.V));

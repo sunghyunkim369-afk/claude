@@ -10,3 +10,6 @@ node_modules/
 
 # 빌드 결과 (scripts/build.js 가 만들어요)
 dist/
+
+# 사진 후보 원본(수십 MB)은 저장소에 두지 않아요. 사이트에 쓰는 사진은 tradecompass-mvp/img/photos (WebP)
+data/media-preview/photos/

@@ -1,6 +1,7 @@
 // 고른 사진을 사이트에 넣어요: data/media-preview/photos → tradecompass-mvp/img/photos/*.webp (가로 1200px, 약 100KB)
 // 고르는 목록: scripts/media/photos.config.json  {"tariff": ["tariff-0", "tariff-4"], ...}
 // 출처 정보는 tradecompass-mvp/photos.js (window.TC_PHOTOS) 로 만들어 화면에서 작게 표시해요.
+// 후보 원본(data/media-preview/photos)은 저장소에 두지 않아요(용량). 사진을 다시 고를 때는 먼저 Media preview 작업으로 후보를 받아요.
 // 실행: NODE_PATH=$(npm root -g) node scripts/media/install.js   (사진 크기 조정에 Playwright 의 Chromium 을 써요)
 const fs = require("fs");
 const path = require("path");

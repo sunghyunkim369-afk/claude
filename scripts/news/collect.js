@@ -26,7 +26,7 @@ async function fromFeeds() {
     const kept = items.filter(i => !(f.skip && f.skip.test(i.title)) && (f.all || f.id === "wto-news" || isTrade(`${i.title} ${i.desc}`.toLowerCase())));
     report.push(`${f.id}: ${items.length}건 중 무역 관련 ${kept.length}건`);
     for (const i of kept) out.push({ ...i, source: f.name, tier: f.tier, official: !!f.official, lang: f.lang || "ko", feed: f.id, countryHint: f.country });
-    await sleep(500);
+    await sleep(2000);   // 같은 곳에 보내는 요청 사이 2초 이상 (팀 규칙 C4)
   }
   return { out, report };
 }
@@ -56,7 +56,7 @@ async function fromGoogleNews() {
         kept++;
         out.push({ ...i, title: stripOutlet(i.title, i.source), source: outletName(i.source, i.sourceUrl), tier, official: tier >= 1, lang: t.en ? "en" : "ko", feed: `gnews:${t.id}`, hint: t.hint });
       }
-      await sleep(1200);
+      await sleep(2000);   // 같은 곳(Google 뉴스)에 보내는 요청 사이 2초 이상 (팀 규칙 C4)
     }
     report.push(`gnews ${t.id}: ${n}건 중 신뢰 언론사 ${kept}건`);
   }

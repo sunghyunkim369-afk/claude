@@ -1,6 +1,6 @@
 name: Media preview
 
-# 이미지 기능 미리보기: 유튜브 썸네일 매칭과 무료 사진 후보를 받아 작업 브랜치에 올려요 (수동 실행)
+# 이미지 기능 미리보기: 무료 사진 후보를 받아요 (수동 실행). 후보 사진 파일은 .gitignore 라 저장소에는 목록(photos.json)만 올라가요.
 on:
   workflow_dispatch:
 

@@ -68,7 +68,7 @@ async function youtube() {
       }
       console.log(`youtube ${name}: OK "${title}" ${entries.length}개`);
     } catch (e) { console.log(`youtube ${name}: 실패 ${e.message}`); }
-    await sleep(500);
+    await sleep(2000);
   }
   // 이번 주 Top10 이슈와 짝짓기: 이슈 대표 기사·관련 기사 제목과의 최대 유사도
   const latest = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "data", "news", "latest.json"), "utf8"));
@@ -106,7 +106,7 @@ async function photos() {
         const file = `${key}-${out[key].length}.jpg`;
         try { fs.writeFileSync(path.join(OUT, "photos", file), await get(ii.thumburl, true)); } catch { continue; }
         out[key].push({ file, title: pg.title.replace(/^File:/, ""), creator: (md.Artist?.value || "").replace(/<[^>]+>/g, "").trim().slice(0, 80), license: lic, source: ii.descriptionurl });
-        await sleep(1200);
+        await sleep(2000);
         if (out[key].length >= Math.ceil(6 * (qs.indexOf(q) + 1) / qs.length)) break;
       }
       console.log(`photo ${key} (${q}): 후보 ${pages.length} → 누적 ${out[key].length}장`);

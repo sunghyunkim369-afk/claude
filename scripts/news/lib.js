@@ -14,7 +14,7 @@ async function fetchText(url, tries = 2) {
       if (r.ok) return await r.text();
       if (r.status < 500) return null;
     } catch { /* 재시도 */ }
-    await sleep(1500);
+    await sleep(2000 * (i + 1));   // 재시도 간격은 점점 늘려요 (2초, 4초…)
   }
   return null;
 }

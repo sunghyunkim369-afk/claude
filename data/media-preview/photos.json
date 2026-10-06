@@ -1,0 +1,89 @@
+{
+ "tariff": [
+  {
+   "file": "tariff-3.jpg",
+   "title": "Quay cranes Port",
+   "creator": null,
+   "license": "cc0 1.0",
+   "source": "https://www.rawpixel.com/image/8732370/photo-image-public-domain-water",
+   "provider": "rawpixel"
+  }
+ ],
+ "export_control": [],
+ "trade_remedy": [],
+ "shipping": [],
+ "supply_chain": [],
+ "energy": [],
+ "fx": [],
+ "sanctions": [
+  {
+   "file": "sanctions-3.jpg",
+   "title": "Original public domain image Wikimedia",
+   "creator": null,
+   "license": "cc0 1.0",
+   "source": "https://www.rawpixel.com/image/3304390/free-photo-image-sea-and-boat-oil-tanker-vessel-sea",
+   "provider": "rawpixel"
+  }
+ ],
+ "agreement": [],
+ "customs": [
+  {
+   "file": "customs-0.jpg",
+   "title": "U.S. Customs Border Protection Homeland",
+   "creator": null,
+   "license": "cc0 1.0",
+   "source": "https://www.rawpixel.com/image/8738684/photo-image-public-domain-dog-animal",
+   "provider": "rawpixel"
+  },
+  {
+   "file": "customs-1.jpg",
+   "title": "Agriculture inspection specialists U.S. Customs",
+   "creator": null,
+   "license": "cc0 1.0",
+   "source": "https://www.rawpixel.com/image/8738791/photo-image-public-domain-truck",
+   "provider": "rawpixel"
+  },
+  {
+   "file": "customs-2.jpg",
+   "title": "Agriculture inspection specialists U.S. Customs",
+   "creator": null,
+   "license": "cc0 1.0",
+   "source": "https://www.rawpixel.com/image/8738826/photo-image-public-domain-usa",
+   "provider": "rawpixel"
+  },
+  {
+   "file": "customs-3.jpg",
+   "title": "U.S. Customs Border Protection Homeland",
+   "creator": null,
+   "license": "cc0 1.0",
+   "source": "https://www.rawpixel.com/image/8723889/photo-image-border-public-domain-person",
+   "provider": "rawpixel"
+  }
+ ],
+ "semi": [
+  {
+   "file": "semi-3.jpg",
+   "title": "Circuit Chip",
+   "creator": "Lenharth Systems",
+   "license": "cc0 1.0",
+   "source": "https://stocksnap.io/photo/circuit-chip-JVXOVVIZYP",
+   "provider": "stocksnap"
+  }
+ ],
+ "auto": [],
+ "battery": [],
+ "steel": [],
+ "chem": [
+  {
+   "file": "chem-0.jpg",
+   "title": "Petrochemical Plant Coastal Area",
+   "creator": "U.S. National Archives",
+   "license": "cc0 1.0",
+   "source": "https://www.rawpixel.com/image/8800160/photo-image-vintage-public-domain-construction",
+   "provider": "rawpixel"
+  }
+ ],
+ "ship": [],
+ "machinery": [],
+ "consumer": []
+}

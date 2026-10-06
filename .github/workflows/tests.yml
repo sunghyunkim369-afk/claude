@@ -46,8 +46,8 @@ jobs:
           body="{\"state\":\"$state\",\"context\":\"tests (GitHub Actions)\",\"description\":\"npm test: 회원·뉴스 점수·속보·AI 안전장치\",\"target_url\":\"$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID\"}"
           # 복사 작업(GitSalt mirror)이 이 커밋을 올리기 전이면 GitSalt 가 404 를 돌려줘요 → 최대 8분 동안 다시 시도
           for i in $(seq 1 32); do
-            code=$(curl -s -o resp.txt -w '%{http_code}' --max-time 20 -X POST -H "Authorization: token $TOKEN" -H "Content-Type: application/json" -d "$body" "$api/statuses/$GITHUB_SHA")
+            code=$(curl -s -o resp.txt -w '%{http_code}' --max-time 20 -X POST -H "Authorization: token $TOKEN" -H "Content-Type: application/json" -d "$body" "$api/statuses/$GITHUB_SHA" || true)   # 연결 실패(000)도 다시 시도
             echo "시도 $i: HTTP $code"
             case "$code" in 2*) echo "GitSalt 커밋 ${GITHUB_SHA:0:7} 에 $state 표시"; exit 0;; 404|409|422|5*|000) sleep 15;; *) head -c 300 resp.txt; echo; exit 0;; esac
           done
-          echo "::warning::GitSalt 에 상태를 붙이지 못했어요 (커밋이 아직 복사되지 않음)"
+          echo "::warning::GitSalt 에 상태를 붙이지 못했어요 (커밋이 아직 복사되지 않았거나 GitSalt 에 연결되지 않음). 테스트 결과에는 영향 없어요."

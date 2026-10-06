@@ -43,7 +43,8 @@ async function fromGoogleNews() {
     ...TOPICS.map(t => ({ id: t.id, q: t.q, hint: t.id })),
     { id: "gov", q: GOV_QUERY },
     { id: "en", q: EN_QUERY, en: true },
-    { id: "en-global", q: GLOBAL_EN_QUERY, en: true },
+    // en-global(Reuters·AP·Bloomberg·FT 세계 무역 검색)은 2026-10-06 팀 규칙에 따라 뺐어요:
+    // Google 뉴스 robots.txt 가 /rss 를 허용하지 않아서, Google 뉴스에 새로 기대는 수집은 늘리지 않아요 (docs/sources.md)
   ];
   for (const t of queries) {
     let n = 0, kept = 0;

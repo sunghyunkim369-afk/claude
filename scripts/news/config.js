@@ -21,10 +21,10 @@ const FEEDS = [
 const GOV_QUERY = "site:korea.kr 관세 OR 수출 OR 통상 OR 무역 OR 공급망";
 const EN_QUERY = "Korea tariff OR \"export controls\" OR \"trade deal\" OR \"anti-dumping\" OR \"supply chain\"";
 
-// Google 뉴스 검색에서 받아들이는 언론사: 이름 일부 또는 원문 도메인이 맞아야 통과
+// Google 뉴스 검색에서 받아들이는 언론사: 이름 앞부분 또는 원문 도메인이 맞아야 통과 (스포츠·연예 계열 제외)
 // (Daum 등 포털 재전송은 원 언론사를 알 수 없어서 제외)
 const OUTLETS = [
-  { tier: 1.0, match: ["정책브리핑", "산업통상자원부", "관세청", "기획재정부"], domains: ["korea.kr", "motie.go.kr", "customs.go.kr", "moef.go.kr"] },
+  { tier: 1.0, match: ["정책브리핑", "대한민국 정책브리핑", "산업통상자원부", "관세청", "기획재정부"], domains: ["korea.kr", "motie.go.kr", "customs.go.kr", "moef.go.kr"] },
   { tier: 0.9, match: ["연합뉴스", "Yonhap"], domains: ["yna.co.kr", "yonhapnewstv.co.kr"] },
   { tier: 0.9, match: ["뉴시스"], domains: ["newsis.com"] },
   { tier: 0.9, match: ["뉴스1"], domains: ["news1.kr"] },
@@ -33,8 +33,8 @@ const OUTLETS = [
   { tier: 0.9, match: ["Associated Press", "AP News"], domains: ["apnews.com"] },
   { tier: 0.8, match: ["한국경제", "한경"], domains: ["hankyung.com"] },
   { tier: 0.8, match: ["매일경제", "매경"], domains: ["mk.co.kr"] },
-  { tier: 0.8, match: ["서울경제"], domains: ["sedaily.com"] },
-  { tier: 0.8, match: ["머니투데이"], domains: ["mt.co.kr"] },
+  { tier: 0.8, match: ["서울경제", "Seoul Economic Daily"], domains: ["sedaily.com"] },
+  { tier: 0.8, match: ["머니투데이", "MTN"], domains: ["mt.co.kr", "mtn.co.kr"] },
   { tier: 0.8, match: ["이데일리"], domains: ["edaily.co.kr"] },
   { tier: 0.8, match: ["아시아경제"], domains: ["asiae.co.kr"] },
   { tier: 0.8, match: ["헤럴드경제"], domains: ["heraldcorp.com"] },
@@ -46,7 +46,7 @@ const OUTLETS = [
   { tier: 0.8, match: ["중앙일보"], domains: ["joongang.co.kr"] },
   { tier: 0.8, match: ["조선일보"], domains: ["chosun.com"] },
   { tier: 0.8, match: ["동아일보"], domains: ["donga.com"] },
-  { tier: 0.8, match: ["한겨레"], domains: ["hani.co.kr"] },
+  { tier: 0.8, match: ["한겨레", "Hankyoreh"], domains: ["hani.co.kr"] },
   { tier: 0.8, match: ["경향신문"], domains: ["khan.co.kr"] },
   { tier: 0.8, match: ["서울신문"], domains: ["seoul.co.kr"] },
   { tier: 0.8, match: ["KBS"], domains: ["kbs.co.kr"] },

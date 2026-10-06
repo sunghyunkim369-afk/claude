@@ -66,10 +66,16 @@ function stripOutlet(title, source = "") {
   return m && outletTier(m[1].trim()) ? title.slice(0, m.index) : title;
 }
 const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };
+// 스포츠·연예 매체는 같은 언론사 계열이어도 무역 뉴스 출처로 쓰지 않아요 (예: 스포츠동아의 연예인 관세 납부 기사)
+const OUTLET_BLOCK = /스포츠|연예|스타뉴스|sports|entertain/i;
+const BLOCK_HOST = /^(sports|star|enter|ent|stoo)\./;
 function findOutlet(name = "", url = "") {
   const h = hostOf(url) || (/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(name) ? name.replace(/^www\./, "") : "");
-  const ln = name.toLowerCase();
-  return OUTLETS.find(o => o.match.some(m => ln.includes(m.toLowerCase())) || (h && o.domains.some(d => h === d || h.endsWith("." + d))));
+  if (OUTLET_BLOCK.test(name) || (h && BLOCK_HOST.test(h))) return undefined;
+  // 이름은 앞부분이 맞아야 인정해요. 예전처럼 "포함"만 보면 "스카이데일리" 안의 "이데일리",
+  // "대한경제" 안의 "한경"이 화이트리스트로 통과했어요 (2026-10 출처 점검)
+  const ln = name.toLowerCase().trim().replace(/^the\s+/, "");
+  return OUTLETS.find(o => o.match.some(m => ln.startsWith(m.toLowerCase())) || (h && o.domains.some(d => h === d || h.endsWith("." + d))));
 }
 const outletTier = (name, url) => { const o = findOutlet(name, url); return o ? o.tier : 0; };
 // "hankyung.com", "Chosunbiz" 처럼 제각각인 언론사 표기를 하나로 맞춰요 (그 언론사의 계열 매체 이름은 그대로)
@@ -168,6 +174,12 @@ function isPromo(title = "") {
   return PROMO.some(w => t.includes(lower(w))) && !CORE_TRADE.some(w => hit(t, w));
 }
 
+// ── 의견·증권 단신 ──
+// 사설·칼럼·기고·기자수첩과 특징주·목표가 같은 증권 단신은 사실 보도가 아니라서
+// 이슈 무게를 절반으로 하고, 대표 기사·속보로 쓰지 않아요
+const OPINION_TITLE = /^\s*[\[【(<]\s*([^\]】)>]{0,6}(사설|칼럼|기고|시론|기자수첩|데스크|오피니언|논단|시평|특징주))\s*[\]】)>]|목표가|특징주/;
+const isOpinion = (title = "") => OPINION_TITLE.test(title);
+
 // ── 이슈 대표 기사 고르기 ──
 // 관련도(0~1) = 주제 단어가 제목에 있으면 0.6 (요약에만 있으면 0.25)
 //             + 상대국 이름이 제목에 있으면 0.3 (요약에만 0.1, 상대국 없는 이슈는 0.3)
@@ -188,8 +200,8 @@ function issueRelevance(a, topicId, countryId) {
 }
 function rankForIssue(list, topicId, countryId, weightOf) {
   const scored = list.filter(a => !isPromo(a.title)).map(a => ({ a, rel: issueRelevance(a, topicId, countryId), w: weightOf(a) }));
-  const pass = scored.filter(x => x.rel >= LEAD_MIN_RELEVANCE).sort((x, y) => y.w * (0.5 + y.rel) - x.w * (0.5 + x.rel));
-  const rest = scored.filter(x => x.rel < LEAD_MIN_RELEVANCE).sort((x, y) => y.rel - x.rel || y.w - x.w);
+  const pass = scored.filter(x => x.rel >= LEAD_MIN_RELEVANCE && !isOpinion(x.a.title)).sort((x, y) => y.w * (0.5 + y.rel) - x.w * (0.5 + x.rel));
+  const rest = scored.filter(x => x.rel < LEAD_MIN_RELEVANCE || isOpinion(x.a.title)).sort((x, y) => y.rel - x.rel || y.w - x.w);
   return [...pass, ...rest];   // 앞쪽이 대표 기사 후보 (기준 통과 → 미달 순)
 }
 
@@ -200,7 +212,7 @@ function breakingFrom(items, now = Date.now(), limit = 15) {
   const from = now - BREAKING_HOURS * 3_600_000, until = now + 10 * 60_000;
   return items
     .filter(a => { const t = Date.parse(a.date); return t >= from && t <= until; })
-    .filter(a => (a.tier || outletTier(a.source)) >= 0.7 && !isPromo(a.title))
+    .filter(a => (a.tier || outletTier(a.source)) >= 0.7 && !isPromo(a.title) && !isOpinion(a.title))
     .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
     .slice(0, limit);
 }
@@ -210,4 +222,4 @@ const normTitle = (t) => t.replace(/\[[^\]]*\]|\([^)]*\)|【[^】]*】/g, "").re
 function shingles(t) { const s = normTitle(t), set = new Set(); for (let i = 0; i < s.length - 1; i++) set.add(s.slice(i, i + 2)); return set; }
 function jaccard(a, b) { let inter = 0; for (const x of a) if (b.has(x)) inter++; return inter / (a.size + b.size - inter || 1); }
 
-module.exports = { breakingFrom, BREAKING_HOURS, isPromo, issueRelevance, rankForIssue, cleanDesc, actionDirection, fetchText, parseFeed, stripOutlet, outletTier, outletName, finalize, hostOf, isTrade, classify, shingles, jaccard, normTitle, sleep };
+module.exports = { isOpinion, findOutlet, breakingFrom, BREAKING_HOURS, isPromo, issueRelevance, rankForIssue, cleanDesc, actionDirection, fetchText, parseFeed, stripOutlet, outletTier, outletName, finalize, hostOf, isTrade, classify, shingles, jaccard, normTitle, sleep };

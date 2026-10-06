@@ -1,6 +1,6 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-06T03:26:31.791Z",
+ "generated": "2026-10-06T03:32:07.831Z",
  "hours": 24,
  "items": [
   {
@@ -36,16 +36,6 @@ window.TC_BREAKING = {
    ]
   },
   {
-   "title": "DS증권, 현대로템 목표가↓…\"환율 등 영향에 실적전망 하향\"",
-   "link": "https://www.yna.co.kr/view/AKR20261006025300008",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-05T23:28:11.000Z",
-   "tag": "환율",
-   "direction": "info",
-   "sectors": []
-  },
-  {
    "title": "글로벌 달러 강세에 환율 1340원대 중반 공방 예상[외환브리핑]",
    "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOLWZ2TWJWdThydlZndFIxR0gyWUJXa25iSl9JV25pVUhUVWtTZjlzTHVsb1djODhKdV9Kb3NpcmlQd01nbThJVXVOTUJDaWktOENvd2VZdDdUc1drSVRndUI5b3gxSkdBOVcyRC1heWd4SU9MaTA5UHlobzhWOW1CUw?oc=5",
    "source": "이데일리",
@@ -53,16 +43,6 @@ window.TC_BREAKING = {
    "at": "2026-10-05T23:16:46.000Z",
    "tag": "환율",
    "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "\"현대로템, 페루 K2 수출 내년 유력, 그 외 진전 없어…목표가↓\"-DS",
-   "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE1yMHRYR0RaTXZPM1RJMEFqRlJ5LW0wVkxxRVZXd2VHUExqdlVDQ0pkTWNVQllCV1lodWFqR2FYVzRyLVlyNE5PTUtKSEdhN05acHBEaGs4Szk2QQ?oc=5",
-   "source": "한국경제",
-   "outlets": 1,
-   "at": "2026-10-05T23:13:29.000Z",
-   "tag": "수출입 동향",
-   "direction": "neutral",
    "sectors": []
   },
   {
@@ -167,6 +147,30 @@ window.TC_BREAKING = {
    "sectors": [
     "auto",
     "ship"
+   ]
+  },
+  {
+   "title": "\"중국車가 도로 점령\"… 英, 최대 45% 관세 검토",
+   "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTFBEZ0pZMm85SjNSdTQyWkJyMGFDaUx3LUlxamZXU2Vwb1FMM3JQTVF6bzc2XzUzNG51aTBsM0lTY3FmZ1ZKaXZDVlpIM1R0OERBMWFHMjRYYzZhTnlWWUxtYS1nNUVkSDdSS1Rzd2Z2NVlqMnhTQ0FJekVqMUt2TG8?oc=5",
+   "source": "조선일보",
+   "outlets": 1,
+   "at": "2026-10-05T15:33:00.000Z",
+   "tag": "관세",
+   "direction": "up",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "중동 원유수출 전쟁전수준 회복에도 유가 안떨어지는 이유는?",
+   "link": "https://www.hankyung.com/article/202610053981i",
+   "source": "한국경제",
+   "outlets": 1,
+   "at": "2026-10-05T14:09:43.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
    ]
   }
  ]

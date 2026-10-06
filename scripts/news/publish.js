@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const { TOPICS, SECTORS, COUNTRIES, SCORE } = require("./config");
 const { weeklyBrief } = require("./ai");
-const { finalize, outletName, cleanDesc, stripOutlet, rankForIssue, isPromo } = require("./lib");
+const { finalize, outletName, cleanDesc, stripOutlet, rankForIssue, isPromo, isOpinion } = require("./lib");
 const { LEAD_MIN_RELEVANCE } = require("./config");
 
 const ROOT = path.join(__dirname, "..", "..");
@@ -33,13 +33,13 @@ function ago(t, now) {
 }
 
 // ── 기사 한 건의 무게 ───────────────────────────────────────────────
-// 신뢰도(tier) × 한국 관련도 × 최신성(반감기 3.5일) × 보도 범위(같은 사건을 다룬 언론사 수, 최대 2배)
+// 신뢰도(tier) × 한국 관련도 × 최신성(반감기 3.5일) × 보도 범위(같은 사건을 다룬 언론사 수, 최대 2배) × 의견·증권 단신 0.5
 function weight(a, now) {
   const age = Math.max(0, (now - Date.parse(a.date)) / DAY);
   const decay = Math.pow(0.5, age / SCORE.halfLifeDays);
   const breadth = Math.min(2, 1 + 0.25 * ((a.outlets || [a.source]).length - 1));
   const rel = SCORE.relevanceFloor + (1 - SCORE.relevanceFloor) * (a.relevance ?? 0.8);
-  return a.tier * rel * decay * breadth;
+  return a.tier * rel * decay * breadth * (isOpinion(a.title) ? 0.5 : 1);
 }
 
 // 이슈 = (주제 × 상대국). 예: "미국 관세", "중국 수출통제", 상대국이 없으면 "수출입 동향"

@@ -140,4 +140,5 @@ GitHub Pages는 헤더를 설정할 수 없어서 이 헤더가 적용되지 않
 원본은 GitHub 예요. GitSalt 는 제출·배포용 사본이라:
 - 코드 수정은 GitHub 에서 해요. GitSalt 에서 직접 커밋하면 다음 복사가 실패해서 알려 줘요(덮어쓰지 않아요).
 - 모든 자동 작업(`.github/workflows`)은 `github.server_url` 이 GitHub 일 때만 돌아요. GitSalt 의 Actions 가 켜져 있어도 뉴스 수집·발행이 두 곳에서 따로 돌며 기록이 갈라지는 일이 없어요.
+- GitSalt 에서는 `.gitea/workflows/tests.yml` 의 테스트만 돌아요(Gitea 는 `.gitea/workflows` 가 있으면 `.github/workflows` 를 무시해요). GitSalt 저장소 **설정 → 고급 설정 → Actions(작업) 사용**을 켜면 복사될 때마다 GitSalt 의 Actions 탭에 테스트 결과가 남아요.
 - 사이트 실행에 필요한 것은 모두 저장소 안에 있어서, eyefeet 가 GitHub 와 GitSalt 중 어디서 코드를 가져가도 똑같이 동작해요. (주간 순위·속보 최신본은 `/api/data`·`/api/breaking` 이 GitHub 에서 받아요. 실패하면 페이지에 들어 있는 데이터를 써요.)

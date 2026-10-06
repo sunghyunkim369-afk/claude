@@ -1,0 +1,21 @@
+name: Tests (GitSalt)
+
+# GitSalt(Gitea Actions) 전용 테스트. Gitea 는 .gitea/workflows 가 있으면 이 폴더만 실행하고,
+# GitHub 는 이 폴더를 무시해요. 뉴스 수집·배포 같은 자동 작업은 GitHub(.github/workflows)에서만 돌아요.
+# DB(PostgreSQL)가 필요한 테스트는 TEST_DATABASE_URL 이 없으면 건너뛰고, 나머지(파일 저장소 회원 기능,
+# 뉴스 점수·분류, 속보, AI 안전장치, 번역, 상태 확인)는 모두 실행해요.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm test

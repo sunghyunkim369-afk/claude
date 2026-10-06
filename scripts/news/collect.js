@@ -4,7 +4,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
-const { FEEDS, GOV_QUERY, EN_QUERY, TOPICS, SCORE } = require("./config");
+const { FEEDS, GOV_QUERY, EN_QUERY, GLOBAL_EN_QUERY, TOPICS, SCORE } = require("./config");
 const { fetchText, parseFeed, stripOutlet, outletTier, outletName, isTrade, finalize, shingles, jaccard, sleep } = require("./lib");
 const { enrich } = require("./ai");
 
@@ -23,9 +23,9 @@ async function fromFeeds() {
   const out = [], report = [];
   for (const f of FEEDS) {
     const items = parseFeed(await fetchText(f.url));
-    const kept = items.filter(i => f.id === "wto-news" || isTrade(`${i.title} ${i.desc}`.toLowerCase()));
+    const kept = items.filter(i => !(f.skip && f.skip.test(i.title)) && (f.all || f.id === "wto-news" || isTrade(`${i.title} ${i.desc}`.toLowerCase())));
     report.push(`${f.id}: ${items.length}건 중 무역 관련 ${kept.length}건`);
-    for (const i of kept) out.push({ ...i, source: f.name, tier: f.tier, official: !!f.official, lang: f.lang || "ko", feed: f.id });
+    for (const i of kept) out.push({ ...i, source: f.name, tier: f.tier, official: !!f.official, lang: f.lang || "ko", feed: f.id, countryHint: f.country });
     await sleep(500);
   }
   return { out, report };
@@ -43,6 +43,7 @@ async function fromGoogleNews() {
     ...TOPICS.map(t => ({ id: t.id, q: t.q, hint: t.id })),
     { id: "gov", q: GOV_QUERY },
     { id: "en", q: EN_QUERY, en: true },
+    { id: "en-global", q: GLOBAL_EN_QUERY, en: true },
   ];
   for (const t of queries) {
     let n = 0, kept = 0;
@@ -90,6 +91,7 @@ async function main() {
       id: crypto.createHash("sha1").update(raw.link).digest("hex").slice(0, 12),
       title: raw.title.slice(0, 200), link: raw.link, source: raw.source, outlets: [raw.source],
       tier: raw.tier, official: raw.official, lang: raw.lang, date, desc: raw.desc.slice(0, 200), feed: raw.feed, hint: raw.hint,
+      ...(raw.countryHint ? { countryHint: raw.countryHint } : {}),
       ...c, collectedAt: new Date().toISOString(),
     };
     items.push(item); recent.push({ i: item, sh }); added++;

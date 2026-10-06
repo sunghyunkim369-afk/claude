@@ -42,6 +42,14 @@ function weight(a, now) {
   return a.tier * rel * decay * breadth * (isOpinion(a.title) ? 0.5 : 1);
 }
 
+// 이슈 보도량 V: 기사 무게의 합. 단, 같은 언론사의 k번째 기사는 1/√k 만 더해요.
+// "얼마나 많은 언론이 다뤘나"를 재려는 것이라, 한 통신사가 속보·2보·종합으로 여러 번 쓴 것이 보도량을 키우지 않게 해요.
+function volume(list, now) {
+  const seen = {};
+  return [...list].sort((a, b) => weight(b, now) - weight(a, now))
+    .reduce((s, a) => { const k = (seen[a.source] = (seen[a.source] || 0) + 1); return s + weight(a, now) / Math.pow(k, SCORE.outletDecay); }, 0);
+}
+
 // 이슈 = (주제 × 상대국). 예: "미국 관세", "중국 수출통제", 상대국이 없으면 "수출입 동향"
 const issueKey = (a) => `${a.topic}|${a.country || ""}`;
 const issueName = (key) => {
@@ -78,6 +86,12 @@ function similarity(x, y) {
 function pickTop(cands, n) {
   const picked = [], perSector = {};
   const pool = [...cands];
+  // 점수 상위 몇 개는 다양성 규칙 때문에 빠지지 않게 먼저 넣어요 (2026-10: 점수 3위 이슈가
+  // 같은 섹터의 더 낮은 이슈들에 밀려 Top10에서 빠지는 일이 있었어요)
+  for (const c of pool.splice(0, Math.min(SCORE.mmrKeep, n))) {
+    picked.push(c);
+    if (c.sectors[0]) perSector[c.sectors[0]] = (perSector[c.sectors[0]] || 0) + 1;
+  }
   while (picked.length < n && pool.length) {
     let best = -Infinity, bi = -1;
     pool.forEach((c, i) => {
@@ -141,32 +155,43 @@ async function main() {
     return c ? [{ ...a, ...c }] : [];
   });
   const week = all.filter(a => weekOf(a, now) === 0);
-  const prevWeek = all.filter(a => weekOf(a, now) === 1);
-  // 이슈별 최근 5주 보도 건수 (오래된 주 → 이번 주)
-  const byWeek = Array.from({ length: TREND_WEEKS }, (_, i) => count(all.filter(a => weekOf(a, now) === TREND_WEEKS - 1 - i), issueKey));
-  CTX = { week: byWeek[TREND_WEEKS - 1], trend: (key) => byWeek.map(m => m.get(key) || 0) };
-  const trendWeeks = Array.from({ length: TREND_WEEKS }, (_, i) => fmtMD(now - (TREND_WEEKS - i) * SCORE.windowDays * DAY + DAY));
   const base = all.filter(a => { const w = weekOf(a, now); return w >= 1 && w <= SCORE.baselineWeeks; });
+  // ── 같은 출처끼리 비교 (2026-10) ──
+  // 추세·노출도·보도 추이는 "직전 4주 내내 있던 출처(피드)"의 기사로만 비교해요.
+  // 새 출처(언론사 RSS, 해외 피드)를 붙인 주에는 그 출처가 많이 다루는 이슈가 "급증"처럼 보이기 때문이에요.
+  // 새 출처도 4주가 지나면 자동으로 비교에 들어가요. 보도량(V)과 화면의 "이번 주 N건"은 모든 출처를 써요.
+  const feedsIn = (w) => new Set(all.filter(a => weekOf(a, now) === w).map(a => a.feed || ""));
+  const baseFeeds = Array.from({ length: SCORE.baselineWeeks }, (_, i) => feedsIn(i + 1));
+  const stable = new Set([...baseFeeds[0]].filter(f => baseFeeds.every(s => s.has(f))));
+  let comparable = (a) => stable.has(a.feed || "");
+  if (all.filter(a => weekOf(a, now) === 0 && comparable(a)).length < 10) comparable = () => true;   // 과거 데이터가 부족하면 전부 사용
+  const weekC = week.filter(comparable), baseC = base.filter(comparable);
+  const prevWeek = all.filter(a => weekOf(a, now) === 1 && comparable(a));
+  // 이슈별 최근 5주 보도 건수 (오래된 주 → 이번 주, 같은 출처끼리)
+  const byWeek = Array.from({ length: TREND_WEEKS }, (_, i) => count(all.filter(a => weekOf(a, now) === TREND_WEEKS - 1 - i && comparable(a)), issueKey));
+  CTX = { week: count(week, issueKey), trend: (key) => byWeek.map(m => m.get(key) || 0) };
+  const trendWeeks = Array.from({ length: TREND_WEEKS }, (_, i) => fmtMD(now - (TREND_WEEKS - i) * SCORE.windowDays * DAY + DAY));
   if (week.length < 10) throw new Error(`이번 주 기사가 ${week.length}건뿐이라 발행하지 않아요 (수집 확인 필요)`);
 
   // ── 이슈 점수 ─────────────────────────────────────────────────────
   const groups = new Map();
   for (const a of week) { const k = issueKey(a); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(a); }
-  const nPrev = count(prevWeek, issueKey), nBase = count(base, issueKey);
+  const nPrev = count(prevWeek, issueKey), nBase = count(baseC, issueKey), nNowC = count(weekC, issueKey);
   const kinds = new Set([...all.map(issueKey)]).size;
 
   const raw = [...groups].map(([key, list]) => {
-    const V = list.reduce((s, a) => s + weight(a, now), 0);
+    const V = volume(list, now);
     const R = list.reduce((s, a) => s + (a.relevance ?? 0.8), 0) / list.length;
     // 추세는 기사가 적을수록 평소(0.5) 쪽으로 당겨요: n/(n+k). 3건짜리 신규 이슈가 추세 만점(1.0)을 받아 Top 10에 들어가는 것을 막아요.
-    const M0 = momentum(list.length, week.length, nBase.get(key) || 0, base.length, kinds);
-    const M = 0.5 + (M0 - 0.5) * list.length / (list.length + SCORE.momentumPrior);
+    const nC = nNowC.get(key) || 0;
+    const M0 = momentum(nC, weekC.length, nBase.get(key) || 0, baseC.length, kinds);
+    const M = 0.5 + (M0 - 0.5) * nC / (nC + SCORE.momentumPrior);
     return { key, list, V, R, M };
   });
   const vMax = Math.max(...raw.map(r => r.V));
 
   const cands = raw
-    .filter(r => r.list.length >= SCORE.minReports || r.list.some(a => a.official))
+    .filter(r => r.list.length >= SCORE.minReports || r.list.some(a => a.official && a.lang !== "en"))
     .map(r => {
       // 점수 = 100 × (0.6·보도량 + 0.4·추세) × (0.6 + 0.4·한국 관련도)
       const Vn = Math.log(1 + r.V) / Math.log(1 + vMax);
@@ -181,7 +206,7 @@ async function main() {
       return {
         key: r.key, keyword: issueName(r.key), title: lead.title, link: lead.link, source: lead.source,
         time: ago(Date.parse(lead.date), now), impact: Math.round(score), tag: topicById[topic]?.label || topic,
-        topic, risk: !!topicById[topic]?.risk, sectors, score: round(score), reports: r.list.length, prev: nPrev.get(r.key) || 0,
+        topic, risk: !!topicById[topic]?.risk, sectors, score: round(score), reports: r.list.length, prev: nPrev.get(r.key) || 0, reportsC: nNowC.get(r.key) || 0,
         ...dirCount(r.list), summary: shortSum(lead),
         parts: { volume: round(Vn, 3), momentum: round(r.M, 3), relevance: round(r.R, 3) },
         trend: CTX.trend(r.key), leadRelevance: leadRel,
@@ -194,14 +219,16 @@ async function main() {
   const eligible = cands.filter(x => x.leadRelevance >= LEAD_MIN_RELEVANCE);
   // MMR 로 고른 10개를 화면에는 점수 순으로 보여줘요
   const issues = pickTop(eligible, 10).sort((a, b) => b.score - a.score);
+  if (process.env.DEBUG_CANDS) eligible.slice(0, 15).forEach(x => console.log("cand", x.score.toFixed(1), x.keyword, x.reports, x.sectors.join(",")));
 
   // ── 섹터 노출도: 이번 주 그 섹터 기사 비중이 평소(직전 4주)보다 높으면 50 위로 ──
-  const sCountNow = count(week, a => a.sectors || []), sCountBase = count(base, a => a.sectors || []);
+  const sCountNow = count(weekC, a => a.sectors || []), sCountBase = count(baseC, a => a.sectors || []);
   const sectors = SECTORS.map(s => {
     const list = week.filter(a => (a.sectors || []).includes(s.id));
-    const M = momentum(list.length, week.length, sCountBase.get(s.id) || 0, base.length, SECTORS.length);
+    const nC = sCountNow.get(s.id) || 0;
+    const M = momentum(nC, weekC.length, sCountBase.get(s.id) || 0, baseC.length, SECTORS.length);
     // 기사가 적을수록 50(평소) 쪽으로 당겨요: n/(n+k). 기사 4건짜리 섹터가 100 가까이 튀지 않게
-    const shrink = list.length / (list.length + SCORE.sectorPrior);
+    const shrink = nC / (nC + SCORE.sectorPrior);
     const score = 50 + (M - 0.5) * 100 * shrink;
     const d = dirCount(list);
     // 상태는 방향이 있는 기사(강화·완화)끼리만 비교해요. 환율·실적 같은 동향 기사까지 분모에 넣으면
@@ -216,13 +243,12 @@ async function main() {
     return { id: s.id, name: s.name, score: round(score), state, ...d, articles: list.length, summary, stocks: s.stocks,
       news: pickNews(list, 6, 2, now).map((a, i) => toNews(a, i)) };
   }).sort((a, b) => b.score - a.score);
-  void sCountNow;
 
   // ── 공급망 리스크: 리스크 주제(수출통제·제재·해운·공급망·원자재) 이슈 ──
   const risks = cands.filter(x => x.risk).slice(0, 5).map(x => ({
     level: x.score >= 70 ? "심각" : x.score >= 55 ? "주의" : "관찰",
     title: x.keyword, detail: x.title,
-    effect: `보도 ${x.reports}건 (${x.prev ? signed(Math.round((x.reports - x.prev) / x.prev * 100)) : "신규"})`,
+    effect: `보도 ${x.reports}건 (${x.prev ? signed(Math.round((x.reportsC - x.prev) / x.prev * 100)) : "신규"})`,
     link: x.link,
   }));
 
@@ -232,7 +258,8 @@ async function main() {
 
   // ── 이번 주 요약 (AI 키가 있으면 AI, 없으면 규칙) ──
   const top = issues[0];
-  const pctTxt = (x) => x.prev ? `직전 주 ${x.prev}건 대비 ${signed(Math.round((x.reports - x.prev) / x.prev * 100))}` : "직전 주에는 없던 이슈";
+  // 증감률은 같은 출처끼리 비교한 건수로 계산해요
+  const pctTxt = (x) => x.prev ? `같은 출처 기준 직전 주 대비 ${signed(Math.round((x.reportsC - x.prev) / x.prev * 100))}` : "직전 주에는 없던 이슈";
   const bearing = (await weeklyBrief(issues)) || {
     headline: `이번 주 최대 무역 이슈는 '${top.keyword}'입니다`,
     points: issues.slice(0, 3).map(x => `${x.keyword}: 보도 ${x.reports}건(${pctTxt(x)})${x.sectors.length ? ` · ${x.sectors.map(id => sectorById[id].name).join("·")} 영향권` : ""}`),
@@ -246,7 +273,7 @@ async function main() {
       sources: week.length, outlets: new Set(week.flatMap(a => a.outlets || [a.source])).size,
       archive: all.length, sample: false, trendWeeks,
     },
-    bearing, sectors, issues: issues.map(({ key, risk, ...x }) => x), news, risks,
+    bearing, sectors, issues: issues.map(({ key, risk, reportsC, ...x }) => x), news, risks,
     trade: null,   // 월간 수출입 통계는 관세청 공공데이터 API 키가 생기면 붙일 자리
   };
 
@@ -254,7 +281,7 @@ async function main() {
   fs.writeFileSync(OUT_JSON, JSON.stringify(data, null, 1));
   fs.writeFileSync(OUT_JS, `// 무역나침반 데이터 — scripts/news/publish.js 가 매주 실제 뉴스로 자동 생성해요. 직접 고치지 마세요.\n// 기간: ${data.meta.period} · 기사 ${week.length}건 · 생성 ${data.meta.generated}\nwindow.TC_DATA = ${JSON.stringify(data, null, 1)};\n`);
 
-  console.log(`기간 ${data.meta.period} · 이번 주 기사 ${week.length}건 · 직전 4주 ${base.length}건 · 이슈 후보 ${cands.length}개`);
+  console.log(`기간 ${data.meta.period} · 이번 주 기사 ${week.length}건(비교 가능 출처 ${weekC.length}건) · 직전 4주 ${base.length}건 · 이슈 후보 ${cands.length}개`);
   // 대표 기사 점검표: 이슈 ↔ 대표 기사 제목 ↔ 관련도 (기준 미만이면 ⚠)
   console.log(`\n대표 기사 점검 (관련도 기준 ${LEAD_MIN_RELEVANCE})`);
   issues.forEach((x, i) => console.log(`${String(i + 1).padStart(2)}. ${x.leadRelevance >= LEAD_MIN_RELEVANCE ? "✓" : "⚠"} ${x.leadRelevance.toFixed(2)}  [${x.keyword}] ${x.title}`));

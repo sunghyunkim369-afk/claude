@@ -45,3 +45,19 @@ test("속보에는 의견 기사를 넣지 않아요", () => {
   const out = breakingFrom([{ title: "[사설] 관세 협상", date: d, tier: 0.8 }, { title: "관세 협상 타결", date: d, tier: 0.8 }], now);
   assert.deepEqual(out.map(a => a.title), ["관세 협상 타결"]);
 });
+
+test("짧은 영문 약어는 단어 끝까지 맞아야 해요 (IRA ≠ Iran)", () => {
+  const { classify } = require("../scripts/news/lib");
+  assert.notEqual(classify({ title: "Iran oil exports surge despite sanctions", desc: "", lang: "en" }).topic, "subsidy");
+  assert.equal(classify({ title: "IRA tax credits for EV makers", desc: "", lang: "en" }).topic, "subsidy");
+  assert.equal(classify({ title: "EU의 철강 세이프가드", desc: "" }).country, "eu");
+});
+
+test("해외 정부 발표: 한국 언급이 있을 때만 관련도 1, 상대국이 없으면 출처 기본값", () => {
+  const { classify } = require("../scripts/news/lib");
+  const fr = classify({ title: "Certain Steel Products From the Republic of Korea: Final Results of Antidumping Duty Administrative Review", desc: "", lang: "en", official: true, countryHint: "us" });
+  assert.equal(fr.topic, "trade_remedy"); assert.equal(fr.country, "us"); assert.equal(fr.relevance, 1);
+  const wh = classify({ title: "Adjusting Imports of Copper Into the United States", desc: "", lang: "en", official: true, countryHint: "us" });
+  assert.equal(wh.topic, "tariff"); assert.equal(wh.relevance, 0.5);
+  assert.equal(classify({ title: "정부, 대미 관세 협상 결과 발표", desc: "", official: true }).relevance, 1);
+});

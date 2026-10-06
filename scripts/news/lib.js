@@ -89,7 +89,9 @@ function hit(text, w) {
   const lw = lower(w);
   if (!/^[\x20-\x7e]+$/.test(w)) return text.includes(lw);
   let re = reCache.get(lw);
-  if (!re) { re = new RegExp(`(^|[^a-z0-9])${lw.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`); reCache.set(lw, re); }
+  // 2~4글자 영문 약어(IRA, LNG, FTA)는 단어 끝까지 맞아야 인정 ("IRA"가 "Iran" 안에서 잡히지 않게, 복수형 s 는 허용)
+  const tail = /^[A-Z]{2,4}$/.test(w.trim()) ? "s?(?![a-z])" : "";
+  if (!re) { re = new RegExp(`(^|[^a-z0-9])${lw.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}${tail}`); reCache.set(lw, re); }
   return re.test(text);
 }
 const has = (text, words) => words.some(w => hit(text, w));
@@ -114,12 +116,13 @@ function classify(item) {
   const cs = (words) => countHits(ctitle, words) * 2 + countHits(ctext, words);
   const countries = COUNTRIES.map(c => ({ id: c.id, s: cs(c.kw) })).filter(c => c.s > 0).sort((a, b) => b.s - a.s);
   const direction = actionDirection(text, topics[0] ? topics[0].id : "");
-  const relevance = item.official || has(text, KOREA_WORDS) ? 1 : (item.lang === "en" ? 0.5 : 0.8);
+  // 우리 정부 발표는 1, 해외 정부 발표는 한국이 언급될 때만 1 (USTR·백악관 발표 전부가 한국 관련은 아니라서)
+  const relevance = (item.official && item.lang !== "en") || has(text, KOREA_WORDS) ? 1 : (item.lang === "en" ? 0.5 : 0.8);
   return {
     topic: topics[0] ? topics[0].id : "export_trend",
     topics: topics.slice(0, 2).map(t => t.id),
     sectors: sectors.slice(0, 2).map(s => s.id),
-    country: countries[0] ? countries[0].id : "",
+    country: countries[0] ? countries[0].id : (item.countryHint || ""),
     direction, relevance,
   };
 }

@@ -1,0 +1,40 @@
+name: Fonts build
+
+# 글꼴 직접 제공: Google Fonts 원본(OFL)을 받아 사이트에 쓰는 글자만 남긴 woff2 를 shared/fonts 에 올려요 (수동 실행)
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: github.server_url == 'https://github.com'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/elegant-heisenberg-s2a9ar
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install fonttools brotli
+      - name: Download OFL fonts (google/fonts)
+        run: |
+          mkdir -p src
+          base=https://raw.githubusercontent.com/google/fonts/main/ofl
+          curl -fsSL -o "src/NotoSansKR[wght].ttf" "$base/notosanskr/NotoSansKR%5Bwght%5D.ttf"
+          curl -fsSL -o src/OFL-NotoSansKR.txt "$base/notosanskr/OFL.txt"
+          curl -fsSL -o "src/Fraunces[SOFT,WONK,opsz,wght].ttf" "$base/fraunces/Fraunces%5BSOFT,WONK,opsz,wght%5D.ttf"
+          curl -fsSL -o "src/Fraunces-Italic[SOFT,WONK,opsz,wght].ttf" "$base/fraunces/Fraunces-Italic%5BSOFT,WONK,opsz,wght%5D.ttf"
+          curl -fsSL -o src/OFL-Fraunces.txt "$base/fraunces/OFL.txt"
+          ls -la src
+      - run: python scripts/fonts/build.py src shared/fonts && cp src/OFL-*.txt shared/fonts/ && du -sh shared/fonts
+      - run: |
+          git config user.name "tradecompass-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add shared/fonts
+          git diff --cached --quiet && exit 0
+          git commit -m "Fonts: self-hosted woff2 (OFL)"
+          git pull --rebase origin claude/elegant-heisenberg-s2a9ar
+          git push origin HEAD:claude/elegant-heisenberg-s2a9ar

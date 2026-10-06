@@ -12,6 +12,8 @@ permissions:
 
 jobs:
   test:
+    # 같은 저장소가 GitSalt(Gitea Actions)에 복사돼도 거기서는 돌지 않게: 수집·발행·배포는 GitHub 에서만
+    if: github.server_url == 'https://github.com'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     services:

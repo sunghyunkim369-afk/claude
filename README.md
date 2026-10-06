@@ -136,3 +136,8 @@ GitHub Pages는 헤더를 설정할 수 없어서 이 헤더가 적용되지 않
 1. GitSalt 로그인 → 오른쪽 위 프로필 → **설정 → 애플리케이션 → 새 토큰 생성**, 권한에서 **repository: 읽기 및 쓰기** 선택
 2. GitHub 저장소 **Settings → Secrets and variables → Actions → New repository secret**, 이름 `GITSALT_TOKEN`, 값에 토큰 붙여넣기 (토큰은 채팅·코드에 쓰지 않아요)
 3. GitHub **Actions → GitSalt mirror → Run workflow**. 처음 실행 때 원래 저장소 `calc` 를 `tradecompass` 로 이름을 바꾸고 내용을 덮어써요.
+
+원본은 GitHub 예요. GitSalt 는 제출·배포용 사본이라:
+- 코드 수정은 GitHub 에서 해요. GitSalt 에서 직접 커밋하면 다음 복사가 실패해서 알려 줘요(덮어쓰지 않아요).
+- 모든 자동 작업(`.github/workflows`)은 `github.server_url` 이 GitHub 일 때만 돌아요. GitSalt 의 Actions 가 켜져 있어도 뉴스 수집·발행이 두 곳에서 따로 돌며 기록이 갈라지는 일이 없어요.
+- 사이트 실행에 필요한 것은 모두 저장소 안에 있어서, eyefeet 가 GitHub 와 GitSalt 중 어디서 코드를 가져가도 똑같이 동작해요. (주간 순위·속보 최신본은 `/api/data`·`/api/breaking` 이 GitHub 에서 받아요. 실패하면 페이지에 들어 있는 데이터를 써요.)

@@ -25,6 +25,8 @@ jobs:
           host=$(echo "$URL" | sed -E 's#https?://([^/]+).*#\1#')
           echo "host=$host IP=$(getent hosts "$host" | awk '{print $1}' | head -1)"
           curl -sSL -A "Mozilla/5.0" --max-time 20 -o page.html -w 'HTTP %{http_code} · %{url_effective}\n' "$URL"
+          # 원본 파일(/raw/)은 태그를 지우지 않고 그대로 보여줘요
+          if echo "$URL" | grep -q "/raw/"; then echo "--- 원본 ---"; head -c 15000 page.html; echo; exit 0; fi
           python3 - <<'PY'
           import re, html
           t = open("page.html", encoding="utf-8", errors="ignore").read()

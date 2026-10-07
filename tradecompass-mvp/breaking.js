@@ -1,17 +1,127 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-07T06:41:27.766Z",
+ "generated": "2026-10-07T12:44:01.497Z",
  "hours": 24,
  "items": [
   {
-   "title": "[외환] 원/달러 환율 3.2원 내린 1,340.4원(15:30 기준가)",
-   "link": "https://www.yna.co.kr/view/AKR20261007144400002",
+   "title": "DHL: Tech beats tariffs – the AI boom ‘has become a powerful driver of global trade’",
+   "lang": "en",
+   "link": "https://theloadstar.com/dhl-tech-beats-tariffs-the-ai-boom-has-become-a-powerful-driver-of-global-trade/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-07T12:40:49.000Z",
+   "tag": "관세",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "독일 정부, 자국 물류업체 中 매각 차단…\"안보 우려\"",
+   "link": "https://www.yna.co.kr/view/AKR20261007200600082",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-07T06:32:08.000Z",
+   "at": "2026-10-07T12:07:30.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "Exports stranded as Adani Russia-embargo creates Indian air cargo chaos",
+   "lang": "en",
+   "link": "https://theloadstar.com/exports-stranded-as-adani-russia-embargo-creates-indian-air-cargo-chaos/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-07T10:38:44.000Z",
+   "tag": "경제제재",
+   "direction": "neutral",
+   "sectors": [
+    "auto"
+   ]
+  },
+  {
+   "title": "SK에너지·HD현대오일뱅크 … 공정위 '44조 담합' 심의 시작",
+   "link": "https://www.mk.co.kr/news/economy/12170834",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-07T10:22:52.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "China Completes First Season of Regular Arctic Container Service",
+   "lang": "en",
+   "link": "https://gcaptain.com/china-completes-first-season-of-regular-arctic-container-service/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-07T10:02:08.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "Qatar Brings Empty LNG Ships Into Gulf in Potential Export Boost",
+   "lang": "en",
+   "link": "https://gcaptain.com/qatar-brings-empty-lng-ships-into-gulf-in-potential-export-boost/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-07T10:01:07.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "유가 반등에 국고채 금리 대체로 상승…3년물 3.961%(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261007163251008",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T08:17:54.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "송미령 \"CPTPP 가입 논의 원점 재검토…국익·민의 따라 결정\"(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261007032851030",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T07:13:46.000Z",
+   "tag": "FTA·통상협정",
+   "direction": "neutral",
+   "sectors": [
+    "consumer"
+   ]
+  },
+  {
+   "title": "환율, 수출기업 달러 매도 등에 3.2원 내린 1,340원",
+   "link": "https://www.yna.co.kr/view/AKR20261007152600002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T07:12:39.000Z",
    "tag": "환율",
    "direction": "info",
    "sectors": []
+  },
+  {
+   "title": "\"새로운 숙박 모델\"…日 홋카이도서 컨테이너형 호텔 확산",
+   "link": "https://www.yna.co.kr/view/AKR20261007148000009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T06:53:51.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
   },
   {
    "title": "이소영 중기장관 \"'납품대금 연동제' 제재 약해…실효성 부족\"",
@@ -65,116 +175,6 @@ window.TC_BREAKING = {
    "source": "연합뉴스",
    "outlets": 1,
    "at": "2026-10-07T02:49:14.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "호르무즈 건너면 7천만원…이란 공격에 유조선장 위험수당 급등",
-   "link": "https://www.yna.co.kr/view/AKR20261007079300009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-07T02:17:33.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "ship",
-    "chem"
-   ]
-  },
-  {
-   "title": "지방공항·항만서 지역여행 쉽게…관광공사, 외국인 편의 개선",
-   "link": "https://www.yna.co.kr/view/AKR20261007030200030",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-07T00:16:43.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "대포차 29대 러시아 밀수출하고 해외 도피한 50대 징역 10개월",
-   "link": "https://www.yna.co.kr/view/AKR20261006122000051",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-07T00:00:04.000Z",
-   "tag": "통관·원산지",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "트럼프 \"한국에 관세 낮추려면 대가 지불해야 한다고 말해\"(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261007008051071",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-06T22:36:25.000Z",
-   "tag": "관세",
-   "direction": "down",
-   "sectors": []
-  },
-  {
-   "title": "After cordial Xi-Trump summit, could China’s US dollar pivot cause tremors?",
-   "lang": "en",
-   "link": "https://www.scmp.com/economy/global-economy/article/3369918/after-cordial-xi-trump-summit-could-chinas-us-dollar-pivot-cause-tremors?utm_source=rss_feed",
-   "source": "SCMP",
-   "outlets": 1,
-   "at": "2026-10-06T22:00:10.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": [
-    "consumer"
-   ]
-  },
-  {
-   "title": "Iran’s Offshore Oil Stockpile Nears Exhaustion as Blockade Chokes New Supply",
-   "lang": "en",
-   "link": "https://gcaptain.com/irans-offshore-oil-stockpile-nears-exhaustion-as-blockade-chokes-new-supply/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-06T19:53:44.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "국제유가, 중동 수출 회복·공급 우려 속 강보합 마감",
-   "link": "https://www.yna.co.kr/view/AKR20261007005000072",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-06T19:43:10.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "South Korean Operator Emerges as New Force in Arctic LNG Shipping",
-   "lang": "en",
-   "link": "https://gcaptain.com/south-korean-operator-emerges-as-new-force-in-arctic-lng-shipping/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-06T18:06:23.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "chem",
-    "ship"
-   ]
-  },
-  {
-   "title": "Volare Jumps in Oslo Debut as Wave of Shipping IPOs Builds",
-   "lang": "en",
-   "link": "https://gcaptain.com/volare-jumps-in-oslo-debut-as-wave-of-shipping-ipos-builds/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-06T17:42:17.000Z",
    "tag": "해운·물류",
    "direction": "info",
    "sectors": [

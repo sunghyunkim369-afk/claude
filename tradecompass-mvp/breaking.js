@@ -1,8 +1,71 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-07T12:44:01.497Z",
+ "generated": "2026-10-07T18:40:35.393Z",
  "hours": 24,
  "items": [
+  {
+   "title": "Sanctioned 22-Year-Old Non-Ice-Class Tanker Makes Rare Late-Season Arctic Voyage",
+   "lang": "en",
+   "link": "https://gcaptain.com/sanctioned-22-year-old-non-ice-class-tanker-makes-rare-late-season-arctic-voyage/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-07T18:35:33.000Z",
+   "tag": "경제제재",
+   "direction": "neutral",
+   "sectors": [
+    "auto"
+   ]
+  },
+  {
+   "title": "美부통령 \"韓 현정부든 차기정부든 우린 알래스카 LNG 완수\"",
+   "link": "https://www.yna.co.kr/view/AKR20261008001600071",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T17:19:59.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "New cover protects forwarders from late or temperature-hit cargo",
+   "lang": "en",
+   "link": "https://theloadstar.com/new-cover-protects-forwarders-from-late-temperature-hit-cargo/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-07T15:32:19.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "auto",
+    "ship"
+   ]
+  },
+  {
+   "title": "Trafigura Buys Seven Oil Tankers From SFL as Shipping Costs Rise",
+   "lang": "en",
+   "link": "https://gcaptain.com/trafigura-buys-seven-oil-tankers-from-sfl-as-shipping-costs-rise/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-07T15:26:13.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "chem",
+    "ship"
+   ]
+  },
+  {
+   "title": "트럼프, 중저가 유세정장 눈길…온라인서 '中원산지' 논란도",
+   "link": "https://www.yna.co.kr/view/AKR20261007206800071",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T14:17:46.000Z",
+   "tag": "통관·원산지",
+   "direction": "neutral",
+   "sectors": []
+  },
   {
    "title": "DHL: Tech beats tariffs – the AI boom ‘has become a powerful driver of global trade’",
    "lang": "en",
@@ -117,64 +180,6 @@ window.TC_BREAKING = {
    "source": "연합뉴스",
    "outlets": 1,
    "at": "2026-10-07T06:53:51.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "이소영 중기장관 \"'납품대금 연동제' 제재 약해…실효성 부족\"",
-   "link": "https://www.yna.co.kr/view/AKR20261007131800030",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-07T05:51:28.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "[부산소식] 부산항 노사정 한마음 체육대회",
-   "link": "https://www.yna.co.kr/view/AKR20261007123300051",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-07T05:21:39.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "정부 \"北, 의료장비 극도 부족\"…유엔에 대북지원 계획보고(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261007063751001",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-07T03:28:52.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": [
-    "machinery"
-   ]
-  },
-  {
-   "title": "전쟁 틈타 44조대 유가담합…SK에너지·HD현대오일뱅크 심판대에(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261007079801002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-07T03:12:24.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "[영상] 반격 수위 높인 후티, 사우디 본토 맹폭…\"韓기업 인근도 피격\"",
-   "link": "https://www.yna.co.kr/view/AKR20261007088300704",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-07T02:49:14.000Z",
    "tag": "해운·물류",
    "direction": "info",
    "sectors": [

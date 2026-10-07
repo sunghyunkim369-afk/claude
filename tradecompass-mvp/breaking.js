@@ -1,8 +1,89 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-07T00:46:30.157Z",
+ "generated": "2026-10-07T06:41:27.766Z",
  "hours": 24,
  "items": [
+  {
+   "title": "[외환] 원/달러 환율 3.2원 내린 1,340.4원(15:30 기준가)",
+   "link": "https://www.yna.co.kr/view/AKR20261007144400002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T06:32:08.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "이소영 중기장관 \"'납품대금 연동제' 제재 약해…실효성 부족\"",
+   "link": "https://www.yna.co.kr/view/AKR20261007131800030",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T05:51:28.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "[부산소식] 부산항 노사정 한마음 체육대회",
+   "link": "https://www.yna.co.kr/view/AKR20261007123300051",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T05:21:39.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "정부 \"北, 의료장비 극도 부족\"…유엔에 대북지원 계획보고(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261007063751001",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T03:28:52.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": [
+    "machinery"
+   ]
+  },
+  {
+   "title": "전쟁 틈타 44조대 유가담합…SK에너지·HD현대오일뱅크 심판대에(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261007079801002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T03:12:24.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "[영상] 반격 수위 높인 후티, 사우디 본토 맹폭…\"韓기업 인근도 피격\"",
+   "link": "https://www.yna.co.kr/view/AKR20261007088300704",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T02:49:14.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "호르무즈 건너면 7천만원…이란 공격에 유조선장 위험수당 급등",
+   "link": "https://www.yna.co.kr/view/AKR20261007079300009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T02:17:33.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "ship",
+    "chem"
+   ]
+  },
   {
    "title": "지방공항·항만서 지역여행 쉽게…관광공사, 외국인 편의 개선",
    "link": "https://www.yna.co.kr/view/AKR20261007030200030",
@@ -98,84 +179,6 @@ window.TC_BREAKING = {
    "direction": "info",
    "sectors": [
     "ship"
-   ]
-  },
-  {
-   "title": "캐나다 8월 무역흑자 4년만에 최대…관세 앞두고 대미수출 급증",
-   "link": "https://www.yna.co.kr/view/AKR20261007001100072",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-06T16:15:40.000Z",
-   "tag": "관세",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "Panama Canal Expands Advance Transit Reservations for 2027 Dry Season",
-   "lang": "en",
-   "link": "https://gcaptain.com/panama-canal-expands-advance-transit-reservations-for-2027-dry-season/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-06T15:58:38.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "美 8월 무역적자 작년 3월 이후 최대…수입은 사상 최대",
-   "link": "https://www.yna.co.kr/view/AKR20261006201700072",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-06T14:38:49.000Z",
-   "tag": "수출입 동향",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "Flexport lets AI agents book freight – who signed the contract?",
-   "lang": "en",
-   "link": "https://theloadstar.com/flexport-lets-ai-agents-book-freight-who-signed-the-contract/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-06T11:13:51.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "李대통령, CPTPP 가입 두고 \"원점서 대화를\"",
-   "link": "https://www.mk.co.kr/news/economy/12169707",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-06T10:33:35.000Z",
-   "tag": "FTA·통상협정",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "대미투자금 나가자 …외환보유액 넉달만에 '뚝'",
-   "link": "https://www.mk.co.kr/news/economy/12169600",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-06T08:49:47.000Z",
-   "tag": "관세",
-   "direction": "down",
-   "sectors": []
-  },
-  {
-   "title": "\"美텍사스발전소 상업성 충족\"…\"알래스카LNG 투자 확정 아냐\"",
-   "link": "https://www.mk.co.kr/news/economy/12169599",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-06T08:49:46.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
    ]
   }
  ]

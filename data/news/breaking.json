@@ -1,7 +1,74 @@
 {
- "generated": "2026-10-07T18:40:35.393Z",
+ "generated": "2026-10-08T00:46:02.057Z",
  "hours": 24,
  "items": [
+  {
+   "title": "LG엔솔, 캐나다산 리튬 24t 공급받기로…\"북미 공급망 강화\"",
+   "link": "https://www.yna.co.kr/view/AKR20261008030400003",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T23:42:25.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": [
+    "battery",
+    "chem"
+   ]
+  },
+  {
+   "title": "한투증권 \"원/달러 환율, 1,330원대 복귀해도 추가 하락 압력\"",
+   "link": "https://www.yna.co.kr/view/AKR20261008030700008",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T23:39:51.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "[속보] 반도체 호황…8월 경상수지 461억1000만달러 흑자 역대 2위",
+   "link": "https://www.mk.co.kr/news/economy/12171075",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-07T23:00:00.000Z",
+   "tag": "수출입 동향",
+   "direction": "info",
+   "sectors": [
+    "semi"
+   ]
+  },
+  {
+   "title": "피해기업 구제 늦어질라…기술 탈취 공정위 제재까지 703일 걸려",
+   "link": "https://www.yna.co.kr/view/AKR20261007156500002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T20:53:01.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "국제유가, IEA 비축유 방출 가속에 하락…WTI 1.3%↓",
+   "link": "https://www.yna.co.kr/view/AKR20261008005800072",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T19:47:23.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "트럼프, 또 노벨평화상 타령…\"관세로 많은 전쟁 막았다\"",
+   "link": "https://www.yna.co.kr/view/AKR20261008004500071",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-07T18:51:56.000Z",
+   "tag": "관세",
+   "direction": "neutral",
+   "sectors": []
+  },
   {
    "title": "Sanctioned 22-Year-Old Non-Ice-Class Tanker Makes Rare Late-Season Arctic Voyage",
    "lang": "en",
@@ -111,78 +178,6 @@
    "direction": "up",
    "sectors": [
     "chem"
-   ]
-  },
-  {
-   "title": "China Completes First Season of Regular Arctic Container Service",
-   "lang": "en",
-   "link": "https://gcaptain.com/china-completes-first-season-of-regular-arctic-container-service/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-07T10:02:08.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "Qatar Brings Empty LNG Ships Into Gulf in Potential Export Boost",
-   "lang": "en",
-   "link": "https://gcaptain.com/qatar-brings-empty-lng-ships-into-gulf-in-potential-export-boost/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-07T10:01:07.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "유가 반등에 국고채 금리 대체로 상승…3년물 3.961%(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261007163251008",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-07T08:17:54.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "송미령 \"CPTPP 가입 논의 원점 재검토…국익·민의 따라 결정\"(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261007032851030",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-07T07:13:46.000Z",
-   "tag": "FTA·통상협정",
-   "direction": "neutral",
-   "sectors": [
-    "consumer"
-   ]
-  },
-  {
-   "title": "환율, 수출기업 달러 매도 등에 3.2원 내린 1,340원",
-   "link": "https://www.yna.co.kr/view/AKR20261007152600002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-07T07:12:39.000Z",
-   "tag": "환율",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "\"새로운 숙박 모델\"…日 홋카이도서 컨테이너형 호텔 확산",
-   "link": "https://www.yna.co.kr/view/AKR20261007148000009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-07T06:53:51.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
    ]
   }
  ]

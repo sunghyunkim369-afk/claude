@@ -1,8 +1,68 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-08T12:44:29.515Z",
+ "generated": "2026-10-08T18:40:34.575Z",
  "hours": 24,
  "items": [
+  {
+   "title": "U.S. Sanctions 22 More Tankers in Crackdown on Iran’s Shadow Fleet",
+   "lang": "en",
+   "link": "https://gcaptain.com/u-s-sanctions-22-more-tankers-in-crackdown-on-irans-shadow-fleet/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-08T18:25:43.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "U.S. Container Imports Slow After Stronger-Than-Expected Summer",
+   "lang": "en",
+   "link": "https://gcaptain.com/u-s-container-imports-slow-after-stronger-than-expected-summer/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-08T18:03:28.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "트럼프 관세, 美소비재 물가 2.9%p 올려…뉴욕연은 보고서",
+   "link": "https://www.yna.co.kr/view/AKR20261009000700072",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-08T15:44:31.000Z",
+   "tag": "관세",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "Tanker Attack Off Qatar Signals Wider Threat Beyond Hormuz",
+   "lang": "en",
+   "link": "https://gcaptain.com/tanker-attack-off-qatar-signals-wider-threat-beyond-hormuz/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-08T14:25:15.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "The battle against supply chain chaos keeps SMBs ‘in overdrive’",
+   "lang": "en",
+   "link": "https://theloadstar.com/the-battle-against-supply-chain-chaos-keeps-smbs-in-overdrive/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-08T14:00:08.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": []
+  },
   {
    "title": "Customs updates add a ‘compliance burden’ to potentially volatile Q4 for shippers",
    "lang": "en",
@@ -115,61 +175,6 @@ window.TC_BREAKING = {
    "tag": "FTA·통상협정",
    "direction": "neutral",
    "sectors": []
-  },
-  {
-   "title": "피해기업 발동동…‘기술 탈취’ 공정위 제재까지 703일 ‘하세월’",
-   "link": "https://www.mk.co.kr/news/economy/12171574",
-   "source": "매일경제",
-   "outlets": 2,
-   "at": "2026-10-08T06:39:40.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "[외환] 원/달러 환율 1.9원 내린 1,338.5원(15:30 기준가)",
-   "link": "https://www.yna.co.kr/view/AKR20261008141800002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-08T06:30:48.000Z",
-   "tag": "환율",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "\"美, 미얀마 군정과 직접 접촉…고립정책 전환\"",
-   "link": "https://www.yna.co.kr/view/AKR20261008130900009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-08T06:04:49.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "바이오의약품 수출 66억달러 '역대 최대'…유럽 시장서 날았다",
-   "link": "https://www.yna.co.kr/view/AKR20261008113900017",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-08T05:24:27.000Z",
-   "tag": "수출입 동향",
-   "direction": "info",
-   "sectors": [
-    "consumer"
-   ]
-  },
-  {
-   "title": "Certain Corrosion-Resistant Steel Products From the Republic of Korea: Preliminary Results and Recission, In Part, of Countervailing Duty Administrative Review; 2024",
-   "lang": "en",
-   "link": "https://www.federalregister.gov/documents/2026/10/08/2026-20699/certain-corrosion-resistant-steel-products-from-the-republic-of-korea-preliminary-results-and",
-   "source": "Federal Register",
-   "outlets": 1,
-   "at": "2026-10-08T04:00:00.000Z",
-   "tag": "반덤핑·무역구제",
-   "direction": "neutral",
-   "sectors": [
-    "steel"
-   ]
   }
  ]
 };

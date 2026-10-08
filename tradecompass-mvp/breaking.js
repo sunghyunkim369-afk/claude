@@ -1,8 +1,121 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-08T06:43:35.045Z",
+ "generated": "2026-10-08T12:44:29.515Z",
  "hours": 24,
  "items": [
+  {
+   "title": "Customs updates add a ‘compliance burden’ to potentially volatile Q4 for shippers",
+   "lang": "en",
+   "link": "https://theloadstar.com/customs-updates-add-a-compliance-burden-to-potentially-volatile-q4-for-shippers/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-08T12:38:54.000Z",
+   "tag": "통관·원산지",
+   "direction": "neutral",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "High yields spark new container services on ‘bumpy’ India-Middle East trade",
+   "lang": "en",
+   "link": "https://theloadstar.com/high-yields-spark-new-container-services-on-bumpy-india-middle-east-trade/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-08T12:12:05.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "Mexican Auto Exports Slump in September as US Tariffs Take Toll",
+   "lang": "en",
+   "link": "https://gcaptain.com/mexican-auto-exports-slump-in-september-as-us-tariffs-take-toll/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-08T11:59:57.000Z",
+   "tag": "관세",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "China’s central bank slams currency manipulation claims as EU trade talks begin",
+   "lang": "en",
+   "link": "https://www.scmp.com/economy/china-economy/article/3370215/chinas-central-bank-slams-currency-manipulation-claims-eu-trade-talks-begin?utm_source=rss_feed",
+   "source": "SCMP",
+   "outlets": 1,
+   "at": "2026-10-08T11:57:55.000Z",
+   "tag": "환율",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "India Shuns Costly Russian Oil as Middle East Flows Recover",
+   "lang": "en",
+   "link": "https://gcaptain.com/india-shuns-costly-russian-oil-as-middle-east-flows-recover/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-08T11:55:20.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "영국, 예루살렘 총영사관 '대표부'로 운영…직원 대부분 철수",
+   "link": "https://www.yna.co.kr/view/AKR20261008204800085",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-08T11:27:46.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "李 \"CPTPP 연내 가입 신청하지 말라\"",
+   "link": "https://www.mk.co.kr/news/economy/12171938",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-08T10:47:30.000Z",
+   "tag": "FTA·통상협정",
+   "direction": "neutral",
+   "sectors": [
+    "consumer"
+   ]
+  },
+  {
+   "title": "[연합뉴스 이 시각 헤드라인] - 18:00",
+   "link": "https://www.yna.co.kr/view/AKR20261008178500011",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-08T09:00:01.000Z",
+   "tag": "FTA·통상협정",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "\"대기업 거래실적으로 中企대출\"…올해 '공급망금융' 5조원 돌파",
+   "link": "https://www.mk.co.kr/news/economy/12171849",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-08T08:39:44.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "李대통령, CPTPP 연내 신청않도록 지시…\"농어민과 충분히 대화\"",
+   "link": "https://www.yna.co.kr/view/AKR20261008162100001",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-08T07:31:50.000Z",
+   "tag": "FTA·통상협정",
+   "direction": "neutral",
+   "sectors": []
+  },
   {
    "title": "피해기업 발동동…‘기술 탈취’ 공정위 제재까지 703일 ‘하세월’",
    "link": "https://www.mk.co.kr/news/economy/12171574",
@@ -46,127 +159,16 @@ window.TC_BREAKING = {
    ]
   },
   {
-   "title": "[영상] 호르무즈 약발 떨어졌다 했는데…이란전 어디로 가나",
-   "link": "https://www.yna.co.kr/view/AKR20261008091200797",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-08T02:38:39.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "이라크산 원유 시리아 통해 육로수송…호르무즈 우회",
-   "link": "https://www.yna.co.kr/view/AKR20261008087900009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-08T02:36:29.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "미국 막히자 신흥국·유럽 잠식한 중국…\"한국 주력산업 벼랑끝\"",
-   "link": "https://www.yna.co.kr/view/AKR20261008073800003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-08T01:49:28.000Z",
-   "tag": "관세",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "[바이오스냅] 동아쏘시오그룹, 협력사 대상 ESG 공급망 교육",
-   "link": "https://www.yna.co.kr/view/AKR20261008072500017",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-08T01:46:57.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "산업부, CPTPP 가입 관련 서비스·지식재산권 업계 의견 수렴",
-   "link": "https://www.yna.co.kr/view/AKR20261007182700003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-08T01:00:04.000Z",
-   "tag": "FTA·통상협정",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "LG엔솔, 캐나다산 리튬 24t 공급받기로…\"북미 공급망 강화\"",
-   "link": "https://www.yna.co.kr/view/AKR20261008030400003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-07T23:42:25.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": [
-    "battery",
-    "chem"
-   ]
-  },
-  {
-   "title": "한투증권 \"원/달러 환율, 1,330원대 복귀해도 추가 하락 압력\"",
-   "link": "https://www.yna.co.kr/view/AKR20261008030700008",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-07T23:39:51.000Z",
-   "tag": "환율",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "[속보] 반도체 호황…8월 경상수지 461억1000만달러 흑자 역대 2위",
-   "link": "https://www.mk.co.kr/news/economy/12171075",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-07T23:00:00.000Z",
-   "tag": "수출입 동향",
-   "direction": "info",
-   "sectors": [
-    "semi"
-   ]
-  },
-  {
-   "title": "국제유가, IEA 비축유 방출 가속에 하락…WTI 1.3%↓",
-   "link": "https://www.yna.co.kr/view/AKR20261008005800072",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-07T19:47:23.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "트럼프, 또 노벨평화상 타령…\"관세로 많은 전쟁 막았다\"",
-   "link": "https://www.yna.co.kr/view/AKR20261008004500071",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-07T18:51:56.000Z",
-   "tag": "관세",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "Sanctioned 22-Year-Old Non-Ice-Class Tanker Makes Rare Late-Season Arctic Voyage",
+   "title": "Certain Corrosion-Resistant Steel Products From the Republic of Korea: Preliminary Results and Recission, In Part, of Countervailing Duty Administrative Review; 2024",
    "lang": "en",
-   "link": "https://gcaptain.com/sanctioned-22-year-old-non-ice-class-tanker-makes-rare-late-season-arctic-voyage/",
-   "source": "gCaptain",
+   "link": "https://www.federalregister.gov/documents/2026/10/08/2026-20699/certain-corrosion-resistant-steel-products-from-the-republic-of-korea-preliminary-results-and",
+   "source": "Federal Register",
    "outlets": 1,
-   "at": "2026-10-07T18:35:33.000Z",
-   "tag": "경제제재",
+   "at": "2026-10-08T04:00:00.000Z",
+   "tag": "반덤핑·무역구제",
    "direction": "neutral",
    "sectors": [
-    "auto"
+    "steel"
    ]
   }
  ]

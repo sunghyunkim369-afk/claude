@@ -1,7 +1,54 @@
 {
- "generated": "2026-10-08T18:40:34.575Z",
+ "generated": "2026-10-09T00:48:39.391Z",
  "hours": 24,
  "items": [
+  {
+   "title": "Japan's EV subsidies benefit Tesla more than Honda, Nissan",
+   "lang": "en",
+   "link": "https://asia.nikkei.com/business/automobiles/electric-vehicles/japan-s-ev-subsidies-benefit-tesla-more-than-honda-nissan",
+   "source": "Nikkei Asia",
+   "outlets": 1,
+   "at": "2026-10-09T00:48:39.323Z",
+   "tag": "보조금·산업정책",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "다카이치, 中제재 받은 측근에 \"명예로운 제재\" 언급",
+   "link": "https://www.yna.co.kr/view/AKR20261009020300073",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-09T00:38:10.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "美, '이란 석유제품 불법거래' 튀르키예·UAE·인도 기업 제재",
+   "link": "https://www.yna.co.kr/view/AKR20261009010300071",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-08T22:01:01.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": [
+    "chem",
+    "ship"
+   ]
+  },
+  {
+   "title": "국제유가, 美 이란 공격 우려·중동 유조선 피격에 급등",
+   "link": "https://www.yna.co.kr/view/AKR20261009006300072",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-08T20:05:11.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem",
+    "ship"
+   ]
+  },
   {
    "title": "U.S. Sanctions 22 More Tankers in Crackdown on Iran’s Shadow Fleet",
    "lang": "en",
@@ -131,48 +178,6 @@
    "at": "2026-10-08T11:27:46.000Z",
    "tag": "경제제재",
    "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "李 \"CPTPP 연내 가입 신청하지 말라\"",
-   "link": "https://www.mk.co.kr/news/economy/12171938",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-08T10:47:30.000Z",
-   "tag": "FTA·통상협정",
-   "direction": "neutral",
-   "sectors": [
-    "consumer"
-   ]
-  },
-  {
-   "title": "[연합뉴스 이 시각 헤드라인] - 18:00",
-   "link": "https://www.yna.co.kr/view/AKR20261008178500011",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-08T09:00:01.000Z",
-   "tag": "FTA·통상협정",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "\"대기업 거래실적으로 中企대출\"…올해 '공급망금융' 5조원 돌파",
-   "link": "https://www.mk.co.kr/news/economy/12171849",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-08T08:39:44.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "李대통령, CPTPP 연내 신청않도록 지시…\"농어민과 충분히 대화\"",
-   "link": "https://www.yna.co.kr/view/AKR20261008162100001",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-08T07:31:50.000Z",
-   "tag": "FTA·통상협정",
-   "direction": "neutral",
    "sectors": []
   }
  ]

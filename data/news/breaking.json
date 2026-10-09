@@ -1,7 +1,39 @@
 {
- "generated": "2026-10-09T00:48:39.391Z",
+ "generated": "2026-10-09T06:43:32.778Z",
  "hours": 24,
  "items": [
+  {
+   "title": "[외환] 원/달러 환율 4.3원 오른 1,342.8원(15:30 기준가)",
+   "link": "https://www.yna.co.kr/view/AKR20261009043000002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-09T06:33:31.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "China proposes ‘basic safeguards’ to cover expanding gig workforce but gaps remain",
+   "lang": "en",
+   "link": "https://www.scmp.com/economy/policy/article/3370280/china-proposes-basic-safeguards-expanding-gig-worker-economy-gaps-remain?utm_source=rss_feed",
+   "source": "SCMP",
+   "outlets": 1,
+   "at": "2026-10-09T05:00:28.000Z",
+   "tag": "반덤핑·무역구제",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "Chinese central bank’s yuan policy paper",
+   "lang": "en",
+   "link": "https://www.scmp.com/plus/economy/china-economy/article/3370257/chinese-central-banks-yuan-policy-paper?utm_source=rss_feed",
+   "source": "SCMP",
+   "outlets": 1,
+   "at": "2026-10-09T02:45:25.000Z",
+   "tag": "환율",
+   "direction": "up",
+   "sectors": []
+  },
   {
    "title": "Japan's EV subsidies benefit Tesla more than Honda, Nissan",
    "lang": "en",
@@ -144,40 +176,6 @@
    "at": "2026-10-08T11:59:57.000Z",
    "tag": "관세",
    "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "China’s central bank slams currency manipulation claims as EU trade talks begin",
-   "lang": "en",
-   "link": "https://www.scmp.com/economy/china-economy/article/3370215/chinas-central-bank-slams-currency-manipulation-claims-eu-trade-talks-begin?utm_source=rss_feed",
-   "source": "SCMP",
-   "outlets": 1,
-   "at": "2026-10-08T11:57:55.000Z",
-   "tag": "환율",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "India Shuns Costly Russian Oil as Middle East Flows Recover",
-   "lang": "en",
-   "link": "https://gcaptain.com/india-shuns-costly-russian-oil-as-middle-east-flows-recover/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-08T11:55:20.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "영국, 예루살렘 총영사관 '대표부'로 운영…직원 대부분 철수",
-   "link": "https://www.yna.co.kr/view/AKR20261008204800085",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-08T11:27:46.000Z",
-   "tag": "경제제재",
-   "direction": "up",
    "sectors": []
   }
  ]

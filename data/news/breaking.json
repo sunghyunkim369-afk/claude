@@ -1,7 +1,97 @@
 {
- "generated": "2026-10-09T06:43:32.778Z",
+ "generated": "2026-10-09T12:41:36.144Z",
  "hours": 24,
  "items": [
+  {
+   "title": "Post-peak spot rates tumble as ocean carriers eye price increases",
+   "lang": "en",
+   "link": "https://theloadstar.com/post-peak-spot-rates-tumble-as-ocean-carriers-eye-price-increases/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-09T12:25:58.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "auto",
+    "ship"
+   ]
+  },
+  {
+   "title": "노벨위, 평화상에 '트럼프 대척점' 인물 선정…美 ICC 제재도 비판",
+   "link": "https://www.yna.co.kr/view/AKR20261009060000009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-09T12:23:37.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "Freightmate admits using Flexport docs as AI trade secrets case settles",
+   "lang": "en",
+   "link": "https://theloadstar.com/freightmate-admits-using-flexport-docs-as-ai-trade-secrets-case-settles/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-09T12:16:11.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "中 \"EU와 하이브리드차 무역 관련 합의…희토류 수출허가 편의\"",
+   "link": "https://www.yna.co.kr/view/AKR20261009059800009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-09T12:16:10.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "down",
+   "sectors": [
+    "auto",
+    "steel"
+   ]
+  },
+  {
+   "title": "Saudi disruption squeezes air cargo capacity as peak looms",
+   "lang": "en",
+   "link": "https://theloadstar.com/saudi-disruption-squeezes-air-cargo-capacity-as-peak-looms/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-09T11:12:13.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "auto",
+    "ship"
+   ]
+  },
+  {
+   "title": "Tradelanes: Intra-Asia freight rates ease after post-Covid high",
+   "lang": "en",
+   "link": "https://theloadstar.com/tradelanes-intra-asia-freight-rates-ease-after-post-covid-high/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-09T10:49:21.000Z",
+   "tag": "해운·물류",
+   "direction": "down",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "EU Imports Record 12.18 Million Tonnes of Russian Arctic LNG",
+   "lang": "en",
+   "link": "https://gcaptain.com/eu-imports-record-12-18-million-tonnes-of-russian-arctic-lng/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-09T08:47:40.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
   {
    "title": "[외환] 원/달러 환율 4.3원 오른 1,342.8원(15:30 기준가)",
    "link": "https://www.yna.co.kr/view/AKR20261009043000002",
@@ -69,6 +159,17 @@
    ]
   },
   {
+   "title": "Commission selects 46 new Strategic Projects to bolster the EU's supply of critical raw materials",
+   "lang": "en",
+   "link": "https://ec.europa.eu/commission/presscorner/detail/en/ip_26_2113",
+   "source": "European Commission",
+   "outlets": 1,
+   "at": "2026-10-08T22:00:00.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": []
+  },
+  {
    "title": "국제유가, 美 이란 공격 우려·중동 유조선 피격에 급등",
    "link": "https://www.yna.co.kr/view/AKR20261009006300072",
    "source": "연합뉴스",
@@ -80,103 +181,6 @@
     "chem",
     "ship"
    ]
-  },
-  {
-   "title": "U.S. Sanctions 22 More Tankers in Crackdown on Iran’s Shadow Fleet",
-   "lang": "en",
-   "link": "https://gcaptain.com/u-s-sanctions-22-more-tankers-in-crackdown-on-irans-shadow-fleet/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-08T18:25:43.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "U.S. Container Imports Slow After Stronger-Than-Expected Summer",
-   "lang": "en",
-   "link": "https://gcaptain.com/u-s-container-imports-slow-after-stronger-than-expected-summer/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-08T18:03:28.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "트럼프 관세, 美소비재 물가 2.9%p 올려…뉴욕연은 보고서",
-   "link": "https://www.yna.co.kr/view/AKR20261009000700072",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-08T15:44:31.000Z",
-   "tag": "관세",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "Tanker Attack Off Qatar Signals Wider Threat Beyond Hormuz",
-   "lang": "en",
-   "link": "https://gcaptain.com/tanker-attack-off-qatar-signals-wider-threat-beyond-hormuz/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-08T14:25:15.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "The battle against supply chain chaos keeps SMBs ‘in overdrive’",
-   "lang": "en",
-   "link": "https://theloadstar.com/the-battle-against-supply-chain-chaos-keeps-smbs-in-overdrive/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-08T14:00:08.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "Customs updates add a ‘compliance burden’ to potentially volatile Q4 for shippers",
-   "lang": "en",
-   "link": "https://theloadstar.com/customs-updates-add-a-compliance-burden-to-potentially-volatile-q4-for-shippers/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-08T12:38:54.000Z",
-   "tag": "통관·원산지",
-   "direction": "neutral",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "High yields spark new container services on ‘bumpy’ India-Middle East trade",
-   "lang": "en",
-   "link": "https://theloadstar.com/high-yields-spark-new-container-services-on-bumpy-india-middle-east-trade/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-08T12:12:05.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "Mexican Auto Exports Slump in September as US Tariffs Take Toll",
-   "lang": "en",
-   "link": "https://gcaptain.com/mexican-auto-exports-slump-in-september-as-us-tariffs-take-toll/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-08T11:59:57.000Z",
-   "tag": "관세",
-   "direction": "neutral",
-   "sectors": []
   }
  ]
 }

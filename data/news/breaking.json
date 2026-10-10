@@ -1,7 +1,17 @@
 {
- "generated": "2026-10-10T12:39:46.786Z",
+ "generated": "2026-10-10T18:37:26.959Z",
  "hours": 24,
  "items": [
+  {
+   "title": "미러 '경유딜'에 EU \"전쟁자금 대는 것\"…영국 \"우크라와 연대\"(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261011000651085",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-10T18:17:59.000Z",
+   "tag": "경제제재",
+   "direction": "down",
+   "sectors": []
+  },
   {
    "title": "Trump sanctions will not break the ICC, court's special adviser declares",
    "lang": "en",
@@ -87,92 +97,6 @@
    "tag": "경제제재",
    "direction": "neutral",
    "sectors": []
-  },
-  {
-   "title": "유럽, 트럼프 ICC 제재에 우려…무력화 방안도 거론(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261010002051082",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-09T17:57:46.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "From Policy to Practice: Shipping’s Regulatory Autumn Puts Proof on Trial",
-   "lang": "en",
-   "link": "https://gcaptain.com/from-policy-to-practice-shippings-regulatory-autumn-puts-proof-on-trial/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-09T16:21:35.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "美, 노벨평화상 발표 직후 ICC 제재…\"美방어 의존 동맹 협조를\"",
-   "link": "https://www.yna.co.kr/view/AKR20261010001500071",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-09T16:20:08.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "Global Oil Tanker Shortage is Getting Worse By the Day",
-   "lang": "en",
-   "link": "https://gcaptain.com/global-oil-tanker-shortage-is-getting-worse-by-the-day/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-09T16:08:41.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "chem",
-    "ship"
-   ]
-  },
-  {
-   "title": "中, EU에 하이브리드차 수출 줄이기로…희토류 수출허가 편의(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261009059851009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-09T14:53:22.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "down",
-   "sectors": [
-    "auto",
-    "steel"
-   ]
-  },
-  {
-   "title": "Second Ship Struck Inside Persian Gulf in Three Days",
-   "lang": "en",
-   "link": "https://gcaptain.com/second-ship-struck-inside-persian-gulf-in-three-days/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-09T13:42:23.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "Before You Audit the Charge, Audit the Evidence",
-   "lang": "en",
-   "link": "https://gcaptain.com/before-you-audit-the-charge-audit-the-evidence/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-09T12:41:28.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
   }
  ]
 }

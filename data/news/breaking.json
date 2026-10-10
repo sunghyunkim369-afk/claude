@@ -1,7 +1,39 @@
 {
- "generated": "2026-10-09T18:38:56.825Z",
+ "generated": "2026-10-10T00:46:46.402Z",
  "hours": 24,
  "items": [
+  {
+   "title": "러도 경유 30만t 이달 미 등에 공급 확인…\"수출제한 즉각 해제\"",
+   "link": "https://www.yna.co.kr/view/AKR20261010010000009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-09T21:39:37.000Z",
+   "tag": "수출통제",
+   "direction": "down",
+   "sectors": []
+  },
+  {
+   "title": "푸틴에 손벌린 트럼프 \"러 경유 공급 합의\"…대러 제재 완화(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261010004551071",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-09T20:10:13.000Z",
+   "tag": "경제제재",
+   "direction": "down",
+   "sectors": []
+  },
+  {
+   "title": "국제유가, 美 멕시코만 원유 생산 차질 속 상승…WTI 0.39%↑",
+   "link": "https://www.yna.co.kr/view/AKR20261010005100072",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-09T19:49:09.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
   {
    "title": "Japan's DOGE to 'step up' spending review, eyeing EV subsidies, health checks",
    "lang": "en",
@@ -148,40 +180,6 @@
     "auto",
     "ship"
    ]
-  },
-  {
-   "title": "노벨위, 평화상에 '트럼프 대척점' 인물 선정…美 ICC 제재도 비판",
-   "link": "https://www.yna.co.kr/view/AKR20261009060000009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-09T12:23:37.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "Freightmate admits using Flexport docs as AI trade secrets case settles",
-   "lang": "en",
-   "link": "https://theloadstar.com/freightmate-admits-using-flexport-docs-as-ai-trade-secrets-case-settles/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-09T12:16:11.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "Statement on the International Criminal Court following announcement of US sanctions",
-   "lang": "en",
-   "link": "https://ec.europa.eu/commission/presscorner/detail/en/statement_26_2127",
-   "source": "European Commission",
-   "outlets": 1,
-   "at": "2026-10-09T12:14:20.000Z",
-   "tag": "경제제재",
-   "direction": "neutral",
-   "sectors": []
   }
  ]
 }

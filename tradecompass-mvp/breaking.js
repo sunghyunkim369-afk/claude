@@ -1,8 +1,19 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-10T06:40:53.323Z",
+ "generated": "2026-10-10T12:39:46.786Z",
  "hours": 24,
  "items": [
+  {
+   "title": "Trump sanctions will not break the ICC, court's special adviser declares",
+   "lang": "en",
+   "link": "https://asia.nikkei.com/editor-s-picks/interview/trump-sanctions-will-not-break-the-icc-court-s-special-adviser-declares",
+   "source": "Nikkei Asia",
+   "outlets": 1,
+   "at": "2026-10-10T12:39:46.711Z",
+   "tag": "경제제재",
+   "direction": "neutral",
+   "sectors": []
+  },
   {
    "title": "다카이치, 美 ICC 제재 직후 \"깊은 우려…ICC 역할 지원\"",
    "link": "https://www.yna.co.kr/view/AKR20261010022700073",
@@ -162,20 +173,6 @@ window.TC_BREAKING = {
    "direction": "info",
    "sectors": [
     "ship"
-   ]
-  },
-  {
-   "title": "Ethanol Could Offer Shipping Another Path to Lower Emissions",
-   "lang": "en",
-   "link": "https://gcaptain.com/ethanol-could-offer-shipping-another-path-to-lower-emissions/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-09T12:38:38.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship",
-    "auto"
    ]
   }
  ]

@@ -1,8 +1,18 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-10T00:46:46.402Z",
+ "generated": "2026-10-10T06:40:53.323Z",
  "hours": 24,
  "items": [
+  {
+   "title": "다카이치, 美 ICC 제재 직후 \"깊은 우려…ICC 역할 지원\"",
+   "link": "https://www.yna.co.kr/view/AKR20261010022700073",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-10T02:21:17.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
   {
    "title": "러도 경유 30만t 이달 미 등에 공급 확인…\"수출제한 즉각 해제\"",
    "link": "https://www.yna.co.kr/view/AKR20261010010000009",
@@ -166,20 +176,6 @@ window.TC_BREAKING = {
    "sectors": [
     "ship",
     "auto"
-   ]
-  },
-  {
-   "title": "Post-peak spot rates tumble as ocean carriers eye price increases",
-   "lang": "en",
-   "link": "https://theloadstar.com/post-peak-spot-rates-tumble-as-ocean-carriers-eye-price-increases/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-09T12:25:58.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "auto",
-    "ship"
    ]
   }
  ]

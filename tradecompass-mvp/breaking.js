@@ -1,8 +1,34 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-11T12:41:13.683Z",
+ "generated": "2026-10-11T18:38:28.194Z",
  "hours": 24,
  "items": [
+  {
+   "title": "\"韓당국, 알래스카주 의원들에 '상업성 있어야 LNG 투자' 전달\"",
+   "link": "https://www.yna.co.kr/view/AKR20261011054600071",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-11T14:40:14.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "More Tankers Hit in Hormuz as U.S. Strikes Cargo Ship",
+   "lang": "en",
+   "link": "https://gcaptain.com/more-tankers-hit-in-hormuz-as-u-s-strikes-cargo-ship/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-11T14:28:20.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "auto",
+    "ship"
+   ]
+  },
   {
    "title": "유럽 뱃길 열흘 단축 … 컨테이너선 북극항로 첫 왕복",
    "link": "https://www.mk.co.kr/news/economy/12173161",
@@ -148,26 +174,6 @@ window.TC_BREAKING = {
    "at": "2026-10-10T22:43:25.000Z",
    "tag": "경제제재",
    "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "단통법 폐지 후에도 판매점 제재 3천건…절반은 비용 고지 위반",
-   "link": "https://www.yna.co.kr/view/AKR20261010032700017",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-10T22:30:01.000Z",
-   "tag": "경제제재",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "중국차, 10대 중 4대 해외로…본고장 유럽서도 10대 중 1대",
-   "link": "https://www.yna.co.kr/view/AKR20261009042500003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-10T21:11:00.000Z",
-   "tag": "수출입 동향",
-   "direction": "info",
    "sectors": []
   }
  ]

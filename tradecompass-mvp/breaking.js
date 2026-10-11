@@ -1,8 +1,68 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-11T06:41:43.525Z",
+ "generated": "2026-10-11T12:41:13.683Z",
  "hours": 24,
  "items": [
+  {
+   "title": "유럽 뱃길 열흘 단축 … 컨테이너선 북극항로 첫 왕복",
+   "link": "https://www.mk.co.kr/news/economy/12173161",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-11T08:42:13.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "4대 신항만 장비 38%가 '메이드 인 차이나'",
+   "link": "https://www.mk.co.kr/news/economy/12173100",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-11T08:26:51.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship",
+    "machinery"
+   ]
+  },
+  {
+   "title": "중동화약고 피할 신항로 기대…경제성 과제",
+   "link": "https://www.mk.co.kr/news/economy/12173093",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-11T08:26:48.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "[단독] 4대 신항 국산 장비비중 35%...中제품 더 많이 쓴다",
+   "link": "https://www.mk.co.kr/news/economy/12173011",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-11T07:17:15.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "machinery",
+    "ship"
+   ]
+  },
+  {
+   "title": "코트라 지원에 50여개사 미국 관세환급 신청…5천200만불 수령",
+   "link": "https://www.yna.co.kr/view/AKR20261011035400003",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-11T07:12:17.000Z",
+   "tag": "관세",
+   "direction": "neutral",
+   "sectors": []
+  },
   {
    "title": "“설탕 아껴 뿌려 먹었는데 화난다”…밀가루·전분당까지 모두 가격 담합",
    "link": "https://www.mk.co.kr/news/economy/12172963",
@@ -108,37 +168,6 @@ window.TC_BREAKING = {
    "at": "2026-10-10T21:11:00.000Z",
    "tag": "수출입 동향",
    "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "설탕·밀가루·전분당 담합…삼양사, 공정위 과징금 1위 불명예",
-   "link": "https://www.yna.co.kr/view/AKR20261009011100002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-10T20:49:01.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "미러 '경유딜'에 EU \"전쟁자금 대는 것\"…영국 \"우크라와 연대\"(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261011000651085",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-10T18:17:59.000Z",
-   "tag": "경제제재",
-   "direction": "down",
-   "sectors": []
-  },
-  {
-   "title": "Trump sanctions will not break the ICC, court's special adviser declares",
-   "lang": "en",
-   "link": "https://asia.nikkei.com/editor-s-picks/interview/trump-sanctions-will-not-break-the-icc-court-s-special-adviser-declares",
-   "source": "Nikkei Asia",
-   "outlets": 1,
-   "at": "2026-10-10T12:39:46.711Z",
-   "tag": "경제제재",
-   "direction": "neutral",
    "sectors": []
   }
  ]

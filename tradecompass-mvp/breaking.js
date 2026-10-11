@@ -1,8 +1,63 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-11T00:45:46.537Z",
+ "generated": "2026-10-11T06:41:43.525Z",
  "hours": 24,
  "items": [
+  {
+   "title": "“설탕 아껴 뿌려 먹었는데 화난다”…밀가루·전분당까지 모두 가격 담합",
+   "link": "https://www.mk.co.kr/news/economy/12172963",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-11T06:33:17.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": [
+    "consumer"
+   ]
+  },
+  {
+   "title": "미 공화당서도 '트럼프-푸틴 경유딜' 반대 목소리 부상",
+   "link": "https://www.yna.co.kr/view/AKR20261011033000009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-11T06:20:38.000Z",
+   "tag": "경제제재",
+   "direction": "down",
+   "sectors": []
+  },
+  {
+   "title": "日 등유 도매가 두 달도 안돼 25% ↑…겨울 앞두고 농가 비상",
+   "link": "https://www.yna.co.kr/view/AKR20261011031300073",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-11T06:12:33.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "대전시·지역 방산기업, 미 북텍사스 방산 클러스터 조성 협력",
+   "link": "https://www.yna.co.kr/view/AKR20261011028800063",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-11T05:31:57.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "Could Thai durian export duty mean higher prices, higher quality in China?",
+   "lang": "en",
+   "link": "https://www.scmp.com/economy/global-economy/article/3370355/could-thai-durian-export-duty-mean-higher-prices-higher-quality-china?utm_source=rss_feed",
+   "source": "SCMP",
+   "outlets": 1,
+   "at": "2026-10-11T03:00:09.000Z",
+   "tag": "관세",
+   "direction": "neutral",
+   "sectors": []
+  },
   {
    "title": "북극항로 시범운항 선박, 50일 항해 마치고 부산 도착",
    "link": "https://www.yna.co.kr/view/AKR20261010045400051",
@@ -84,16 +139,6 @@ window.TC_BREAKING = {
    "at": "2026-10-10T12:39:46.711Z",
    "tag": "경제제재",
    "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "다카이치, 美 ICC 제재 직후 \"깊은 우려…ICC 역할 지원\"",
-   "link": "https://www.yna.co.kr/view/AKR20261010022700073",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-10T02:21:17.000Z",
-   "tag": "경제제재",
-   "direction": "up",
    "sectors": []
   }
  ]

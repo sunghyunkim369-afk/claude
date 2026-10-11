@@ -1,7 +1,69 @@
 {
- "generated": "2026-10-10T18:37:26.959Z",
+ "generated": "2026-10-11T00:45:46.537Z",
  "hours": 24,
  "items": [
+  {
+   "title": "북극항로 시범운항 선박, 50일 항해 마치고 부산 도착",
+   "link": "https://www.yna.co.kr/view/AKR20261010045400051",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-10T23:18:39.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "[팩트체크] 중국서 잡아 제주서 말린 생선…제품명에 '제주' 붙여도 될까",
+   "link": "https://www.yna.co.kr/view/AKR20261007089900518",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-10T23:00:00.000Z",
+   "tag": "통관·원산지",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "노벨평화상 필라이, ICC 제재한 미국 규탄",
+   "link": "https://www.yna.co.kr/view/AKR20261011007100009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-10T22:43:25.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "단통법 폐지 후에도 판매점 제재 3천건…절반은 비용 고지 위반",
+   "link": "https://www.yna.co.kr/view/AKR20261010032700017",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-10T22:30:01.000Z",
+   "tag": "경제제재",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "중국차, 10대 중 4대 해외로…본고장 유럽서도 10대 중 1대",
+   "link": "https://www.yna.co.kr/view/AKR20261009042500003",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-10T21:11:00.000Z",
+   "tag": "수출입 동향",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "설탕·밀가루·전분당 담합…삼양사, 공정위 과징금 1위 불명예",
+   "link": "https://www.yna.co.kr/view/AKR20261009011100002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-10T20:49:01.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
   {
    "title": "미러 '경유딜'에 EU \"전쟁자금 대는 것\"…영국 \"우크라와 연대\"(종합)",
    "link": "https://www.yna.co.kr/view/AKR20261011000651085",
@@ -31,71 +93,6 @@
    "at": "2026-10-10T02:21:17.000Z",
    "tag": "경제제재",
    "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "러도 경유 30만t 이달 미 등에 공급 확인…\"수출제한 즉각 해제\"",
-   "link": "https://www.yna.co.kr/view/AKR20261010010000009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-09T21:39:37.000Z",
-   "tag": "수출통제",
-   "direction": "down",
-   "sectors": []
-  },
-  {
-   "title": "푸틴에 손벌린 트럼프 \"러 경유 공급 합의\"…대러 제재 완화(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261010004551071",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-09T20:10:13.000Z",
-   "tag": "경제제재",
-   "direction": "down",
-   "sectors": []
-  },
-  {
-   "title": "국제유가, 美 멕시코만 원유 생산 차질 속 상승…WTI 0.39%↑",
-   "link": "https://www.yna.co.kr/view/AKR20261010005100072",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-09T19:49:09.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "Japan's DOGE to 'step up' spending review, eyeing EV subsidies, health checks",
-   "lang": "en",
-   "link": "https://asia.nikkei.com/politics/japan-s-doge-to-step-up-spending-review-eyeing-ev-subsidies-health-checks",
-   "source": "Nikkei Asia",
-   "outlets": 1,
-   "at": "2026-10-09T18:38:56.749Z",
-   "tag": "보조금·산업정책",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "Tariffs targeting China's Temu, Shein shrink US small parcel deliveries",
-   "lang": "en",
-   "link": "https://asia.nikkei.com/economy/trade-war/trump-tariffs/tariffs-targeting-china-s-temu-shein-shrink-us-small-parcel-deliveries",
-   "source": "Nikkei Asia",
-   "outlets": 1,
-   "at": "2026-10-09T18:38:56.748Z",
-   "tag": "관세",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "Nobel laureate Pillay calls US sanctions on ICC judges 'shocking'",
-   "lang": "en",
-   "link": "https://asia.nikkei.com/editor-s-picks/interview/nobel-laureate-pillay-calls-us-sanctions-on-icc-judges-shocking",
-   "source": "Nikkei Asia",
-   "outlets": 1,
-   "at": "2026-10-09T18:38:56.747Z",
-   "tag": "경제제재",
-   "direction": "neutral",
    "sectors": []
   }
  ]

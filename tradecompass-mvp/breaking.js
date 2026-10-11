@@ -1,8 +1,32 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-11T18:38:28.194Z",
+ "generated": "2026-10-11T21:59:25.877Z",
  "hours": 24,
  "items": [
+  {
+   "title": "Former iPhone display plant in Japan to start new life in chip supply chain",
+   "lang": "en",
+   "link": "https://asia.nikkei.com/spotlight/supply-chain/former-iphone-display-plant-in-japan-to-start-new-life-in-chip-supply-chain",
+   "source": "Nikkei Asia",
+   "outlets": 1,
+   "at": "2026-10-11T21:59:25.595Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": [
+    "semi",
+    "machinery"
+   ]
+  },
+  {
+   "title": "보험광고 규정위반 4년반에 4.7만건…협회 제재금 부과 10건뿐",
+   "link": "https://www.yna.co.kr/view/AKR20261009026700002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-11T20:55:01.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
   {
    "title": "\"韓당국, 알래스카주 의원들에 '상업성 있어야 LNG 투자' 전달\"",
    "link": "https://www.yna.co.kr/view/AKR20261011054600071",
@@ -155,26 +179,6 @@ window.TC_BREAKING = {
    "sectors": [
     "ship"
    ]
-  },
-  {
-   "title": "[팩트체크] 중국서 잡아 제주서 말린 생선…제품명에 '제주' 붙여도 될까",
-   "link": "https://www.yna.co.kr/view/AKR20261007089900518",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-10T23:00:00.000Z",
-   "tag": "통관·원산지",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "노벨평화상 필라이, ICC 제재한 미국 규탄",
-   "link": "https://www.yna.co.kr/view/AKR20261011007100009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-10T22:43:25.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
   }
  ]
 };

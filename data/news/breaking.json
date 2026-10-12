@@ -1,79 +1,14 @@
 {
- "generated": "2026-10-12T06:49:47.327Z",
+ "generated": "2026-10-12T13:02:35.588Z",
  "hours": 24,
  "items": [
   {
-   "title": "China sanctions Paraguay, Belize ministers over Taiwan ties",
+   "title": "Shippers stressing over risks from Suez Canal and Red Sea transits",
    "lang": "en",
-   "link": "https://asia.nikkei.com/politics/international-relations/china-sanctions-paraguay-belize-ministers-over-taiwan-ties",
-   "source": "Nikkei Asia",
+   "link": "https://theloadstar.com/shippers-stressing-over-risks-from-suez-canal-and-red-sea-transits/",
+   "source": "The Loadstar",
    "outlets": 1,
-   "at": "2026-10-12T06:49:47.253Z",
-   "tag": "경제제재",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "[외환] 원/달러 환율 7.7원 내린 1,335.1원(15:30 기준가)",
-   "link": "https://www.yna.co.kr/view/AKR20261012126600002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T06:30:42.000Z",
-   "tag": "환율",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "\"EU, 중국산 하이브리드 수입 연간 35만대로 제한\"",
-   "link": "https://www.yna.co.kr/view/AKR20261012074100009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T04:38:52.000Z",
-   "tag": "반덤핑·무역구제",
-   "direction": "up",
-   "sectors": [
-    "auto"
-   ]
-  },
-  {
-   "title": "中외교부, '대만과 수교' 파라과이·벨리즈 장관 제재",
-   "link": "https://www.yna.co.kr/view/AKR20261012095700083",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T04:28:24.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "농해수위 국감서 4개 항만공사 통합 우려 제기…\"여론 무시\"",
-   "link": "https://www.yna.co.kr/view/AKR20261012077700051",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T02:26:49.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship",
-    "consumer"
-   ]
-  },
-  {
-   "title": "원/달러 환율 1,333.2원까지 하락…약 2년만에 최저",
-   "link": "https://www.yna.co.kr/view/AKR20261012078400002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T02:25:24.000Z",
-   "tag": "환율",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "인천항 배후단지 불법 전대한 업체 3곳 송치…항만법 위반",
-   "link": "https://www.yna.co.kr/view/AKR20261012076200065",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T02:11:41.000Z",
+   "at": "2026-10-12T12:50:28.000Z",
    "tag": "해운·물류",
    "direction": "info",
    "sectors": [
@@ -81,89 +16,167 @@
    ]
   },
   {
-   "title": "[단독] 불량 장난감 팔다 30번 걸려도 버젓이 영업...제품안전관리원 ‘맹탕’ 제재",
-   "link": "https://www.mk.co.kr/news/economy/12173423",
-   "source": "매일경제",
+   "title": "China wants more – and bigger – car-carriers to meet export demand",
+   "lang": "en",
+   "link": "https://theloadstar.com/china-wants-more-and-bigger-car-carriers-to-meet-export-demand/",
+   "source": "The Loadstar",
    "outlets": 1,
-   "at": "2026-10-12T02:09:02.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
+   "at": "2026-10-12T12:18:57.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "auto",
+    "ship"
+   ]
   },
   {
-   "title": "평창군, 올해 반값 농자재 지원 확대…농가당 최대 3천만원",
-   "link": "https://www.yna.co.kr/view/AKR20261012062200062",
+   "title": "China, EU take a breath after surprise deal brings temporary halt to trade tussle",
+   "lang": "en",
+   "link": "https://www.scmp.com/economy/global-economy/article/3370623/china-eu-take-breath-after-surprise-deal-brings-temporary-halt-trade-tussle?utm_source=rss_feed",
+   "source": "SCMP",
+   "outlets": 1,
+   "at": "2026-10-12T11:56:34.000Z",
+   "tag": "FTA·통상협정",
+   "direction": "neutral",
+   "sectors": [
+    "auto"
+   ]
+  },
+  {
+   "title": "Shippers warned: spot rates no pointer to wider box shipping market",
+   "lang": "en",
+   "link": "https://theloadstar.com/shippers-warned-spot-rates-no-pointer-to-wider-box-shipping-market/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-12T10:38:46.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "How China and the EU pressed pause on trade war – and what it took to get there",
+   "lang": "en",
+   "link": "https://www.scmp.com/economy/global-economy/article/3370613/how-china-and-eu-pressed-pause-trade-war-and-what-it-took-get-there?utm_source=rss_feed",
+   "source": "SCMP",
+   "outlets": 1,
+   "at": "2026-10-12T10:33:47.000Z",
+   "tag": "FTA·통상협정",
+   "direction": "neutral",
+   "sectors": [
+    "auto"
+   ]
+  },
+  {
+   "title": "'오를땐 빨리, 내릴땐 늦게' 정유 4사 \"국민에 송구, 조속 개선\"",
+   "link": "https://www.yna.co.kr/view/AKR20261012160100003",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-12T01:32:09.000Z",
-   "tag": "환율",
+   "at": "2026-10-12T09:27:45.000Z",
+   "tag": "유가·원자재",
    "direction": "info",
    "sectors": [
     "chem"
    ]
   },
   {
-   "title": "이형일 “3조원 규모 해외건설 新전략펀드 신설…‘패키지 수주’ 지원”",
-   "link": "https://www.mk.co.kr/news/economy/12173378",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-12T01:27:20.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "이형일 \"공급망 취약한 고리 선제적으로 발굴·보강해야\"",
-   "link": "https://www.yna.co.kr/view/AKR20261012059700002",
+   "title": "EU 외교 수장 \"트럼프, 러와 경유딜 대신 새 제재 부과해야\"",
+   "link": "https://www.yna.co.kr/view/AKR20261012163900098",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-12T01:26:43.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "주병기 \"조사 불응 경제적제재 강화…절차 투명성 제고\"",
-   "link": "https://www.yna.co.kr/view/AKR20261012043800002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T01:19:28.000Z",
+   "at": "2026-10-12T09:17:33.000Z",
    "tag": "경제제재",
    "direction": "up",
    "sectors": []
   },
   {
-   "title": "이달 수출액 261억달러 ‘역대 최대’ 기록…전체 중 절반은 반도체",
-   "link": "https://www.mk.co.kr/news/economy/12173351",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-12T01:00:52.000Z",
-   "tag": "수출입 동향",
-   "direction": "info",
-   "sectors": [
-    "semi"
-   ]
-  },
-  {
-   "title": "미국 AI 공급망·오픈웨이트 모델, 중국 의존 상당히 크다",
-   "link": "https://www.yna.co.kr/view/AKR20261012046900009",
+   "title": "한은 총재 \"환율, 아직 예년보다 높아…추가 하락 여지 있다\"",
+   "link": "https://www.yna.co.kr/view/AKR20261012161000002",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-12T00:51:13.000Z",
-   "tag": "공급망·핵심광물",
+   "at": "2026-10-12T09:03:09.000Z",
+   "tag": "환율",
    "direction": "info",
    "sectors": []
   },
   {
-   "title": "부산·인천 경실련 \"해수부 국감서 항만공사 통폐합 검증해야\"",
-   "link": "https://www.yna.co.kr/view/AKR20261012041400051",
+   "title": "1333.2원 원화값 2년만에 최고",
+   "link": "https://www.mk.co.kr/news/economy/12173925",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-12T08:36:00.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "\"LNG선도 안심 못해\"… 민관 1.4조 들여 'AI 조선소' 만든다",
+   "link": "https://www.mk.co.kr/news/economy/12173911",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-12T08:34:31.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "ship",
+    "chem"
+   ]
+  },
+  {
+   "title": "불량품 팔아도 '맹탕' 제재…수십번 적발된 업체 수두룩",
+   "link": "https://www.mk.co.kr/news/economy/12173883",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-12T08:27:00.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "트럼프 '에너지 휴전' 무색…러, 우크라 흑해 항만 공격 계속",
+   "link": "https://www.yna.co.kr/view/AKR20261012149000109",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-12T00:34:39.000Z",
+   "at": "2026-10-12T08:22:05.000Z",
    "tag": "해운·물류",
    "direction": "info",
    "sectors": [
+    "chem",
     "ship"
+   ]
+  },
+  {
+   "title": "달러당 원화값 2년 만에 최고…엔화값도 843원대로",
+   "link": "https://www.mk.co.kr/news/economy/12173843",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-12T08:20:55.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "中, '대만 수교국' 현직 장관들 첫 제재…\"핵심이익 훼손\"(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261012095751083",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T08:08:04.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "해수부 국감서 항만공사 통합에 여야 모두 비판…\"일방적 추진\"(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261012077751051",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T08:02:09.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship",
+    "consumer"
    ]
   }
  ]

@@ -1,8 +1,54 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-12T13:02:35.588Z",
+ "generated": "2026-10-12T18:41:56.051Z",
  "hours": 24,
  "items": [
+  {
+   "title": "EU Targets Major Russian Shipyards in Sweeping Sanctions Expansion",
+   "lang": "en",
+   "link": "https://gcaptain.com/eu-targets-major-russian-shipyards-in-sweeping-sanctions-expansion/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-12T17:07:14.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "Shipping’s LNG Boom Faces a Methane Problem",
+   "lang": "en",
+   "link": "https://gcaptain.com/shippings-lng-boom-faces-a-methane-problem/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-12T15:04:24.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "chem",
+    "ship"
+   ]
+  },
+  {
+   "title": "Sweden Releases Sanctioned Russian Shadow Fleet Tanker After Seven-Month Detention",
+   "lang": "en",
+   "link": "https://gcaptain.com/sweden-releases-sanctioned-russian-shadow-fleet-tanker-after-seven-month-detention/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-12T14:45:10.000Z",
+   "tag": "경제제재",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "EU, 北미사일 기술자 등 개인 3명·단체 4곳 대북 제재 추가",
+   "link": "https://www.yna.co.kr/view/AKR20261012180600098",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T13:26:08.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
   {
    "title": "Shippers stressing over risks from Suez Canal and Red Sea transits",
    "lang": "en",
@@ -133,52 +179,6 @@ window.TC_BREAKING = {
    "tag": "경제제재",
    "direction": "up",
    "sectors": []
-  },
-  {
-   "title": "트럼프 '에너지 휴전' 무색…러, 우크라 흑해 항만 공격 계속",
-   "link": "https://www.yna.co.kr/view/AKR20261012149000109",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T08:22:05.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "chem",
-    "ship"
-   ]
-  },
-  {
-   "title": "달러당 원화값 2년 만에 최고…엔화값도 843원대로",
-   "link": "https://www.mk.co.kr/news/economy/12173843",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-12T08:20:55.000Z",
-   "tag": "환율",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "中, '대만 수교국' 현직 장관들 첫 제재…\"핵심이익 훼손\"(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261012095751083",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T08:08:04.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "해수부 국감서 항만공사 통합에 여야 모두 비판…\"일방적 추진\"(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261012077751051",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T08:02:09.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship",
-    "consumer"
-   ]
   }
  ]
 };

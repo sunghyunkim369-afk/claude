@@ -1,7 +1,65 @@
 {
- "generated": "2026-10-11T21:59:25.877Z",
+ "generated": "2026-10-12T00:48:55.811Z",
  "hours": 24,
  "items": [
+  {
+   "title": "부산·인천 경실련 \"해수부 국감서 항만공사 통폐합 검증해야\"",
+   "link": "https://www.yna.co.kr/view/AKR20261012041400051",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T00:34:39.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "반도체 업고 이달초 수출 261억달러…2배로 뛰며 역대 최대(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261012028651002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T00:30:20.000Z",
+   "tag": "수출입 동향",
+   "direction": "info",
+   "sectors": [
+    "semi"
+   ]
+  },
+  {
+   "title": "CJ대한통운 더 운반, 기업 운송시장 공략…맞춤 진단·운임 할인",
+   "link": "https://www.yna.co.kr/view/AKR20261012022700030",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T00:11:28.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "\"TSMC, 핵심부품 미국서 조달…미국내 AI칩 공급망 완성 다가서\"",
+   "link": "https://www.yna.co.kr/view/AKR20261012020600009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T00:05:38.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": [
+    "semi"
+   ]
+  },
+  {
+   "title": "핌코 \"미 10년물 국채금리 6% 도달 가능성\"",
+   "link": "https://www.yna.co.kr/view/AKR20261012023200009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T00:01:35.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": []
+  },
   {
    "title": "Former iPhone display plant in Japan to start new life in chip supply chain",
    "lang": "en",
@@ -122,61 +180,6 @@
    "direction": "up",
    "sectors": [
     "consumer"
-   ]
-  },
-  {
-   "title": "미 공화당서도 '트럼프-푸틴 경유딜' 반대 목소리 부상",
-   "link": "https://www.yna.co.kr/view/AKR20261011033000009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-11T06:20:38.000Z",
-   "tag": "경제제재",
-   "direction": "down",
-   "sectors": []
-  },
-  {
-   "title": "日 등유 도매가 두 달도 안돼 25% ↑…겨울 앞두고 농가 비상",
-   "link": "https://www.yna.co.kr/view/AKR20261011031300073",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-11T06:12:33.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "대전시·지역 방산기업, 미 북텍사스 방산 클러스터 조성 협력",
-   "link": "https://www.yna.co.kr/view/AKR20261011028800063",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-11T05:31:57.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "Could Thai durian export duty mean higher prices, higher quality in China?",
-   "lang": "en",
-   "link": "https://www.scmp.com/economy/global-economy/article/3370355/could-thai-durian-export-duty-mean-higher-prices-higher-quality-china?utm_source=rss_feed",
-   "source": "SCMP",
-   "outlets": 1,
-   "at": "2026-10-11T03:00:09.000Z",
-   "tag": "관세",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "북극항로 시범운항 선박, 50일 항해 마치고 부산 도착",
-   "link": "https://www.yna.co.kr/view/AKR20261010045400051",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-10T23:18:39.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
    ]
   }
  ]

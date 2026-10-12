@@ -1,8 +1,160 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-12T00:48:55.811Z",
+ "generated": "2026-10-12T06:49:47.327Z",
  "hours": 24,
  "items": [
+  {
+   "title": "China sanctions Paraguay, Belize ministers over Taiwan ties",
+   "lang": "en",
+   "link": "https://asia.nikkei.com/politics/international-relations/china-sanctions-paraguay-belize-ministers-over-taiwan-ties",
+   "source": "Nikkei Asia",
+   "outlets": 1,
+   "at": "2026-10-12T06:49:47.253Z",
+   "tag": "경제제재",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "[외환] 원/달러 환율 7.7원 내린 1,335.1원(15:30 기준가)",
+   "link": "https://www.yna.co.kr/view/AKR20261012126600002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T06:30:42.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "\"EU, 중국산 하이브리드 수입 연간 35만대로 제한\"",
+   "link": "https://www.yna.co.kr/view/AKR20261012074100009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T04:38:52.000Z",
+   "tag": "반덤핑·무역구제",
+   "direction": "up",
+   "sectors": [
+    "auto"
+   ]
+  },
+  {
+   "title": "中외교부, '대만과 수교' 파라과이·벨리즈 장관 제재",
+   "link": "https://www.yna.co.kr/view/AKR20261012095700083",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T04:28:24.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "농해수위 국감서 4개 항만공사 통합 우려 제기…\"여론 무시\"",
+   "link": "https://www.yna.co.kr/view/AKR20261012077700051",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T02:26:49.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship",
+    "consumer"
+   ]
+  },
+  {
+   "title": "원/달러 환율 1,333.2원까지 하락…약 2년만에 최저",
+   "link": "https://www.yna.co.kr/view/AKR20261012078400002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T02:25:24.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "인천항 배후단지 불법 전대한 업체 3곳 송치…항만법 위반",
+   "link": "https://www.yna.co.kr/view/AKR20261012076200065",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T02:11:41.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "[단독] 불량 장난감 팔다 30번 걸려도 버젓이 영업...제품안전관리원 ‘맹탕’ 제재",
+   "link": "https://www.mk.co.kr/news/economy/12173423",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-12T02:09:02.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "평창군, 올해 반값 농자재 지원 확대…농가당 최대 3천만원",
+   "link": "https://www.yna.co.kr/view/AKR20261012062200062",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T01:32:09.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "이형일 “3조원 규모 해외건설 新전략펀드 신설…‘패키지 수주’ 지원”",
+   "link": "https://www.mk.co.kr/news/economy/12173378",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-12T01:27:20.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "이형일 \"공급망 취약한 고리 선제적으로 발굴·보강해야\"",
+   "link": "https://www.yna.co.kr/view/AKR20261012059700002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T01:26:43.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "주병기 \"조사 불응 경제적제재 강화…절차 투명성 제고\"",
+   "link": "https://www.yna.co.kr/view/AKR20261012043800002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T01:19:28.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "이달 수출액 261억달러 ‘역대 최대’ 기록…전체 중 절반은 반도체",
+   "link": "https://www.mk.co.kr/news/economy/12173351",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-12T01:00:52.000Z",
+   "tag": "수출입 동향",
+   "direction": "info",
+   "sectors": [
+    "semi"
+   ]
+  },
+  {
+   "title": "미국 AI 공급망·오픈웨이트 모델, 중국 의존 상당히 크다",
+   "link": "https://www.yna.co.kr/view/AKR20261012046900009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T00:51:13.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": []
+  },
   {
    "title": "부산·인천 경실련 \"해수부 국감서 항만공사 통폐합 검증해야\"",
    "link": "https://www.yna.co.kr/view/AKR20261012041400051",
@@ -13,174 +165,6 @@ window.TC_BREAKING = {
    "direction": "info",
    "sectors": [
     "ship"
-   ]
-  },
-  {
-   "title": "반도체 업고 이달초 수출 261억달러…2배로 뛰며 역대 최대(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261012028651002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T00:30:20.000Z",
-   "tag": "수출입 동향",
-   "direction": "info",
-   "sectors": [
-    "semi"
-   ]
-  },
-  {
-   "title": "CJ대한통운 더 운반, 기업 운송시장 공략…맞춤 진단·운임 할인",
-   "link": "https://www.yna.co.kr/view/AKR20261012022700030",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T00:11:28.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "\"TSMC, 핵심부품 미국서 조달…미국내 AI칩 공급망 완성 다가서\"",
-   "link": "https://www.yna.co.kr/view/AKR20261012020600009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T00:05:38.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": [
-    "semi"
-   ]
-  },
-  {
-   "title": "핌코 \"미 10년물 국채금리 6% 도달 가능성\"",
-   "link": "https://www.yna.co.kr/view/AKR20261012023200009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T00:01:35.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "Former iPhone display plant in Japan to start new life in chip supply chain",
-   "lang": "en",
-   "link": "https://asia.nikkei.com/spotlight/supply-chain/former-iphone-display-plant-in-japan-to-start-new-life-in-chip-supply-chain",
-   "source": "Nikkei Asia",
-   "outlets": 1,
-   "at": "2026-10-11T21:59:25.595Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": [
-    "semi",
-    "machinery"
-   ]
-  },
-  {
-   "title": "보험광고 규정위반 4년반에 4.7만건…협회 제재금 부과 10건뿐",
-   "link": "https://www.yna.co.kr/view/AKR20261009026700002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-11T20:55:01.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "\"韓당국, 알래스카주 의원들에 '상업성 있어야 LNG 투자' 전달\"",
-   "link": "https://www.yna.co.kr/view/AKR20261011054600071",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-11T14:40:14.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "More Tankers Hit in Hormuz as U.S. Strikes Cargo Ship",
-   "lang": "en",
-   "link": "https://gcaptain.com/more-tankers-hit-in-hormuz-as-u-s-strikes-cargo-ship/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-11T14:28:20.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "auto",
-    "ship"
-   ]
-  },
-  {
-   "title": "유럽 뱃길 열흘 단축 … 컨테이너선 북극항로 첫 왕복",
-   "link": "https://www.mk.co.kr/news/economy/12173161",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-11T08:42:13.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "4대 신항만 장비 38%가 '메이드 인 차이나'",
-   "link": "https://www.mk.co.kr/news/economy/12173100",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-11T08:26:51.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship",
-    "machinery"
-   ]
-  },
-  {
-   "title": "중동화약고 피할 신항로 기대…경제성 과제",
-   "link": "https://www.mk.co.kr/news/economy/12173093",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-11T08:26:48.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "[단독] 4대 신항 국산 장비비중 35%...中제품 더 많이 쓴다",
-   "link": "https://www.mk.co.kr/news/economy/12173011",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-11T07:17:15.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "machinery",
-    "ship"
-   ]
-  },
-  {
-   "title": "코트라 지원에 50여개사 미국 관세환급 신청…5천200만불 수령",
-   "link": "https://www.yna.co.kr/view/AKR20261011035400003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-11T07:12:17.000Z",
-   "tag": "관세",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "“설탕 아껴 뿌려 먹었는데 화난다”…밀가루·전분당까지 모두 가격 담합",
-   "link": "https://www.mk.co.kr/news/economy/12172963",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-11T06:33:17.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": [
-    "consumer"
    ]
   }
  ]

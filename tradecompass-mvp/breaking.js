@@ -1,8 +1,53 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-13T12:48:32.170Z",
+ "generated": "2026-10-13T18:46:30.443Z",
  "hours": 24,
  "items": [
+  {
+   "title": "Japan looks for off-ramp from Trump's ICC feud before US sanctions kick in",
+   "lang": "en",
+   "link": "https://asia.nikkei.com/politics/international-relations/japan-looks-for-off-ramp-from-trump-s-icc-feud-before-us-sanctions-kick-in",
+   "source": "Nikkei Asia",
+   "outlets": 1,
+   "at": "2026-10-13T18:46:30.365Z",
+   "tag": "경제제재",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "이집트 수에즈경제특구에 韓기업 첫 공장 착공…의류기업 H&L",
+   "link": "https://www.yna.co.kr/view/AKR20261013195500079",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-13T15:06:24.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "Look beyond AI productivity gains, forwarders told",
+   "lang": "en",
+   "link": "https://theloadstar.com/freight-forwarders-must-look-beyond-ai-productivity-gains/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-13T14:56:35.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "France Seizes Another ‘Shadow Fleet’ Tanker; Russia Decries ‘Piracy’",
+   "lang": "en",
+   "link": "https://gcaptain.com/france-seizes-another-shadow-fleet-tanker-russia-decries-piracy/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-13T12:56:21.000Z",
+   "tag": "경제제재",
+   "direction": "neutral",
+   "sectors": []
+  },
   {
    "title": "Malaysia targets June 2027 signing of EU trade deal",
    "lang": "en",
@@ -136,48 +181,6 @@ window.TC_BREAKING = {
    "tag": "경제제재",
    "direction": "up",
    "sectors": []
-  },
-  {
-   "title": "李대통령 \"국제사회 제재 지키며 북극항로 대비\"…3대 원칙 제시",
-   "link": "https://www.yna.co.kr/view/AKR20261013113200001",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-13T06:36:12.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "[외환] 원/달러 환율 10.0원 오른 1,345.1원(15:30 기준가)",
-   "link": "https://www.yna.co.kr/view/AKR20261013136700002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-13T06:30:44.000Z",
-   "tag": "환율",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "대만, 中 파라과이·벨리즈 장관 제재에 반발…\"엄중 규탄\"",
-   "link": "https://www.yna.co.kr/view/AKR20261013127700009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-13T06:19:34.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "북극항로 시범운항 성공했지만 이제 첫걸음…상업화 과제 산적",
-   "link": "https://www.yna.co.kr/view/AKR20261012173800051",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-13T06:15:00.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
   }
  ]
 };

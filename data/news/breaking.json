@@ -1,7 +1,120 @@
 {
- "generated": "2026-10-13T06:48:30.800Z",
+ "generated": "2026-10-13T12:48:32.170Z",
  "hours": 24,
  "items": [
+  {
+   "title": "Malaysia targets June 2027 signing of EU trade deal",
+   "lang": "en",
+   "link": "https://asia.nikkei.com/economy/trade/malaysia-targets-june-2027-signing-of-eu-trade-deal",
+   "source": "Nikkei Asia",
+   "outlets": 1,
+   "at": "2026-10-13T12:48:32.090Z",
+   "tag": "FTA·통상협정",
+   "direction": "down",
+   "sectors": []
+  },
+  {
+   "title": "South Korean President Hails Arctic Container Shipping Trial, but Commercial and Sanctions Questions Remain",
+   "lang": "en",
+   "link": "https://gcaptain.com/south-korean-president-hails-arctic-container-shipping-trial-but-commercial-and-sanctions-questions-remain/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-13T12:05:20.000Z",
+   "tag": "경제제재",
+   "direction": "neutral",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "Bulgaria Points to Russia as Drones Hit More Cargo Ships",
+   "lang": "en",
+   "link": "https://gcaptain.com/bulgaria-points-to-russia-as-drones-hit-more-cargo-ships/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-13T11:56:00.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "auto",
+    "ship"
+   ]
+  },
+  {
+   "title": "Strong US import demand will support transpacific rates till new year",
+   "lang": "en",
+   "link": "https://theloadstar.com/strong-us-import-demand-will-support-transpacific-rates-till-new-year/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-13T11:13:27.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "日, 원유조달처 다변화 법안 각의 결정…추가운송비 교부금 지원",
+   "link": "https://www.yna.co.kr/view/AKR20261013173100073",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-13T08:55:15.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "울산항서 22일 화재·해양오염 상황 가정 '안전한국훈련'",
+   "link": "https://www.yna.co.kr/view/AKR20261013170400057",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-13T08:39:45.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "How AI will transform freight forwarding beyond the hype",
+   "lang": "en",
+   "link": "https://theloadstar.com/how-ai-will-transform-freight-forwarding-beyond-the-hype/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-13T08:23:45.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "북극항로 시범운항 귀환 환영식…李대통령, 선원들에 꽃목걸이(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261012101551051",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-13T07:32:43.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "[단독] 국산화 추진한다던 인천신항…크레인 전량 중국산",
+   "link": "https://www.mk.co.kr/news/economy/12174537",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-13T06:58:31.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship",
+    "machinery"
+   ]
+  },
   {
    "title": "Is Singapore now a key link in AI supply chain?",
    "lang": "en",
@@ -11,6 +124,16 @@
    "at": "2026-10-13T06:48:30.725Z",
    "tag": "공급망·핵심광물",
    "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "中, 대만 수교국 제재 비판 美에 \"독립세력에 잘못된 신호 말라\"",
+   "link": "https://www.yna.co.kr/view/AKR20261013137800083",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-13T06:45:11.000Z",
+   "tag": "경제제재",
+   "direction": "up",
    "sectors": []
   },
   {
@@ -53,127 +176,6 @@
    "direction": "info",
    "sectors": [
     "ship"
-   ]
-  },
-  {
-   "title": "북극항로 시범운항 귀환 환영 행사…50일 만에 부산-유럽 왕복",
-   "link": "https://www.yna.co.kr/view/AKR20261012101500051",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-13T06:10:00.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "전국 3개지역 교복 담합…대리점 10곳·과징금 1억",
-   "link": "https://www.mk.co.kr/news/economy/12174364",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-13T04:35:31.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "'경유딜' 트럼프 보란 듯…마크롱, 러 그림자 함대 나포 발표",
-   "link": "https://www.yna.co.kr/view/AKR20261013093700009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-13T03:00:40.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "K-소비재 수출 10년간 4.2배↑…\"중소기업 성장 지원해야\"",
-   "link": "https://www.yna.co.kr/view/AKR20261013035300003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-13T03:00:04.000Z",
-   "tag": "수출입 동향",
-   "direction": "info",
-   "sectors": [
-    "consumer",
-    "semi"
-   ]
-  },
-  {
-   "title": "경유 공급 우려에 정부 \"물량 문제 없어…11월까지 원유 100%\"",
-   "link": "https://www.yna.co.kr/view/AKR20261013086800003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-13T02:30:00.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "친환경 선박 전환에 자금 공급…신한은행, 해운업계 금융지원 나선다",
-   "link": "https://www.mk.co.kr/news/economy/12174279",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-13T01:58:42.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship",
-    "semi"
-   ]
-  },
-  {
-   "title": "글로벌 금리 급등에도 韓 국채 '선방'…외국인 역대 두번째 선물 순매수",
-   "link": "https://www.yna.co.kr/view/AKR20261013052900008",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-13T01:02:35.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "Japan needs to build an LNG safety net for the next energy crisis",
-   "lang": "en",
-   "link": "https://asia.nikkei.com/opinion/japan-needs-to-build-an-lng-safety-net-for-the-next-energy-crisis",
-   "source": "Nikkei Asia",
-   "outlets": 1,
-   "at": "2026-10-13T00:50:42.724Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "신한은행, 해운기업 금융지원 확대…해운협회와 협약",
-   "link": "https://www.yna.co.kr/view/AKR20261013039900002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-13T00:33:47.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "SK어스온, 베트남 광구 '황금낙타' 구조서 원유 생산 개시",
-   "link": "https://www.yna.co.kr/view/AKR20261013026000003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T23:35:00.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
    ]
   }
  ]

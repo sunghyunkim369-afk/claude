@@ -1,8 +1,120 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-12T18:41:56.051Z",
+ "generated": "2026-10-13T00:50:42.792Z",
  "hours": 24,
  "items": [
+  {
+   "title": "Japan needs to build an LNG safety net for the next energy crisis",
+   "lang": "en",
+   "link": "https://asia.nikkei.com/opinion/japan-needs-to-build-an-lng-safety-net-for-the-next-energy-crisis",
+   "source": "Nikkei Asia",
+   "outlets": 1,
+   "at": "2026-10-13T00:50:42.724Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "신한은행, 해운기업 금융지원 확대…해운협회와 협약",
+   "link": "https://www.yna.co.kr/view/AKR20261013039900002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-13T00:33:47.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "SK어스온, 베트남 광구 '황금낙타' 구조서 원유 생산 개시",
+   "link": "https://www.yna.co.kr/view/AKR20261013026000003",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T23:35:00.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "부산금융중심지 발전협의회 회의…\"해운·항만·물류 뒷받침\"",
+   "link": "https://www.yna.co.kr/view/AKR20261013021900051",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T23:05:38.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "한중 통상당국, 공급망 핫라인 유지…새만금 산단 협력도 속도",
+   "link": "https://www.yna.co.kr/view/AKR20261012165300003",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T21:00:03.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "ABS, U.S. Energy Department Team Up on Nuclear-Powered Ships",
+   "lang": "en",
+   "link": "https://gcaptain.com/abs-u-s-energy-department-team-up-on-nuclear-powered-ships/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-12T20:02:26.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "chem",
+    "ship"
+   ]
+  },
+  {
+   "title": "사우디 피격에 공급 우려…브렌트유 1.8%↑, 9월15일 이후 최고",
+   "link": "https://www.yna.co.kr/view/AKR20261013006300072",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-12T19:55:05.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "Six Ships Struck in Single Day as Hormuz Attacks Accelerate",
+   "lang": "en",
+   "link": "https://gcaptain.com/new-reports-reveal-five-more-ships-hit-near-hormuz/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-12T19:27:18.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "Soaring Tanker Rates Leave Americas Awash in Crude Oil",
+   "lang": "en",
+   "link": "https://gcaptain.com/soaring-tanker-rates-leave-americas-awash-in-crude-oil/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-12T19:19:17.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem",
+    "ship"
+   ]
+  },
   {
    "title": "EU Targets Major Russian Shipyards in Sweeping Sanctions Expansion",
    "lang": "en",
@@ -75,110 +187,6 @@ window.TC_BREAKING = {
     "auto",
     "ship"
    ]
-  },
-  {
-   "title": "China, EU take a breath after surprise deal brings temporary halt to trade tussle",
-   "lang": "en",
-   "link": "https://www.scmp.com/economy/global-economy/article/3370623/china-eu-take-breath-after-surprise-deal-brings-temporary-halt-trade-tussle?utm_source=rss_feed",
-   "source": "SCMP",
-   "outlets": 1,
-   "at": "2026-10-12T11:56:34.000Z",
-   "tag": "FTA·통상협정",
-   "direction": "neutral",
-   "sectors": [
-    "auto"
-   ]
-  },
-  {
-   "title": "Shippers warned: spot rates no pointer to wider box shipping market",
-   "lang": "en",
-   "link": "https://theloadstar.com/shippers-warned-spot-rates-no-pointer-to-wider-box-shipping-market/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-12T10:38:46.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "How China and the EU pressed pause on trade war – and what it took to get there",
-   "lang": "en",
-   "link": "https://www.scmp.com/economy/global-economy/article/3370613/how-china-and-eu-pressed-pause-trade-war-and-what-it-took-get-there?utm_source=rss_feed",
-   "source": "SCMP",
-   "outlets": 1,
-   "at": "2026-10-12T10:33:47.000Z",
-   "tag": "FTA·통상협정",
-   "direction": "neutral",
-   "sectors": [
-    "auto"
-   ]
-  },
-  {
-   "title": "'오를땐 빨리, 내릴땐 늦게' 정유 4사 \"국민에 송구, 조속 개선\"",
-   "link": "https://www.yna.co.kr/view/AKR20261012160100003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T09:27:45.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "EU 외교 수장 \"트럼프, 러와 경유딜 대신 새 제재 부과해야\"",
-   "link": "https://www.yna.co.kr/view/AKR20261012163900098",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T09:17:33.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "한은 총재 \"환율, 아직 예년보다 높아…추가 하락 여지 있다\"",
-   "link": "https://www.yna.co.kr/view/AKR20261012161000002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-12T09:03:09.000Z",
-   "tag": "환율",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "1333.2원 원화값 2년만에 최고",
-   "link": "https://www.mk.co.kr/news/economy/12173925",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-12T08:36:00.000Z",
-   "tag": "환율",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "\"LNG선도 안심 못해\"… 민관 1.4조 들여 'AI 조선소' 만든다",
-   "link": "https://www.mk.co.kr/news/economy/12173911",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-12T08:34:31.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "ship",
-    "chem"
-   ]
-  },
-  {
-   "title": "불량품 팔아도 '맹탕' 제재…수십번 적발된 업체 수두룩",
-   "link": "https://www.mk.co.kr/news/economy/12173883",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-12T08:27:00.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
   }
  ]
 };

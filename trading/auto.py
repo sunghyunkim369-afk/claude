@@ -256,6 +256,8 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
         state.save()
 
     us_session = market_session("us", now_utc)
+    if state.d.get("us_mode") == "off":
+        us_session = None  # 미국은 쉬어요 (python -m trading contest --us-mode basic 으로 다시 켜기)
     if us_session and state.d.get("us_mode", "basic") == "aggressive":
         sent += run_us_aggressive(kis, state, us_session, us_eastern(now_utc).date(), stamp, place, out)
         state.save()
@@ -302,7 +304,8 @@ def run_contest_once(kis, cfg, here, log, now=lambda: datetime.now(timezone.utc)
     state = contest.State(os.path.join(here, ".cache", f"contest-{kis.env}.json"))
     universe = contest.load_universe(os.path.join(here, "universe_kr.csv"))
     t = now()
-    if not any(market_session(m, t) for m in ("kr", "us")):
+    markets = ("kr",) if state.d.get("us_mode") == "off" else ("kr", "us")
+    if not any(market_session(m, t) for m in markets):
         out(f"[{t.astimezone(KST):%m-%d %H:%M}] 장이 닫혀 있어서 할 일이 없어요.")
         return 0
     keep_awake(True)

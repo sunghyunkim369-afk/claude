@@ -285,7 +285,7 @@ def main(argv=None):
     ap.add_argument("--once", action="store_true", help="contest 를 한 번만 돌고 끝내기 (작업 스케줄러용)")
     ap.add_argument("--reset", action="store_true", help="contest 진행 상태 지우기 (계좌를 초기화했을 때)")
     ap.add_argument("--mode", choices=["aggressive", "stable"], help="contest 국내 공식 바꾸기 (입상형/안정형)")
-    ap.add_argument("--us-mode", choices=["aggressive", "basic"], help="contest 미국 공식 (aggressive: 레버리지 ETF 입상형)")
+    ap.add_argument("--us-mode", choices=["aggressive", "basic", "off"], help="contest 미국 공식 (aggressive: 고변동 입상형, off: 미국 쉬기)")
     args = ap.parse_args(argv)
     markets = ("kr", "us") if args.market == "all" else (args.market,)
     if args.command == "update":
@@ -317,7 +317,8 @@ def main(argv=None):
             st = contest.State(path)
             st.d["us_mode"] = args.us_mode
             st.save()
-            print(f"미국 공식: {'입상형(레버리지 ETF·고변동 1종목)' if args.us_mode == 'aggressive' else '기본(5종목 보유)'}으로 바꿨어요.")
+            name = {"aggressive": "입상형(고변동 1종목)", "basic": "기본(5종목 보유)", "off": "끔 (국내만)"}[args.us_mode]
+            print(f"미국 공식: {name}으로 바꿨어요.")
         return
     if args.command == "contest":
         try:

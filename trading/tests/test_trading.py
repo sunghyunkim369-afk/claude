@@ -446,6 +446,14 @@ class ContestModeTest(unittest.TestCase):
         kis, _ = client(routes)
         self.assertEqual(kis.us_buyable("AAPL", "NASD", 200)["usd"], 70000.5)
 
+    def test_us_off_does_nothing_at_night(self):
+        kis, t = client(self.market({}))
+        state = self.contest.State(os.path.join(self.tmp.name, "off.json"))
+        state.d["us_mode"] = "off"
+        auto.run_contest_cycle(kis, {"us": {"watchlist": []}, "auto": {}}, state, auto_utc(2026, 10, 15, 14, 0),
+                               self.logs.append, lambda *_: None, [])
+        self.assertEqual([c for c in t.calls if "overseas" in c["path"]], [])
+
     def test_universe_file(self):
         here = os.path.dirname(cli.__file__)
         u = self.contest.load_universe(os.path.join(here, "universe_kr.csv"))

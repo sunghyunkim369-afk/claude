@@ -1,7 +1,49 @@
 {
- "generated": "2026-10-13T18:46:30.443Z",
+ "generated": "2026-10-14T01:01:48.955Z",
  "hours": 24,
  "items": [
+  {
+   "title": "관세청 \"최근 5년 국회 반복지적 전면 점검…8건 개선 완료\"",
+   "link": "https://www.yna.co.kr/view/AKR20261014047700002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-14T00:41:09.000Z",
+   "tag": "통관·원산지",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "'자금세탁 방치' BofA에 1.6조원 벌금",
+   "link": "https://www.yna.co.kr/view/AKR20261014025100009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-13T23:31:50.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "정태호 \"올해 공급망기금 91% 대기업에…지원체계 보완해야\"",
+   "link": "https://www.yna.co.kr/view/AKR20261013181600001",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-13T22:00:02.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "국제유가, 미러 경유 거래·중동 긴장 주시하며 혼조 마감",
+   "link": "https://www.yna.co.kr/view/AKR20261014007400072",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-13T20:41:20.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
   {
    "title": "Japan looks for off-ramp from Trump's ICC feud before US sanctions kick in",
    "lang": "en",
@@ -134,52 +176,6 @@
    "sectors": [
     "ship"
    ]
-  },
-  {
-   "title": "북극항로 시범운항 귀환 환영식…李대통령, 선원들에 꽃목걸이(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261012101551051",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-13T07:32:43.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "[단독] 국산화 추진한다던 인천신항…크레인 전량 중국산",
-   "link": "https://www.mk.co.kr/news/economy/12174537",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-13T06:58:31.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship",
-    "machinery"
-   ]
-  },
-  {
-   "title": "Is Singapore now a key link in AI supply chain?",
-   "lang": "en",
-   "link": "https://asia.nikkei.com/spotlight/podcasts/podcast-tech-latest/is-singapore-now-a-key-link-in-ai-supply-chain",
-   "source": "Nikkei Asia",
-   "outlets": 1,
-   "at": "2026-10-13T06:48:30.725Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "中, 대만 수교국 제재 비판 美에 \"독립세력에 잘못된 신호 말라\"",
-   "link": "https://www.yna.co.kr/view/AKR20261013137800083",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-13T06:45:11.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
   }
  ]
 }

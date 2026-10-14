@@ -396,6 +396,34 @@ class ContestModeTest(unittest.TestCase):
         self.cycle(kis2, auto_utc(2026, 10, 16, 14, 0), [])
         self.assertFalse(any(c["path"].endswith("/trading/order") for c in t2.calls))
 
+    def test_us_aggressive_target_plus_filler_then_waits(self):
+        held = [{"ovrs_pdno": "AAPL", "ovrs_cblc_qty": "3", "pchs_avg_pric": "1", "now_pric2": "100", "ovrs_excg_cd": "NASD"}]
+        routes = self.market({}, held_us=held)
+        ranking = {"SOXL": 0.5, "TQQQ": 0.3, "NVDA": 0.2}
+        routes["/uapi/overseas-price/v1/quotations/dailyprice"] = lambda q, b: {"rt_cd": "0", "output2": [
+            {"xymd": f"2026{i:04d}", "clos": str(100 + i * ranking.get(q["SYMB"], -1))} for i in range(1, 90)]}
+        kis, t = client(routes)
+        state = self.contest.State(os.path.join(self.tmp.name, "us.json"))
+        state.d["us_mode"] = "aggressive"
+        cfg = {"us": {"watchlist": []}, "auto": {}}
+        sc = lambda closes, lb, rm: (closes[-1] / closes[0] - 1) if closes[-1] > closes[0] else None
+        with mock.patch.object(self.contest, "score", sc):
+            auto.run_contest_cycle(kis, cfg, state, auto_utc(2026, 10, 15, 14, 0), self.logs.append, lambda *_: None, [])
+        orders = [(c["headers"]["tr_id"], c["body"]["PDNO"], c["body"]["ORD_QTY"], c["body"]["OVRS_EXCG_CD"])
+                  for c in t.calls if c["path"].endswith("/trading/order")]
+        self.assertEqual(orders[0][:2], ("VTTT1001U", "AAPL"))                  # 1위 아닌 보유 종목 매도
+        self.assertEqual((orders[1][1], orders[1][3]), ("SOXL", "AMEX"))        # 1위 (NYSE Arca → AMEX)
+        self.assertGreater(int(orders[1][2]), 100)
+        self.assertEqual((orders[2][1], orders[2][2]), ("TQQQ", "1"))           # 조건 채우기 1주
+        self.assertEqual(state.d["us_target"], ["SOXL", "AMEX"])
+        n_before = len(t.calls)
+        with mock.patch.object(self.contest, "score", sc):   # 같은 날 다시: 할 일 없음
+            auto.run_contest_cycle(kis, cfg, state, auto_utc(2026, 10, 15, 15, 0), self.logs.append, lambda *_: None, [])
+        self.assertFalse(any(c["path"].endswith("/trading/order") for c in t.calls[n_before:]))
+        self.assertTrue(self.contest.us_conditions_left(state))
+        self.assertFalse(self.contest.us_agg_due(state, "2026-10-16"))
+        self.assertTrue(self.contest.us_agg_due(state, "2026-10-19"))
+
     def test_universe_file(self):
         here = os.path.dirname(cli.__file__)
         u = self.contest.load_universe(os.path.join(here, "universe_kr.csv"))

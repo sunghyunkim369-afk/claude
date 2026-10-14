@@ -101,6 +101,8 @@ def send(kis, o, slippage_pct):
     if o["side"] == "buy":
         # 비싸진 가격만큼 수량을 줄여서 계획한 금액을 넘지 않게 해요.
         qty = math.floor(o["qty"] * o["price"] / price)
+        if qty == 0 and o["qty"] == 1:
+            qty = 1  # 1주 주문(조건 채우기)은 그대로 내요
     if qty <= 0:
         return None, 0, price
     return kis.us_order(o["side"], o["symbol"], o["exchange"], qty, price), qty, price
@@ -141,6 +143,59 @@ def run_cycle(kis, cfg, book, now_utc, log, orders_sent_today, out=print):
     return sent
 
 
+def run_us_aggressive(kis, state, session, today, stamp, place, out=print):
+    """미국 입상형: 2거래일마다 20일 수익률 1위 1종목에 거의 전부, 조건 못 채웠으면 다른 상위 종목 1주씩."""
+    from . import contest
+    d = state.d
+    due = contest.us_agg_due(state, session)
+    need_filler = contest.us_conditions_left(state) and session not in d.get("us_days", [])
+    target = d.get("us_target")
+    if not (due or need_filler or (target and not d.get("us_target_filled"))):
+        return 0
+    before = d.get("us_orders", 0)
+    held = kis.us_balance()["holdings"]
+    ranked = contest.us_rank(kis, today, out) if (due or need_filler or not target) else []
+    if due:
+        if not ranked:
+            out(f"[{stamp}] 미국 입상형: 상승 추세 종목이 없어 현금으로")
+        target = [ranked[0][1], ranked[0][2]] if ranked else None
+        d["us_target"] = target
+        d["us_target_filled"] = False
+        d.setdefault("us_rebalances", []).append(session)
+        fillers = set(d.get("us_fillers", []))
+        for sym, h in held.items():
+            if (not target or sym != target[0]) and sym not in fillers:
+                place({"market": "us", "side": "sell", "symbol": sym, "exchange": h.get("exchange") or "NASD",
+                       "name": sym, "qty": h["qty"], "price": h["price"], "currency": "USD",
+                       "reason": "1위에서 빠짐"}, session)
+    if target and not d.get("us_target_filled"):
+        sym, excg = target
+        price = kis.us_price(sym, excg)["price"]
+        cash = kis.us_buyable(sym, excg, price)["usd"] if price > 0 else 0
+        qty = math.floor(cash * 0.97 / price) if price > 0 else 0
+        if qty > 0:
+            out(f"[{stamp}] 미국 입상형: {sym} 매수")
+            if place({"market": "us", "side": "buy", "symbol": sym, "exchange": excg, "name": sym, "qty": qty,
+                      "price": price, "currency": "USD", "reason": "20일 수익률 1위"}, session):
+                d["us_target_filled"] = True
+        else:
+            out(f"[{stamp}] 미국 {sym}: 주문가능금액(${cash:,.2f})이 부족해서 다음 확인 때 다시 시도해요")
+    if need_filler:
+        used = set(d.get("us_symbols", [])) | ({target[0]} if target else set())
+        pick = next(((s, sym, ex) for s, sym, ex in ranked if sym not in used), None)
+        if pick:
+            _, sym, excg = pick
+            price = kis.us_price(sym, excg)["price"]
+            if price > 0:
+                out(f"[{stamp}] 미국 수상 조건 채우기: {sym} 1주")
+                if place({"market": "us", "side": "buy", "symbol": sym, "exchange": excg, "name": sym, "qty": 1,
+                          "price": price, "currency": "USD", "reason": "조건 채우기(5종목·5일)"}, session):
+                    d.setdefault("us_fillers", []).append(sym)
+    out(f"  미국 조건 진행(주문 접수 기준): 종목 {len(d.get('us_symbols', []))}/5, 매매일 {len(d.get('us_days', []))}/5, "
+        f"주문 {d.get('us_orders', 0)}/5회")
+    return d.get("us_orders", 0) - before
+
+
 def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
     """대회 모드 한 번 돌기 (trading/contest.py 공식). 반환: 낸 주문 수."""
     from . import contest
@@ -154,16 +209,20 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
         try:
             res, qty, price = send(kis, o, slip)
             if res is None:
-                return
+                return False
             amount = qty * (price or o["price"])
             state.record(o["market"], o["symbol"], amount, session)
+            if o["market"] == "us":
+                contest.us_record(state, o["symbol"], session)
             log({"event": "order_sent", "env": kis.env, "contest": True,
                  "order": {**o, "qty": qty, "sent_price": price}, "result": res})
             out(f"  {side} {o['name']}({o['symbol']}) {qty}주 접수 (주문번호 {res.get('ODNO', '?')}) - {o['reason']}")
             sent += 1
+            return True
         except KisError as e:
             log({"event": "order_failed", "env": kis.env, "contest": True, "order": o, "error": str(e)})
             out(f"  {side} {o['name']}({o['symbol']}) 실패: {e}")
+            return False
 
     kr_session = market_session("kr", now_utc)
     if kr_session and contest.kr_due(state, kr_session):
@@ -192,7 +251,10 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
         state.save()
 
     us_session = market_session("us", now_utc)
-    if us_session:
+    if us_session and state.d.get("us_mode", "basic") == "aggressive":
+        sent += run_us_aggressive(kis, state, us_session, us_eastern(now_utc).date(), stamp, place, out)
+        state.save()
+    elif us_session:
         held = kis.us_balance()["holdings"]
         if contest.us_due(state, us_session, held):
             today = us_eastern(now_utc).date()

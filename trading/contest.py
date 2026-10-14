@@ -237,3 +237,53 @@ def us_pick(kis, watchlist, held, today, out=print):
         if s is not None and (best is None or s > best[0]):
             best = (s, sym, excg)
     return best
+
+
+# ---------- 미국 입상형 (레버리지 ETF·고변동 종목) ----------
+# backtest: python contest.py --aggressive --markets US --us-list us_aggressive
+#   20거래일 수익률 1위 1종목, 2거래일마다 교체 → +30% 이상 확률 12~18%, 상위 10% +36~50%, 하위 10% −22%, 최악 −46%
+# 한 종목만 들면 수상 조건(5종목·5일)을 못 채워서, 처음 5일은 다른 상위 종목을 1주씩 사서 조건을 채워요.
+US_AGG = {"lookback": 20, "top_k": 1, "rebalance_days": 2, "rsi_max": 101}
+US_AGG_LIST = [
+    ("TQQQ", "NASD"), ("SOXL", "AMEX"), ("UPRO", "AMEX"), ("TECL", "AMEX"), ("FNGU", "AMEX"), ("LABU", "AMEX"),
+    ("TNA", "AMEX"), ("NVDA", "NASD"), ("TSLA", "NASD"), ("AMD", "NASD"), ("PLTR", "NASD"), ("COIN", "NASD"),
+    ("MSTR", "NASD"), ("SMCI", "NASD"), ("META", "NASD"), ("AVGO", "NASD"),
+]  # NYSE Arca 상장 ETF 는 한국투자증권에서 AMEX 로 주문해요
+
+
+def us_rank(kis, today, out=print):
+    """[(점수, 심볼, 거래소)] 높은 순. 상승 추세(종가>EMA20>EMA60) 종목만."""
+    ranked = []
+    for sym, excg in US_AGG_LIST:
+        try:
+            rows = kis.us_daily(sym, excg, with_dates=True)
+        except KisError as e:
+            out(f"    {sym} 일봉 실패: {e}")
+            continue
+        s = score(closes_until_yesterday(rows, today), US_AGG["lookback"], US_AGG["rsi_max"])
+        if s is not None:
+            ranked.append((s, sym, excg))
+    ranked.sort(reverse=True)
+    return ranked
+
+
+def us_agg_due(state, session):
+    last = state.d.get("us_rebalances", [])[-1] if state.d.get("us_rebalances") else None
+    return last is None or (last != session and business_days_between(last, session) >= US_AGG["rebalance_days"])
+
+
+def us_conditions_left(state):
+    """미국 수상 조건(5종목·5일·5회) 중 아직 못 채운 게 있으면 True."""
+    d = state.d
+    return len(d.get("us_symbols", [])) < 5 or len(d.get("us_days", [])) < 5 or d.get("us_orders", 0) < 5
+
+
+def us_record(state, symbol, session):
+    d = state.d
+    d["us_orders"] = d.get("us_orders", 0) + 1
+    d.setdefault("us_symbols", [])
+    d.setdefault("us_days", [])
+    if symbol not in d["us_symbols"]:
+        d["us_symbols"].append(symbol)
+    if session not in d["us_days"]:
+        d["us_days"].append(session)

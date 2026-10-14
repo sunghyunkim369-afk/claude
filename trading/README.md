@@ -40,6 +40,11 @@ BanKIS 대학생 모의투자대회(~11/20)용이에요. `backtest/contest.py` �
 리밸런스 때 **안정형**(아래 표)으로 자동으로 바꿔요. 직접 바꾸기: `python -m trading contest --mode stable` (또는 `aggressive`).
 계좌를 초기화했다면 `python -m trading contest --reset` 으로 진행 상태를 지우세요.
 
+미국 입상형(선택): `python -m trading contest --us-mode aggressive` 로 켜요 (`basic` 으로 되돌리기).
+레버리지 ETF(TQQQ·SOXL 등)·고변동 16종목 중 20거래일 수익률 1위 1종목에 거의 전부, 2거래일마다 교체.
+수상 조건(5종목·5일)을 채울 때까지는 미국 장마다 다른 상위 종목을 1주씩 더 사요.
+NYSE Arca 상장 ETF(SOXL 등)는 거래소 AMEX 로 주문해요.
+
 | (안정형) | 국내 | 미국 |
 |---|---|---|
 | 대상 | `universe_kr.csv` (코스피 시총 상위 150 + 코스닥 상위 100, 코스피200·코스닥150 편입 가능성이 높은 종목) | `config.json` 의 `us.watchlist` |

@@ -43,6 +43,8 @@ jobs:
           exit ${PIPESTATUS[0]}
       - name: 규칙 조정·검증 (학습/검증 기간 분리)
         run: python optimize.py
+      - name: 대회용 공식 검증 (5주 구간 반복)
+        run: python contest.py
       - name: 결과 올리기
         run: |
           git config user.name "github-actions[bot]"

@@ -235,6 +235,35 @@ class EngineTest(unittest.TestCase):
         pd.testing.assert_frame_equal(r[0], r[1])
 
 
+class ContestTest(unittest.TestCase):
+    def setUp(self):
+        import contest
+        self.contest = contest
+        self.raw = {f"S{i}": random_ohlcv(600, seed=i, drift=0.0006) for i in range(1, 7)}
+        self.params = dict(lookback=20, top_k=3, stop_atr=2.0, rsi_max=80)
+
+    def test_holds_at_most_top_k_and_trades_next_open(self):
+        fr = self.contest.prepare(self.raw, CFG, [20])
+        rot = self.contest.Rotation(fr, "US", CFG, self.params)
+        d = rot.dates
+        curve, fills = rot.run(d[300], d[340], 100_000)
+        self.assertEqual(curve.iloc[0], 100_000)  # 첫날은 종가에 판단만, 체결은 다음 날
+        self.assertGreater(fills, 0)
+        self.assertLessEqual(len(rot.targets(d[320])), 3)
+
+    def test_no_lookahead(self):
+        changed = {s: f.copy() for s, f in self.raw.items()}
+        cut = changed["S1"].index[350]
+        for f in changed.values():
+            f.loc[cut:, ["Open", "High", "Low", "Close"]] *= 2
+        res = []
+        for raw in (self.raw, changed):
+            rot = self.contest.Rotation(self.contest.prepare(raw, CFG, [20]), "US", CFG, self.params)
+            d = rot.dates
+            res.append(rot.run(d[300], d[349], 100_000))
+        pd.testing.assert_series_equal(res[0][0], res[1][0])
+
+
 class MetricsTest(unittest.TestCase):
     def test_known_values(self):
         idx = pd.date_range("2020-01-01", periods=3, freq="365D")

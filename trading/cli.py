@@ -24,7 +24,8 @@ UPDATE_BASE = "https://raw.githubusercontent.com/sunghyunkim369-afk/claude/claud
 # 사용자가 고치는 .env, config.json 은 덮어쓰지 않아요.
 # 받을 파일 목록은 저장소의 trading/MANIFEST 를 먼저 보고, 못 받으면 아래 목록을 써요.
 UPDATE_FILES = ["__init__.py", "__main__.py", "auto.py", "cli.py", "contest.py", "kis.py", "planner.py", "strategy.py",
-                "universe_kr.csv", "README.md", ".env.example", "MANIFEST", "tests/__init__.py", "tests/test_trading.py"]
+                "universe_kr.csv", "대회시작.bat", "잔고보기.bat",
+                "README.md", ".env.example", "MANIFEST", "tests/__init__.py", "tests/test_trading.py"]
 
 
 def load_env(path=os.path.join(HERE, ".env")):

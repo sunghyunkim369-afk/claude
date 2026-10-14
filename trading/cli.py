@@ -3,6 +3,7 @@
   python3 -m trading status            잔고 보기
   python3 -m trading plan [--market kr|us|all]    주문 후보만 보기 (주문 안 함)
   python3 -m trading trade [--market kr|us|all]   후보를 하나씩 확인(y)한 것만 주문
+  python3 -m trading auto              자동매매 (장중에 정해진 간격으로 확인하고 바로 주문)
   python3 -m trading update            최신 프로그램 받기 (.env·config.json 은 그대로)
 """
 
@@ -13,6 +14,7 @@ import sys
 import urllib.request
 from datetime import datetime
 
+from . import auto
 from .kis import Kis, KisError
 from .planner import make_plan
 
@@ -20,8 +22,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 UPDATE_BASE = "https://raw.githubusercontent.com/sunghyunkim369-afk/claude/claude/awesome-edison-24zdn0/trading/"
 # 사용자가 고치는 .env, config.json 은 덮어쓰지 않아요.
-UPDATE_FILES = ["__init__.py", "__main__.py", "cli.py", "kis.py", "planner.py", "strategy.py",
-                "README.md", ".env.example", "tests/__init__.py", "tests/test_trading.py"]
+# 받을 파일 목록은 저장소의 trading/MANIFEST 를 먼저 보고, 못 받으면 아래 목록을 써요.
+UPDATE_FILES = ["__init__.py", "__main__.py", "auto.py", "cli.py", "kis.py", "planner.py", "strategy.py",
+                "README.md", ".env.example", "MANIFEST", "tests/__init__.py", "tests/test_trading.py"]
 
 
 def load_env(path=os.path.join(HERE, ".env")):
@@ -159,11 +162,27 @@ def cmd_trade(kis, cfg, markets, ask=input):
             write_log({"event": "order_failed", "env": kis.env, "order": o, "error": str(e)})
 
 
+def cmd_auto(kis, cfg, markets):
+    if kis.env == "real" and os.environ.get("KIS_AUTO_REAL") != "yes":
+        sys.exit("실전 계좌 자동매매는 막아 뒀어요. 정말 하려면 .env 에 KIS_AUTO_REAL=yes 를 추가하세요.")
+    auto.run_forever(kis, cfg, HERE, write_log, orders_sent_today)
+
+
 def cmd_update(fetch=None):
     """GitHub 에서 프로그램 파일을 받아 바꿔요. 하나라도 실패하면 아무것도 바꾸지 않아요."""
     fetch = fetch or (lambda url: urllib.request.urlopen(url, timeout=20).read())
+    files = UPDATE_FILES
+    try:
+        listed = [l.strip() for l in fetch(UPDATE_BASE + "MANIFEST").decode().splitlines()]
+        listed = [l for l in listed if l and not l.startswith("#")]
+        # 비밀값·설정 파일이나 폴더 밖 경로는 목록에 있어도 받지 않아요.
+        listed = [l for l in listed if l not in (".env", "config.json") and ".." not in l and not l.startswith("/")]
+        if listed:
+            files = listed
+    except Exception:
+        pass
     new = {}
-    for name in UPDATE_FILES:
+    for name in files:
         try:
             new[name] = fetch(UPDATE_BASE + name)
         except Exception as e:
@@ -181,8 +200,8 @@ def cmd_update(fetch=None):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(prog="python3 -m trading", description="한국투자증권 반자동 매매 (국내+미국)")
-    ap.add_argument("command", choices=["status", "plan", "trade", "update"])
+    ap = argparse.ArgumentParser(prog="python3 -m trading", description="한국투자증권 매매 프로그램 (국내+미국)")
+    ap.add_argument("command", choices=["status", "plan", "trade", "auto", "update"])
     ap.add_argument("--market", choices=["kr", "us", "all"], default="all")
     args = ap.parse_args(argv)
     markets = ("kr", "us") if args.market == "all" else (args.market,)
@@ -193,7 +212,7 @@ def main(argv=None):
     cfg = load_config()
     kis = make_client()
     try:
-        {"status": cmd_status, "plan": cmd_plan, "trade": cmd_trade}[args.command](kis, cfg, markets)
+        {"status": cmd_status, "plan": cmd_plan, "trade": cmd_trade, "auto": cmd_auto}[args.command](kis, cfg, markets)
     except KisError as e:
         sys.exit(f"API 오류: {e}")
     except KeyboardInterrupt:

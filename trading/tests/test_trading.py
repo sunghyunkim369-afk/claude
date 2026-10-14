@@ -10,7 +10,9 @@ import unittest
 import urllib.parse
 from unittest import mock
 
-from trading import cli, strategy
+from datetime import datetime, timezone
+
+from trading import auto, cli, strategy
 from trading.kis import Kis, KisError
 from trading.planner import make_plan
 
@@ -263,15 +265,17 @@ class UpdateCommandTest(unittest.TestCase):
             for name, text in ((".env", "KIS_APP_KEY=mine"), ("config.json", "{}"), ("kis.py", "old")):
                 with open(os.path.join(d, name), "w") as f:
                     f.write(text)
-            cli.cmd_update(fetch=lambda url: b"new " + url.rsplit("/", 1)[1].encode())
+            manifest = b"# list\nkis.py\ntests/test_trading.py\n.env\nconfig.json\n../evil.py\n"
+            cli.cmd_update(fetch=lambda url: manifest if url.endswith("MANIFEST") else b"new " + url.rsplit("/", 1)[1].encode())
             self.assertEqual(open(os.path.join(d, "kis.py")).read(), "new kis.py")
             self.assertEqual(open(os.path.join(d, ".env")).read(), "KIS_APP_KEY=mine")
             self.assertEqual(open(os.path.join(d, "config.json")).read(), "{}")
             self.assertTrue(os.path.exists(os.path.join(d, "tests", "test_trading.py")))
+            self.assertFalse(os.path.exists(os.path.join(os.path.dirname(d), "evil.py")))
 
     def test_update_changes_nothing_on_failure(self):
         def fetch(url):
-            if url.endswith("planner.py"):
+            if url.endswith("planner.py") or url.endswith("MANIFEST"):
                 raise OSError("network")
             return b"new"
         with tempfile.TemporaryDirectory() as d, mock.patch.object(cli, "HERE", d):
@@ -283,8 +287,105 @@ class UpdateCommandTest(unittest.TestCase):
 
     def test_update_file_list_matches_repo(self):
         here = os.path.dirname(cli.__file__)
-        for name in cli.UPDATE_FILES:
+        with open(os.path.join(here, "MANIFEST")) as f:
+            manifest = [l.strip() for l in f if l.strip() and not l.startswith("#")]
+        self.assertEqual(sorted(manifest), sorted(cli.UPDATE_FILES))
+        for name in manifest:
             self.assertTrue(os.path.exists(os.path.join(here, *name.split("/"))), name)
+        py = {f for f in os.listdir(here) if f.endswith(".py")}
+        self.assertLessEqual(py, set(manifest))  # 새 .py 파일을 MANIFEST 에 빠뜨리지 않게
+
+
+def utc(y, mo, d, h, mi):
+    return datetime(y, mo, d, h, mi, tzinfo=timezone.utc)
+
+
+class MarketHoursTest(unittest.TestCase):
+    def test_korea(self):
+        self.assertEqual(auto.market_session("kr", utc(2026, 10, 15, 1, 0)), "2026-10-15")   # 목 10:00 KST
+        self.assertIsNone(auto.market_session("kr", utc(2026, 10, 15, 6, 25)))               # 15:25 동시호가
+        self.assertIsNone(auto.market_session("kr", utc(2026, 10, 17, 1, 0)))                # 토요일
+
+    def test_us_dst(self):
+        # 10월(서머타임): 미국 10:00 EDT = 14:00 UTC = 23:00 KST, 날짜는 미국 기준
+        self.assertEqual(auto.market_session("us", utc(2026, 10, 15, 14, 0)), "2026-10-15")
+        self.assertIsNone(auto.market_session("us", utc(2026, 10, 15, 13, 0)))               # 09:00 EDT 장 전
+        # 12월(서머타임 아님): 14:00 UTC = 09:00 EST 장 전, 15:00 UTC = 10:00 EST 장중
+        self.assertIsNone(auto.market_session("us", utc(2026, 12, 15, 14, 0)))
+        self.assertEqual(auto.market_session("us", utc(2026, 12, 15, 15, 0)), "2026-12-15")
+        # 한국 날짜가 바뀌어도(01:00 KST) 미국 세션 날짜는 그대로
+        self.assertEqual(auto.market_session("us", utc(2026, 10, 15, 16, 0)), "2026-10-15")
+
+    def test_dst_boundaries(self):
+        self.assertEqual(auto.us_eastern(utc(2026, 3, 8, 6, 59)).utcoffset().total_seconds(), -5 * 3600)
+        self.assertEqual(auto.us_eastern(utc(2026, 3, 8, 7, 0)).utcoffset().total_seconds(), -4 * 3600)
+        self.assertEqual(auto.us_eastern(utc(2026, 11, 1, 6, 0)).utcoffset().total_seconds(), -5 * 3600)
+
+
+class AutoTradeTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.logs = []
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def sent(self):
+        return [l for l in self.logs if l["event"] == "order_sent"]
+
+    def run_cycle(self, kis, when, cfg=CFG):
+        book = auto.OrderBook(os.path.join(self.tmp.name, "book.json"))
+        return auto.run_cycle(kis, cfg, book, when, self.logs.append, lambda: len(self.sent()), out=lambda *_: None)
+
+    def test_korea_cycle_market_orders_and_no_repeat(self):
+        kis, t = client(fake_market())
+        when = utc(2026, 10, 15, 1, 0)
+        self.assertEqual(self.run_cycle(kis, when), 2)
+        posts = [c for c in t.calls if c["path"].endswith("order-cash")]
+        self.assertEqual([c["body"]["ORD_DVSN"] for c in posts], ["01", "01"])
+        self.assertEqual(posts[0]["body"]["ORD_UNPR"], "0")
+        # 15분 뒤 다시 돌아도 같은 종목을 또 사지 않아요 (체결 전이라 잔고에 없어도)
+        self.assertEqual(self.run_cycle(kis, utc(2026, 10, 15, 1, 15)), 0)
+        # 다음 날에는 다시 판단해요 (가짜 잔고는 계속 비어 있어서 다시 2건).
+        self.assertEqual(self.run_cycle(kis, utc(2026, 10, 16, 1, 0)), 2)
+
+    def test_us_cycle_limit_price_within_budget(self):
+        kis, t = client(fake_market())
+        self.assertEqual(self.run_cycle(kis, utc(2026, 10, 15, 14, 0)), 1)
+        body = [c for c in t.calls if c["path"].endswith("/trading/order")][0]["body"]
+        price = float(body["OVRS_ORD_UNPR"])
+        self.assertAlmostEqual(price, round(rising()[-1] * 1.005, 2))
+        self.assertLessEqual(int(body["ORD_QTY"]) * price, CFG["limits"]["max_order_usd"])
+
+    def test_closed_market_does_nothing(self):
+        kis, t = client(fake_market())
+        self.assertEqual(self.run_cycle(kis, utc(2026, 10, 17, 1, 0)), 0)
+        self.assertEqual(t.calls, [])
+
+    def test_daily_limit(self):
+        kis, _ = client(fake_market())
+        cfg = {**CFG, "limits": {**CFG["limits"], "max_orders_per_day": 1}}
+        self.assertEqual(self.run_cycle(kis, utc(2026, 10, 15, 1, 0), cfg), 1)
+
+    def test_stop_file_and_errors_do_not_crash(self):
+        kis, _ = client({"/uapi/domestic-stock/v1/trading/inquire-balance": lambda q, b: (_ for _ in ()).throw(OSError("net"))})
+        times = iter([utc(2026, 10, 15, 1, 0), utc(2026, 10, 15, 1, 1)])
+        stop = os.path.join(self.tmp.name, "STOP")
+
+        def sleep(_):
+            open(stop, "w").close()
+
+        auto.run_forever(kis, {**CFG, "us": {**CFG["us"], "watchlist": []}}, self.tmp.name, self.logs.append,
+                         lambda: 0, now=lambda: next(times), sleep=sleep, out=lambda *_: None)
+        self.assertTrue(any(l["event"] == "auto_error" for l in self.logs))
+
+    def test_real_env_auto_blocked_without_flag(self):
+        kis, t = client(env="real")
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("KIS_AUTO_REAL", None)
+            with self.assertRaises(SystemExit):
+                cli.cmd_auto(kis, CFG, ("kr", "us"))
+        self.assertEqual(t.calls, [])
 
 
 if __name__ == "__main__":

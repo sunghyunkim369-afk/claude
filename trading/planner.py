@@ -10,7 +10,7 @@ def _size(budget_per_position, max_order, buyable, price):
     return max(0, math.floor(amount / price)) if price > 0 else 0
 
 
-def plan_domestic(kis, cfg, notes):
+def plan_domestic(kis, cfg, notes, skip=(), pending=0):
     dom = cfg["domestic"]
     limits = cfg["limits"]
     bal = kis.kr_balance()
@@ -19,8 +19,9 @@ def plan_domestic(kis, cfg, notes):
     orders = []
 
     # 보유 종목은 관심 목록에 없어도 매도 규칙을 확인해요.
-    codes = list(dict.fromkeys(list(held) + [w["code"] for w in dom["watchlist"]]))
-    open_positions = len(held)
+    codes = [c for c in dict.fromkeys(list(held) + [w["code"] for w in dom["watchlist"]]) if c not in skip]
+    # 아직 체결 안 된 매수 주문도 보유 종목 수에 넣어요.
+    open_positions = len(held) + pending
     per_position = dom["budget_krw"] / dom["max_positions"]
 
     for code in codes:
@@ -54,7 +55,7 @@ def plan_domestic(kis, cfg, notes):
     return orders
 
 
-def plan_us(kis, cfg, notes):
+def plan_us(kis, cfg, notes, skip=(), pending=0):
     us = cfg["us"]
     limits = cfg["limits"]
     exchanges = {w["symbol"]: w["exchange"] for w in us["watchlist"]}
@@ -62,8 +63,8 @@ def plan_us(kis, cfg, notes):
     held = bal["holdings"]
     orders = []
 
-    symbols = list(dict.fromkeys(list(held) + list(exchanges)))
-    open_positions = len(held)
+    symbols = [s for s in dict.fromkeys(list(held) + list(exchanges)) if s not in skip]
+    open_positions = len(held) + pending
     per_position = us["budget_usd"] / us["max_positions"]
 
     for sym in symbols:
@@ -99,13 +100,17 @@ def plan_us(kis, cfg, notes):
     return orders
 
 
-def make_plan(kis, cfg, markets=("kr", "us")):
+def make_plan(kis, cfg, markets=("kr", "us"), skip=None, pending=None):
+    """skip: {"kr": {종목코드}, "us": {심볼}} 오늘 이미 주문한 종목은 건너뛰어요 (자동매매 중복 주문 방지).
+    pending: {"kr": n, "us": n} 아직 체결 안 됐을 수 있는 오늘 매수 주문 수."""
+    skip = skip or {}
+    pending = pending or {}
     notes = []
     orders = []
     if "kr" in markets:
-        orders += plan_domestic(kis, cfg, notes)
+        orders += plan_domestic(kis, cfg, notes, skip.get("kr", ()), pending.get("kr", 0))
     if "us" in markets:
-        orders += plan_us(kis, cfg, notes)
+        orders += plan_us(kis, cfg, notes, skip.get("us", ()), pending.get("us", 0))
     # 매도를 먼저 내서 현금을 확보해요.
     orders.sort(key=lambda o: o["side"] != "sell")
     return orders, notes

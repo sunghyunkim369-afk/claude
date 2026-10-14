@@ -200,12 +200,13 @@ class Kis:
                           "CMA_EVLU_AMT_ICLD_YN": "N", "OVRS_ICLD_YN": "N"})
         return _num(res["output"].get("nrcvb_buy_amt"))
 
-    def kr_order(self, side, code, qty, price):
-        """지정가 주문. side 는 'buy' 또는 'sell'."""
+    def kr_order(self, side, code, qty, price=None):
+        """side 는 'buy' 또는 'sell'. price 를 주면 지정가, None 이면 시장가."""
         tr = {"sell": "TTTC0011U", "buy": "TTTC0012U"}[side]
         res = self._call("POST", "/uapi/domestic-stock/v1/trading/order-cash", self._tr(tr),
                          {"CANO": self.cano, "ACNT_PRDT_CD": self.acnt_prdt_cd, "PDNO": code,
-                          "ORD_DVSN": "00", "ORD_QTY": str(int(qty)), "ORD_UNPR": str(int(price)),
+                          "ORD_DVSN": "00" if price else "01", "ORD_QTY": str(int(qty)),
+                          "ORD_UNPR": str(int(price)) if price else "0",
                           "EXCG_ID_DVSN_CD": "KRX", "SLL_TYPE": "01" if side == "sell" else "",
                           "CNDT_PRIC": ""})
         return res.get("output", {})

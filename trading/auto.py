@@ -169,8 +169,10 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
     if kr_session and contest.kr_due(state, kr_session):
         today = now_utc.astimezone(KST).date()
         out(f"[{stamp}] 국내 리밸런스: {len(universe)}종목 순위 계산 중 (몇 분 걸려요)")
-        targets = contest.kr_targets(kis, universe, today, out)
-        out("  목표 5종목: " + ", ".join(f"{n}({c}) {s * 100:+.1f}%" for s, c, n in targets) if targets
+        targets, risk_on = contest.kr_targets(kis, universe, today, out)
+        out("  시장: " + ("좋은 날 (지수 > 20일 평균) → 5종목" if risk_on
+                         else "나쁜 날 (지수 < 20일 평균) → 상위 2종목만, 나머지 현금"))
+        out(f"  목표 {len(targets)}종목: " + ", ".join(f"{n}({c}) {s * 100:+.1f}%" for s, c, n in targets) if targets
             else "  상승 추세 종목이 없어 현금 보유")
         sells, buys = contest.kr_plan(kis, targets)
         for o in sells:

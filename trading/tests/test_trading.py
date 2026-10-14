@@ -325,6 +325,25 @@ class ContestModeTest(unittest.TestCase):
         self.assertEqual(len(state.d["symbols"]), 5)
         self.assertTrue(self.contest.kr_due(state, "2026-10-19") and not self.contest.kr_due(state, "2026-10-16"))
 
+    def test_market_filter(self):
+        up = [("2026%04d" % i, 100 * 1.01 ** i) for i in range(1, 40)]
+        down = [("2026%04d" % i, 100 * 0.99 ** i) for i in range(1, 40)]
+        self.assertTrue(self.contest.market_risk_on(self.contest.equal_weight_index({"A": up, "B": up}), 20))
+        self.assertFalse(self.contest.market_risk_on(self.contest.equal_weight_index({"A": down, "B": down}), 20))
+        idx = self.contest.equal_weight_index({"A": up[:3], "B": down[:3]})
+        self.assertAlmostEqual(idx[0], 1.0)  # +1% 와 −1% 평균
+
+    def test_kr_bad_market_keeps_top2(self):
+        strengths = {f"00000{i}": 0.002 * i for i in range(1, 8)}
+        universe = [(c, c) for c in strengths]
+        kis, t = client(self.market(strengths))
+        with mock.patch.object(self.contest, "score", lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1), \
+                mock.patch.object(self.contest, "market_risk_on", lambda idx, n: False):
+            n, _ = self.cycle(kis, auto_utc(2026, 10, 15, 0, 30), universe)
+        buys = [c["body"]["PDNO"] for c in t.calls if c["path"].endswith("order-cash")]
+        self.assertEqual(sorted(buys), ["000006", "000007"])
+        self.assertEqual(n, 2)
+
     def test_kr_sells_dropped_holdings(self):
         strengths = {"000001": 0.01}
         held = [{"pdno": "999999", "prdt_name": "빠진종목", "hldg_qty": "7", "pchs_avg_pric": "1", "prpr": "1"}]

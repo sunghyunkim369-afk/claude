@@ -5,6 +5,8 @@ backtest/contest.py 로 과거 5년의 '5주 구간' 수백 개를 시험해서 
 국내 (코스피200·코스닥150 후보 universe_kr.csv 안에서만):
   - 후보: 어제 종가 > EMA20 > EMA60, RSI14 < 80
   - 점수: 최근 20거래일 수익률. 상위 5종목이 목표
+  - 시장이 나쁜 날(대상 종목 동일비중 지수 < 그 지수의 EMA20)엔 상위 2종목만 (나머지 현금)
+    → 과거 검증에서 중앙값 수익률은 같고 최악 5주 손실이 −47% → −24% 로 줄었어요
   - 2거래일마다(장 시작 직후) 목표에서 빠진 종목은 시장가 매도, 새 종목은 총평가금액의 1/5 만큼 시장가 매수
   - 과거 검증: 수상 조건(매매금액 5억·매매일수 5일·5종목·체결 5회)을 모든 구간에서 채웠고, 매매금액은 원금의 약 12배
 
@@ -22,7 +24,9 @@ from datetime import date
 
 from .kis import KisError
 
-KR = {"lookback": 20, "top_k": 5, "rebalance_days": 2, "rsi_max": 80}
+KR = {"lookback": 20, "top_k": 5, "rebalance_days": 2, "rsi_max": 80,
+      # 시장 국면 필터: 대상 종목 동일비중 지수가 그 지수의 EMA20 아래면(시장이 나쁜 날) 상위 2종목만, 나머지 현금
+      "regime_ema": 20, "risk_off_top": 2}
 US = {"lookback": 60, "top_k": 5, "rsi_max": 80}
 
 
@@ -121,25 +125,52 @@ def kr_due(state, session):
     return last is None or (last != session and business_days_between(last, session) >= KR["rebalance_days"])
 
 
+def equal_weight_index(series_by_code):
+    """{코드: [(YYYYMMDD, 종가)]} → 날짜순 동일비중 지수 값 (매일 종목 평균 수익률로 누적)."""
+    by_date = {}
+    for rows in series_by_code.values():
+        for (d0, c0), (d1, c1) in zip(rows, rows[1:]):
+            if c0 > 0:
+                by_date.setdefault(d1, []).append(c1 / c0 - 1)
+    level, out = 1.0, []
+    for d in sorted(by_date):
+        level *= 1 + sum(by_date[d]) / len(by_date[d])
+        out.append(level)
+    return out
+
+
+def market_risk_on(index_values, n):
+    """지수 > 지수 EMA(n) 이면 True (좋은 날). 데이터가 부족하면 True."""
+    e = ema(index_values, n)
+    return True if e is None else index_values[-1] > e
+
+
 def kr_targets(kis, universe, today, out=print):
-    scored = []
+    """반환: (목표 [(점수, 코드, 이름)], 시장이 좋은 날인지)."""
+    scored, series = [], {}
+    t = today.strftime("%Y%m%d")
     for i, (code, name) in enumerate(universe, 1):
         try:
             rows = kis.kr_daily(code, with_dates=True)
         except KisError as e:
             out(f"    {name}({code}) 일봉 실패: {e}")
             continue
-        s = score(closes_until_yesterday(rows, today), KR["lookback"], KR["rsi_max"])
+        past = [(d, c) for d, c in rows if d < t]
+        series[code] = past
+        s = score([c for _, c in past], KR["lookback"], KR["rsi_max"])
         if s is not None:
             scored.append((s, code, name))
         if i % 50 == 0:
             out(f"    종목 확인 {i}/{len(universe)}")
     scored.sort(reverse=True)
-    return scored[:KR["top_k"]]
+    risk_on = market_risk_on(equal_weight_index(series), KR["regime_ema"])
+    keep = KR["top_k"] if risk_on else KR["risk_off_top"]
+    return scored[:keep], risk_on
 
 
 def kr_plan(kis, targets):
-    """(매도 주문들, 매수 주문들). 목표에 없는 보유 종목은 전부 팔고, 새 목표는 총평가의 1/5 씩."""
+    """(매도 주문들, 매수 주문들). 목표에 없는 보유 종목은 전부 팔고, 새 목표는 총평가의 1/5 씩
+    (시장이 나쁜 날 목표가 2종목이어도 1/5 씩이라 나머지는 현금으로 남아요)."""
     bal = kis.kr_balance()
     held = bal["holdings"]
     want = {code for _, code, _ in targets}

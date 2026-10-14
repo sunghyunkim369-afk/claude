@@ -1,0 +1,8 @@
+pandas>=2.0
+numpy>=1.24
+pyyaml>=6.0
+matplotlib>=3.7
+finance-datareader>=0.9.90
+yfinance>=0.2.40
+# pandas-ta 는 Python 3.12 이상에서만 설치돼요. 설치가 안 되면 indicators.py 의 내장 계산(같은 공식)을 써요.
+pandas-ta>=0.4.67b0; python_version >= "3.12"

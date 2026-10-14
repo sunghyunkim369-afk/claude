@@ -1,7 +1,80 @@
 {
- "generated": "2026-10-14T07:04:43.583Z",
+ "generated": "2026-10-14T13:01:24.183Z",
  "hours": 24,
  "items": [
+  {
+   "title": "Vietnam sends final trade agreement wording to US, deputy PM says",
+   "lang": "en",
+   "link": "https://asia.nikkei.com/economy/trade/vietnam-sends-final-trade-agreement-wording-to-us-deputy-pm-says",
+   "source": "Nikkei Asia",
+   "outlets": 1,
+   "at": "2026-10-14T13:01:24.115Z",
+   "tag": "FTA·통상협정",
+   "direction": "down",
+   "sectors": []
+  },
+  {
+   "title": "AI shippers still looking for capacity risk sharp airfreight peak squeeze",
+   "lang": "en",
+   "link": "https://theloadstar.com/ai-shippers-still-looking-for-capacity-risk-sharp-airfreight-peak-squeeze/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-14T12:02:17.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "semi",
+    "ship"
+   ]
+  },
+  {
+   "title": "NSR box shipping test ‘a success’, but S Korean carriers are sceptical",
+   "lang": "en",
+   "link": "https://theloadstar.com/nsr-box-shipping-test-a-success-but-s-korean-carriers-are-sceptical/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-14T11:27:21.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "auto",
+    "ship"
+   ]
+  },
+  {
+   "title": "이란 혁명수비대 \"호르무즈서 컨테이너선 기뢰 충돌 후 침몰\"",
+   "link": "https://www.yna.co.kr/view/AKR20261014172100079",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-14T09:25:56.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "부산항만공사, 부산대 법학전문대학원과 업무협약",
+   "link": "https://www.yna.co.kr/view/AKR20261014151500051",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-14T07:49:55.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "\"미국에 할말 하겠다\"는 일본. ICC 제재 진의 파악 공들여",
+   "link": "https://www.yna.co.kr/view/AKR20261014145800009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-14T07:10:35.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
   {
    "title": "Taiwan and Trump confirm plans for Alaska LNG cooperation",
    "lang": "en",
@@ -99,73 +172,6 @@
    "outlets": 1,
    "at": "2026-10-14T02:52:56.000Z",
    "tag": "수출입 동향",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "中 9월 생산자물가 5% 올라 4년여만 최고…소비자물가는 0.9%↑",
-   "link": "https://www.yna.co.kr/view/AKR20261014088400009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-14T02:41:38.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "China’s exports surge more than 36% in September amid tech demand, holiday rush",
-   "lang": "en",
-   "link": "https://www.scmp.com/economy/china-economy/article/3370799/chinas-trade-momentum-quickens-september-amid-tech-demand-holiday-rush?utm_source=rss_feed",
-   "source": "SCMP",
-   "outlets": 1,
-   "at": "2026-10-14T02:35:08.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "관세청, 두 달 새 '짝퉁' 28만점 적발…K브랜드 위조품 급증",
-   "link": "https://www.yna.co.kr/view/AKR20261014082000002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-14T02:16:12.000Z",
-   "tag": "통관·원산지",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "AI 특수에 ICT 수출 751억달러…사상 첫 700억달러 돌파",
-   "link": "https://www.yna.co.kr/view/AKR20261014061500017",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-14T02:00:02.000Z",
-   "tag": "수출입 동향",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "방글라데시, 중국 차관 도입해 항구 현대화 추진",
-   "link": "https://www.yna.co.kr/view/AKR20261014074900009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-14T01:56:27.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "앤트로픽, '블랙리스트 지정은 적법' 항소법원에 재심 요청",
-   "link": "https://www.yna.co.kr/view/AKR20261014050700009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-14T01:13:02.000Z",
-   "tag": "공급망·핵심광물",
    "direction": "info",
    "sectors": []
   }

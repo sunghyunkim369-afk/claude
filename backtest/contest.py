@@ -36,10 +36,16 @@ from main import load_config  # noqa: E402
 GRID = {
     "lookback": [20, 60],
     "top_k": [5],
-    "rebalance_days": [1, 2, 5],
-    "full_rebalance": [False, True],
-    "stop_atr": [0.0, 2.0],
+    "rebalance_days": [2, 5],
+    "full_rebalance": [False],
+    "stop_atr": [0.0],
     "rsi_max": [80],
+    # 시장 국면(레짐) 필터: 시장이 나쁜 날엔 새로 사지 않고 현금으로
+    #   none: 안 씀 / breadth40·breadth50: EMA60 위에 있는 종목 비율이 40%·50% 미만이면 나쁜 날
+    #   index20: 대상 종목 동일비중 지수가 그 지수의 EMA20 아래면 나쁜 날
+    "regime": ["none", "breadth40", "breadth50", "index20"],
+    # 나쁜 날 행동: cash = 전부 팔고 현금, top2 = 상위 2종목만 (나머지 현금)
+    "regime_off": ["cash", "top2"],
 }
 
 # 수상 조건. 해외 부문 조건은 확인 전이라 국내와 같은 횟수 조건만 적용하고 금액 조건은 빼요.
@@ -68,18 +74,61 @@ def build_bars(frames):
     return bars
 
 
+def build_regime(bars):
+    """{날짜: {"breadth": EMA60 위 종목 비율, "index_up": 동일비중 지수 > 지수 EMA20}} (그날 종가까지)."""
+    dates = sorted(bars)
+    out, level, prev = {}, 1.0, None
+    idx = []
+    for d in dates:
+        day = bars[d]
+        valid = [b for b in day.values() if b["ema_slow"] == b["ema_slow"]]
+        breadth = sum(b["Close"] > b["ema_slow"] for b in valid) / len(valid) if valid else 1.0
+        if prev is not None:
+            rets = [b["Close"] / prev[s]["Close"] - 1 for s, b in day.items() if s in prev]
+            if rets:
+                level *= 1 + sum(rets) / len(rets)
+        idx.append(level)
+        prev = day
+        out[d] = {"breadth": breadth, "index": level}
+    ema = pd.Series(idx, index=dates).ewm(span=20, adjust=False, min_periods=20).mean()
+    for d in dates:
+        e = ema[d]
+        out[d]["index_up"] = True if e != e else out[d]["index"] > e
+    return out
+
+
 class Rotation:
-    def __init__(self, frames, market, cfg, params, bars=None):
+    def __init__(self, frames, market, cfg, params, bars=None, regime=None):
         self.frames = frames
         self.market = market
         self.p = params
         self.broker = SimulatedBroker(cfg["costs"], cfg["costs"]["slippage"])
         self.bars = bars if bars is not None else build_bars(frames)
         self.dates = sorted(self.bars)
+        self.regime = regime if regime is not None else build_regime(self.bars)
         self._rank = {}
+
+    def risk_on(self, d):
+        """그날 종가까지로 본 시장 국면. 레짐 필터를 안 쓰면 항상 True."""
+        mode = self.p.get("regime", "none")
+        if mode == "none" or self.regime is None:
+            return True
+        r = self.regime.get(d)
+        if r is None:
+            return True
+        if mode.startswith("breadth"):
+            return r["breadth"] >= int(mode[7:]) / 100
+        return r["index_up"]
 
     def targets(self, d):
         """그날 종가 기준 목표 종목 (그날까지 데이터만 사용). 날짜별로 한 번만 계산해 둬요."""
+        if not self.risk_on(d):
+            if self.p.get("regime_off", "cash") == "cash":
+                return []
+            return self._ranked(d)[:2]
+        return self._ranked(d)
+
+    def _ranked(self, d):
         if d not in self._rank:
             p = self.p
             cands = []
@@ -251,9 +300,12 @@ def main(argv=None):
         cut = int(len(wins) * ratio)
         bench = [equal_weight_return(mf, a, b) for a, b in wins]
         bars = build_bars(mf)
+        regime = build_regime(bars)
         for values in itertools.product(*GRID.values()):
             params = dict(zip(GRID, values))
-            rot = Rotation(mf, market, cfg, params, bars)
+            if params["regime"] == "none" and params["regime_off"] != "cash":
+                continue  # 레짐 필터를 안 쓰면 나쁜 날 행동은 의미 없어요
+            rot = Rotation(mf, market, cfg, params, bars, regime)
             rets, stats = [], []
             for a, b in wins:
                 curve, st = rot.run(a, b, cap)

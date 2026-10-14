@@ -248,7 +248,8 @@ class ContestTest(unittest.TestCase):
         import contest
         self.contest = contest
         self.raw = {f"S{i}": random_ohlcv(600, seed=i, drift=0.0006) for i in range(1, 7)}
-        self.params = dict(lookback=20, top_k=3, stop_atr=2.0, rsi_max=80, rebalance_days=5, full_rebalance=False)
+        self.params = dict(lookback=20, top_k=3, stop_atr=2.0, rsi_max=80, rebalance_days=5, full_rebalance=False,
+                           regime="none", regime_off="cash")
 
     def test_holds_at_most_top_k_and_trades_next_open(self):
         fr = self.contest.prepare(self.raw, CFG, [20])
@@ -268,6 +269,30 @@ class ContestTest(unittest.TestCase):
                                       ).run(d[300], d[325], 100_000)[1]
         self.assertGreater(daily["amount"], weekly["amount"])
         self.assertGreaterEqual(daily["days"], weekly["days"])
+
+    def test_regime_cash_sells_everything_on_bad_days(self):
+        fr = self.contest.prepare(self.raw, CFG, [20])
+        bars = self.contest.build_bars(fr)
+        d = sorted(bars)
+        bad = {x: {"breadth": 0.1, "index": 1.0, "index_up": False} for x in d}
+        good = {x: {"breadth": 0.9, "index": 1.0, "index_up": True} for x in d}
+        p = {**self.params, "regime": "breadth50", "regime_off": "cash"}
+        rot = self.contest.Rotation(fr, "US", CFG, p, bars, bad)
+        curve, st = rot.run(d[300], d[340], 100_000)
+        self.assertEqual(st["orders"], 0)
+        self.assertEqual(curve.iloc[-1], 100_000)
+        on = self.contest.Rotation(fr, "US", CFG, p, bars, good)
+        self.assertEqual(on.targets(d[320]), on._ranked(d[320]))
+        top2 = self.contest.Rotation(fr, "US", CFG, {**p, "regime_off": "top2"}, bars, bad)
+        self.assertEqual(top2.targets(d[320]), top2._ranked(d[320])[:2])
+
+    def test_regime_values_use_only_past(self):
+        fr = self.contest.prepare(self.raw, CFG, [20])
+        r1 = self.contest.build_regime(self.contest.build_bars(fr))
+        cut = {s: f.iloc[:350] for s, f in fr.items()}
+        r2 = self.contest.build_regime(self.contest.build_bars(cut))
+        for d in list(r2)[-20:]:
+            self.assertEqual(r1[d], r2[d])
 
     def test_rules(self):
         rule = self.contest.RULES["KR"]

@@ -305,6 +305,18 @@ class ContestTest(unittest.TestCase):
         text = "\n".join(lines)
         self.assertIn("최근 2구간", text)
 
+    def test_market_state_measures(self):
+        import pandas as pd
+        dates = pd.bdate_range("2024-01-01", periods=80)
+        trend = {d: {"index": 1.01 ** i, "breadth": 0.8} for i, d in enumerate(dates)}
+        chop = {d: {"index": 1.03 if i % 2 else 1.0, "breadth": 0.5} for i, d in enumerate(dates)}
+        st_t = self.contest.build_states(trend)[dates[-1]]
+        st_c = self.contest.build_states(chop)[dates[-1]]
+        self.assertAlmostEqual(st_t["er"], 1.0)
+        self.assertLess(st_c["er"], 0.1)
+        self.assertGreater(st_c["flips"], 0.9)
+        self.assertGreater(st_c["vol"], st_t["vol"])
+
     def test_rules(self):
         rule = self.contest.RULES["KR"]
         good = {"amount": 5e8, "days": 5, "symbols": 5, "orders": 5}

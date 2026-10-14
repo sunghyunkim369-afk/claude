@@ -270,6 +270,100 @@ def kr_symbols(cfg, log):
         return [str(s) for s in cfg["symbols"] if market_of(str(s)) == "KR"]
 
 
+def build_states(regime, n=20):
+    """날짜별 시장 상태 (그날 종가까지):
+    vol: 동일비중 지수 일간 수익률의 최근 n일 표준편차(연환산)
+    er: 추세 효율 = |n일 순변화| / n일 동안 매일 움직인 폭의 합 (1 이면 한 방향, 0 에 가까우면 오락가락)
+    flips: 최근 n일 중 전날과 방향이 바뀐 날 비율
+    vol_pct, er_pct: 과거 전체(그날까지) 중 지금 값의 백분위 → 상대적으로 높은지 낮은지"""
+    dates = sorted(regime)
+    idx = pd.Series([regime[d]["index"] for d in dates], index=dates)
+    r = idx.pct_change()
+    lr = np.log(idx).diff()
+    vol = r.rolling(n).std() * np.sqrt(252)
+    er = lr.rolling(n).sum().abs() / lr.abs().rolling(n).sum()
+    sign = np.sign(r)
+    flips = (sign != sign.shift(1)).astype(float).where(sign.shift(1).notna()).rolling(n).mean()
+    out = {}
+    for i, d in enumerate(dates):
+        if np.isnan(vol.iloc[i]) or np.isnan(er.iloc[i]):
+            continue
+        past_v, past_e = vol.iloc[: i + 1].dropna(), er.iloc[: i + 1].dropna()
+        out[d] = {"vol": float(vol.iloc[i]), "er": float(er.iloc[i]), "flips": float(flips.iloc[i]),
+                  "breadth": regime[d]["breadth"],
+                  "vol_pct": float((past_v <= vol.iloc[i]).mean()), "er_pct": float((past_e <= er.iloc[i]).mean())}
+    return out
+
+
+def state_label(st):
+    """오락가락(변동성 높음 + 추세 효율 낮음) / 추세장 / 보통."""
+    if st is None:
+        return None
+    if st["vol_pct"] >= 0.67 and st["er_pct"] <= 0.5:
+        return "변동 큰 오락가락장"
+    if st["er_pct"] >= 0.67:
+        return "한 방향 추세장"
+    return "보통"
+
+
+def state_report(wins, combos, bench, states, rule, scale, cut, min_samples=8):
+    """구간 시작 시점 시장 상태별로 어떤 공식이 잘 됐는지, 그리고
+    '지금 상태와 같았던 과거 구간(이미 끝난 것만)에서 가장 좋았던 공식'을 쓰는 방식의 성적."""
+    labels = [state_label(states.get(a)) for a, _ in wins]
+    names = list(combos)
+    lines = ["구간 시작 때 시장 상태별 공식 성적 (중앙값, 학습 구간):"]
+    rows = []
+    for lab in ("변동 큰 오락가락장", "한 방향 추세장", "보통"):
+        idx = [i for i in range(cut) if labels[i] == lab]
+        if not idx:
+            continue
+        ranked = sorted(names, key=lambda nm: -np.median([combos[nm][0][i] for i in idx]))
+        for nm in ranked[:3]:
+            rows.append({"상태": lab, "구간수": len(idx), "공식": nm,
+                         "중앙값": np.median([combos[nm][0][i] for i in idx]),
+                         "평균": np.mean([combos[nm][0][i] for i in idx])})
+    lines.append(fmt(pd.DataFrame(rows)))
+
+    chosen = []
+    for i, (a, b) in enumerate(wins):
+        lab = labels[i]
+        past = [j for j in range(i) if wins[j][1] < a and labels[j] == lab]
+        if lab is None or len(past) < min_samples:
+            continue
+        best, best_sc = None, None
+        for nm in names:
+            rets, stats = combos[nm]
+            if np.mean([passes(stats[j], rule, scale) for j in past]) < 0.9:
+                continue
+            sc = np.median([rets[j] for j in past])
+            if best_sc is None or sc > best_sc:
+                best, best_sc = nm, sc
+        if best:
+            chosen.append((i, best))
+    table = []
+    for part, keep in (("학습", lambda i: i < cut), ("검증", lambda i: i >= cut)):
+        sel = [(i, nm) for i, nm in chosen if keep(i)]
+        if sel:
+            table.append({"방식": "상태 맞춤", "구분": part,
+                          **summarize([combos[nm][0][i] for i, nm in sel], [bench[i] for i, _ in sel],
+                                      [combos[nm][1][i] for i, nm in sel], rule, scale)})
+    lines += ["지금과 같은 상태였던 과거 구간(이미 끝난 것, 8개 이상)에서 중앙값 1위 공식을 쓰는 방식:",
+              fmt(pd.DataFrame(table)) if table else "(표본 부족)"]
+    return lines
+
+
+def current_state_lines(market, states, dates):
+    d = max(states)
+    st = states[d]
+    hist = [states[x] for x in sorted(states)]
+    return [f"[{market}] 지금 시장 상태 ({d:%Y-%m-%d} 종가 기준, 대상 종목 동일비중 지수)",
+            f"  변동성(20일, 연환산) {st['vol'] * 100:.1f}%  → 지난 5년 중 상위 {(1 - st['vol_pct']) * 100:.0f}%",
+            f"  추세 효율(20일) {st['er']:.2f}  → 지난 5년 중 하위 {st['er_pct'] * 100:.0f}% (낮을수록 오락가락)",
+            f"  방향 바뀐 날 비율(20일) {st['flips'] * 100:.0f}% (5년 평균 {np.nanmean([h['flips'] for h in hist]) * 100:.0f}%)",
+            f"  EMA60 위 종목 비율 {st['breadth'] * 100:.0f}%",
+            f"  판정: {state_label(st)}", ""]
+
+
 def combo_name(p):
     return f"{p['lookback']}일·{p['rebalance_days']}일교체·{p['regime']}·{p['regime_off']}"
 
@@ -366,6 +460,9 @@ def main(argv=None):
                 rows.append({"시장": market, "구분": part, **params,
                              **summarize(rets[sl], bench[sl], stats[sl], rule, scale)})
         adaptive_lines = adaptive_report(wins, combos, bench, rule, scale, cut)
+        states = build_states(regime)
+        adaptive_lines += [""] + state_report(wins, combos, bench, states, rule, scale, cut)
+        now_lines = current_state_lines(market, states, dates)
         df = pd.DataFrame(rows)
         train = df[(df["시장"] == market) & (df["구분"] == "학습")]
         test = df[(df["시장"] == market) & (df["구분"] == "검증")]
@@ -376,7 +473,7 @@ def main(argv=None):
         picked[market] = {k: (v.item() if hasattr(v, "item") else v) for k, v in key.items()}
         test_best = test[np.logical_and.reduce([test[k] == v for k, v in key.items()])]
         cols = ["시장", "구분"]
-        lines += [f"[{market}] 학습 구간 {cut}개 / 검증 구간 {len(wins) - cut}개 ({wins[cut][0]:%Y-%m-%d} 이후 시작)",
+        lines += now_lines + [f"[{market}] 학습 구간 {cut}개 / 검증 구간 {len(wins) - cut}개 ({wins[cut][0]:%Y-%m-%d} 이후 시작)",
                   "학습 구간: 조건충족률 90% 이상 중 중앙값 상위 5개",
                   fmt((ok if len(ok) else train).sort_values("중앙값", ascending=False).head(5).drop(columns=cols)),
                   "고른 조합의 검증 구간 결과:", fmt(test_best.drop(columns=cols)),

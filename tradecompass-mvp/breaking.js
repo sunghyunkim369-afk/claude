@@ -1,44 +1,67 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-14T01:01:48.955Z",
+ "generated": "2026-10-14T07:04:43.583Z",
  "hours": 24,
  "items": [
   {
-   "title": "관세청 \"최근 5년 국회 반복지적 전면 점검…8건 개선 완료\"",
-   "link": "https://www.yna.co.kr/view/AKR20261014047700002",
+   "title": "Taiwan and Trump confirm plans for Alaska LNG cooperation",
+   "lang": "en",
+   "link": "https://asia.nikkei.com/politics/international-relations/taiwan-tensions/taiwan-and-trump-confirm-plans-for-alaska-lng-cooperation",
+   "source": "Nikkei Asia",
+   "outlets": 1,
+   "at": "2026-10-14T07:04:43.471Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "부산상의, '찾아가는 FTA 통상데스크 설명회'…기업별 맞춤 상담",
+   "link": "https://www.yna.co.kr/view/AKR20261014132300051",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-14T00:41:09.000Z",
-   "tag": "통관·원산지",
+   "at": "2026-10-14T06:58:32.000Z",
+   "tag": "FTA·통상협정",
    "direction": "neutral",
    "sectors": []
   },
   {
-   "title": "'자금세탁 방치' BofA에 1.6조원 벌금",
-   "link": "https://www.yna.co.kr/view/AKR20261014025100009",
+   "title": "[외환] 원/달러 환율 6.8원 내린 1,338.3원(15:30 기준가)",
+   "link": "https://www.yna.co.kr/view/AKR20261014136200002",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-13T23:31:50.000Z",
-   "tag": "경제제재",
-   "direction": "up",
+   "at": "2026-10-14T06:35:38.000Z",
+   "tag": "환율",
+   "direction": "info",
    "sectors": []
   },
   {
-   "title": "정태호 \"올해 공급망기금 91% 대기업에…지원체계 보완해야\"",
-   "link": "https://www.yna.co.kr/view/AKR20261013181600001",
+   "title": "중국 9월 수출 36.3% 급증…올해 무역흑자 1조달러 '바짝'(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261014092951089",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-13T22:00:02.000Z",
+   "at": "2026-10-14T06:22:44.000Z",
+   "tag": "수출입 동향",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "충남 청양에 토마토·수박 재배용수 공급망 구축…472억원 투입",
+   "link": "https://www.yna.co.kr/view/AKR20261014122100063",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-14T05:44:38.000Z",
    "tag": "공급망·핵심광물",
    "direction": "info",
    "sectors": []
   },
   {
-   "title": "국제유가, 미러 경유 거래·중동 긴장 주시하며 혼조 마감",
-   "link": "https://www.yna.co.kr/view/AKR20261014007400072",
+   "title": "트럼프 \"韓 약속 500억불에 더해 대만도 알래스카 가스 투자\"(종합2보)",
+   "link": "https://www.yna.co.kr/view/AKR20261014060652071",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-13T20:41:20.000Z",
+   "at": "2026-10-14T05:36:13.000Z",
    "tag": "유가·원자재",
    "direction": "info",
    "sectors": [
@@ -46,33 +69,11 @@ window.TC_BREAKING = {
    ]
   },
   {
-   "title": "Japan looks for off-ramp from Trump's ICC feud before US sanctions kick in",
-   "lang": "en",
-   "link": "https://asia.nikkei.com/politics/international-relations/japan-looks-for-off-ramp-from-trump-s-icc-feud-before-us-sanctions-kick-in",
-   "source": "Nikkei Asia",
-   "outlets": 1,
-   "at": "2026-10-13T18:46:30.365Z",
-   "tag": "경제제재",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "이집트 수에즈경제특구에 韓기업 첫 공장 착공…의류기업 H&L",
-   "link": "https://www.yna.co.kr/view/AKR20261013195500079",
+   "title": "변재영 울산항만공사 사장, 해수부에 사의 표명",
+   "link": "https://www.yna.co.kr/view/AKR20261014120900051",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-13T15:06:24.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "Look beyond AI productivity gains, forwarders told",
-   "lang": "en",
-   "link": "https://theloadstar.com/freight-forwarders-must-look-beyond-ai-productivity-gains/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-13T14:56:35.000Z",
+   "at": "2026-10-14T05:35:57.000Z",
    "tag": "해운·물류",
    "direction": "info",
    "sectors": [
@@ -80,73 +81,34 @@ window.TC_BREAKING = {
    ]
   },
   {
-   "title": "France Seizes Another ‘Shadow Fleet’ Tanker; Russia Decries ‘Piracy’",
+   "title": "Certain Hot-Rolled Steel Flat Products From Japan: Final Results of Antidumping Duty Administrative Review; 2023-2024",
    "lang": "en",
-   "link": "https://gcaptain.com/france-seizes-another-shadow-fleet-tanker-russia-decries-piracy/",
-   "source": "gCaptain",
+   "link": "https://www.federalregister.gov/documents/2026/10/14/2026-20934/certain-hot-rolled-steel-flat-products-from-japan-final-results-of-antidumping-duty-administrative",
+   "source": "Federal Register",
    "outlets": 1,
-   "at": "2026-10-13T12:56:21.000Z",
-   "tag": "경제제재",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "Malaysia targets June 2027 signing of EU trade deal",
-   "lang": "en",
-   "link": "https://asia.nikkei.com/economy/trade/malaysia-targets-june-2027-signing-of-eu-trade-deal",
-   "source": "Nikkei Asia",
-   "outlets": 1,
-   "at": "2026-10-13T12:48:32.090Z",
-   "tag": "FTA·통상협정",
-   "direction": "down",
-   "sectors": []
-  },
-  {
-   "title": "South Korean President Hails Arctic Container Shipping Trial, but Commercial and Sanctions Questions Remain",
-   "lang": "en",
-   "link": "https://gcaptain.com/south-korean-president-hails-arctic-container-shipping-trial-but-commercial-and-sanctions-questions-remain/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-13T12:05:20.000Z",
-   "tag": "경제제재",
+   "at": "2026-10-14T04:00:00.000Z",
+   "tag": "반덤핑·무역구제",
    "direction": "neutral",
    "sectors": [
-    "ship"
+    "steel"
    ]
   },
   {
-   "title": "Bulgaria Points to Russia as Drones Hit More Cargo Ships",
-   "lang": "en",
-   "link": "https://gcaptain.com/bulgaria-points-to-russia-as-drones-hit-more-cargo-ships/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-13T11:56:00.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "auto",
-    "ship"
-   ]
-  },
-  {
-   "title": "Strong US import demand will support transpacific rates till new year",
-   "lang": "en",
-   "link": "https://theloadstar.com/strong-us-import-demand-will-support-transpacific-rates-till-new-year/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-13T11:13:27.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "日, 원유조달처 다변화 법안 각의 결정…추가운송비 교부금 지원",
-   "link": "https://www.yna.co.kr/view/AKR20261013173100073",
+   "title": "중국 9월 수출 36.3% 급증…수입은 31.0% 늘어",
+   "link": "https://www.yna.co.kr/view/AKR20261014092900089",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-13T08:55:15.000Z",
+   "at": "2026-10-14T02:52:56.000Z",
+   "tag": "수출입 동향",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "中 9월 생산자물가 5% 올라 4년여만 최고…소비자물가는 0.9%↑",
+   "link": "https://www.yna.co.kr/view/AKR20261014088400009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-14T02:41:38.000Z",
    "tag": "유가·원자재",
    "direction": "info",
    "sectors": [
@@ -154,11 +116,12 @@ window.TC_BREAKING = {
    ]
   },
   {
-   "title": "울산항서 22일 화재·해양오염 상황 가정 '안전한국훈련'",
-   "link": "https://www.yna.co.kr/view/AKR20261013170400057",
-   "source": "연합뉴스",
+   "title": "China’s exports surge more than 36% in September amid tech demand, holiday rush",
+   "lang": "en",
+   "link": "https://www.scmp.com/economy/china-economy/article/3370799/chinas-trade-momentum-quickens-september-amid-tech-demand-holiday-rush?utm_source=rss_feed",
+   "source": "SCMP",
    "outlets": 1,
-   "at": "2026-10-13T08:39:45.000Z",
+   "at": "2026-10-14T02:35:08.000Z",
    "tag": "해운·물류",
    "direction": "info",
    "sectors": [
@@ -166,17 +129,46 @@ window.TC_BREAKING = {
    ]
   },
   {
-   "title": "How AI will transform freight forwarding beyond the hype",
-   "lang": "en",
-   "link": "https://theloadstar.com/how-ai-will-transform-freight-forwarding-beyond-the-hype/",
-   "source": "The Loadstar",
+   "title": "관세청, 두 달 새 '짝퉁' 28만점 적발…K브랜드 위조품 급증",
+   "link": "https://www.yna.co.kr/view/AKR20261014082000002",
+   "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-13T08:23:45.000Z",
+   "at": "2026-10-14T02:16:12.000Z",
+   "tag": "통관·원산지",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "AI 특수에 ICT 수출 751억달러…사상 첫 700억달러 돌파",
+   "link": "https://www.yna.co.kr/view/AKR20261014061500017",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-14T02:00:02.000Z",
+   "tag": "수출입 동향",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "방글라데시, 중국 차관 도입해 항구 현대화 추진",
+   "link": "https://www.yna.co.kr/view/AKR20261014074900009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-14T01:56:27.000Z",
    "tag": "해운·물류",
    "direction": "info",
    "sectors": [
     "ship"
    ]
+  },
+  {
+   "title": "앤트로픽, '블랙리스트 지정은 적법' 항소법원에 재심 요청",
+   "link": "https://www.yna.co.kr/view/AKR20261014050700009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-14T01:13:02.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": []
   }
  ]
 };

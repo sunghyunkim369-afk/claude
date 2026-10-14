@@ -257,5 +257,35 @@ class TradeCommandTest(unittest.TestCase):
         self.assertEqual(t.calls, [])  # 확인 전에는 아무 요청도 안 해요
 
 
+class UpdateCommandTest(unittest.TestCase):
+    def test_update_replaces_program_but_keeps_settings(self):
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(cli, "HERE", d), mock.patch("builtins.print"):
+            for name, text in ((".env", "KIS_APP_KEY=mine"), ("config.json", "{}"), ("kis.py", "old")):
+                with open(os.path.join(d, name), "w") as f:
+                    f.write(text)
+            cli.cmd_update(fetch=lambda url: b"new " + url.rsplit("/", 1)[1].encode())
+            self.assertEqual(open(os.path.join(d, "kis.py")).read(), "new kis.py")
+            self.assertEqual(open(os.path.join(d, ".env")).read(), "KIS_APP_KEY=mine")
+            self.assertEqual(open(os.path.join(d, "config.json")).read(), "{}")
+            self.assertTrue(os.path.exists(os.path.join(d, "tests", "test_trading.py")))
+
+    def test_update_changes_nothing_on_failure(self):
+        def fetch(url):
+            if url.endswith("planner.py"):
+                raise OSError("network")
+            return b"new"
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(cli, "HERE", d):
+            with open(os.path.join(d, "kis.py"), "w") as f:
+                f.write("old")
+            with self.assertRaises(SystemExit):
+                cli.cmd_update(fetch=fetch)
+            self.assertEqual(open(os.path.join(d, "kis.py")).read(), "old")
+
+    def test_update_file_list_matches_repo(self):
+        here = os.path.dirname(cli.__file__)
+        for name in cli.UPDATE_FILES:
+            self.assertTrue(os.path.exists(os.path.join(here, *name.split("/"))), name)
+
+
 if __name__ == "__main__":
     unittest.main()

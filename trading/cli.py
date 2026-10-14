@@ -3,18 +3,25 @@
   python3 -m trading status            잔고 보기
   python3 -m trading plan [--market kr|us|all]    주문 후보만 보기 (주문 안 함)
   python3 -m trading trade [--market kr|us|all]   후보를 하나씩 확인(y)한 것만 주문
+  python3 -m trading update            최신 프로그램 받기 (.env·config.json 은 그대로)
 """
 
 import argparse
 import json
 import os
 import sys
+import urllib.request
 from datetime import datetime
 
 from .kis import Kis, KisError
 from .planner import make_plan
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+
+UPDATE_BASE = "https://raw.githubusercontent.com/sunghyunkim369-afk/claude/claude/awesome-edison-24zdn0/trading/"
+# 사용자가 고치는 .env, config.json 은 덮어쓰지 않아요.
+UPDATE_FILES = ["__init__.py", "__main__.py", "cli.py", "kis.py", "planner.py", "strategy.py",
+                "README.md", ".env.example", "tests/__init__.py", "tests/test_trading.py"]
 
 
 def load_env(path=os.path.join(HERE, ".env")):
@@ -152,12 +159,36 @@ def cmd_trade(kis, cfg, markets, ask=input):
             write_log({"event": "order_failed", "env": kis.env, "order": o, "error": str(e)})
 
 
+def cmd_update(fetch=None):
+    """GitHub 에서 프로그램 파일을 받아 바꿔요. 하나라도 실패하면 아무것도 바꾸지 않아요."""
+    fetch = fetch or (lambda url: urllib.request.urlopen(url, timeout=20).read())
+    new = {}
+    for name in UPDATE_FILES:
+        try:
+            new[name] = fetch(UPDATE_BASE + name)
+        except Exception as e:
+            sys.exit(f"받기 실패 ({name}): {e}\n아무 파일도 바꾸지 않았어요.")
+    changed = []
+    for name, data in new.items():
+        path = os.path.join(HERE, *name.split("/"))
+        old = open(path, "rb").read() if os.path.exists(path) else None
+        if old != data:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "wb") as f:
+                f.write(data)
+            changed.append(name)
+    print("바뀐 파일: " + ", ".join(changed) if changed else "이미 최신이에요.")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="python3 -m trading", description="한국투자증권 반자동 매매 (국내+미국)")
-    ap.add_argument("command", choices=["status", "plan", "trade"])
+    ap.add_argument("command", choices=["status", "plan", "trade", "update"])
     ap.add_argument("--market", choices=["kr", "us", "all"], default="all")
     args = ap.parse_args(argv)
     markets = ("kr", "us") if args.market == "all" else (args.market,)
+    if args.command == "update":
+        cmd_update()
+        return
 
     cfg = load_config()
     kis = make_client()

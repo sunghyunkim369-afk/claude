@@ -293,8 +293,10 @@ class ContestModeTest(unittest.TestCase):
             "/uapi/overseas-stock/v1/trading/inquire-psamount": lambda q, b: {"rt_cd": "0", "output": {"ovrs_ord_psbl_amt": "50000"}},
         }
 
-    def cycle(self, kis, when, universe, cfg=None):
+    def cycle(self, kis, when, universe, cfg=None, mode=None):
         state = self.contest.State(os.path.join(self.tmp.name, "state.json"))
+        if mode:
+            state.d["kr_mode"] = mode
         cfg = cfg or {"us": {"watchlist": [{"symbol": "UP", "exchange": "NASD"}, {"symbol": "SLOW", "exchange": "NYSE"}]},
                       "auto": {}}
         return auto.run_contest_cycle(kis, cfg, state, when, self.logs.append, out=lambda *_: None, universe=universe), state
@@ -315,7 +317,7 @@ class ContestModeTest(unittest.TestCase):
         universe = [(c, f"종목{c[-1]}") for c in strengths]
         kis, t = client(self.market(strengths))
         with mock.patch.object(self.contest, "score", lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1):
-            n, state = self.cycle(kis, auto_utc(2026, 10, 15, 0, 30), universe)   # 목 09:30 KST
+            n, state = self.cycle(kis, auto_utc(2026, 10, 15, 0, 30), universe, mode="stable")   # 목 09:30 KST
         buys = [c["body"] for c in t.calls if c["path"].endswith("order-cash")]
         self.assertEqual(n, 5)
         self.assertEqual(sorted(b["PDNO"] for b in buys), ["000003", "000004", "000005", "000006", "000007"])
@@ -339,17 +341,42 @@ class ContestModeTest(unittest.TestCase):
         kis, t = client(self.market(strengths))
         with mock.patch.object(self.contest, "score", lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1), \
                 mock.patch.object(self.contest, "market_risk_on", lambda idx, n: False):
-            n, _ = self.cycle(kis, auto_utc(2026, 10, 15, 0, 30), universe)
+            n, _ = self.cycle(kis, auto_utc(2026, 10, 15, 0, 30), universe, mode="stable")
         buys = [c["body"]["PDNO"] for c in t.calls if c["path"].endswith("order-cash")]
         self.assertEqual(sorted(buys), ["000006", "000007"])
         self.assertEqual(n, 2)
+
+    def test_aggressive_default_buys_top2_with_half_each(self):
+        strengths = {f"00000{i}": 0.002 * i for i in range(1, 8)}
+        universe = [(c, c) for c in strengths]
+        kis, t = client(self.market(strengths))
+        with mock.patch.object(self.contest, "score", lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1):
+            n, state = self.cycle(kis, auto_utc(2026, 10, 15, 0, 30), universe)
+        buys = [c["body"] for c in t.calls if c["path"].endswith("order-cash")]
+        self.assertEqual(sorted(b["PDNO"] for b in buys), ["000006", "000007"])
+        self.assertEqual(int(buys[0]["ORD_QTY"]), 4950)   # 1억/2*0.99/10000
+        self.assertEqual(state.d["start_total"], 100_000_000)
+
+    def test_switch_to_stable_after_gain(self):
+        state = self.contest.State(os.path.join(self.tmp.name, "s.json"))
+        say = []
+        self.contest.maybe_switch_to_stable(state, 100_000_000, 0.2, say.append)
+        self.assertEqual(state.d.get("kr_mode", "aggressive"), "aggressive")
+        self.contest.maybe_switch_to_stable(state, 119_000_000, 0.2, say.append)
+        self.assertEqual(state.d.get("kr_mode", "aggressive"), "aggressive")
+        gain = self.contest.maybe_switch_to_stable(state, 121_000_000, 0.2, say.append)
+        self.assertAlmostEqual(gain, 0.21)
+        self.assertEqual(state.d["kr_mode"], "stable")
+        self.contest.maybe_switch_to_stable(state, 90_000_000, 0.2, say.append)
+        self.assertEqual(state.d["kr_mode"], "stable")   # 한 번 바꾸면 그대로
+        self.assertEqual(self.contest.kr_params(state)["top_k"], 5)
 
     def test_kr_sells_dropped_holdings(self):
         strengths = {"000001": 0.01}
         held = [{"pdno": "999999", "prdt_name": "빠진종목", "hldg_qty": "7", "pchs_avg_pric": "1", "prpr": "1"}]
         kis, t = client(self.market(strengths, held_kr=held))
         with mock.patch.object(self.contest, "score", lambda closes, lb, rm: 0.1):
-            self.cycle(kis, auto_utc(2026, 10, 15, 0, 30), [("000001", "A")])
+            self.cycle(kis, auto_utc(2026, 10, 15, 0, 30), [("000001", "A")], mode="stable")
         orders = [(c["headers"]["tr_id"], c["body"]["PDNO"]) for c in t.calls if c["path"].endswith("order-cash")]
         self.assertEqual(orders[0], ("VTTC0011U", "999999"))   # 매도 먼저
         self.assertEqual(orders[1], ("VTTC0012U", "000001"))

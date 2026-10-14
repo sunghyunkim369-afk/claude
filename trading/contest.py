@@ -2,7 +2,12 @@
 
 backtest/contest.py 로 과거 5년의 '5주 구간' 수백 개를 시험해서 정한 공식이에요.
 
-국내 (코스피200·코스닥150 후보 universe_kr.csv 안에서만):
+국내는 두 가지 공식 중 하나로 돌아요 (state 의 kr_mode):
+  aggressive (기본, 입상형): 20거래일 수익률 상위 2종목, 2거래일마다 교체, 과열 제외·시장 필터 없음
+    → 과거 5주 구간 검증: +30% 이상 확률 약 23%, 상위 10% +50~76%, 하위 10% −22~−34%, 최악 −55%
+  stable (안정형): 아래 설명. 총평가가 시작 대비 +20%(SWITCH_TO_STABLE_AT) 이상이 되면 자동으로 바꿔요.
+
+안정형 (코스피200·코스닥150 후보 universe_kr.csv 안에서만):
   - 후보: 어제 종가 > EMA20 > EMA60, RSI14 < 80
   - 점수: 최근 20거래일 수익률. 상위 5종목이 목표
   - 시장이 나쁜 날(대상 종목 동일비중 지수 < 그 지수의 EMA20)엔 상위 2종목만 (나머지 현금)
@@ -24,9 +29,16 @@ from datetime import date
 
 from .kis import KisError
 
-KR = {"lookback": 20, "top_k": 5, "rebalance_days": 2, "rsi_max": 80,
-      # 시장 국면 필터: 대상 종목 동일비중 지수가 그 지수의 EMA20 아래면(시장이 나쁜 날) 상위 2종목만, 나머지 현금
-      "regime_ema": 20, "risk_off_top": 2}
+KR_MODES = {
+    "stable": {"lookback": 20, "top_k": 5, "rebalance_days": 2, "rsi_max": 80,
+               # 시장 국면 필터: 대상 종목 동일비중 지수가 그 지수의 EMA20 아래면(나쁜 날) 상위 2종목만, 나머지 현금
+               "regime_ema": 20, "risk_off_top": 2},
+    "aggressive": {"lookback": 20, "top_k": 2, "rebalance_days": 2, "rsi_max": 101,
+                   "regime_ema": None, "risk_off_top": 2},
+}
+KR = KR_MODES["stable"]  # 예전 이름 (호환용)
+DEFAULT_KR_MODE = "aggressive"
+SWITCH_TO_STABLE_AT = 0.20  # 입상형으로 시작 대비 +20% 이상 벌면 안정형으로
 US = {"lookback": 60, "top_k": 5, "rsi_max": 80}
 
 
@@ -120,9 +132,23 @@ def load_universe(path):
 
 # ---------- 국내 ----------
 
+def kr_params(state):
+    return KR_MODES[state.d.get("kr_mode", DEFAULT_KR_MODE)]
+
+
+def maybe_switch_to_stable(state, total, threshold=SWITCH_TO_STABLE_AT, out=print):
+    """입상형에서 총평가가 시작 대비 threshold 이상 오르면 안정형으로 바꿔요 (한 번 바꾸면 그대로)."""
+    start = state.d.setdefault("start_total", total)
+    gain = total / start - 1 if start else 0.0
+    if state.d.get("kr_mode", DEFAULT_KR_MODE) == "aggressive" and gain >= threshold:
+        state.d["kr_mode"] = "stable"
+        out(f"  수익률 {gain * 100:+.1f}% (기준 +{threshold * 100:.0f}%) → 안정형으로 전환해요")
+    return gain
+
+
 def kr_due(state, session):
     last = state.d["kr_rebalances"][-1] if state.d["kr_rebalances"] else None
-    return last is None or (last != session and business_days_between(last, session) >= KR["rebalance_days"])
+    return last is None or (last != session and business_days_between(last, session) >= kr_params(state)["rebalance_days"])
 
 
 def equal_weight_index(series_by_code):
@@ -145,8 +171,9 @@ def market_risk_on(index_values, n):
     return True if e is None else index_values[-1] > e
 
 
-def kr_targets(kis, universe, today, out=print):
+def kr_targets(kis, universe, today, out=print, p=None):
     """반환: (목표 [(점수, 코드, 이름)], 시장이 좋은 날인지)."""
+    p = p or KR
     scored, series = [], {}
     t = today.strftime("%Y%m%d")
     for i, (code, name) in enumerate(universe, 1):
@@ -157,18 +184,18 @@ def kr_targets(kis, universe, today, out=print):
             continue
         past = [(d, c) for d, c in rows if d < t]
         series[code] = past
-        s = score([c for _, c in past], KR["lookback"], KR["rsi_max"])
+        s = score([c for _, c in past], p["lookback"], p["rsi_max"])
         if s is not None:
             scored.append((s, code, name))
         if i % 50 == 0:
             out(f"    종목 확인 {i}/{len(universe)}")
     scored.sort(reverse=True)
-    risk_on = market_risk_on(equal_weight_index(series), KR["regime_ema"])
-    keep = KR["top_k"] if risk_on else KR["risk_off_top"]
+    risk_on = True if not p.get("regime_ema") else market_risk_on(equal_weight_index(series), p["regime_ema"])
+    keep = p["top_k"] if risk_on else p["risk_off_top"]
     return scored[:keep], risk_on
 
 
-def kr_plan(kis, targets):
+def kr_plan(kis, targets, p=None):
     """(매도 주문들, 매수 주문들). 목표에 없는 보유 종목은 전부 팔고, 새 목표는 총평가의 1/5 씩
     (시장이 나쁜 날 목표가 2종목이어도 1/5 씩이라 나머지는 현금으로 남아요)."""
     bal = kis.kr_balance()
@@ -176,7 +203,7 @@ def kr_plan(kis, targets):
     want = {code for _, code, _ in targets}
     sells = [{"market": "kr", "side": "sell", "symbol": c, "name": h["name"], "qty": h["qty"], "price": h["price"],
               "currency": "KRW", "reason": "목표 5종목에서 빠짐"} for c, h in held.items() if c not in want]
-    per = bal["total"] / KR["top_k"] if bal["total"] > 0 else 0
+    per = bal["total"] / (p or KR)["top_k"] if bal["total"] > 0 else 0
     buys = []
     for sc, code, name in targets:
         if code in held:

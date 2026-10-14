@@ -6,6 +6,8 @@
   python3 -m trading order buy AAPL 1  주문 하나 직접 내기 (체결 시험용, 확인 후 주문. -y 면 확인 없이)
   python3 -m trading contest           대회 모드 자동매매 (contest.py 공식, 모의투자 전용)
   python3 -m trading contest --once    대회 모드를 한 번만 돌고 끝내기
+  python3 -m trading contest --reset   계좌를 초기화했을 때 진행 상태 지우기
+  python3 -m trading contest --mode stable   국내 공식을 안정형으로 (aggressive = 입상형)
   python3 -m trading schedule          Windows 작업 스케줄러에 예약 (절전에서 깨워 평일 09:10·23:40 실행)
   python3 -m trading auto              자동매매 (장중에 정해진 간격으로 확인하고 바로 주문)
   python3 -m trading update            최신 프로그램 받기 (.env·config.json 은 그대로)
@@ -268,6 +270,8 @@ def main(argv=None):
     ap.add_argument("--exchange", choices=["NASD", "NYSE", "AMEX"], help="미국 종목 거래소 (기본 NASD)")
     ap.add_argument("-y", "--yes", action="store_true", help="order 를 확인(y) 없이 바로 주문")
     ap.add_argument("--once", action="store_true", help="contest 를 한 번만 돌고 끝내기 (작업 스케줄러용)")
+    ap.add_argument("--reset", action="store_true", help="contest 진행 상태 지우기 (계좌를 초기화했을 때)")
+    ap.add_argument("--mode", choices=["aggressive", "stable"], help="contest 국내 공식 바꾸기 (입상형/안정형)")
     args = ap.parse_args(argv)
     markets = ("kr", "us") if args.market == "all" else (args.market,)
     if args.command == "update":
@@ -284,6 +288,18 @@ def main(argv=None):
 
     cfg = load_config()
     kis = make_client()
+    if args.command == "contest" and (args.reset or args.mode):
+        from . import contest
+        path = os.path.join(HERE, ".cache", f"contest-{kis.env}.json")
+        if args.reset and os.path.exists(path):
+            os.remove(path)
+            print("대회 진행 상태를 지웠어요. 다음 실행 때 처음부터 시작해요.")
+        if args.mode:
+            st = contest.State(path)
+            st.d["kr_mode"] = args.mode
+            st.save()
+            print(f"국내 공식: {'입상형' if args.mode == 'aggressive' else '안정형'}으로 바꿨어요.")
+        return
     if args.command == "contest":
         try:
             cmd_contest(kis, cfg, markets, once=args.once)

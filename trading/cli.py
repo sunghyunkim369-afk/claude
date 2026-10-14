@@ -13,6 +13,7 @@ import argparse
 import json
 import os
 import sys
+import urllib.parse
 import urllib.request
 from datetime import datetime
 
@@ -24,7 +25,7 @@ UPDATE_BASE = "https://raw.githubusercontent.com/sunghyunkim369-afk/claude/claud
 # 사용자가 고치는 .env, config.json 은 덮어쓰지 않아요.
 # 받을 파일 목록은 저장소의 trading/MANIFEST 를 먼저 보고, 못 받으면 아래 목록을 써요.
 UPDATE_FILES = ["__init__.py", "__main__.py", "auto.py", "cli.py", "contest.py", "kis.py", "planner.py", "strategy.py",
-                "universe_kr.csv", "대회시작.bat", "잔고보기.bat",
+                "universe_kr.csv", "start_contest.bat", "show_balance.bat",
                 "README.md", ".env.example", "MANIFEST", "tests/__init__.py", "tests/test_trading.py"]
 
 
@@ -231,7 +232,7 @@ def cmd_update(fetch=None):
     new = {}
     for name in files:
         try:
-            new[name] = fetch(UPDATE_BASE + name)
+            new[name] = fetch(UPDATE_BASE + urllib.parse.quote(name))
         except Exception as e:
             sys.exit(f"받기 실패 ({name}): {e}\n아무 파일도 바꾸지 않았어요.")
     changed = []

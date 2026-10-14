@@ -8,8 +8,8 @@ kis.py
 planner.py
 strategy.py
 universe_kr.csv
-대회시작.bat
-잔고보기.bat
+start_contest.bat
+show_balance.bat
 README.md
 .env.example
 MANIFEST

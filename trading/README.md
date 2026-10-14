@@ -27,7 +27,7 @@ python3 -m trading order buy AAPL 1 -y  # 확인(y) 없이 바로 주문
 
 ## 대회 모드 (`python -m trading contest`)
 
-Windows 에서는 `trading` 폴더의 **`대회시작.bat` 을 더블클릭**하면 돼요 (최신 버전 받기 → 대회 모드 시작). `잔고보기.bat` 은 잔고를 보여 줘요.
+Windows 에서는 `trading` 폴더의 **`start_contest.bat` 을 더블클릭**하면 돼요 (최신 버전 받기 → 대회 모드 시작). `show_balance.bat` 은 잔고를 보여 줘요.
 
 BanKIS 대학생 모의투자대회(~11/20)용이에요. `backtest/contest.py` 로 과거 5년의 5주 구간 수백 개를 시험해 정한 공식이에요 (모의투자 전용).
 

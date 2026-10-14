@@ -48,6 +48,20 @@ GRID = {
     "regime_off": ["cash", "top2"],
 }
 
+# 입상 노리기(--aggressive): 평균보다 '잘 풀린 구간'의 수익률(상위 10%)이 큰 공식을 찾아요.
+# 종목 수를 줄이고(집중), 더 짧은 기간의 급등주를 쫓는 조합까지 넣어요.
+AGG_GRID = {
+    "lookback": [5, 10, 20],
+    "top_k": [1, 2, 3, 5],
+    "rebalance_days": [1, 2, 5],
+    "full_rebalance": [False],
+    "stop_atr": [0.0],
+    "rsi_max": [101],          # 과열 제외 안 함 (급등주를 쫓아요)
+    "regime": ["none", "index20"],
+    "regime_off": ["cash"],
+}
+TAIL_GOAL = 0.30  # 5주에 +30% 이상이면 '대박 구간'으로 셈
+
 # 수상 조건. 해외 부문 조건은 확인 전이라 국내와 같은 횟수 조건만 적용하고 금액 조건은 빼요.
 RULES = {
     "KR": {"amount": 500_000_000, "days": 5, "symbols": 5, "orders": 5},
@@ -233,13 +247,16 @@ def summarize(rets, bench, stats, rule, scale):
     return {"평균": r.mean(), "중앙값": np.median(r), "하위25%": np.percentile(r, 25), "최악": r.min(),
             "최고": r.max(), "기준초과확률": (r > b).mean(), "기준평균": b.mean(),
             "조건충족률": ok.mean(), "평균매매금액배수": np.mean([s["amount"] for s in stats]) / scale / 1e8 if scale else 0,
-            "평균주문": np.mean([s["orders"] for s in stats]), "구간수": len(r)}
+            "평균주문": np.mean([s["orders"] for s in stats]), "구간수": len(r),
+            "상위10%": np.percentile(r, 90), "상위5%": np.percentile(r, 95), "하위10%": np.percentile(r, 10),
+            "+30%확률": (r >= TAIL_GOAL).mean()}
 
 
 def fmt(df):
     shown = df.copy()
     for c in shown.columns:
-        if c in ("평균", "중앙값", "하위25%", "최악", "최고", "기준초과확률", "기준평균", "조건충족률"):
+        if c in ("평균", "중앙값", "하위25%", "최악", "최고", "기준초과확률", "기준평균", "조건충족률",
+                 "상위10%", "상위5%", "하위10%", "+30%확률"):
             shown[c] = shown[c].map(lambda v: f"{v * 100:.1f}%")
         elif c in ("평균주문", "평균매매금액배수"):
             shown[c] = shown[c].map(lambda v: f"{v:.1f}")
@@ -417,6 +434,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default=os.path.join(HERE, "config.yaml"))
     ap.add_argument("--days", type=int, default=26, help="대회 길이(거래일). 10/15~11/20 은 약 26일")
+    ap.add_argument("--aggressive", action="store_true", help="입상 노리기: 상위 10% 수익률 기준으로 고르기")
     args = ap.parse_args(argv)
     cfg = load_config(args.config)
     val = cfg.get("validation", {})
@@ -427,7 +445,10 @@ def main(argv=None):
     symbols = list(dict.fromkeys(kr_symbols(cfg, print) + us))
     raw, start, end = load_all(symbols, cfg["period"], cache, log=lambda *_: None)
     print(f"받은 데이터: 국내 {sum(market_of(s) == 'KR' for s in raw)}종목, 해외 {sum(market_of(s) == 'US' for s in raw)}종목")
-    frames = prepare(raw, cfg, GRID["lookback"])
+    grid = AGG_GRID if args.aggressive else GRID
+    metric = "상위10%" if args.aggressive else "중앙값"
+    tag = "contest_aggressive" if args.aggressive else "contest"
+    frames = prepare(raw, cfg, sorted(set(GRID["lookback"]) | set(AGG_GRID["lookback"])))
     ratio = float(val.get("train_ratio", 0.6))
 
     rows, lines, picked = [], [f"대회 길이 {args.days}거래일, 5거래일 간격으로 자른 구간마다 새로 운용", ""], {}
@@ -445,8 +466,8 @@ def main(argv=None):
         bars = build_bars(mf)
         regime = build_regime(bars)
         combos = {}  # 조합 이름 → (구간별 수익률, 구간별 조건 통계)
-        for values in itertools.product(*GRID.values()):
-            params = dict(zip(GRID, values))
+        for values in itertools.product(*grid.values()):
+            params = dict(zip(grid, values))
             if params["regime"] == "none" and params["regime_off"] != "cash":
                 continue  # 레짐 필터를 안 쓰면 나쁜 날 행동은 의미 없어요
             rot = Rotation(mf, market, cfg, params, bars, regime)
@@ -459,32 +480,35 @@ def main(argv=None):
             for part, sl in (("학습", slice(0, cut)), ("검증", slice(cut, None))):
                 rows.append({"시장": market, "구분": part, **params,
                              **summarize(rets[sl], bench[sl], stats[sl], rule, scale)})
-        adaptive_lines = adaptive_report(wins, combos, bench, rule, scale, cut)
         states = build_states(regime)
-        adaptive_lines += [""] + state_report(wins, combos, bench, states, rule, scale, cut)
         now_lines = current_state_lines(market, states, dates)
+        if args.aggressive:
+            adaptive_lines = []
+        else:
+            adaptive_lines = adaptive_report(wins, combos, bench, rule, scale, cut)
+            adaptive_lines += [""] + state_report(wins, combos, bench, states, rule, scale, cut)
         df = pd.DataFrame(rows)
         train = df[(df["시장"] == market) & (df["구분"] == "학습")]
         test = df[(df["시장"] == market) & (df["구분"] == "검증")]
         # 고르는 기준: 수상 조건을 90% 이상 채운 조합 중 중앙값 수익률 1위
         ok = train[train["조건충족률"] >= 0.9]
-        best = (ok if len(ok) else train).sort_values("중앙값", ascending=False).iloc[0]
-        key = {k: best[k] for k in GRID}
+        best = (ok if len(ok) else train).sort_values(metric, ascending=False).iloc[0]
+        key = {k: best[k] for k in grid}
         picked[market] = {k: (v.item() if hasattr(v, "item") else v) for k, v in key.items()}
         test_best = test[np.logical_and.reduce([test[k] == v for k, v in key.items()])]
         cols = ["시장", "구분"]
         lines += now_lines + [f"[{market}] 학습 구간 {cut}개 / 검증 구간 {len(wins) - cut}개 ({wins[cut][0]:%Y-%m-%d} 이후 시작)",
-                  "학습 구간: 조건충족률 90% 이상 중 중앙값 상위 5개",
-                  fmt((ok if len(ok) else train).sort_values("중앙값", ascending=False).head(5).drop(columns=cols)),
+                  f"학습 구간: 조건충족률 90% 이상 중 {metric} 상위 5개",
+                  fmt((ok if len(ok) else train).sort_values(metric, ascending=False).head(5).drop(columns=cols)),
                   "고른 조합의 검증 구간 결과:", fmt(test_best.drop(columns=cols)),
-                  "검증 구간 전체 조합(참고):", fmt(test.sort_values("중앙값", ascending=False).drop(columns=cols)), "",
+                  "검증 구간 전체 조합(참고):", fmt(test.sort_values(metric, ascending=False).drop(columns=cols)), "",
                   *adaptive_lines, ""]
     os.makedirs(out_dir, exist_ok=True)
-    pd.DataFrame(rows).to_csv(os.path.join(out_dir, "contest.csv"), index=False, encoding="utf-8-sig")
+    pd.DataFrame(rows).to_csv(os.path.join(out_dir, f"{tag}.csv"), index=False, encoding="utf-8-sig")
     lines.append("고른 조합: " + "; ".join(f"{m}: {k}" for m, k in picked.items()))
     text = "\n".join(lines)
     print(text)
-    with open(os.path.join(out_dir, "contest.txt"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out_dir, f"{tag}.txt"), "w", encoding="utf-8") as f:
         f.write(text + "\n")
 
 

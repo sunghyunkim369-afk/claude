@@ -48,6 +48,8 @@ jobs:
         run: python universe.py
       - name: 대회용 공식 검증 (5주 구간 반복)
         run: python contest.py
+      - name: 입상 노리는 공식 검증 (상위 10% 수익률 기준)
+        run: python contest.py --aggressive
       - name: 결과 올리기
         run: |
           git config user.name "github-actions[bot]"

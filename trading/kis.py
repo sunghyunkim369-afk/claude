@@ -160,8 +160,9 @@ class Kis:
         out = res["output"]
         return {"price": _num(out["stck_prpr"]), "name": out.get("hts_kor_isnm", "")}
 
-    def kr_daily(self, code, days=150):
-        """일봉 종가 (오래된 날짜 → 최근 순). 수정주가 기준, 한 번에 최대 100개."""
+    def kr_daily(self, code, days=150, with_dates=False):
+        """일봉 종가 (오래된 날짜 → 최근 순). 수정주가 기준, 한 번에 최대 100개.
+        with_dates 면 [(YYYYMMDD, 종가)]."""
         end = date.today()
         start = end - timedelta(days=days)
         res = self._call("GET", "/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice",
@@ -172,6 +173,8 @@ class Kis:
                           "FID_PERIOD_DIV_CODE": "D", "FID_ORG_ADJ_PRC": "0"})
         rows = [r for r in res.get("output2") or [] if r.get("stck_bsop_date")]
         rows.sort(key=lambda r: r["stck_bsop_date"])
+        if with_dates:
+            return [(r["stck_bsop_date"], _num(r["stck_clpr"])) for r in rows]
         return [_num(r["stck_clpr"]) for r in rows]
 
     def kr_balance(self):
@@ -218,13 +221,15 @@ class Kis:
                          {"AUTH": "", "EXCD": US_PRICE_EXCD[exchange], "SYMB": symbol})
         return {"price": _num(res["output"].get("last")), "name": symbol}
 
-    def us_daily(self, symbol, exchange):
-        """일봉 종가 (오래된 날짜 → 최근 순). 수정주가 기준, 최대 100개."""
+    def us_daily(self, symbol, exchange, with_dates=False):
+        """일봉 종가 (오래된 날짜 → 최근 순). 수정주가 기준, 최대 100개. with_dates 면 [(YYYYMMDD, 종가)]."""
         res = self._call("GET", "/uapi/overseas-price/v1/quotations/dailyprice", "HHDFS76240000",
                          {"AUTH": "", "EXCD": US_PRICE_EXCD[exchange], "SYMB": symbol,
                           "GUBN": "0", "BYMD": "", "MODP": "1"})
         rows = [r for r in res.get("output2") or [] if r.get("xymd")]
         rows.sort(key=lambda r: r["xymd"])
+        if with_dates:
+            return [(r["xymd"], _num(r["clos"])) for r in rows]
         return [_num(r["clos"]) for r in rows]
 
     def us_balance(self, exchanges=("NASD", "NYSE", "AMEX")):

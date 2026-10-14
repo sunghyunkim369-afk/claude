@@ -3,9 +3,11 @@ __init__.py
 __main__.py
 auto.py
 cli.py
+contest.py
 kis.py
 planner.py
 strategy.py
+universe_kr.csv
 README.md
 .env.example
 MANIFEST

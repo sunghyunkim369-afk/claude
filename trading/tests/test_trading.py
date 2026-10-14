@@ -259,6 +259,109 @@ class TradeCommandTest(unittest.TestCase):
         self.assertEqual(t.calls, [])  # 확인 전에는 아무 요청도 안 해요
 
 
+class ContestModeTest(unittest.TestCase):
+    """대회 모드: 국내 상위 5종목 2거래일마다 교체, 미국 하루 1종목씩 5종목까지."""
+
+    def setUp(self):
+        from trading import contest
+        self.contest = contest
+        self.tmp = tempfile.TemporaryDirectory()
+        self.logs = []
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def market(self, strengths, held_kr=None, held_us=None):
+        """strengths: {코드: 하루 상승률}. 클수록 20일 수익률이 높아요."""
+        def series(step):
+            return [100 * (1 + step) ** i for i in range(90)]
+
+        def kr_daily(q, b):
+            closes = series(strengths[q["FID_INPUT_ISCD"]])
+            return {"rt_cd": "0", "output2": [{"stck_bsop_date": f"2026{i:04d}", "stck_clpr": str(c)}
+                                              for i, c in enumerate(closes, 1)]}
+        held_kr = held_kr or []
+        return {
+            "/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice": kr_daily,
+            "/uapi/domestic-stock/v1/quotations/inquire-price": lambda q, b: {"rt_cd": "0", "output": {"stck_prpr": "10000"}},
+            "/uapi/domestic-stock/v1/trading/inquire-balance": lambda q, b: {
+                "rt_cd": "0", "output1": held_kr, "output2": [{"dnca_tot_amt": "100000000", "tot_evlu_amt": "100000000"}]},
+            "/uapi/overseas-stock/v1/trading/inquire-balance": lambda q, b: {"rt_cd": "0", "output1": held_us or []},
+            "/uapi/overseas-price/v1/quotations/dailyprice": lambda q, b: {"rt_cd": "0", "output2": [
+                {"xymd": f"2026{i:04d}", "clos": str(c)} for i, c in enumerate(series(0.004 if q["SYMB"] == "UP" else 0.001), 1)]},
+            "/uapi/overseas-price/v1/quotations/price": lambda q, b: {"rt_cd": "0", "output": {"last": "100"}},
+            "/uapi/overseas-stock/v1/trading/inquire-psamount": lambda q, b: {"rt_cd": "0", "output": {"ovrs_ord_psbl_amt": "50000"}},
+        }
+
+    def cycle(self, kis, when, universe, cfg=None):
+        state = self.contest.State(os.path.join(self.tmp.name, "state.json"))
+        cfg = cfg or {"us": {"watchlist": [{"symbol": "UP", "exchange": "NASD"}, {"symbol": "SLOW", "exchange": "NYSE"}]},
+                      "auto": {}}
+        return auto.run_contest_cycle(kis, cfg, state, when, self.logs.append, out=lambda *_: None, universe=universe), state
+
+    def test_indicators_and_score(self):
+        rising = [100 * 1.01 ** i for i in range(90)]
+        self.assertAlmostEqual(self.contest.score(rising, 20, 101), 1.01 ** 20 - 1)
+        self.assertIsNone(self.contest.score(rising, 20, 80))          # RSI 100: 과열이라 제외
+        self.assertIsNone(self.contest.score(rising[::-1], 20, 101))   # 하락 추세
+        self.assertIsNone(self.contest.score(rising[:50], 20, 101))    # 데이터 부족
+        rows = [("20261014", 1.0), ("20261015", 2.0)]
+        from datetime import date as _d
+        self.assertEqual(self.contest.closes_until_yesterday(rows, _d(2026, 10, 15)), [1.0])
+
+    def test_kr_rebalance_buys_top5_then_waits_two_business_days(self):
+        # 상승률이 다른 7종목 (RSI 제한 80 을 넘지 않게 등락을 섞어요)
+        strengths = {f"00000{i}": 0.002 * i for i in range(1, 8)}
+        universe = [(c, f"종목{c[-1]}") for c in strengths]
+        kis, t = client(self.market(strengths))
+        with mock.patch.object(self.contest, "score", lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1):
+            n, state = self.cycle(kis, auto_utc(2026, 10, 15, 0, 30), universe)   # 목 09:30 KST
+        buys = [c["body"] for c in t.calls if c["path"].endswith("order-cash")]
+        self.assertEqual(n, 5)
+        self.assertEqual(sorted(b["PDNO"] for b in buys), ["000003", "000004", "000005", "000006", "000007"])
+        self.assertTrue(all(b["ORD_DVSN"] == "01" for b in buys))             # 시장가
+        self.assertEqual(int(buys[0]["ORD_QTY"]), 1980)                        # 1억/5*0.99/10000
+        self.assertEqual(state.d["kr_rebalances"], ["2026-10-15"])
+        self.assertEqual(len(state.d["symbols"]), 5)
+        self.assertTrue(self.contest.kr_due(state, "2026-10-19") and not self.contest.kr_due(state, "2026-10-16"))
+
+    def test_kr_sells_dropped_holdings(self):
+        strengths = {"000001": 0.01}
+        held = [{"pdno": "999999", "prdt_name": "빠진종목", "hldg_qty": "7", "pchs_avg_pric": "1", "prpr": "1"}]
+        kis, t = client(self.market(strengths, held_kr=held))
+        with mock.patch.object(self.contest, "score", lambda closes, lb, rm: 0.1):
+            self.cycle(kis, auto_utc(2026, 10, 15, 0, 30), [("000001", "A")])
+        orders = [(c["headers"]["tr_id"], c["body"]["PDNO"]) for c in t.calls if c["path"].endswith("order-cash")]
+        self.assertEqual(orders[0], ("VTTC0011U", "999999"))   # 매도 먼저
+        self.assertEqual(orders[1], ("VTTC0012U", "000001"))
+
+    def test_us_buys_one_per_session_until_five(self):
+        kis, t = client(self.market({}))
+        with mock.patch.object(self.contest, "score", lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1):
+            n, state = self.cycle(kis, auto_utc(2026, 10, 15, 14, 0), [])    # 미국 10:00 EDT
+            n2, _ = self.cycle(kis, auto_utc(2026, 10, 15, 15, 0), [])        # 같은 날 다시: 안 사요
+        us = [c["body"] for c in t.calls if c["path"].endswith("/trading/order")]
+        self.assertEqual((n, n2, len(us)), (1, 0, 1))
+        self.assertEqual(us[0]["PDNO"], "UP")
+        # 주문가능 5만 달러 / 5자리 * 0.98 / (100 * 1.005)
+        self.assertEqual(int(us[0]["ORD_QTY"]), 97)
+        held = [{"ovrs_pdno": s, "ovrs_cblc_qty": "1", "pchs_avg_pric": "1", "now_pric2": "1"} for s in "ABCDE"]
+        kis2, t2 = client(self.market({}, held_us=held))
+        self.cycle(kis2, auto_utc(2026, 10, 16, 14, 0), [])
+        self.assertFalse(any(c["path"].endswith("/trading/order") for c in t2.calls))
+
+    def test_universe_file(self):
+        here = os.path.dirname(cli.__file__)
+        u = self.contest.load_universe(os.path.join(here, "universe_kr.csv"))
+        self.assertEqual(len(u), 250)
+        self.assertTrue(all(len(c) == 6 and c.isdigit() for c, _ in u))
+        self.assertIn(("005930", "삼성전자"), u)
+
+
+def auto_utc(y, mo, d, h, mi):
+    return datetime(y, mo, d, h, mi, tzinfo=timezone.utc)
+
+
 class OrderCommandTest(unittest.TestCase):
     def test_us_order_marketable_limit_and_fill_check(self):
         held = []

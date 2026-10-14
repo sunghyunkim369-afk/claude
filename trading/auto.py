@@ -141,12 +141,85 @@ def run_cycle(kis, cfg, book, now_utc, log, orders_sent_today, out=print):
     return sent
 
 
+def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
+    """대회 모드 한 번 돌기 (trading/contest.py 공식). 반환: 낸 주문 수."""
+    from . import contest
+    sent = 0
+    slip = {**DEFAULTS, **cfg.get("auto", {})}["us_limit_slippage_pct"]
+    stamp = now_utc.astimezone(KST).strftime("%H:%M")
+
+    def place(o, session):
+        nonlocal sent
+        side = "매수" if o["side"] == "buy" else "매도"
+        try:
+            res, qty, price = send(kis, o, slip)
+            if res is None:
+                return
+            amount = qty * (price or o["price"])
+            state.record(o["market"], o["symbol"], amount, session)
+            log({"event": "order_sent", "env": kis.env, "contest": True,
+                 "order": {**o, "qty": qty, "sent_price": price}, "result": res})
+            out(f"  {side} {o['name']}({o['symbol']}) {qty}주 접수 (주문번호 {res.get('ODNO', '?')}) - {o['reason']}")
+            sent += 1
+        except KisError as e:
+            log({"event": "order_failed", "env": kis.env, "contest": True, "order": o, "error": str(e)})
+            out(f"  {side} {o['name']}({o['symbol']}) 실패: {e}")
+
+    kr_session = market_session("kr", now_utc)
+    if kr_session and contest.kr_due(state, kr_session):
+        today = now_utc.astimezone(KST).date()
+        out(f"[{stamp}] 국내 리밸런스: {len(universe)}종목 순위 계산 중 (몇 분 걸려요)")
+        targets = contest.kr_targets(kis, universe, today, out)
+        out("  목표 5종목: " + ", ".join(f"{n}({c}) {s * 100:+.1f}%" for s, c, n in targets) if targets
+            else "  상승 추세 종목이 없어 현금 보유")
+        sells, buys = contest.kr_plan(kis, targets)
+        for o in sells:
+            place(o, kr_session)
+        for o in buys:
+            place(o, kr_session)
+        state.d["kr_rebalances"].append(kr_session)
+        d = state.d
+        out(f"  대회 조건 진행(주문 접수 기준): 매매금액 {d['amount'] / 1e8:.2f}억/5억, 매매일 {len(d['days'])}/5일, "
+            f"종목 {len(d['symbols'])}/5, 주문 {d['orders']}/5회")
+        state.save()
+
+    us_session = market_session("us", now_utc)
+    if us_session:
+        held = kis.us_balance()["holdings"]
+        if contest.us_due(state, us_session, held):
+            today = us_eastern(now_utc).date()
+            pick = contest.us_pick(kis, cfg["us"]["watchlist"], held, today, out)
+            if pick is None:
+                out(f"[{stamp}] 미국: 살 만한 상승 추세 종목이 없어요")
+            else:
+                sc, sym, excg = pick
+                price = kis.us_price(sym, excg)["price"]
+                cash = kis.us_buyable(sym, excg, price)["usd"]
+                per = cash / (contest.US["top_k"] - len(held))
+                # 0.5% 불리한 지정가만큼은 send() 가 수량을 줄여요
+                qty = math.floor(per * 0.98 / price) if price > 0 else 0
+                if qty > 0:
+                    out(f"[{stamp}] 미국 {len(held) + 1}번째 종목 매수")
+                    place({"market": "us", "side": "buy", "symbol": sym, "exchange": excg, "name": sym, "qty": qty,
+                           "price": price, "currency": "USD", "reason": f"60일 수익률 {sc * 100:+.1f}%"}, us_session)
+                else:
+                    out(f"[{stamp}] 미국 {sym}: 주문가능금액(${cash:,.2f})이 부족해요")
+            state.d["us_buys"].append(us_session)
+            state.save()
+    return sent
+
+
 def run_forever(kis, cfg, here, log, orders_sent_today, now=lambda: datetime.now(timezone.utc),
-                sleep=time.sleep, out=print):
+                sleep=time.sleep, out=print, contest_mode=False):
     auto = {**DEFAULTS, **cfg.get("auto", {})}
     interval = timedelta(minutes=auto["interval_min"])
     stop_file = os.path.join(here, "STOP")
     book = OrderBook(os.path.join(here, ".cache", f"auto-orders-{kis.env}.json"))
+    if contest_mode:
+        from . import contest
+        state = contest.State(os.path.join(here, ".cache", f"contest-{kis.env}.json"))
+        universe = contest.load_universe(os.path.join(here, "universe_kr.csv"))
+        out(f"대회 모드: 국내 {len(universe)}종목 중 상위 5종목 2거래일마다 교체, 미국은 하루 1종목씩 5종목까지 매수 후 보유")
     out(f"자동매매 시작 ({'모의투자' if kis.env == 'demo' else '실전'}), {auto['interval_min']}분마다 확인해요.")
     out("멈추려면 Ctrl+C 를 누르거나 trading 폴더에 STOP 파일을 만드세요.")
     last_run = None
@@ -160,7 +233,10 @@ def run_forever(kis, cfg, here, log, orders_sent_today, now=lambda: datetime.now
         if open_now and (last_run is None or t - last_run >= interval):
             waiting_shown = False
             try:
-                run_cycle(kis, cfg, book, t, log, orders_sent_today, out)
+                if contest_mode:
+                    run_contest_cycle(kis, cfg, state, t, log, out, universe)
+                else:
+                    run_cycle(kis, cfg, book, t, log, orders_sent_today, out)
             except Exception as e:  # 네트워크 오류 등으로 프로그램이 꺼지지 않게
                 log({"event": "auto_error", "error": str(e)})
                 out(f"  오류: {e} (다음 확인 때 다시 시도해요)")

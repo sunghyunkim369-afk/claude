@@ -16,9 +16,7 @@ import sys
 import urllib.request
 from datetime import datetime
 
-from . import auto
 from .kis import Kis, KisError
-from .planner import make_plan
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -116,6 +114,7 @@ def cmd_status(kis, cfg, markets):
 
 
 def cmd_plan(kis, cfg, markets, show_notes=True):
+    from .planner import make_plan
     orders, notes = make_plan(kis, cfg, markets)
     if show_notes and notes:
         print("확인한 종목:")
@@ -167,6 +166,7 @@ def cmd_trade(kis, cfg, markets, ask=input):
 def cmd_auto(kis, cfg, markets):
     if kis.env == "real" and os.environ.get("KIS_AUTO_REAL") != "yes":
         sys.exit("실전 계좌 자동매매는 막아 뒀어요. 정말 하려면 .env 에 KIS_AUTO_REAL=yes 를 추가하세요.")
+    from . import auto
     auto.run_forever(kis, cfg, HERE, write_log, orders_sent_today)
 
 
@@ -210,6 +210,7 @@ def cmd_order(kis, side, symbol, qty, exchange=None, ask=input, wait=None):
 def cmd_contest(kis, cfg, markets):
     if kis.env == "real":
         sys.exit("대회 모드는 모의투자(KIS_ENV=demo) 전용이에요.")
+    from . import auto
     auto.run_forever(kis, cfg, HERE, write_log, orders_sent_today, contest_mode=True)
 
 

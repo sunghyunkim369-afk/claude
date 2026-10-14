@@ -100,7 +100,8 @@ class IndicatorTest(unittest.TestCase):
 
     def test_signal_rules(self):
         df = random_ohlcv(600, seed=5)
-        d = add_signals(add_indicators(df, CFG["indicators"]), CFG["entry"], CFG["exit"])
+        spec = {**CFG["entry"], "cross_lookback": 1, "adx_min": 25}  # 처음 요청 규칙: 골든크로스 당일
+        d = add_signals(add_indicators(df, CFG["indicators"]), spec, CFG["exit"])
         b = d[d["buy_signal"]]
         self.assertGreater(len(b), 0)
         self.assertTrue((b["Close"] > b["ema_slow"]).all())
@@ -240,16 +241,33 @@ class ContestTest(unittest.TestCase):
         import contest
         self.contest = contest
         self.raw = {f"S{i}": random_ohlcv(600, seed=i, drift=0.0006) for i in range(1, 7)}
-        self.params = dict(lookback=20, top_k=3, stop_atr=2.0, rsi_max=80)
+        self.params = dict(lookback=20, top_k=3, stop_atr=2.0, rsi_max=80, rebalance_days=5, full_rebalance=False)
 
     def test_holds_at_most_top_k_and_trades_next_open(self):
         fr = self.contest.prepare(self.raw, CFG, [20])
         rot = self.contest.Rotation(fr, "US", CFG, self.params)
         d = rot.dates
-        curve, fills = rot.run(d[300], d[340], 100_000)
+        curve, st = rot.run(d[300], d[340], 100_000)
         self.assertEqual(curve.iloc[0], 100_000)  # 첫날은 종가에 판단만, 체결은 다음 날
-        self.assertGreater(fills, 0)
+        self.assertGreater(st["orders"], 0)
+        self.assertLessEqual(st["symbols"], st["orders"])
         self.assertLessEqual(len(rot.targets(d[320])), 3)
+
+    def test_daily_full_rebalance_trades_more(self):
+        fr = self.contest.prepare(self.raw, CFG, [20])
+        d = sorted(self.raw["S1"].index)
+        weekly = self.contest.Rotation(fr, "US", CFG, self.params).run(d[300], d[325], 100_000)[1]
+        daily = self.contest.Rotation(fr, "US", CFG, {**self.params, "rebalance_days": 1, "full_rebalance": True}
+                                      ).run(d[300], d[325], 100_000)[1]
+        self.assertGreater(daily["amount"], weekly["amount"])
+        self.assertGreaterEqual(daily["days"], weekly["days"])
+
+    def test_rules(self):
+        rule = self.contest.RULES["KR"]
+        good = {"amount": 5e8, "days": 5, "symbols": 5, "orders": 5}
+        self.assertTrue(self.contest.passes(good, rule))
+        self.assertFalse(self.contest.passes({**good, "amount": 4.9e8}, rule))
+        self.assertFalse(self.contest.passes({**good, "symbols": 4}, rule))
 
     def test_no_lookahead(self):
         changed = {s: f.copy() for s, f in self.raw.items()}

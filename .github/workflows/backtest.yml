@@ -22,7 +22,7 @@ jobs:
   backtest:
     if: github.server_url == 'https://github.com'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     defaults:
       run:
         working-directory: backtest
@@ -43,13 +43,15 @@ jobs:
           exit ${PIPESTATUS[0]}
       - name: 규칙 조정·검증 (학습/검증 기간 분리)
         run: python optimize.py
+      - name: 대회 매매 가능 종목 (코스피200 + 코스닥150)
+        run: python universe.py
       - name: 대회용 공식 검증 (5주 구간 반복)
         run: python contest.py
       - name: 결과 올리기
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add results
+          git add results universe_kr.csv
           git diff --cached --quiet && { echo "바뀐 결과 없음"; exit 0; }
           git commit -m "백테스트 결과 갱신 (${GITHUB_SHA::7})"
           for i in 1 2 3; do git pull --rebase -q && git push && exit 0; sleep 5; done

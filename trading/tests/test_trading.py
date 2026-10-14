@@ -115,6 +115,24 @@ class KisClientTest(unittest.TestCase):
         with self.assertRaises(KisError):
             kis.kr_price("999999")
 
+    def test_rate_limit_retried(self):
+        replies = iter([{"rt_cd": "1", "msg_cd": "EGW00201", "msg1": "초당 거래건수를 초과하였습니다."},
+                        {"rt_cd": "0", "output": {"stck_prpr": "70000"}}])
+        kis, t = client({"/uapi/domestic-stock/v1/quotations/inquire-price": lambda q, b: next(replies)})
+        waits = []
+        kis._sleep = waits.append
+        self.assertEqual(kis.kr_price("005930")["price"], 70000)
+        self.assertEqual(len([c for c in t.calls if c["path"].endswith("inquire-price")]), 2)
+        self.assertIn(1.0, waits)
+
+    def test_rate_limit_gives_up(self):
+        kis, t = client({"/uapi/domestic-stock/v1/quotations/inquire-price":
+                         lambda q, b: {"rt_cd": "1", "msg_cd": "EGW00201", "msg1": "초과"}})
+        kis._sleep = lambda s: None
+        with self.assertRaises(KisError):
+            kis.kr_price("005930")
+        self.assertEqual(len([c for c in t.calls if c["path"].endswith("inquire-price")]), 4)
+
     def test_token_cached_to_file(self):
         with tempfile.TemporaryDirectory() as d:
             t = FakeTransport()

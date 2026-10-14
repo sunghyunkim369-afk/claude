@@ -53,11 +53,12 @@ class Kis:
         self.env = env
         self.base = DOMAINS[env]
         self.cache_dir = cache_dir
-        # 모의투자 서버는 초당 호출 한도가 낮아서 간격을 넉넉히 둬요.
-        self.min_interval = min_interval if min_interval is not None else (0.6 if env == "demo" else 0.1)
+        # 모의투자 서버는 초당 호출 한도가 낮아서 간격을 넉넉히 둬요 (0.6초로는 초과가 났어요).
+        self.min_interval = min_interval if min_interval is not None else (1.1 if env == "demo" else 0.1)
         self._last_call = 0.0
         self._token = None
         self._transport = transport or self._http
+        self._sleep = time.sleep
 
     # ---------- HTTP ----------
 
@@ -78,7 +79,7 @@ class Kis:
     def _throttle(self):
         wait = self.min_interval - (time.monotonic() - self._last_call)
         if wait > 0:
-            time.sleep(wait)
+            self._sleep(wait)
         self._last_call = time.monotonic()
 
     # ---------- 토큰 ----------
@@ -135,8 +136,14 @@ class Kis:
             url += "?" + urllib.parse.urlencode(params)
         else:
             body = params
-        self._throttle()
-        _, res = self._transport(method, url, headers, body)
+        # 초당 호출 한도 초과(EGW00201)는 서버가 요청을 처리하기 전에 거절한 것이라
+        # 주문이어도 다시 보내도 중복되지 않아요. 잠깐 쉬었다가 최대 3번 다시 시도해요.
+        for attempt in range(4):
+            self._throttle()
+            _, res = self._transport(method, url, headers, body)
+            if res.get("msg_cd") != "EGW00201" or attempt == 3:
+                break
+            self._sleep(1.0 + attempt)
         if str(res.get("rt_cd")) != "0":
             raise KisError(f"[{tr_id}] {res.get('msg_cd', '')} {res.get('msg1', res)}".strip())
         return res

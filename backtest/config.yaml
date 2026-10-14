@@ -98,6 +98,25 @@ validation:                 # python optimize.py 설정
     - COST
     - LLY
 
+# 미국 입상형 검증용: 레버리지 ETF + 변동성 큰 종목 (python contest.py --aggressive --markets US --us-list us_aggressive)
+us_aggressive:
+  - TQQQ    # 나스닥100 3배
+  - SOXL    # 반도체 3배
+  - UPRO    # S&P500 3배
+  - TECL    # 기술주 3배
+  - FNGU    # 대형 기술주 3배
+  - LABU    # 바이오 3배
+  - TNA     # 러셀2000 3배
+  - NVDA
+  - TSLA
+  - AMD
+  - PLTR
+  - COIN
+  - MSTR
+  - SMCI
+  - META
+  - AVGO
+
 report:
   risk_free: 0.0            # 샤프지수 무위험 수익률(연)
   output_dir: results

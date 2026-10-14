@@ -435,24 +435,33 @@ def main(argv=None):
     ap.add_argument("--config", default=os.path.join(HERE, "config.yaml"))
     ap.add_argument("--days", type=int, default=26, help="대회 길이(거래일). 10/15~11/20 은 약 26일")
     ap.add_argument("--aggressive", action="store_true", help="입상 노리기: 상위 10% 수익률 기준으로 고르기")
+    ap.add_argument("--markets", default="KR,US", help="검증할 시장 (예: US)")
+    ap.add_argument("--us-list", default=None, help="미국 종목 목록으로 쓸 config 키 (예: us_aggressive)")
     args = ap.parse_args(argv)
     cfg = load_config(args.config)
     val = cfg.get("validation", {})
     out_dir = os.path.join(HERE, cfg["report"].get("output_dir", "results"))
     cache = os.path.join(HERE, cfg["report"]["cache_dir"]) if cfg["report"].get("cache_dir") else None
 
-    us = [str(s) for s in cfg["symbols"] + val.get("extra_symbols", []) if market_of(str(s)) == "US"]
-    symbols = list(dict.fromkeys(kr_symbols(cfg, print) + us))
+    markets = [m.strip().upper() for m in args.markets.split(",")]
+    if args.us_list:
+        us = [str(s) for s in cfg[args.us_list]]
+    else:
+        us = [str(s) for s in cfg["symbols"] + val.get("extra_symbols", []) if market_of(str(s)) == "US"]
+    kr = kr_symbols(cfg, print) if "KR" in markets else []
+    symbols = list(dict.fromkeys(kr + (us if "US" in markets else [])))
     raw, start, end = load_all(symbols, cfg["period"], cache, log=lambda *_: None)
     print(f"받은 데이터: 국내 {sum(market_of(s) == 'KR' for s in raw)}종목, 해외 {sum(market_of(s) == 'US' for s in raw)}종목")
     grid = AGG_GRID if args.aggressive else GRID
     metric = "상위10%" if args.aggressive else "중앙값"
-    tag = "contest_aggressive" if args.aggressive else "contest"
+    tag = ("contest_aggressive" if args.aggressive else "contest") + ("" if markets == ["KR", "US"] else "_" + "_".join(markets))
+    if args.us_list:
+        tag += "_" + args.us_list
     frames = prepare(raw, cfg, sorted(set(GRID["lookback"]) | set(AGG_GRID["lookback"])))
     ratio = float(val.get("train_ratio", 0.6))
 
     rows, lines, picked = [], [f"대회 길이 {args.days}거래일, 5거래일 간격으로 자른 구간마다 새로 운용", ""], {}
-    for market in ("KR", "US"):
+    for market in markets:
         mf = {s: f for s, f in frames.items() if market_of(s) == market}
         if not mf:
             continue

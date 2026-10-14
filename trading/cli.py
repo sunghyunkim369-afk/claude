@@ -3,7 +3,7 @@
   python3 -m trading status            잔고 보기
   python3 -m trading plan [--market kr|us|all]    주문 후보만 보기 (주문 안 함)
   python3 -m trading trade [--market kr|us|all]   후보를 하나씩 확인(y)한 것만 주문
-  python3 -m trading order buy AAPL 1  주문 하나 직접 내기 (체결 시험용, 확인 후 주문)
+  python3 -m trading order buy AAPL 1  주문 하나 직접 내기 (체결 시험용, 확인 후 주문. -y 면 확인 없이)
   python3 -m trading auto              자동매매 (장중에 정해진 간격으로 확인하고 바로 주문)
   python3 -m trading update            최신 프로그램 받기 (.env·config.json 은 그대로)
 """
@@ -187,7 +187,9 @@ def cmd_order(kis, side, symbol, qty, exchange=None, ask=input, wait=None):
             return
         limit = round(price * (1.005 if side == "buy" else 0.995), 2)
         text = f"[미국] {symbol}({exchange}) {qty}주 지정가 ${limit:,.2f} {side_kr} (현재가 ${price:,.2f}, 체결되도록 0.5% 불리하게)"
-    if ask(f"{text}\n주문할까요? [y/N] ").strip().lower() != "y":
+    if ask is None:  # --yes: 확인 없이 주문
+        print(text)
+    elif ask(f"{text}\n주문할까요? [y/N] ").strip().lower() != "y":
         print("취소했어요.")
         return
     before = (kis.kr_balance() if market == "kr" else kis.us_balance())["holdings"].get(symbol, {}).get("qty", 0)
@@ -241,6 +243,7 @@ def main(argv=None):
     ap.add_argument("args", nargs="*", help="order 일 때: buy|sell 종목 수량 (예: buy AAPL 1)")
     ap.add_argument("--market", choices=["kr", "us", "all"], default="all")
     ap.add_argument("--exchange", choices=["NASD", "NYSE", "AMEX"], help="미국 종목 거래소 (기본 NASD)")
+    ap.add_argument("-y", "--yes", action="store_true", help="order 를 확인(y) 없이 바로 주문")
     args = ap.parse_args(argv)
     markets = ("kr", "us") if args.market == "all" else (args.market,)
     if args.command == "update":
@@ -252,8 +255,11 @@ def main(argv=None):
     if args.command == "order":
         if len(args.args) != 3 or args.args[0] not in ("buy", "sell") or not args.args[2].isdigit():
             sys.exit("사용법: python -m trading order buy AAPL 1   (또는 sell, 국내는 종목코드 6자리)")
+        if args.yes and kis.env == "real" and os.environ.get("KIS_AUTO_REAL") != "yes":
+            sys.exit("실전 계좌에서 확인 없이 주문하는 건 막아 뒀어요 (.env 에 KIS_AUTO_REAL=yes 가 있어야 해요).")
         try:
-            cmd_order(kis, args.args[0], args.args[1], int(args.args[2]), args.exchange)
+            cmd_order(kis, args.args[0], args.args[1], int(args.args[2]), args.exchange,
+                      ask=None if args.yes else input)
         except KisError as e:
             sys.exit(f"API 오류: {e}")
         return

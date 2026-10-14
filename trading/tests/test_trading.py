@@ -278,6 +278,12 @@ class OrderCommandTest(unittest.TestCase):
         self.assertEqual((body["PDNO"], body["OVRS_ORD_UNPR"], body["OVRS_EXCG_CD"]), ("AAPL", "201.00", "NASD"))
         self.assertTrue(any("체결됐어요" in line for line in out))
 
+    def test_yes_skips_confirmation(self):
+        kis, t = client(fake_market())
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(cli, "HERE", d), mock.patch("builtins.print"):
+            cli.cmd_order(kis, "buy", "000001", 1, None, ask=None, wait=lambda s: None)
+        self.assertTrue(any(c["path"].endswith("order-cash") for c in t.calls))
+
     def test_cancel_sends_nothing(self):
         kis, t = client(fake_market())
         with mock.patch("builtins.print"):

@@ -121,7 +121,7 @@ class Backtest:
             for s, pos in positions.items():
                 bar = bars.get(s)
                 if bar is not None and bool(bar["sell_signal"]) and not any(p.symbol == s for p in pending):
-                    pending.append(Order(s, self.market, "sell", pos.qty, reason="MACD 데드크로스"))
+                    pending.append(Order(s, self.market, "sell", pos.qty, reason=bar.get("sell_reason") or "매도 신호"))
 
             if d == dates[-1]:
                 break

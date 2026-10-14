@@ -38,6 +38,8 @@ def signal_frame(dates, buy_on=(), sell_on=(), price=100.0, atr=2.0, rank=30.0):
                        "atr": atr, "rank": rank, "buy_signal": False, "sell_signal": False}, index=dates)
     df.loc[list(buy_on), "buy_signal"] = True
     df.loc[list(sell_on), "sell_signal"] = True
+    df["sell_reason"] = ""
+    df.loc[list(sell_on), "sell_reason"] = "MACD 데드크로스"
     return df
 
 
@@ -107,6 +109,19 @@ class IndicatorTest(unittest.TestCase):
         self.assertTrue((b["Volume"] > b["vol_ma"]).all())
         prev = d.shift(1).loc[b.index]
         self.assertTrue(((prev["macd"] <= prev["macd_signal"]) & (b["macd"] > b["macd_signal"])).all())
+
+
+class SignalOptionTest(unittest.TestCase):
+    def test_lookback_and_ema_exit(self):
+        df = add_indicators(random_ohlcv(800, seed=7), CFG["indicators"])
+        base = add_signals(df, CFG["entry"], CFG["exit"])
+        wide = add_signals(df, {**CFG["entry"], "cross_lookback": 5}, CFG["exit"])
+        # 당일 조건을 만족하면 5일 조건도 만족해요 (신호가 더 많아지기만 해요)
+        self.assertTrue((wide["buy_signal"] | ~base["buy_signal"]).all())
+        self.assertGreater(wide["buy_signal"].sum(), base["buy_signal"].sum())
+        ema = add_signals(df, CFG["entry"], {**CFG["exit"], "macd_dead_cross": False, "ema_exit": True})
+        self.assertTrue((ema["sell_signal"] == (ema["Close"] < ema["ema_slow"])).all())
+        self.assertTrue((ema.loc[ema["sell_signal"], "sell_reason"] == "종가 < EMA60").all())
 
 
 class BrokerTest(unittest.TestCase):

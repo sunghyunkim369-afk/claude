@@ -41,6 +41,8 @@ jobs:
           mkdir -p results
           python main.py 2>&1 | tee results/console.txt
           exit ${PIPESTATUS[0]}
+      - name: 규칙 조정·검증 (학습/검증 기간 분리)
+        run: python optimize.py
       - name: 결과 올리기
         run: |
           git config user.name "github-actions[bot]"

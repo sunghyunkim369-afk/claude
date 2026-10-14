@@ -35,12 +35,15 @@ indicators:
 entry:
   adx_min: 25
   rsi_max: 70
+  cross_lookback: 1         # 1: 골든크로스 당일만, N: 최근 N일 안에 골든크로스(그리고 MACD 가 아직 시그널 위)
+  volume_filter: true       # 거래량 > 20일 평균 조건 사용
   # 매수 신호가 동시에 여러 개면 ADX 가 높은 순으로 빈자리만큼 사요.
 
 exit:
   stop_atr: 2.0       # 손절: 진입가 - 2 * ATR(신호일)
   trail_atr: 3.0      # 트레일링: 보유 중 최고가 - 3 * ATR
-  macd_dead_cross: true
+  macd_dead_cross: true     # MACD 데드크로스 다음 날 시가 매도
+  ema_exit: false           # 종가 < EMA60 이면 다음 날 시가 매도
 
 risk:
   risk_per_trade: 0.01      # 손절에 걸리면 총자본의 1% 손실이 되도록 수량 계산
@@ -61,6 +64,38 @@ costs:
     sell_fee: 0.0025
     sell_tax: 0.0
   slippage: 0.001           # 매수는 0.1% 비싸게, 매도는 0.1% 싸게 체결된다고 가정
+
+validation:                 # python optimize.py 설정
+  train_ratio: 0.6          # 앞 60% 기간에서 규칙을 고르고, 뒤 40% 에서 검증
+  extra_symbols:            # 검증 때만 더 넣는 종목 (종목이 많을수록 우연에 덜 휘둘려요)
+    - "207940"   # 삼성바이오로직스
+    - "006400"   # 삼성SDI
+    - "035720"   # 카카오
+    - "105560"   # KB금융
+    - "055550"   # 신한지주
+    - "012330"   # 현대모비스
+    - "028260"   # 삼성물산
+    - "066570"   # LG전자
+    - "017670"   # SK텔레콤
+    - "015760"   # 한국전력
+    - "000270"   # 기아
+    - "096770"   # SK이노베이션
+    - "003670"   # 포스코퓨처엠
+    - "032830"   # 삼성생명
+    - GOOGL
+    - META
+    - TSLA
+    - BRK-B
+    - JNJ
+    - PG
+    - UNH
+    - HD
+    - KO
+    - WMT
+    - CVX
+    - V
+    - COST
+    - LLY
 
 report:
   risk_free: 0.0            # 샤프지수 무위험 수익률(연)

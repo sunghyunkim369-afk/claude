@@ -13,14 +13,26 @@ def add_signals(d, entry, exit_cfg):
     dead = (prev_macd >= prev_sig) & (d["macd"] < d["macd_signal"])
     d["golden_cross"] = golden.fillna(False)
     d["dead_cross"] = dead.fillna(False)
+    # cross_lookback=1 이면 골든크로스 '당일'만, N 이면 최근 N일 안에 골든크로스가 있었고 아직 MACD 가 위에 있을 때
+    n = int(entry.get("cross_lookback", 1))
+    recent_golden = d["golden_cross"].astype(int).rolling(n, min_periods=1).max().astype(bool)
+    volume_ok = (d["Volume"] > d["vol_ma"]) if entry.get("volume_filter", True) else True
     d["buy_signal"] = (
         (d["Close"] > d["ema_slow"])
         & (d["adx"] > entry["adx_min"])
-        & d["golden_cross"]
+        & recent_golden
+        & (d["macd"] > d["macd_signal"])
         & (d["rsi"] < entry["rsi_max"])
-        & (d["Volume"] > d["vol_ma"])
+        & volume_ok
     ).fillna(False)
-    d["sell_signal"] = d["dead_cross"] if exit_cfg.get("macd_dead_cross", True) else False
+    use_dead = exit_cfg.get("macd_dead_cross", True)
+    below_ema = (d["Close"] < d["ema_slow"]).fillna(False) if exit_cfg.get("ema_exit", False) else False
+    d["sell_signal"] = (d["dead_cross"] & use_dead) | below_ema
+    d["sell_reason"] = ""
+    if exit_cfg.get("ema_exit", False):
+        d.loc[below_ema, "sell_reason"] = "종가 < EMA60"
+    if use_dead:
+        d.loc[d["dead_cross"], "sell_reason"] = "MACD 데드크로스"
     # 신호 순위(빈자리보다 신호가 많을 때): ADX 가 높을수록 추세가 강하다고 봐요.
     d["rank"] = d["adx"]
     return d

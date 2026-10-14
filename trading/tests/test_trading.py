@@ -259,6 +259,32 @@ class TradeCommandTest(unittest.TestCase):
         self.assertEqual(t.calls, [])  # 확인 전에는 아무 요청도 안 해요
 
 
+class OrderCommandTest(unittest.TestCase):
+    def test_us_order_marketable_limit_and_fill_check(self):
+        held = []
+        routes = fake_market(held_us=held)
+        routes["/uapi/overseas-price/v1/quotations/price"] = lambda q, b: {"rt_cd": "0", "output": {"last": "200"}}
+
+        def order(q, b):
+            held.append({"ovrs_pdno": "AAPL", "ovrs_cblc_qty": "1", "pchs_avg_pric": "201", "now_pric2": "200"})
+            return {"rt_cd": "0", "output": {"ODNO": "7"}}
+        routes["/uapi/overseas-stock/v1/trading/order"] = order
+        kis, t = client(routes)
+        out = []
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(cli, "HERE", d), \
+                mock.patch("builtins.print", side_effect=lambda *a: out.append(" ".join(map(str, a)))):
+            cli.cmd_order(kis, "buy", "aapl", 1, None, ask=lambda _: "y", wait=lambda s: None)
+        body = [c for c in t.calls if c["path"].endswith("/trading/order")][0]["body"]
+        self.assertEqual((body["PDNO"], body["OVRS_ORD_UNPR"], body["OVRS_EXCG_CD"]), ("AAPL", "201.00", "NASD"))
+        self.assertTrue(any("체결됐어요" in line for line in out))
+
+    def test_cancel_sends_nothing(self):
+        kis, t = client(fake_market())
+        with mock.patch("builtins.print"):
+            cli.cmd_order(kis, "buy", "000001", 1, None, ask=lambda _: "n", wait=lambda s: None)
+        self.assertFalse(any(c["method"] == "POST" and "order" in c["path"] for c in t.calls))
+
+
 class UpdateCommandTest(unittest.TestCase):
     def test_update_replaces_program_but_keeps_settings(self):
         with tempfile.TemporaryDirectory() as d, mock.patch.object(cli, "HERE", d), mock.patch("builtins.print"):

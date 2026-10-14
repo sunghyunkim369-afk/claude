@@ -3,6 +3,7 @@
   python3 -m trading status            잔고 보기
   python3 -m trading plan [--market kr|us|all]    주문 후보만 보기 (주문 안 함)
   python3 -m trading trade [--market kr|us|all]   후보를 하나씩 확인(y)한 것만 주문
+  python3 -m trading order buy AAPL 1  주문 하나 직접 내기 (체결 시험용, 확인 후 주문)
   python3 -m trading auto              자동매매 (장중에 정해진 간격으로 확인하고 바로 주문)
   python3 -m trading update            최신 프로그램 받기 (.env·config.json 은 그대로)
 """
@@ -168,6 +169,41 @@ def cmd_auto(kis, cfg, markets):
     auto.run_forever(kis, cfg, HERE, write_log, orders_sent_today)
 
 
+def cmd_order(kis, side, symbol, qty, exchange=None, ask=input, wait=None):
+    """주문 하나를 직접 내고, 잠시 뒤 잔고로 체결됐는지 확인해요 (OpenAPI 체결 시험용)."""
+    import time
+    wait = wait or time.sleep
+    symbol = symbol.upper()
+    market = "kr" if symbol.isdigit() and len(symbol) == 6 else "us"
+    side_kr = "매수" if side == "buy" else "매도"
+    if market == "kr":
+        price = kis.kr_price(symbol)["price"]
+        text = f"[국내] {symbol} {qty}주 시장가 {side_kr} (현재가 {price:,.0f}원)"
+    else:
+        exchange = exchange or "NASD"
+        price = kis.us_price(symbol, exchange)["price"]
+        if price <= 0:
+            print(f"{symbol}({exchange}) 현재가를 못 받았어요. 미국 장 시간(한국시간 22:30~05:00)인지, 거래소가 맞는지 확인하세요.")
+            return
+        limit = round(price * (1.005 if side == "buy" else 0.995), 2)
+        text = f"[미국] {symbol}({exchange}) {qty}주 지정가 ${limit:,.2f} {side_kr} (현재가 ${price:,.2f}, 체결되도록 0.5% 불리하게)"
+    if ask(f"{text}\n주문할까요? [y/N] ").strip().lower() != "y":
+        print("취소했어요.")
+        return
+    before = (kis.kr_balance() if market == "kr" else kis.us_balance())["holdings"].get(symbol, {}).get("qty", 0)
+    res = kis.kr_order(side, symbol, qty, None) if market == "kr" else kis.us_order(side, symbol, exchange, qty, limit)
+    print(f"→ 접수됨 (주문번호 {res.get('ODNO', '?')})")
+    write_log({"event": "order_sent", "env": kis.env, "manual": True,
+               "order": {"market": market, "side": side, "symbol": symbol, "qty": qty}, "result": res})
+    print("10초 뒤 잔고로 체결 여부를 확인해요...")
+    wait(10)
+    after = (kis.kr_balance() if market == "kr" else kis.us_balance())["holdings"].get(symbol, {}).get("qty", 0)
+    if after != before:
+        print(f"✓ 체결됐어요: 보유 수량 {before} → {after}주. 대회 화면의 OpenAPI 체결횟수도 확인해 보세요.")
+    else:
+        print("아직 잔고에 반영되지 않았어요. 미체결이거나 잔고 반영이 늦은 거예요. 몇 분 뒤 status 로 다시 확인하세요.")
+
+
 def cmd_update(fetch=None):
     """GitHub 에서 프로그램 파일을 받아 바꿔요. 하나라도 실패하면 아무것도 바꾸지 않아요."""
     fetch = fetch or (lambda url: urllib.request.urlopen(url, timeout=20).read())
@@ -201,8 +237,10 @@ def cmd_update(fetch=None):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="python3 -m trading", description="한국투자증권 매매 프로그램 (국내+미국)")
-    ap.add_argument("command", choices=["status", "plan", "trade", "auto", "update"])
+    ap.add_argument("command", choices=["status", "plan", "trade", "auto", "order", "update"])
+    ap.add_argument("args", nargs="*", help="order 일 때: buy|sell 종목 수량 (예: buy AAPL 1)")
     ap.add_argument("--market", choices=["kr", "us", "all"], default="all")
+    ap.add_argument("--exchange", choices=["NASD", "NYSE", "AMEX"], help="미국 종목 거래소 (기본 NASD)")
     args = ap.parse_args(argv)
     markets = ("kr", "us") if args.market == "all" else (args.market,)
     if args.command == "update":
@@ -211,6 +249,14 @@ def main(argv=None):
 
     cfg = load_config()
     kis = make_client()
+    if args.command == "order":
+        if len(args.args) != 3 or args.args[0] not in ("buy", "sell") or not args.args[2].isdigit():
+            sys.exit("사용법: python -m trading order buy AAPL 1   (또는 sell, 국내는 종목코드 6자리)")
+        try:
+            cmd_order(kis, args.args[0], args.args[1], int(args.args[2]), args.exchange)
+        except KisError as e:
+            sys.exit(f"API 오류: {e}")
+        return
     try:
         {"status": cmd_status, "plan": cmd_plan, "trade": cmd_trade, "auto": cmd_auto}[args.command](kis, cfg, markets)
     except KisError as e:

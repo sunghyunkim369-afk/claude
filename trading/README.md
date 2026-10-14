@@ -16,6 +16,7 @@ python3 -m trading status               # 잔고
 python3 -m trading plan                 # 주문 후보만 보기 (주문 안 함)
 python3 -m trading trade                # 후보를 하나씩 확인(y/N/q)해서 주문
 python3 -m trading trade --market kr    # 국내만 (us = 미국만)
+python3 -m trading order buy AAPL 1     # 주문 하나 직접 내고 10초 뒤 체결 확인 (NYSE 종목은 --exchange NYSE)
 ```
 
 - **국내**: 장중(09:00~15:30)에 실행해요. 현재가로 지정가 주문을 내요.

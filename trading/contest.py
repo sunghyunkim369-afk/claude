@@ -222,11 +222,11 @@ def us_due(state, session, holdings):
     return len(holdings) < US["top_k"] and session not in state.d["us_buys"]
 
 
-def us_pick(kis, watchlist, held, today, out=print):
+def us_pick(kis, watchlist, held, today, out=print, blocked=()):
     best = None
     for w in watchlist:
         sym, excg = w["symbol"], w["exchange"]
-        if sym in held:
+        if sym in held or sym in blocked:
             continue
         try:
             rows = kis.us_daily(sym, excg, with_dates=True)
@@ -251,10 +251,12 @@ US_AGG_LIST = [
 ]  # NYSE Arca 상장 ETF 는 한국투자증권에서 AMEX 로 주문해요
 
 
-def us_rank(kis, today, out=print):
-    """[(점수, 심볼, 거래소)] 높은 순. 상승 추세(종가>EMA20>EMA60) 종목만."""
+def us_rank(kis, today, out=print, blocked=()):
+    """[(점수, 심볼, 거래소)] 높은 순. 상승 추세(종가>EMA20>EMA60) 종목만. blocked: 매매불가 종목."""
     ranked = []
     for sym, excg in US_AGG_LIST:
+        if sym in blocked:
+            continue
         try:
             rows = kis.us_daily(sym, excg, with_dates=True)
         except KisError as e:

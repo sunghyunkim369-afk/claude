@@ -424,6 +424,28 @@ class ContestModeTest(unittest.TestCase):
         self.assertFalse(self.contest.us_agg_due(state, "2026-10-16"))
         self.assertTrue(self.contest.us_agg_due(state, "2026-10-19"))
 
+    def test_untradeable_symbol_is_skipped_next_time(self):
+        routes = self.market({})
+        routes["/uapi/overseas-stock/v1/trading/order"] = lambda q, b: {
+            "rt_cd": "1", "msg_cd": "40070000", "msg1": "모의투자 주문처리가 안되었습니다(매매불가 종목)"}
+        kis, t = client(routes)
+        state = self.contest.State(os.path.join(self.tmp.name, "b.json"))
+        cfg = {"us": {"watchlist": [{"symbol": "UP", "exchange": "NASD"}, {"symbol": "SLOW", "exchange": "NYSE"}]}, "auto": {}}
+        sc = lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1
+        with mock.patch.object(self.contest, "score", sc):
+            auto.run_contest_cycle(kis, cfg, state, auto_utc(2026, 10, 15, 14, 0), self.logs.append, lambda *_: None, [])
+        self.assertEqual(state.d["blocked"], ["UP"])
+        with mock.patch.object(self.contest, "score", sc):
+            pick = self.contest.us_pick(kis, cfg["us"]["watchlist"], {}, datetime(2026, 10, 16).date(),
+                                        blocked=state.d["blocked"])
+        self.assertEqual(pick[1], "SLOW")
+
+    def test_buyable_uses_after_exchange_amount(self):
+        routes = {"/uapi/overseas-stock/v1/trading/inquire-psamount": lambda q, b: {"rt_cd": "0", "output": {
+            "ovrs_ord_psbl_amt": "0", "echm_af_ord_psbl_amt": "70000.5", "exrt": "1400"}}}
+        kis, _ = client(routes)
+        self.assertEqual(kis.us_buyable("AAPL", "NASD", 200)["usd"], 70000.5)
+
     def test_universe_file(self):
         here = os.path.dirname(cli.__file__)
         u = self.contest.load_universe(os.path.join(here, "universe_kr.csv"))

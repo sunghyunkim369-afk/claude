@@ -154,7 +154,7 @@ def run_us_aggressive(kis, state, session, today, stamp, place, out=print):
         return 0
     before = d.get("us_orders", 0)
     held = kis.us_balance()["holdings"]
-    ranked = contest.us_rank(kis, today, out) if (due or need_filler or not target) else []
+    ranked = contest.us_rank(kis, today, out, d.get("blocked", [])) if (due or need_filler or not target) else []
     if due:
         if not ranked:
             out(f"[{stamp}] 미국 입상형: 상승 추세 종목이 없어 현금으로")
@@ -180,6 +180,8 @@ def run_us_aggressive(kis, state, session, today, stamp, place, out=print):
                 d["us_target_filled"] = True
         else:
             out(f"[{stamp}] 미국 {sym}: 주문가능금액(${cash:,.2f})이 부족해서 다음 확인 때 다시 시도해요")
+            if cash <= 0:
+                out("  ※ 달러 주문가능금액이 0이에요. show_balance.bat 결과를 확인해 주세요 (모의투자 달러 예수금·환전 필요 여부)")
     if need_filler:
         used = set(d.get("us_symbols", [])) | ({target[0]} if target else set())
         pick = next(((s, sym, ex) for s, sym, ex in ranked if sym not in used), None)
@@ -222,6 +224,9 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
         except KisError as e:
             log({"event": "order_failed", "env": kis.env, "contest": True, "order": o, "error": str(e)})
             out(f"  {side} {o['name']}({o['symbol']}) 실패: {e}")
+            if "매매불가" in str(e) and o["symbol"] not in state.d.setdefault("blocked", []):
+                state.d["blocked"].append(o["symbol"])  # 모의투자에서 못 사는 종목(레버리지 ETF 등)은 다음부터 빼요
+                out(f"  → {o['symbol']} 은(는) 모의투자 매매불가라 앞으로 후보에서 빼요")
             return False
 
     kr_session = market_session("kr", now_utc)
@@ -258,7 +263,7 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
         held = kis.us_balance()["holdings"]
         if contest.us_due(state, us_session, held):
             today = us_eastern(now_utc).date()
-            pick = contest.us_pick(kis, cfg["us"]["watchlist"], held, today, out)
+            pick = contest.us_pick(kis, cfg["us"]["watchlist"], held, today, out, state.d.get("blocked", []))
             if pick is None:
                 out(f"[{stamp}] 미국: 살 만한 상승 추세 종목이 없어요")
             else:

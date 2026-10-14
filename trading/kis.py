@@ -255,7 +255,26 @@ class Kis:
                          {"CANO": self.cano, "ACNT_PRDT_CD": self.acnt_prdt_cd, "OVRS_EXCG_CD": exchange,
                           "OVRS_ORD_UNPR": f"{price:.2f}", "ITEM_CD": symbol})
         out = res["output"]
-        return {"usd": _num(out.get("ovrs_ord_psbl_amt")), "fx": _num(out.get("exrt"))}
+        # 달러 예수금이 없을 때 '환전 후 주문가능금액' 칸에만 값이 있는 경우가 있어서 가장 큰 값을 써요
+        keys = ("ovrs_ord_psbl_amt", "frcr_ord_psbl_amt1", "ord_psbl_frcr_amt", "echm_af_ord_psbl_amt")
+        return {"usd": max(_num(out.get(k)) for k in keys), "fx": _num(out.get("exrt")),
+                "raw": {k: out.get(k) for k in keys + ("max_ord_psbl_qty", "echm_af_ord_psbl_qty")}}
+
+    def us_cash(self):
+        """해외 체결기준현재잔고: 통화별 외화예수금·사용가능금액 (주문가능금액이 0 일 때 원인 확인용)."""
+        res = self._call("GET", "/uapi/overseas-stock/v1/trading/inquire-present-balance", self._tr("CTRP6504R"),
+                         {"CANO": self.cano, "ACNT_PRDT_CD": self.acnt_prdt_cd, "WCRC_FRCR_DVSN_CD": "02",
+                          "NATN_CD": "000", "TR_MKET_CD": "00", "INQR_DVSN_CD": "00"})
+        rows = res.get("output2") or []
+        if isinstance(rows, dict):
+            rows = [rows]
+        by_ccy = {r.get("crcy_cd", "?"): {"예수금": _num(r.get("frcr_dncl_amt_2")),
+                                          "출금가능": _num(r.get("frcr_drwg_psbl_amt_1"))} for r in rows}
+        total = res.get("output3") or {}
+        if isinstance(total, list):
+            total = total[0] if total else {}
+        return {"by_currency": by_ccy, "usable_usd": _num(total.get("frcr_use_psbl_amt")),
+                "total_krw": _num(total.get("tot_asst_amt"))}
 
     def us_order(self, side, symbol, exchange, qty, price):
         """지정가 주문 (모의투자 미국 주문은 지정가만 돼요)."""

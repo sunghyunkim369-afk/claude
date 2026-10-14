@@ -112,6 +112,19 @@ def cmd_status(kis, cfg, markets):
     if "us" in markets:
         b = kis.us_balance()
         print("\n미국:")
+        try:
+            cash = kis.us_cash()
+            ccy = ", ".join(f"{c} 예수금 {v['예수금']:,.2f}" for c, v in cash["by_currency"].items()) or "외화 예수금 없음"
+            print(f"  {ccy} / 외화사용가능 {cash['usable_usd']:,.2f}")
+        except KisError as e:
+            print(f"  외화 예수금 조회 실패: {e}")
+        try:
+            buy = kis.us_buyable("AAPL", "NASD", 200.0)
+            print(f"  주문가능금액(달러) {buy['usd']:,.2f}  (원본: {buy['raw']})")
+            if buy["usd"] <= 0:
+                print("  ※ 달러 주문가능금액이 0이에요. 모의투자 계좌에 달러가 없거나 환전이 필요할 수 있어요.")
+        except KisError as e:
+            print(f"  주문가능금액 조회 실패: {e}")
         if not b["holdings"]:
             print("  보유 종목 없음")
         for sym, h in b["holdings"].items():

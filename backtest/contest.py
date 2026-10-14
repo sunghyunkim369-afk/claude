@@ -59,17 +59,23 @@ def prepare(raw, cfg, lookbacks):
     return out
 
 
+def build_bars(frames):
+    """{날짜: {종목: 그날 값}} — 조합마다 다시 만들지 않도록 시장별로 한 번만 만들어요."""
+    bars = {}
+    for s, f in frames.items():
+        for d, row in zip(f.index, f.to_dict("records")):
+            bars.setdefault(d, {})[s] = row
+    return bars
+
+
 class Rotation:
-    def __init__(self, frames, market, cfg, params):
+    def __init__(self, frames, market, cfg, params, bars=None):
         self.frames = frames
         self.market = market
         self.p = params
         self.broker = SimulatedBroker(cfg["costs"], cfg["costs"]["slippage"])
-        self.dates = sorted({d for f in frames.values() for d in f.index})
-        self.bars = {}
-        for s, f in frames.items():
-            for d, row in zip(f.index, f.to_dict("records")):
-                self.bars.setdefault(d, {})[s] = row
+        self.bars = bars if bars is not None else build_bars(frames)
+        self.dates = sorted(self.bars)
         self._rank = {}
 
     def targets(self, d):
@@ -79,7 +85,7 @@ class Rotation:
             cands = []
             for s, b in self.bars.get(d, {}).items():
                 score = b.get(f"ret_{p['lookback']}")
-                if score is None or np.isnan(score) or np.isnan(b["ema_slow"]):
+                if score is None or not (score == score) or not (b["ema_slow"] == b["ema_slow"]):
                     continue
                 if b["Close"] > b["ema_fast"] > b["ema_slow"] and b["rsi"] < p["rsi_max"]:
                     cands.append((score, s))
@@ -244,9 +250,10 @@ def main(argv=None):
         wins = windows(dates, args.days, 5)
         cut = int(len(wins) * ratio)
         bench = [equal_weight_return(mf, a, b) for a, b in wins]
+        bars = build_bars(mf)
         for values in itertools.product(*GRID.values()):
             params = dict(zip(GRID, values))
-            rot = Rotation(mf, market, cfg, params)
+            rot = Rotation(mf, market, cfg, params, bars)
             rets, stats = [], []
             for a, b in wins:
                 curve, st = rot.run(a, b, cap)

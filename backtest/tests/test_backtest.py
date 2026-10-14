@@ -90,6 +90,13 @@ class IndicatorTest(unittest.TestCase):
         cols = ["ema_slow", "adx", "macd", "macd_signal", "rsi", "atr", "vol_ma", "buy_signal", "sell_signal"]
         pd.testing.assert_frame_equal(full[cols].iloc[:300], cut[cols], check_dtype=False)
 
+    def test_short_history_gives_nan_not_error(self):
+        for use_ta in (True, False):
+            d = add_indicators(random_ohlcv(30), CFG["indicators"], use_ta)
+            self.assertTrue(d["ema_slow"].isna().all())
+            self.assertEqual(d["ema_slow"].dtype, float)
+            add_signals(d, CFG["entry"], CFG["exit"])
+
     @unittest.skipIf(ta is None, "pandas-ta 없음")
     def test_builtin_matches_pandas_ta(self):
         df = random_ohlcv(500, seed=3)

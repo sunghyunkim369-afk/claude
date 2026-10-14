@@ -41,7 +41,8 @@ jobs:
           mkdir -p results
           python main.py 2>&1 | tee results/console.txt
           exit ${PIPESTATUS[0]}
-      - name: 규칙 조정·검증 (학습/검증 기간 분리)
+      - name: 규칙 조정·검증 (학습/검증 기간 분리, 수동 실행 때만)
+        if: github.event_name == 'workflow_dispatch'
         run: python optimize.py
       - name: 대회 매매 가능 종목 (코스피200 + 코스닥150)
         run: python universe.py

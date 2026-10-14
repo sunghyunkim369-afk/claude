@@ -69,15 +69,20 @@ def add_indicators(df, p, use_pandas_ta=True):
     d = df.copy()
     h, l, c, v = d["High"], d["Low"], d["Close"], d["Volume"]
     if use_pandas_ta and ta is not None:
-        d["ema_fast"] = ta.ema(c, p["ema_fast"])
-        d["ema_slow"] = ta.ema(c, p["ema_slow"])
-        d["adx"] = ta.adx(h, l, c, p["adx"]).iloc[:, 0]
+        # 상장한 지 얼마 안 돼 데이터가 짧으면 pandas-ta 가 None 을 돌려줘요 → 빈 값(NaN)으로
+        def col(x, i=None):
+            if x is None:
+                return float("nan")
+            return x.iloc[:, i] if i is not None else x
+        d["ema_fast"] = col(ta.ema(c, p["ema_fast"]))
+        d["ema_slow"] = col(ta.ema(c, p["ema_slow"]))
+        d["adx"] = col(ta.adx(h, l, c, p["adx"]), 0)
         m = ta.macd(c, p["macd_fast"], p["macd_slow"], p["macd_signal"])
-        d["macd"] = m.iloc[:, 0]
-        d["macd_signal"] = m.iloc[:, 2]
-        d["rsi"] = ta.rsi(c, p["rsi"])
-        d["atr"] = ta.atr(h, l, c, p["atr"])
-        d["vol_ma"] = ta.sma(v, p["volume_ma"])
+        d["macd"] = col(m, 0)
+        d["macd_signal"] = col(m, 2)
+        d["rsi"] = col(ta.rsi(c, p["rsi"]))
+        d["atr"] = col(ta.atr(h, l, c, p["atr"]))
+        d["vol_ma"] = col(ta.sma(v, p["volume_ma"]))
     else:
         d["ema_fast"] = _ema(c, p["ema_fast"])
         d["ema_slow"] = _ema(c, p["ema_slow"])
@@ -86,6 +91,8 @@ def add_indicators(df, p, use_pandas_ta=True):
         d["rsi"] = _rsi(c, p["rsi"])
         d["atr"] = _atr(h, l, c, p["atr"])
         d["vol_ma"] = v.rolling(p["volume_ma"], min_periods=p["volume_ma"]).mean()
+    cols = ["ema_fast", "ema_slow", "adx", "macd", "macd_signal", "rsi", "atr", "vol_ma"]
+    d[cols] = d[cols].astype(float)
     return d
 
 

@@ -270,6 +270,55 @@ def kr_symbols(cfg, log):
         return [str(s) for s in cfg["symbols"] if market_of(str(s)) == "KR"]
 
 
+def combo_name(p):
+    return f"{p['lookback']}일·{p['rebalance_days']}일교체·{p['regime']}·{p['regime_off']}"
+
+
+def adaptive_report(wins, combos, bench, rule, scale, cut, recents=(6, 12, 24)):
+    """'최근 추세 분석 후 공식 고르기' 검증: 각 구간이 시작하기 전에 이미 끝난 최근 N개 구간에서
+    성적(평균 수익률)이 가장 좋았던 조합을 골라 그 구간에 쓴다고 가정해요 (미래 데이터 안 씀).
+    수상 조건 충족률이 90% 미만이었던 조합은 고르지 않아요."""
+    names = list(combos)
+    out = ["최근 성적으로 공식을 바꿔 가는 방식 (구간 시작 전에 끝난 최근 N개 구간 평균 수익률 1위 조합 사용):"]
+    table = []
+    for n in recents:
+        chosen_rets, chosen_stats, chosen_bench, picks = [], [], [], []
+        for i, (a, b) in enumerate(wins):
+            past = [j for j in range(i) if wins[j][1] < a][-n:]
+            if len(past) < n:
+                continue
+            best, best_score = None, None
+            for name in names:
+                rets, stats = combos[name]
+                ok = np.mean([passes(stats[j], rule, scale) for j in past])
+                if ok < 0.9:
+                    continue
+                sc = np.mean([rets[j] for j in past])
+                if best_score is None or sc > best_score:
+                    best, best_score = name, sc
+            if best is None:
+                continue
+            chosen_rets.append((i, combos[best][0][i]))
+            chosen_stats.append((i, combos[best][1][i]))
+            chosen_bench.append((i, bench[i]))
+            picks.append(best)
+        for part, keep in (("학습", lambda i: i < cut), ("검증", lambda i: i >= cut)):
+            r = [v for i, v in chosen_rets if keep(i)]
+            if not r:
+                continue
+            st = [v for i, v in chosen_stats if keep(i)]
+            bm = [v for i, v in chosen_bench if keep(i)]
+            table.append({"방식": f"최근 {n}구간", "구분": part, **summarize(r, bm, st, rule, scale),
+                          "자주 고른 조합": pd.Series(picks).value_counts().index[0]})
+    for name in names:
+        rets, stats = combos[name]
+        if name.endswith("none·cash"):
+            for part, sl in (("학습", slice(0, cut)), ("검증", slice(cut, None))):
+                table.append({"방식": f"고정: {name}", "구분": part,
+                              **summarize(rets[sl], bench[sl], stats[sl], rule, scale), "자주 고른 조합": ""})
+    return out + [fmt(pd.DataFrame(table))]
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default=os.path.join(HERE, "config.yaml"))
@@ -301,6 +350,7 @@ def main(argv=None):
         bench = [equal_weight_return(mf, a, b) for a, b in wins]
         bars = build_bars(mf)
         regime = build_regime(bars)
+        combos = {}  # 조합 이름 → (구간별 수익률, 구간별 조건 통계)
         for values in itertools.product(*GRID.values()):
             params = dict(zip(GRID, values))
             if params["regime"] == "none" and params["regime_off"] != "cash":
@@ -311,9 +361,11 @@ def main(argv=None):
                 curve, st = rot.run(a, b, cap)
                 rets.append(curve.iloc[-1] / cap - 1)
                 stats.append(st)
+            combos[combo_name(params)] = (rets, stats)
             for part, sl in (("학습", slice(0, cut)), ("검증", slice(cut, None))):
                 rows.append({"시장": market, "구분": part, **params,
                              **summarize(rets[sl], bench[sl], stats[sl], rule, scale)})
+        adaptive_lines = adaptive_report(wins, combos, bench, rule, scale, cut)
         df = pd.DataFrame(rows)
         train = df[(df["시장"] == market) & (df["구분"] == "학습")]
         test = df[(df["시장"] == market) & (df["구분"] == "검증")]
@@ -328,7 +380,8 @@ def main(argv=None):
                   "학습 구간: 조건충족률 90% 이상 중 중앙값 상위 5개",
                   fmt((ok if len(ok) else train).sort_values("중앙값", ascending=False).head(5).drop(columns=cols)),
                   "고른 조합의 검증 구간 결과:", fmt(test_best.drop(columns=cols)),
-                  "검증 구간 전체 조합(참고):", fmt(test.sort_values("중앙값", ascending=False).drop(columns=cols)), ""]
+                  "검증 구간 전체 조합(참고):", fmt(test.sort_values("중앙값", ascending=False).drop(columns=cols)), "",
+                  *adaptive_lines, ""]
     os.makedirs(out_dir, exist_ok=True)
     pd.DataFrame(rows).to_csv(os.path.join(out_dir, "contest.csv"), index=False, encoding="utf-8-sig")
     lines.append("고른 조합: " + "; ".join(f"{m}: {k}" for m, k in picked.items()))

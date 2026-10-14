@@ -294,6 +294,17 @@ class ContestTest(unittest.TestCase):
         for d in list(r2)[-20:]:
             self.assertEqual(r1[d], r2[d])
 
+    def test_adaptive_uses_only_finished_windows(self):
+        rule = self.contest.RULES["US"]
+        ok = {"amount": 1, "days": 9, "symbols": 9, "orders": 9}
+        wins = [(i, i + 10) for i in range(0, 60, 5)]       # 겹치는 구간들
+        good_early = ([0.1] * 6 + [-0.1] * 6, [ok] * 12)    # 앞쪽에서만 좋은 조합
+        good_late = ([-0.1] * 6 + [0.1] * 6, [ok] * 12)
+        lines = self.contest.adaptive_report(wins, {"A": good_early, "B": good_late}, [0.0] * 12, rule, 1.0, 6,
+                                             recents=(2,))
+        text = "\n".join(lines)
+        self.assertIn("최근 2구간", text)
+
     def test_rules(self):
         rule = self.contest.RULES["KR"]
         good = {"amount": 5e8, "days": 5, "symbols": 5, "orders": 5}

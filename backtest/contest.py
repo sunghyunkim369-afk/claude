@@ -146,13 +146,15 @@ def summarize(rets, bench, fills):
     b = np.array(bench)
     return {"평균": r.mean(), "중앙값": np.median(r), "하위25%": np.percentile(r, 25), "최악": r.min(),
             "최고": r.max(), "기준초과확률": (r > b).mean(), "기준평균": b.mean(), "평균체결": np.mean(fills),
+            # 대회 수상 조건: OpenAPI 체결 5회 이상 (분할 체결은 주문 1회). 여기선 주문 1건 = 1회
+            "5회미만비율": (np.array(fills) < 5).mean(),
             "구간수": len(r)}
 
 
 def fmt(df):
     shown = df.copy()
     for c in shown.columns:
-        if c in ("평균", "중앙값", "하위25%", "최악", "최고", "기준초과확률", "기준평균"):
+        if c in ("평균", "중앙값", "하위25%", "최악", "최고", "기준초과확률", "기준평균", "5회미만비율"):
             shown[c] = shown[c].map(lambda v: f"{v * 100:.1f}%")
         elif c == "평균체결":
             shown[c] = shown[c].map(lambda v: f"{v:.1f}")
@@ -199,8 +201,10 @@ def main(argv=None):
                              **summarize(rets[sl], bench[sl], fills[sl])})
         df = pd.DataFrame(rows)
         train = df[(df["시장"] == market) & (df["구분"] == "학습")]
-        # 고르는 기준: 중앙값(평균보다 운 좋은 몇 구간에 덜 휘둘려요)
-        best = train.sort_values("중앙값", ascending=False).iloc[0]
+        # 고르는 기준: 중앙값(평균보다 운 좋은 몇 구간에 덜 휘둘려요).
+        # 수상 조건(체결 5회)을 못 채우는 구간이 10% 넘는 조합은 빼요.
+        ok = train[train["5회미만비율"] <= 0.1]
+        best = (ok if len(ok) else train).sort_values("중앙값", ascending=False).iloc[0]
         key = {k: best[k] for k in GRID}
         best_by_market[market] = key
         test = df[(df["시장"] == market) & (df["구분"] == "검증")]

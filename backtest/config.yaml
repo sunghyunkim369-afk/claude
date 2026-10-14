@@ -33,16 +33,17 @@ indicators:
   volume_ma: 20
 
 entry:
-  adx_min: 25
+  # 처음 요청 규칙: adx_min 25, cross_lookback 1. optimize.py 학습 기간(2021-10~2024-10) 검증으로 아래 값으로 조정
+  adx_min: 20
   rsi_max: 70
-  cross_lookback: 1         # 1: 골든크로스 당일만, N: 최근 N일 안에 골든크로스(그리고 MACD 가 아직 시그널 위)
+  cross_lookback: 3         # 1: 골든크로스 당일만, N: 최근 N일 안에 골든크로스(그리고 MACD 가 아직 시그널 위)
   volume_filter: true       # 거래량 > 20일 평균 조건 사용
   # 매수 신호가 동시에 여러 개면 ADX 가 높은 순으로 빈자리만큼 사요.
 
 exit:
   stop_atr: 2.0       # 손절: 진입가 - 2 * ATR(신호일)
   trail_atr: 3.0      # 트레일링: 보유 중 최고가 - 3 * ATR
-  macd_dead_cross: true     # MACD 데드크로스 다음 날 시가 매도
+  macd_dead_cross: false    # 처음 요청 규칙은 true. 며칠 만에 팔려 추세를 못 타서 끔 (손절·트레일링으로만 청산)
   ema_exit: false           # 종가 < EMA60 이면 다음 날 시가 매도
 
 risk:

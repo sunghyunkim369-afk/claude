@@ -29,6 +29,11 @@ python3 -m trading order buy AAPL 1 -y  # 확인(y) 없이 바로 주문
 
 Windows 에서는 `trading` 폴더의 **`start_contest.bat` 을 더블클릭**하면 돼요 (최신 버전 받기 → 대회 모드 시작). `show_balance.bat` 은 잔고를 보여 줘요.
 
+**PC 를 계속 켜 두기 싫으면**: `setup_schedule.bat` 을 한 번 더블클릭하세요 (`python -m trading schedule`).
+Windows 작업 스케줄러에 평일 09:10(국내)·23:40(미국) 예약을 걸어서, PC 가 **절전 상태여도 깨워서** `contest --once` 로 한 번 돌고 끝내요.
+PC 를 완전히 끄면 안 되고 절전으로 두면 돼요. 결과는 `trading/logs/scheduled.txt`. 예약 지우기: `python -m trading unschedule`.
+예약을 쓰면 `start_contest.bat` 창은 닫아 두세요. 프로그램이 도는 동안에는 PC 가 절전에 들어가지 않게 막아요.
+
 BanKIS 대학생 모의투자대회(~11/20)용이에요. `backtest/contest.py` 로 과거 5년의 5주 구간 수백 개를 시험해 정한 공식이에요 (모의투자 전용).
 
 | | 국내 | 미국 |

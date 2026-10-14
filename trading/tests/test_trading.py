@@ -381,6 +381,54 @@ def auto_utc(y, mo, d, h, mi):
     return datetime(y, mo, d, h, mi, tzinfo=timezone.utc)
 
 
+class ScheduleTest(unittest.TestCase):
+    def test_task_xml(self):
+        from datetime import date as _d
+        from trading import schedule
+        import xml.dom.minidom
+        x = schedule.task_xml(r"C:\Py\pythonw.exe", r"C:\a&b\repo", "09:10:00", _d(2026, 10, 15))
+        doc = xml.dom.minidom.parseString(x.replace('encoding="UTF-16"', ""))
+        self.assertEqual(doc.getElementsByTagName("WakeToRun")[0].firstChild.data, "true")
+        self.assertEqual(doc.getElementsByTagName("StartBoundary")[0].firstChild.data, "2026-10-15T09:10:00")
+        self.assertEqual(doc.getElementsByTagName("WorkingDirectory")[0].firstChild.data, r"C:\a&b\repo")
+        self.assertEqual(doc.getElementsByTagName("Arguments")[0].firstChild.data, "-m trading contest --once")
+        self.assertEqual(len(doc.getElementsByTagName("DaysOfWeek")[0].childNodes), 5)
+
+    def test_us_task_time_inside_session_all_year(self):
+        from trading import schedule
+        h, m = map(int, schedule.TASKS["KIS 대회 미국"][:5].split(":"))
+        for month in (10, 12):  # 서머타임, 아닌 때
+            when = datetime(2026, month, 15, h - 9, m, tzinfo=timezone.utc)  # KST → UTC
+            self.assertIsNotNone(auto.market_session("us", when), month)
+        h, m = map(int, schedule.TASKS["KIS 대회 국내"][:5].split(":"))
+        self.assertIsNotNone(auto.market_session("kr", datetime(2026, 10, 15, h - 9, m, tzinfo=timezone.utc)))
+
+
+class ContestOnceTest(unittest.TestCase):
+    def test_closed_market_does_nothing(self):
+        kis, t = client(fake_market())
+        with tempfile.TemporaryDirectory() as d:
+            import shutil
+            shutil.copy(os.path.join(os.path.dirname(cli.__file__), "universe_kr.csv"), d)
+            n = auto.run_contest_once(kis, {"us": {"watchlist": []}}, d, lambda e: None,
+                                      now=lambda: datetime(2026, 10, 17, 1, 0, tzinfo=timezone.utc), out=lambda *_: None)
+        self.assertEqual((n, t.calls), (0, []))
+
+    def test_retries_after_error(self):
+        kis, _ = client(fake_market())
+        calls = []
+
+        def boom(*a, **k):
+            calls.append(1)
+            raise OSError("network down")
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(auto, "run_contest_cycle", boom):
+            import shutil
+            shutil.copy(os.path.join(os.path.dirname(cli.__file__), "universe_kr.csv"), d)
+            auto.run_contest_once(kis, {}, d, lambda e: None, now=lambda: datetime(2026, 10, 15, 1, 0, tzinfo=timezone.utc),
+                                  sleep=lambda s: None, out=lambda *_: None)
+        self.assertEqual(len(calls), 3)
+
+
 class OrderCommandTest(unittest.TestCase):
     def test_us_order_marketable_limit_and_fill_check(self):
         held = []

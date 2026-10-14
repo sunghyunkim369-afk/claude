@@ -10,6 +10,8 @@ strategy.py
 universe_kr.csv
 start_contest.bat
 show_balance.bat
+schedule.py
+setup_schedule.bat
 README.md
 .env.example
 MANIFEST

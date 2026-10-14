@@ -5,6 +5,8 @@
   python3 -m trading trade [--market kr|us|all]   후보를 하나씩 확인(y)한 것만 주문
   python3 -m trading order buy AAPL 1  주문 하나 직접 내기 (체결 시험용, 확인 후 주문. -y 면 확인 없이)
   python3 -m trading contest           대회 모드 자동매매 (contest.py 공식, 모의투자 전용)
+  python3 -m trading contest --once    대회 모드를 한 번만 돌고 끝내기
+  python3 -m trading schedule          Windows 작업 스케줄러에 예약 (절전에서 깨워 평일 09:10·23:40 실행)
   python3 -m trading auto              자동매매 (장중에 정해진 간격으로 확인하고 바로 주문)
   python3 -m trading update            최신 프로그램 받기 (.env·config.json 은 그대로)
 """
@@ -25,7 +27,7 @@ UPDATE_BASE = "https://raw.githubusercontent.com/sunghyunkim369-afk/claude/claud
 # 사용자가 고치는 .env, config.json 은 덮어쓰지 않아요.
 # 받을 파일 목록은 저장소의 trading/MANIFEST 를 먼저 보고, 못 받으면 아래 목록을 써요.
 UPDATE_FILES = ["__init__.py", "__main__.py", "auto.py", "cli.py", "contest.py", "kis.py", "planner.py", "strategy.py",
-                "universe_kr.csv", "start_contest.bat", "show_balance.bat",
+                "universe_kr.csv", "start_contest.bat", "show_balance.bat", "schedule.py", "setup_schedule.bat",
                 "README.md", ".env.example", "MANIFEST", "tests/__init__.py", "tests/test_trading.py"]
 
 
@@ -209,10 +211,21 @@ def cmd_order(kis, side, symbol, qty, exchange=None, ask=input, wait=None):
         print("아직 잔고에 반영되지 않았어요. 미체결이거나 잔고 반영이 늦은 거예요. 몇 분 뒤 status 로 다시 확인하세요.")
 
 
-def cmd_contest(kis, cfg, markets):
+def cmd_contest(kis, cfg, markets, once=False):
     if kis.env == "real":
         sys.exit("대회 모드는 모의투자(KIS_ENV=demo) 전용이에요.")
     from . import auto
+    if once:
+        # 작업 스케줄러로 창 없이 돌 때: 화면 대신 logs/scheduled.txt 에 남겨요
+        path = os.path.join(HERE, "logs", "scheduled.txt")
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+
+        def out(msg=""):
+            print(msg)
+            with open(path, "a", encoding="utf-8") as f:
+                f.write(msg + "\n")
+        auto.run_contest_once(kis, cfg, HERE, write_log, out=out)
+        return
     auto.run_forever(kis, cfg, HERE, write_log, orders_sent_today, contest_mode=True)
 
 
@@ -249,19 +262,36 @@ def cmd_update(fetch=None):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="python3 -m trading", description="한국투자증권 매매 프로그램 (국내+미국)")
-    ap.add_argument("command", choices=["status", "plan", "trade", "auto", "contest", "order", "update"])
+    ap.add_argument("command", choices=["status", "plan", "trade", "auto", "contest", "order", "schedule", "unschedule", "update"])
     ap.add_argument("args", nargs="*", help="order 일 때: buy|sell 종목 수량 (예: buy AAPL 1)")
     ap.add_argument("--market", choices=["kr", "us", "all"], default="all")
     ap.add_argument("--exchange", choices=["NASD", "NYSE", "AMEX"], help="미국 종목 거래소 (기본 NASD)")
     ap.add_argument("-y", "--yes", action="store_true", help="order 를 확인(y) 없이 바로 주문")
+    ap.add_argument("--once", action="store_true", help="contest 를 한 번만 돌고 끝내기 (작업 스케줄러용)")
     args = ap.parse_args(argv)
     markets = ("kr", "us") if args.market == "all" else (args.market,)
     if args.command == "update":
         cmd_update()
         return
+    if args.command in ("schedule", "unschedule"):
+        from . import schedule
+        if args.command == "schedule":
+            make_client()  # .env 가 제대로 있는지 먼저 확인
+            schedule.register(HERE)
+        else:
+            schedule.unregister()
+        return
 
     cfg = load_config()
     kis = make_client()
+    if args.command == "contest":
+        try:
+            cmd_contest(kis, cfg, markets, once=args.once)
+        except KisError as e:
+            sys.exit(f"API 오류: {e}")
+        except KeyboardInterrupt:
+            sys.exit("\n중단했어요.")
+        return
     if args.command == "order":
         if len(args.args) != 3 or args.args[0] not in ("buy", "sell") or not args.args[2].isdigit():
             sys.exit("사용법: python -m trading order buy AAPL 1   (또는 sell, 국내는 종목코드 6자리)")

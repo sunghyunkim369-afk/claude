@@ -211,6 +211,44 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
     return sent
 
 
+def keep_awake(on=True):
+    """Windows 에서 프로그램이 도는 동안 PC 가 절전에 들어가지 않게 해요 (다른 OS 는 아무것도 안 해요)."""
+    try:
+        import ctypes
+        flags = 0x80000000 | (0x00000001 if on else 0)  # ES_CONTINUOUS | ES_SYSTEM_REQUIRED
+        ctypes.windll.kernel32.SetThreadExecutionState(flags)
+    except Exception:
+        pass
+
+
+def run_contest_once(kis, cfg, here, log, now=lambda: datetime.now(timezone.utc), sleep=time.sleep,
+                     out=print, retries=3):
+    """작업 스케줄러용: 장이 열려 있으면 대회 모드를 한 번만 돌고 끝내요.
+    절전에서 막 깨어나면 인터넷 연결이 늦을 수 있어서, 실패하면 1분 쉬고 다시 시도해요."""
+    from . import contest
+    state = contest.State(os.path.join(here, ".cache", f"contest-{kis.env}.json"))
+    universe = contest.load_universe(os.path.join(here, "universe_kr.csv"))
+    t = now()
+    if not any(market_session(m, t) for m in ("kr", "us")):
+        out(f"[{t.astimezone(KST):%m-%d %H:%M}] 장이 닫혀 있어서 할 일이 없어요.")
+        return 0
+    keep_awake(True)
+    try:
+        for attempt in range(retries):
+            try:
+                n = run_contest_cycle(kis, cfg, state, now(), log, out, universe)
+                out(f"[{now().astimezone(KST):%m-%d %H:%M}] 끝 (주문 {n}건)")
+                return n
+            except Exception as e:
+                log({"event": "auto_error", "error": str(e), "once": True})
+                out(f"  오류: {e}" + (" (1분 뒤 다시 시도)" if attempt < retries - 1 else ""))
+                if attempt < retries - 1:
+                    sleep(60)
+        return 0
+    finally:
+        keep_awake(False)
+
+
 def run_forever(kis, cfg, here, log, orders_sent_today, now=lambda: datetime.now(timezone.utc),
                 sleep=time.sleep, out=print, contest_mode=False):
     auto = {**DEFAULTS, **cfg.get("auto", {})}
@@ -226,6 +264,7 @@ def run_forever(kis, cfg, here, log, orders_sent_today, now=lambda: datetime.now
     out("멈추려면 Ctrl+C 를 누르거나 trading 폴더에 STOP 파일을 만드세요.")
     last_run = None
     waiting_shown = False
+    keep_awake(True)  # 켜 둔 동안은 절전에 들어가지 않게
     while True:
         if os.path.exists(stop_file):
             out("STOP 파일이 있어서 멈춰요. 다시 시작하려면 STOP 파일을 지우세요.")

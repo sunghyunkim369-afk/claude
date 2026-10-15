@@ -313,6 +313,25 @@ class ContestTest(unittest.TestCase):
         top2 = self.contest.Rotation(fr, "US", CFG, {**p, "regime_off": "top2"}, bars, bad)
         self.assertEqual(top2.targets(d[320]), top2._ranked(d[320])[:2])
 
+    def test_regime_hold_top1_and_drop(self):
+        fr = self.contest.prepare(self.raw, CFG, [20])
+        bars = self.contest.build_bars(fr)
+        d = sorted(bars)
+        bad = {x: {"breadth": 0.1, "index": 1.0, "index_up": False, "ret": -0.03} for x in d}
+        p = {**self.params, "stop_atr": 0.0, "regime": "drop2"}
+        self.assertFalse(self.contest.Rotation(fr, "US", CFG, p, bars, bad).risk_on(d[320]))
+        calm = {x: {**bad[x], "ret": -0.01} for x in d}
+        self.assertTrue(self.contest.Rotation(fr, "US", CFG, p, bars, calm).risk_on(d[320]))
+        top1 = self.contest.Rotation(fr, "US", CFG, {**p, "regime_off": "top1"}, bars, bad)
+        self.assertEqual(top1.targets(d[320]), top1._ranked(d[320])[:1])
+        hold = self.contest.Rotation(fr, "US", CFG, {**p, "regime_off": "hold"}, bars, bad)
+        self.assertIsNone(hold.targets(d[320]))
+        curve, st = hold.run(d[300], d[340], 100_000)  # 매일 나쁜 날이면 한 번도 거래 안 함
+        self.assertEqual(st["orders"], 0)
+        r = self.contest.build_regime(bars)
+        x0, x1 = d[100], d[101]
+        self.assertAlmostEqual(r[x1]["ret"], r[x1]["index"] / r[x0]["index"] - 1)
+
     def test_regime_values_use_only_past(self):
         fr = self.contest.prepare(self.raw, CFG, [20])
         r1 = self.contest.build_regime(self.contest.build_bars(fr))

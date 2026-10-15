@@ -116,6 +116,14 @@ VOL_VARIANTS = [
     {"vr20_min": 1.0, "upvol_min": 0.55},
     {"turnover_min": 5e9, "climax_max": 4.0},
 ]
+# 하락장 대응 검증(--regime): 지금 입상형에 '시장이 나쁜 날' 판단을 붙여 비교
+#   regime  index20: 대상 종목 동일비중 지수 < 지수 EMA20 / breadth40: EMA60 위 종목 40% 미만
+#           drop2: 그날 동일비중 지수가 −2% 이하로 급락한 날
+#   regime_off (나쁜 날 리밸런스 때): cash = 전부 팔고 현금 / top1·top2 = 상위 1·2종목만 (나머지 현금, 비중 축소)
+#           hold = 그날은 아무 거래도 안 함 (가진 것 그대로, 새로 안 삼)
+REGIME_GRID = {**{k: [v] for k, v in VOL_BASE.items()},
+               "regime": ["none", "index20", "breadth40", "drop2"],
+               "regime_off": ["cash", "top1", "top2", "hold"]}
 VOL_COLS = ["중앙값", "상위10%", "+30%확률", "하위10%", "최악", "조건충족률"]
 TAIL_GOAL = 0.30  # 5주에 +30% 이상이면 '대박 구간'으로 셈
 
@@ -179,6 +187,16 @@ def rank_score(b, p):
     return score
 
 
+REGIME_LABELS = {"none": "안 씀", "index20": "지수<EMA20", "breadth40": "EMA60위 종목<40%", "drop2": "그날 지수 −2% 이하"}
+OFF_LABELS = {"cash": "전부 현금", "top1": "1종목만", "top2": "2종목만", "hold": "거래 쉬기"}
+
+
+def regime_name(p):
+    if p["regime"] == "none":
+        return "기준(하락장 판단 없음)"
+    return f"{REGIME_LABELS[p['regime']]} → {OFF_LABELS[p['regime_off']]}"
+
+
 def vol_name(p):
     on = [f"{k}={p[k]:g}" for k in ("vr20_min", "vr20_max", "vr5_min", "upvol_min", "turnover_min", "climax_max")
           if p.get(k)]
@@ -215,7 +233,7 @@ def build_regime(bars):
                 level *= 1 + sum(rets) / len(rets)
         idx.append(level)
         prev = day
-        out[d] = {"breadth": breadth, "index": level}
+        out[d] = {"breadth": breadth, "index": level, "ret": level / idx[-2] - 1 if len(idx) > 1 else 0.0}
     ema = pd.Series(idx, index=dates).ewm(span=20, adjust=False, min_periods=20).mean()
     for d in dates:
         e = ema[d]
@@ -244,14 +262,19 @@ class Rotation:
             return True
         if mode.startswith("breadth"):
             return r["breadth"] >= int(mode[7:]) / 100
+        if mode.startswith("drop"):
+            return r.get("ret", 0.0) > -int(mode[4:]) / 100
         return r["index_up"]
 
     def targets(self, d):
         """그날 종가 기준 목표 종목 (그날까지 데이터만 사용). 날짜별로 한 번만 계산해 둬요."""
         if not self.risk_on(d):
-            if self.p.get("regime_off", "cash") == "cash":
+            off = self.p.get("regime_off", "cash")
+            if off == "cash":
                 return []
-            return self._ranked(d)[:2]
+            if off == "hold":
+                return None  # 그날은 거래 안 함
+            return self._ranked(d)[:int(off[3:])]
         return self._ranked(d)
 
     def _ranked(self, d):
@@ -284,6 +307,8 @@ class Rotation:
 
         for i, d in enumerate(days):
             bars = self.bars[d]
+            if pending is not None and pending[0] is None:
+                pending = None
             if pending is not None:
                 target, per = pending
                 # 1) 목표에서 빠진 종목 매도
@@ -577,6 +602,7 @@ def main(argv=None):
     ap.add_argument("--momentum", action="store_true", help="학계 방식 모멘텀(최근 1개월 제외)과 지금 입상형 비교")
     ap.add_argument("--exits", action="store_true", help="지금 입상형에 % 익절·손절을 붙여 비교")
     ap.add_argument("--volume", action="store_true", help="지금 입상형에 거래량 조건을 붙여 비교")
+    ap.add_argument("--regime", action="store_true", help="지금 입상형에 하락장 판단(현금·비중 축소·거래 쉬기)을 붙여 비교")
     ap.add_argument("--us-list", default=None, help="미국 종목 목록으로 쓸 config 키 (예: us_aggressive)")
     args = ap.parse_args(argv)
     cfg = load_config(args.config)
@@ -593,15 +619,15 @@ def main(argv=None):
     symbols = list(dict.fromkeys(kr + (us if "US" in markets else [])))
     raw, start, end = load_all(symbols, cfg["period"], cache, log=lambda *_: None)
     print(f"받은 데이터: 국내 {sum(market_of(s) == 'KR' for s in raw)}종목, 해외 {sum(market_of(s) == 'US' for s in raw)}종목")
-    grid = (VOL_BASE if args.volume else EXIT_GRID if args.exits else MOM_GRID if args.momentum else
+    grid = (REGIME_GRID if args.regime else VOL_BASE if args.volume else EXIT_GRID if args.exits else MOM_GRID if args.momentum else
             AGG_GRID if args.aggressive else GRID)
     if args.volume:
         param_list = [{**VOL_BASE, **v} for v in VOL_VARIANTS]
     else:
         param_list = [dict(zip(grid, values)) for values in itertools.product(*grid.values())]
-    tail_mode = args.aggressive or args.momentum or args.exits or args.volume
+    tail_mode = args.aggressive or args.momentum or args.exits or args.volume or args.regime
     metric = "상위10%" if tail_mode else "중앙값"
-    tag = ("contest_volume" if args.volume else "contest_exits" if args.exits else "contest_momentum" if args.momentum else
+    tag = ("contest_regime" if args.regime else "contest_volume" if args.volume else "contest_exits" if args.exits else "contest_momentum" if args.momentum else
            "contest_aggressive" if args.aggressive else "contest") + \
         ("" if markets == ["KR", "US"] else "_" + "_".join(markets))
     if args.us_list:
@@ -636,10 +662,11 @@ def main(argv=None):
                 rets.append(curve.iloc[-1] / cap - 1)
                 stats.append(st)
             combos[combo_name(params)] = (rets, stats)
-            if args.volume:
+            if args.volume or args.regime:
                 tr, te = (summarize(rets[sl], bench[sl], stats[sl], rule, scale)
                           for sl in (slice(0, cut), slice(cut, None)))
-                vol_rows.append({"거래량 조건": vol_name(params),
+                label = regime_name(params) if args.regime else vol_name(params)
+                vol_rows.append({"조건": label,
                                  **{f"학습 {k}": tr[k] for k in VOL_COLS}, **{f"검증 {k}": te[k] for k in VOL_COLS},
                                  "평균 보유수": np.mean([s["held"] for s in stats])})
             for part, sl in (("학습", slice(0, cut)), ("검증", slice(cut, None))):
@@ -647,8 +674,8 @@ def main(argv=None):
                              **summarize(rets[sl], bench[sl], stats[sl], rule, scale)})
         states = build_states(regime)
         now_lines = current_state_lines(market, states, dates)
-        if args.volume:
-            adaptive_lines = ["거래량 조건별 비교 (학습 = 앞 60% 구간, 검증 = 뒤 40% 구간):",
+        if args.volume or args.regime:
+            adaptive_lines = [("하락장 판단별" if args.regime else "거래량 조건별") + " 비교 (학습 = 앞 60% 구간, 검증 = 뒤 40% 구간):",
                               fmt(pd.DataFrame(vol_rows))]
         elif tail_mode:
             adaptive_lines = []
@@ -665,7 +692,7 @@ def main(argv=None):
         picked[market] = {k: (v.item() if hasattr(v, "item") else v) for k, v in key.items()}
         test_best = test[np.logical_and.reduce([test[k] == v for k, v in key.items()])]
         cols = ["시장", "구분"]
-        if args.volume:
+        if args.volume or args.regime:
             lines += now_lines + [f"[{market}] 학습 구간 {cut}개 / 검증 구간 {len(wins) - cut}개 "
                                   f"({wins[cut][0]:%Y-%m-%d} 이후 시작)", *adaptive_lines, ""]
             continue

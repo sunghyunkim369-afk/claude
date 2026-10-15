@@ -53,12 +53,14 @@ jobs:
           done
           [ "$ok" = 1 ] || { echo "::error::팀 저장소를 받지 못했어요 (권한 또는 연결 문제)"; exit 1; }
           cd team
-          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
-            git checkout -q -B "$BRANCH" "origin/$BRANCH"; echo "팀 저장소의 기존 $BRANCH 브랜치에 이어서 올려요"
-          else
-            git checkout -q -B "$BRANCH" origin/HEAD; echo "팀 저장소 기본 브랜치에서 $BRANCH 브랜치를 새로 만들어요"
-          fi
-          [ -d mate ] || { echo "::error::팀 저장소에 mate/ 폴더가 없어서 올리지 않았어요"; exit 1; }
+          # 기존 score-v2 → dev → 기본 브랜치 순서로, mate/ 폴더가 있는 브랜치를 바탕으로 써요
+          base=""
+          for c in "$BRANCH" dev HEAD; do
+            git rev-parse -q --verify "origin/$c" >/dev/null || { echo "  origin/$c: 없음"; continue; }
+            if git ls-tree -d --name-only "origin/$c" mate | grep -qx mate; then base=$c; echo "  origin/$c: mate/ 있음"; break; else echo "  origin/$c: mate/ 없음"; fi
+          done
+          [ -n "$base" ] || { echo "::error::팀 저장소 어느 브랜치에도 mate/ 폴더가 없어서 올리지 않았어요"; exit 1; }
+          git checkout -q -B "$BRANCH" "origin/$base"; echo "origin/$base 를 바탕으로 $BRANCH 브랜치에 올려요"
 
           # 2) 우리 main → score-v2 에서 바뀐 파일만 옮겨요 (.github 는 빼요)
           cd ../ours

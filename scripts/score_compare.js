@@ -213,7 +213,7 @@ const sameAsPublished = latest && latest.meta.generated === new Date(now).toISOS
   ? JSON.stringify(T.v1site.map(x => [x.keyword, x.v1])) === JSON.stringify(latest.issues.map(x => [x.keyword, x.score])) : null;
 p(`# 점수식 비교 (기준 ${new Date(now).toISOString()})`);
 p(`이번 주 기사 ${week.length}건 (같은 출처 비교용 ${weekC.length}건) · 직전 4주 ${base.length}건 · 이슈 묶음 ${raw.length}개 · 후보(기사 ${SCORE.minReports}건 이상 또는 정부 발표) ${cands.length}개 · 대표 기사 기준 통과 ${eligible.length}개`);
-p(sameAsPublished === null ? "v1 재현 확인: 발행본과 기준 시각이 달라 비교하지 않았어요" : sameAsPublished ? "v1 재현 확인: 발행된 Top 10·점수와 똑같아요 ✓" : "⚠ v1 재현 확인: 발행된 Top 10 과 달라요 (보관 파일이 발행 때와 다를 수 있음)");
+p(sameAsPublished === null ? "v1 재현 확인: 발행본과 기준 시각이 달라 비교하지 않았어요" : sameAsPublished ? "v1 재현 확인: 발행된 Top 10·점수와 똑같아요 ✓" : "⚠ v1 재현 확인: 발행된 Top 10 과 달라요 (보관 파일이나 분류 규칙이 발행 때와 다를 수 있음)");
 p();
 const table = (title, a, b, fa, fb) => {
   p(`## ${title}`);

@@ -6,22 +6,12 @@
  "ranking": [],
  "candidates": [
   {
-   "keyword": "경제제재",
+   "keyword": "공급망·핵심광물",
    "reports": 11,
    "titles": [
-    "보험광고 규정위반 4년반에 4.7만건…협회 제재금 부과 10건뿐",
-    "단통법 폐지 후에도 판매점 제재 3천건…절반은 비용 고지 위반",
-    "Nobel laureate Pillay calls US sanctions on ICC judges 'shocking'",
-    "피해기업 구제 늦어질라…기술 탈취 공정위 제재까지 703일 걸려"
-   ]
-  },
-  {
-   "keyword": "공급망·핵심광물",
-   "reports": 16,
-   "titles": [
-    "[바이오스냅] 동아쏘시오그룹, 협력사 대상 ESG 공급망 교육",
-    "\"대기업 거래실적으로 中企대출\"…올해 '공급망금융' 5조원 돌파",
+    "“첨단산업에 필수”…수은, 구리 등 ‘7대 핵심광물’에 3조원 풀었다",
     "The battle against supply chain chaos keeps SMBs ‘in overdrive’",
+    "매장량 세계 2위 몽골 희토류 무관세로 들여온다",
     "대·중소기업 협력 기반 기술사업화 R&D 지원… 공급망 자립화 기반 다진다"
    ]
   },
@@ -29,10 +19,19 @@
    "keyword": "관세",
    "reports": 7,
    "titles": [
-    "이형일 “대미 관세·CPTPP 불확실성 최소화…공정과세 실현”",
-    "\"낮은 관세 영향\" 영국 초토화…다음 타자는 한국?",
     "DHL: Tech beats tariffs – the AI boom ‘has become a powerful driver of global trade’",
-    "CPTPP, 농산물 관세만의 문제 아니다…농가 지원·검역도 '시험대'"
+    "이형일 “대미 관세·CPTPP 불확실성 최소화…공정과세 실현”",
+    "India-US trade talks hit 'plateau', finance minister says, as tariffs narrow room for deal",
+    "\"낮은 관세 영향\" 영국 초토화…다음 타자는 한국?"
+   ]
+  },
+  {
+   "keyword": "러시아 경제제재",
+   "reports": 3,
+   "titles": [
+    "UK Sanctions 12 More ‘Shadow-Fleet’ Tankers as Russia’s Arctic Traffic Grows",
+    "英가디언 \"한국발 석유제품, 제재 유조선 통해 러시아로\"",
+    "Exports stranded as Adani Russia-embargo creates Indian air cargo chaos"
    ]
   },
   {
@@ -47,7 +46,7 @@
   },
   {
    "keyword": "미국 공급망·핵심광물",
-   "reports": 9,
+   "reports": 8,
    "titles": [
     "두산에너빌리티, 美 스페이스XAI 공급망 진입…380MW 가스터빈 공급",
     "KOTRA Supports Entry of K-Aerospace Materials, Components, and Equipment into Global Supply Chain with U.S. Bell Textron",
@@ -79,20 +78,20 @@
    "keyword": "수출입 동향",
    "reports": 9,
    "titles": [
+    "KTC 6대 원장에 양병내 전 산업통상자원부 통상차관보 취임",
     "[속보] 반도체 호황…8월 경상수지 461억1000만달러 흑자 역대 2위",
     "인도 재무장관 \"대미 무역협상 정체기…양보·타협 어려워\"",
-    "양병내 전 무역위 상임위원, KTC 제6대 원장에 취임",
-    "화장품株, 급락에 '매수 기회왔다'...비용 우려 과도 수출 수요 견조-신한"
+    "양병내 전 무역위 상임위원, KTC 제6대 원장에 취임"
    ]
   },
   {
    "keyword": "유가·원자재",
    "reports": 10,
    "titles": [
-    "국제유가, IEA 비축유 방출 가속에 하락…WTI 1.3%↓",
     "이라크산 원유 시리아 통해 육로수송…호르무즈 우회",
+    "국제유가, IEA 비축유 방출 가속에 하락…WTI 1.3%↓",
     "Korea Gas Corporation Moves to Stabilize LNG Supply: Strengthening Average Tariff System and Considering Stockpiling Obligations",
-    "김정관 \"알래스카 LNG 전략적 가치는 있어…상업성 전제로 검토\""
+    "Qatar Brings Empty LNG Ships Into Gulf in Potential Export Boost"
    ]
   },
   {
@@ -146,22 +145,22 @@
   },
   {
    "keyword": "해운·물류",
-   "reports": 23,
+   "reports": 20,
    "titles": [
-    "Freightmate admits using Flexport docs as AI trade secrets case settles",
     "From Policy to Practice: Shipping’s Regulatory Autumn Puts Proof on Trial",
     "Ethanol Could Offer Shipping Another Path to Lower Emissions",
-    "지방공항·항만서 지역여행 쉽게…관광공사, 외국인 편의 개선"
+    "LNG Trade Through Hormuz Extends Rebound Despite Shipping Risks",
+    "Freightmate admits using Flexport docs as AI trade secrets case settles"
    ]
   },
   {
    "keyword": "환율",
    "reports": 12,
    "titles": [
+    "환율, 수출기업 달러 매도 등에 3.2원 내린 1,340원",
     "[외환] 원/달러 환율 4.3원 오른 1,342.8원(15:30 기준가)",
     "한투증권 \"원/달러 환율, 1,330원대 복귀해도 추가 하락 압력\"",
-    "[외환] 원/달러 환율 1.9원 내린 1,338.5원(15:30 기준가)",
-    "환율, 수출기업 달러 매도 등에 3.2원 내린 1,340원"
+    "[외환] 원/달러 환율 1.9원 내린 1,338.5원(15:30 기준가)"
    ]
   },
   {
@@ -197,7 +196,7 @@
     "李대통령, CPTPP 연내 신청않도록 지시…\"농어민과 충분히 대화\"",
     "산업부, CPTPP 가입 관련 서비스·지식재산권 업계 의견 수렴",
     "李 \"CPTPP 연내 가입 신청하지 말라\"",
-    "송미령 \"CPTPP 가입 논의 원점 재검토…국익·민의 따라 결정\"(종합)"
+    "산업부, 수출시장 다변화 위해 CPTPP 가입 검토…농어업계 의견 수렴"
    ]
   }
  ]

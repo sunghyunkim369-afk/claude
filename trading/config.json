@@ -1,0 +1,41 @@
+{
+  "_설명": "관심 종목·예산·한도. 비밀값(앱키·계좌)은 여기 말고 trading/.env 에 넣어요.",
+  "domestic": {
+    "budget_krw": 5000000,
+    "max_positions": 5,
+    "watchlist": [
+      {"code": "005930", "name": "삼성전자"},
+      {"code": "000660", "name": "SK하이닉스"},
+      {"code": "035420", "name": "NAVER"},
+      {"code": "005380", "name": "현대차"},
+      {"code": "069500", "name": "KODEX 200"}
+    ]
+  },
+  "us": {
+    "budget_usd": 3500,
+    "max_positions": 5,
+    "watchlist": [
+      {"symbol": "AAPL", "exchange": "NASD"},
+      {"symbol": "MSFT", "exchange": "NASD"},
+      {"symbol": "NVDA", "exchange": "NASD"},
+      {"symbol": "JPM", "exchange": "NYSE"},
+      {"symbol": "SPY", "exchange": "AMEX"}
+    ]
+  },
+  "strategy": {
+    "short_ma": 20,
+    "long_ma": 60,
+    "max_above_short_pct": 5,
+    "stop_loss_pct": -8,
+    "take_profit_pct": 20
+  },
+  "auto": {
+    "interval_min": 15,
+    "us_limit_slippage_pct": 0.5
+  },
+  "limits": {
+    "max_order_krw": 1500000,
+    "max_order_usd": 1000,
+    "max_orders_per_day": 10
+  }
+}

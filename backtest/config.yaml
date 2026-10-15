@@ -1,0 +1,123 @@
+# 백테스트 설정. 숫자를 바꾸고 python main.py 를 다시 실행하면 돼요.
+
+# 종목: 6자리 숫자는 국내(원화), 그 밖은 해외(달러)로 자동 구분해요.
+symbols:
+  - "005930"   # 삼성전자
+  - "000660"   # SK하이닉스
+  - "035420"   # NAVER
+  - "005380"   # 현대차
+  - "051910"   # LG화학
+  - "068270"   # 셀트리온
+  - AAPL
+  - MSFT
+  - NVDA
+  - AMZN
+  - JPM
+  - XOM
+
+period:
+  years: 5            # end 로부터 몇 년 전부터 (start 를 쓰면 무시)
+  start: null         # 예: "2021-01-01"
+  end: null           # null 이면 오늘
+  warmup_days: 200    # 지표 계산용으로 시작일 전 데이터를 더 받아요 (달력 기준 일수)
+
+indicators:
+  ema_fast: 20
+  ema_slow: 60
+  adx: 14
+  macd_fast: 12
+  macd_slow: 26
+  macd_signal: 9
+  rsi: 14
+  atr: 14
+  volume_ma: 20
+
+entry:
+  # 처음 요청 규칙: adx_min 25, cross_lookback 1. optimize.py 학습 기간(2021-10~2024-10) 검증으로 아래 값으로 조정
+  adx_min: 20
+  rsi_max: 70
+  cross_lookback: 3         # 1: 골든크로스 당일만, N: 최근 N일 안에 골든크로스(그리고 MACD 가 아직 시그널 위)
+  volume_filter: true       # 거래량 > 20일 평균 조건 사용
+  # 매수 신호가 동시에 여러 개면 ADX 가 높은 순으로 빈자리만큼 사요.
+
+exit:
+  stop_atr: 2.0       # 손절: 진입가 - 2 * ATR(신호일)
+  trail_atr: 3.0      # 트레일링: 보유 중 최고가 - 3 * ATR
+  macd_dead_cross: false    # 처음 요청 규칙은 true. 며칠 만에 팔려 추세를 못 타서 끔 (손절·트레일링으로만 청산)
+  ema_exit: false           # 종가 < EMA60 이면 다음 날 시가 매도
+
+risk:
+  risk_per_trade: 0.01      # 손절에 걸리면 총자본의 1% 손실이 되도록 수량 계산
+  max_positions: 5          # 시장(통화)별 동시 보유 종목 수
+  max_position_pct: 0.25    # 한 종목에 총자본의 최대 25%까지만 (ATR 이 작을 때 몰빵 방지)
+
+capital:                    # 국내·해외는 통화가 달라서 따로 운용·계산해요
+  KR: 100000000             # 원
+  US: 100000                # 달러
+
+costs:
+  KR:
+    buy_fee: 0.00015
+    sell_fee: 0.00015
+    sell_tax: 0.0018
+  US:
+    buy_fee: 0.0025
+    sell_fee: 0.0025
+    sell_tax: 0.0
+  slippage: 0.001           # 매수는 0.1% 비싸게, 매도는 0.1% 싸게 체결된다고 가정
+
+validation:                 # python optimize.py 설정
+  train_ratio: 0.6          # 앞 60% 기간에서 규칙을 고르고, 뒤 40% 에서 검증
+  extra_symbols:            # 검증 때만 더 넣는 종목 (종목이 많을수록 우연에 덜 휘둘려요)
+    - "207940"   # 삼성바이오로직스
+    - "006400"   # 삼성SDI
+    - "035720"   # 카카오
+    - "105560"   # KB금융
+    - "055550"   # 신한지주
+    - "012330"   # 현대모비스
+    - "028260"   # 삼성물산
+    - "066570"   # LG전자
+    - "017670"   # SK텔레콤
+    - "015760"   # 한국전력
+    - "000270"   # 기아
+    - "096770"   # SK이노베이션
+    - "003670"   # 포스코퓨처엠
+    - "032830"   # 삼성생명
+    - GOOGL
+    - META
+    - TSLA
+    - BRK-B
+    - JNJ
+    - PG
+    - UNH
+    - HD
+    - KO
+    - WMT
+    - CVX
+    - V
+    - COST
+    - LLY
+
+# 미국 입상형 검증용: 레버리지 ETF + 변동성 큰 종목 (python contest.py --aggressive --markets US --us-list us_aggressive)
+us_aggressive:
+  - TQQQ    # 나스닥100 3배
+  - SOXL    # 반도체 3배
+  - UPRO    # S&P500 3배
+  - TECL    # 기술주 3배
+  - FNGU    # 대형 기술주 3배
+  - LABU    # 바이오 3배
+  - TNA     # 러셀2000 3배
+  - NVDA
+  - TSLA
+  - AMD
+  - PLTR
+  - COIN
+  - MSTR
+  - SMCI
+  - META
+  - AVGO
+
+report:
+  risk_free: 0.0            # 샤프지수 무위험 수익률(연)
+  output_dir: results
+  cache_dir: data_cache     # 받은 데이터를 저장해 두고 하루 동안 다시 써요

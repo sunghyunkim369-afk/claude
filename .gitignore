@@ -13,3 +13,11 @@ dist/
 
 # 사진 후보 원본(수십 MB)은 저장소에 두지 않아요. 사이트에 쓰는 사진은 tradecompass-mvp/img/photos (WebP)
 data/media-preview/photos/
+
+# 매매 프로그램: 토큰 캐시와 주문 기록은 저장소에 두지 않아요
+trading/.cache/
+trading/logs/
+__pycache__/
+
+# 백테스트: 받은 주가 데이터 캐시는 저장소에 두지 않아요 (결과 results/ 는 올려요)
+backtest/data_cache/

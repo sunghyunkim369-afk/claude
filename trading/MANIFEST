@@ -1,0 +1,19 @@
+# python -m trading update 가 받는 파일 목록 (.env, config.json 은 받지 않아요)
+__init__.py
+__main__.py
+auto.py
+cli.py
+contest.py
+kis.py
+planner.py
+strategy.py
+universe_kr.csv
+start_contest.bat
+show_balance.bat
+schedule.py
+setup_schedule.bat
+README.md
+.env.example
+MANIFEST
+tests/__init__.py
+tests/test_trading.py

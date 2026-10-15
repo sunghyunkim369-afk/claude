@@ -33,6 +33,8 @@ jobs:
       - run: npm test
         env:
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
+      - name: 매매 프로그램 테스트 (trading/, 가짜 API 응답)
+        run: python3 -m unittest discover -s trading/tests -t .
       - name: Report result to GitSalt (커밋 옆 ✅/❌)
         if: always() && github.ref == 'refs/heads/main'
         env:

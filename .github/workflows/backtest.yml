@@ -1,0 +1,82 @@
+name: Backtest
+
+# backtest/ 를 고치면 실제 과거 데이터(FinanceDataReader, yfinance)로 백테스트를 돌리고
+# 결과(backtest/results/)를 같은 브랜치에 올려요.
+on:
+  push:
+    branches: [claude/awesome-edison-24zdn0]
+    paths:
+      - "backtest/**"
+      - "!backtest/results/**"
+      - ".github/workflows/backtest.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: backtest-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backtest:
+    if: github.server_url == 'https://github.com'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: backtest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backtest/requirements.txt
+      - run: pip install -r requirements.txt
+      - name: 엔진 테스트
+        run: python -m unittest discover -s tests -v
+      - name: 백테스트 실행
+        if: ${{ !(contains(github.event.head_commit.message, '[us-only]') || contains(github.event.head_commit.message, '[momentum-only]') || contains(github.event.head_commit.message, '[exits-only]') || contains(github.event.head_commit.message, '[volume-only]') || contains(github.event.head_commit.message, '[drop-only]')) }}
+        run: |
+          mkdir -p results
+          python main.py 2>&1 | tee results/console.txt
+          exit ${PIPESTATUS[0]}
+      - name: 규칙 조정·검증 (학습/검증 기간 분리, 수동 실행 때만)
+        if: github.event_name == 'workflow_dispatch'
+        run: python optimize.py
+      - name: 대회 매매 가능 종목 (코스피200 + 코스닥150)
+        if: ${{ !(contains(github.event.head_commit.message, '[us-only]') || contains(github.event.head_commit.message, '[momentum-only]') || contains(github.event.head_commit.message, '[exits-only]') || contains(github.event.head_commit.message, '[volume-only]') || contains(github.event.head_commit.message, '[drop-only]')) }}
+        run: python universe.py
+      - name: 대회용 공식 검증 (5주 구간 반복)
+        if: ${{ !(contains(github.event.head_commit.message, '[us-only]') || contains(github.event.head_commit.message, '[momentum-only]') || contains(github.event.head_commit.message, '[exits-only]') || contains(github.event.head_commit.message, '[volume-only]') || contains(github.event.head_commit.message, '[drop-only]')) }}
+        run: python contest.py
+      - name: 입상 노리는 공식 검증 (상위 10% 수익률 기준)
+        if: ${{ !(contains(github.event.head_commit.message, '[us-only]') || contains(github.event.head_commit.message, '[momentum-only]') || contains(github.event.head_commit.message, '[exits-only]') || contains(github.event.head_commit.message, '[volume-only]') || contains(github.event.head_commit.message, '[drop-only]')) }}
+        run: python contest.py --aggressive
+      - name: 미국 입상형 검증 (레버리지 ETF·고변동 종목)
+        if: ${{ !(contains(github.event.head_commit.message, '[momentum-only]') || contains(github.event.head_commit.message, '[exits-only]') || contains(github.event.head_commit.message, '[volume-only]') || contains(github.event.head_commit.message, '[drop-only]')) }}
+        run: python contest.py --aggressive --markets US --us-list us_aggressive
+      - name: 학계 방식 모멘텀(최근 1개월 제외) 비교 (국내)
+        if: ${{ contains(github.event.head_commit.message, '[momentum-only]') }}
+        run: |
+          python universe.py
+          python contest.py --momentum --markets KR
+      - name: 익절·손절 비교 (국내 입상형)
+        if: ${{ contains(github.event.head_commit.message, '[exits-only]') }}
+        run: python contest.py --exits --markets KR
+      - name: 거래량 요소 비교 (국내 입상형)
+        if: ${{ contains(github.event.head_commit.message, '[volume-only]') }}
+        run: python contest.py --volume --markets KR
+      - name: 대형주 급락 날 매수 검증
+        if: ${{ contains(github.event.head_commit.message, '[drop-only]') }}
+        run: python event_drop.py
+      - name: 결과 올리기
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results universe_kr.csv
+          git diff --cached --quiet && { echo "바뀐 결과 없음"; exit 0; }
+          git commit -m "백테스트 결과 갱신 (${GITHUB_SHA::7})"
+          for i in 1 2 3; do git pull --rebase -q && git push && exit 0; sleep 5; done
+          exit 1

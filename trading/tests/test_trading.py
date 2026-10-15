@@ -358,15 +358,15 @@ class ContestModeTest(unittest.TestCase):
         self.assertEqual(sorted(buys), ["000006", "000007"])
         self.assertEqual(n, 2)
 
-    def test_aggressive_default_buys_top2_with_half_each(self):
+    def test_aggressive_default_buys_top3_with_third_each(self):
         strengths = {f"00000{i}": 0.002 * i for i in range(1, 8)}
         universe = [(c, c) for c in strengths]
         kis, t = client(self.market(strengths))
         with mock.patch.object(self.contest, "score", lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1):
             n, state = self.cycle(kis, auto_utc(2026, 10, 15, 0, 30), universe)
         buys = [c["body"] for c in t.calls if c["path"].endswith("order-cash")]
-        self.assertEqual(sorted(b["PDNO"] for b in buys), ["000006", "000007"])
-        self.assertEqual(int(buys[0]["ORD_QTY"]), 4900)   # 1억/2*0.99/10100
+        self.assertEqual(sorted(b["PDNO"] for b in buys), ["000005", "000006", "000007"])
+        self.assertEqual(int(buys[0]["ORD_QTY"]), 3267)   # 1억/3*0.99/10100
         self.assertEqual(state.d["start_total"], 100_000_000)
 
     def test_switch_to_stable_after_gain(self):
@@ -406,7 +406,7 @@ class ContestModeTest(unittest.TestCase):
             daily_before = len([c for c in t.calls if "itemchartprice" in c["path"]])
             n = auto.run_contest_cycle(kis, cfg, state, auto_utc(2026, 10, 15, 0, 20), self.logs.append, lambda *_: None, universe)
         self.assertEqual(len([c for c in t.calls if "itemchartprice" in c["path"]]), daily_before)  # 순위 다시 안 함
-        self.assertEqual(n, 2)
+        self.assertEqual(n, 3)  # 입상형 3종목
 
     def test_tick_and_limit(self):
         c = self.contest

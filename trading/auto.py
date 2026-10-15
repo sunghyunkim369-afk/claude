@@ -258,7 +258,7 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
         gain = contest.maybe_switch_to_stable(state, kis.kr_balance()["total"], threshold, out)
         mode = state.d.get("kr_mode", contest.DEFAULT_KR_MODE)
         p = contest.KR_MODES[mode]
-        out(f"[{stamp}] 국내 리밸런스 ({'입상형: 상위 2종목' if mode == 'aggressive' else '안정형: 상위 5종목'}, "
+        out(f"[{stamp}] 국내 리밸런스 ({'입상형: 상위 3종목' if mode == 'aggressive' else '안정형: 상위 5종목'}, "
             f"시작 대비 {gain * 100:+.1f}%): {len(universe)}종목 순위 계산 중 (몇 분 걸려요)")
         cached = state.d.get("kr_ranked")
         if cached and cached.get("session") == kr_session and cached.get("mode") == mode:
@@ -390,7 +390,7 @@ def run_forever(kis, cfg, here, log, orders_sent_today, now=lambda: datetime.now
         state = contest.State(os.path.join(here, ".cache", f"contest-{kis.env}.json"))
         universe = contest.load_universe(os.path.join(here, "universe_kr.csv"))
         mode = state.d.get("kr_mode", contest.DEFAULT_KR_MODE)
-        out(f"대회 모드: 국내 {len(universe)}종목 중 {'입상형(상위 2종목)' if mode == 'aggressive' else '안정형(상위 5종목)'} "
+        out(f"대회 모드: 국내 {len(universe)}종목 중 {'입상형(상위 3종목)' if mode == 'aggressive' else '안정형(상위 5종목)'} "
             f"2거래일마다 교체, 미국은 하루 1종목씩 5종목까지 매수 후 보유")
     out(f"자동매매 시작 ({'모의투자' if kis.env == 'demo' else '실전'}), {auto['interval_min']}분마다 확인해요.")
     out("멈추려면 Ctrl+C 를 누르거나 trading 폴더에 STOP 파일을 만드세요.")

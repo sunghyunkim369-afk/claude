@@ -3,8 +3,10 @@
 backtest/contest.py 로 과거 5년의 '5주 구간' 수백 개를 시험해서 정한 공식이에요.
 
 국내는 두 가지 공식 중 하나로 돌아요 (state 의 kr_mode):
-  aggressive (기본, 입상형): 20거래일 수익률 상위 2종목, 2거래일마다 교체, 과열 제외·시장 필터 없음
-    → 과거 5주 구간 검증: +30% 이상 확률 약 23%, 상위 10% +50~76%, 하위 10% −22~−34%, 최악 −55%
+  aggressive (기본, 입상형): 20거래일 수익률 상위 3종목, 2거래일마다 교체, 과열 제외·시장 필터 없음
+    → 과거 5주 구간 검증(backtest contest.py --momentum): 중앙값 +3.4%/+5.7%, +30% 이상 확률 19%/28%,
+      상위 10% +47%/+63%, 하위 10% −21%/−29%, 최악 −55% (앞 기간/최근 기간). 2종목보다 균형이 좋아서 바꿨어요.
+      학계 방식(최근 1개월 빼고 60·120일)은 +30% 확률이 절반 정도라 대회에는 안 맞았어요.
   stable (안정형): 아래 설명. 총평가가 시작 대비 +20%(SWITCH_TO_STABLE_AT) 이상이 되면 자동으로 바꿔요.
 
 안정형 (코스피200·코스닥150 후보 universe_kr.csv 안에서만):
@@ -33,7 +35,7 @@ KR_MODES = {
     "stable": {"lookback": 20, "top_k": 5, "rebalance_days": 2, "rsi_max": 80,
                # 시장 국면 필터: 대상 종목 동일비중 지수가 그 지수의 EMA20 아래면(나쁜 날) 상위 2종목만, 나머지 현금
                "regime_ema": 20, "risk_off_top": 2},
-    "aggressive": {"lookback": 20, "top_k": 2, "rebalance_days": 2, "rsi_max": 101,
+    "aggressive": {"lookback": 20, "top_k": 3, "rebalance_days": 2, "rsi_max": 101,
                    "regime_ema": None, "risk_off_top": 2},
 }
 KR = KR_MODES["stable"]  # 예전 이름 (호환용)

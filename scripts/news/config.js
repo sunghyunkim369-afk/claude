@@ -135,7 +135,20 @@ const PROMO = ["출시", "론칭", "런칭", "신제품", "선보", "선봬", "�
 const TOPIC_EXCLUDE = {
   supply_chain: ["마약", "보이스피싱", "범죄 조직", "도박"],
   sanctions: ["징계", "출장정지", "경고 처분", "축구", "야구", "선수"],
-  shipping: ["택배 파업", "배달앱"],
+  shipping: ["택배 파업", "배달앱", "여행", "관광", "체육대회", "축제", "환승센터"],
+};
+// 뜻이 여러 개인 주제 단어 (2026-10 점수식 점검): "제재"는 공정위·금감원 제재금, "공급망"은 기업 ESG·금융·보안에도 쓰여요.
+// 제목에 block 이 있으면 이 단어들은 그 주제 단어로 세지 않아요. 같은 주제의 다른 단어(핵심광물·희토류 등)는 그대로 세요.
+// "무역 맥락 단어가 있어야 센다"는 방식도 시험했지만, 요약이 없는 기사(예: "한일 경제안보대화…공급망 안정 협력")까지 빠져서 쓰지 않았어요.
+const TOPIC_CONTEXT = {
+  sanctions: {
+    words: ["제재"],
+    block: /제재금|과징금|과태료|공정위|공정거래|금감원|금융감독원|금융위|방통위|방송통신|개인정보|담합|판매점|협회|행정처분|영업정지|입찰|납품대금|하도급|연동제/,
+  },
+  supply_chain: {
+    words: ["공급망", "supply chain"],
+    block: /esg|공급망 ?금융|공급망 ?보안|sw 공급망|사이버|랜섬웨어|해킹|동반성장|교육|특징주|병원|의약품|영양|산업전|it 리스크/i,
+  },
 };
 // 대표 기사 관련도 기준 (0~1). 이보다 낮으면 그 이슈의 대표 기사로 쓰지 않고 다음 후보를 봐요.
 const LEAD_MIN_RELEVANCE = 0.6;
@@ -164,4 +177,4 @@ const SCORE = {
   outletDecay: 0.5,       // 한 이슈에서 같은 언론사 k번째 기사는 무게 × 1/k^0.5 (속보·2보·종합 반복 보도 억제, 2026-10)
 };
 
-module.exports = { TOPIC_EXCLUDE, CORE_TRADE, PROMO, LEAD_MIN_RELEVANCE, FEEDS, COUNTRIES, OUTLETS, TOPICS, TRADE_WORDS, SECTORS, TIGHTEN, EASE, KOREA_WORDS, SCORE };
+module.exports = { TOPIC_EXCLUDE, TOPIC_CONTEXT, CORE_TRADE, PROMO, LEAD_MIN_RELEVANCE, FEEDS, COUNTRIES, OUTLETS, TOPICS, TRADE_WORDS, SECTORS, TIGHTEN, EASE, KOREA_WORDS, SCORE };

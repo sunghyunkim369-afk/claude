@@ -33,6 +33,11 @@ class KisError(Exception):
     pass
 
 
+def is_rate_limited(res):
+    """초당 호출 한도 초과(EGW00201: API, EGW00215: 계좌 원장). 서버가 처리 전에 거절한 거라 다시 보내도 중복되지 않아요."""
+    return res.get("msg_cd") in ("EGW00201", "EGW00215") or "초당" in str(res.get("msg1", ""))
+
+
 def _num(v, default=0.0):
     try:
         return float(str(v).replace(",", ""))
@@ -138,10 +143,10 @@ class Kis:
             body = params
         # 초당 호출 한도 초과(EGW00201)는 서버가 요청을 처리하기 전에 거절한 것이라
         # 주문이어도 다시 보내도 중복되지 않아요. 잠깐 쉬었다가 최대 3번 다시 시도해요.
-        for attempt in range(4):
+        for attempt in range(6):
             self._throttle()
             _, res = self._transport(method, url, headers, body)
-            if res.get("msg_cd") != "EGW00201" or attempt == 3:
+            if not is_rate_limited(res) or attempt == 5:
                 break
             self._sleep(1.0 + attempt)
         if str(res.get("rt_cd")) != "0":

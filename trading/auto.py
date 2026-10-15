@@ -238,7 +238,16 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
         p = contest.KR_MODES[mode]
         out(f"[{stamp}] 국내 리밸런스 ({'입상형: 상위 2종목' if mode == 'aggressive' else '안정형: 상위 5종목'}, "
             f"시작 대비 {gain * 100:+.1f}%): {len(universe)}종목 순위 계산 중 (몇 분 걸려요)")
-        targets, risk_on = contest.kr_targets(kis, universe, today, out, p)
+        cached = state.d.get("kr_ranked")
+        if cached and cached.get("session") == kr_session and cached.get("mode") == mode:
+            # 같은 날 앞선 시도에서 순위를 이미 계산했으면 (주문 단계에서 실패한 경우) 다시 계산하지 않아요
+            targets, risk_on = [tuple(t) for t in cached["targets"]], cached["risk_on"]
+            out("  (아까 계산한 순위를 그대로 써요)")
+        else:
+            targets, risk_on = contest.kr_targets(kis, universe, today, out, p)
+            state.d["kr_ranked"] = {"session": kr_session, "mode": mode, "targets": targets, "risk_on": risk_on}
+            state.save()
+            time.sleep(2)  # 250종목 조회 직후라 계좌 조회 전에 잠깐 쉬어요
         if p.get("regime_ema"):
             out("  시장: " + ("좋은 날 (지수 > 20일 평균) → 5종목" if risk_on
                              else "나쁜 날 (지수 < 20일 평균) → 상위 2종목만, 나머지 현금"))

@@ -127,13 +127,20 @@ class KisClientTest(unittest.TestCase):
         self.assertEqual(len([c for c in t.calls if c["path"].endswith("inquire-price")]), 2)
         self.assertIn(1.0, waits)
 
+    def test_ledger_rate_limit_retried(self):
+        replies = iter([{"rt_cd": "1", "msg_cd": "EGW00215", "msg1": "원장에서 허용 가능한 초당 거래건수를 초과하였습니다."},
+                        {"rt_cd": "0", "output1": [], "output2": [{"dnca_tot_amt": "1", "tot_evlu_amt": "1"}]}])
+        kis, t = client({"/uapi/domestic-stock/v1/trading/inquire-balance": lambda q, b: next(replies)})
+        kis._sleep = lambda s: None
+        self.assertEqual(kis.kr_balance()["total"], 1)
+
     def test_rate_limit_gives_up(self):
         kis, t = client({"/uapi/domestic-stock/v1/quotations/inquire-price":
                          lambda q, b: {"rt_cd": "1", "msg_cd": "EGW00201", "msg1": "초과"}})
         kis._sleep = lambda s: None
         with self.assertRaises(KisError):
             kis.kr_price("005930")
-        self.assertEqual(len([c for c in t.calls if c["path"].endswith("inquire-price")]), 4)
+        self.assertEqual(len([c for c in t.calls if c["path"].endswith("inquire-price")]), 6)
 
     def test_token_cached_to_file(self):
         with tempfile.TemporaryDirectory() as d:
@@ -267,8 +274,11 @@ class ContestModeTest(unittest.TestCase):
         self.contest = contest
         self.tmp = tempfile.TemporaryDirectory()
         self.logs = []
+        self.no_sleep = mock.patch.object(auto.time, "sleep", lambda s: None)
+        self.no_sleep.start()
 
     def tearDown(self):
+        self.no_sleep.stop()
         self.tmp.cleanup()
 
     def market(self, strengths, held_kr=None, held_us=None):
@@ -370,6 +380,31 @@ class ContestModeTest(unittest.TestCase):
         self.contest.maybe_switch_to_stable(state, 90_000_000, 0.2, say.append)
         self.assertEqual(state.d["kr_mode"], "stable")   # 한 번 바꾸면 그대로
         self.assertEqual(self.contest.kr_params(state)["top_k"], 5)
+
+    def test_ranking_reused_after_order_step_failure(self):
+        strengths = {f"00000{i}": 0.002 * i for i in range(1, 4)}
+        universe = [(c, c) for c in strengths]
+        routes = self.market(strengths)
+        bal = routes["/uapi/domestic-stock/v1/trading/inquire-balance"]
+        fail = {"n": 0}
+
+        def flaky(q, b):
+            fail["n"] += 1
+            if fail["n"] == 2:  # 순위 계산 뒤 주문 단계의 잔고 조회에서 실패
+                raise OSError("network")
+            return bal(q, b)
+        routes["/uapi/domestic-stock/v1/trading/inquire-balance"] = flaky
+        kis, t = client(routes)
+        state = self.contest.State(os.path.join(self.tmp.name, "r.json"))
+        sc = lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1
+        cfg = {"us": {"watchlist": []}, "auto": {}}
+        with mock.patch.object(self.contest, "score", sc), mock.patch.object(auto.time, "sleep", lambda s: None):
+            with self.assertRaises(OSError):
+                auto.run_contest_cycle(kis, cfg, state, auto_utc(2026, 10, 15, 0, 5), self.logs.append, lambda *_: None, universe)
+            daily_before = len([c for c in t.calls if "itemchartprice" in c["path"]])
+            n = auto.run_contest_cycle(kis, cfg, state, auto_utc(2026, 10, 15, 0, 20), self.logs.append, lambda *_: None, universe)
+        self.assertEqual(len([c for c in t.calls if "itemchartprice" in c["path"]]), daily_before)  # 순위 다시 안 함
+        self.assertEqual(n, 2)
 
     def test_kr_sells_dropped_holdings(self):
         strengths = {"000001": 0.01}

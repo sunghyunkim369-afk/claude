@@ -129,18 +129,11 @@ eyefeet 주소에서만 동작하고, GitHub Pages·아티팩트에서는 버튼
 
 GitHub Pages는 헤더를 설정할 수 없어서 이 헤더가 적용되지 않아요.
 
-## GitSalt 제출 (과제)
+## 팀 저장소 (GitSalt)
 
-교수님 안내에 따라 코드를 GitSalt(https://gitsalt.com/ksunghyun0125/tradecompass)에도 올려요. GitHub `main` 에 변경이 생기면 `.github/workflows/gitsalt-mirror.yml` 이 GitSalt 로 그대로 복사해요(뉴스 수집·발행 뒤에도).
+원본은 GitHub 이고, 팀 저장소는 GitSalt `leesumin1517/tradecompass` 예요. 우리 코드는 그 저장소 `dev` 브랜치의 `mate/` 폴더에 들어가요.
 
-처음 한 번 설정:
-1. GitSalt 로그인 → 오른쪽 위 프로필 → **설정 → 애플리케이션 → 새 토큰 생성**, 권한에서 **repository: 읽기 및 쓰기** 선택
-2. GitHub 저장소 **Settings → Secrets and variables → Actions → New repository secret**, 이름 `GITSALT_TOKEN`, 값에 토큰 붙여넣기 (토큰은 채팅·코드에 쓰지 않아요)
-3. GitHub **Actions → GitSalt mirror → Run workflow**. 처음 실행 때 원래 저장소 `calc` 를 `tradecompass` 로 이름을 바꾸고 내용을 덮어써요.
-
-원본은 GitHub 예요. GitSalt 는 제출·배포용 사본이라:
-- 코드 수정은 GitHub 에서 해요. GitSalt 에서 직접 커밋하면 다음 복사가 실패해서 알려 줘요(덮어쓰지 않아요).
-- 모든 자동 작업(`.github/workflows`)은 `github.server_url` 이 GitHub 일 때만 돌아요. GitSalt 의 Actions 가 켜져 있어도 뉴스 수집·발행이 두 곳에서 따로 돌며 기록이 갈라지는 일이 없어요.
-- **팀 저장소 자동 동기화**: GitHub `main` 이 바뀌면(뉴스 수집·발행 뒤 포함) `.github/workflows/team-sync.yml` 이 팀 저장소(`leesumin1517/tradecompass`) `dev` 브랜치의 `mate/` 를 똑같이 맞춰요(팀원 동의, 2026-10-15). `mate/tradecompass-mvp/auth.js` 는 팀원이 관리해서 덮어쓰지 않고, 팀원이 `mate/` 파일을 직접 고쳤으면 멈춰서 알려 줘요. `dev` → `main` 합치기는 팀원이 해요.
-- GitSalt 에는 Actions 실행 서버(러너)가 없어서 GitSalt 에서 직접 테스트를 돌리지 않아요. 대신 GitHub 에서 돌린 테스트 결과를 GitSalt 커밋 옆에 ✅/❌("tests (GitHub Actions)")로 붙이고, 누르면 GitHub 실행 기록으로 가요. GitSalt 저장소 설정의 Actions 는 꺼 두세요(켜 두면 실행되지 않는 작업이 '대기 중'으로 쌓여요).
-- 사이트 실행에 필요한 것은 모두 저장소 안에 있어서, eyefeet 가 GitHub 와 GitSalt 중 어디서 코드를 가져가도 똑같이 동작해요. (주간 순위·속보 최신본은 `/api/data`·`/api/breaking` 이 GitHub 에서 받아요. 실패하면 페이지에 들어 있는 데이터를 써요.)
+- **자동 동기화**: GitHub `main` 이 바뀌면(뉴스 수집·발행 뒤 포함) `.github/workflows/team-sync.yml` 이 팀 저장소 `dev` 의 `mate/` 를 똑같이 맞춰요(팀원 동의, 2026-10-15). `mate/tradecompass-mvp/auth.js` 는 팀원이 관리해서 덮어쓰지 않고, 팀원이 `mate/` 파일을 직접 고쳤으면 멈춰서 알려 줘요. `dev` → `main` 합치기는 팀원이 해요.
+- **토큰**: GitHub Secrets 의 `GITSALT_TOKEN` (GitSalt `ksunghyun0125` 계정, 팀 저장소 협력자). 토큰은 채팅·코드에 쓰지 않아요.
+- 모든 자동 작업(`.github/workflows`)은 `github.server_url` 이 GitHub 일 때만 돌아요.
+- 예전 제출용 사본 `ksunghyun0125/tradecompass` 로 복사하던 작업(gitsalt-mirror)은 2026-10-15 에 껐어요. 그 저장소는 마지막 복사 상태로 남아 있어요.

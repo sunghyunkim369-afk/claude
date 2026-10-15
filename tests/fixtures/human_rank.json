@@ -1,0 +1,204 @@
+{
+ "week": "2026-10-05 ~ 2026-10-12",
+ "generated_at": "2026-10-11T21:59:25.647Z",
+ "how_to": "candidates 의 keyword 를 중요하다고 생각하는 순서대로 ranking 에 옮겨 적어 주세요 (1위가 맨 앞). 10개 이상 적으면 scripts/score_compare.js 가 사람 기준 지표를 계산해요. titles 는 그 이슈로 묶인 기사 제목 예시(최대 4개)예요. 점수는 보지 말고 제목만 보고 판단해 주세요. 무역과 상관없는 기사가 섞인 이슈는 그만큼 낮게 매기면 돼요.",
+ "rater": "",
+ "ranking": [],
+ "candidates": [
+  {
+   "keyword": "경제제재",
+   "reports": 11,
+   "titles": [
+    "보험광고 규정위반 4년반에 4.7만건…협회 제재금 부과 10건뿐",
+    "단통법 폐지 후에도 판매점 제재 3천건…절반은 비용 고지 위반",
+    "Nobel laureate Pillay calls US sanctions on ICC judges 'shocking'",
+    "피해기업 구제 늦어질라…기술 탈취 공정위 제재까지 703일 걸려"
+   ]
+  },
+  {
+   "keyword": "공급망·핵심광물",
+   "reports": 16,
+   "titles": [
+    "[바이오스냅] 동아쏘시오그룹, 협력사 대상 ESG 공급망 교육",
+    "\"대기업 거래실적으로 中企대출\"…올해 '공급망금융' 5조원 돌파",
+    "The battle against supply chain chaos keeps SMBs ‘in overdrive’",
+    "대·중소기업 협력 기반 기술사업화 R&D 지원… 공급망 자립화 기반 다진다"
+   ]
+  },
+  {
+   "keyword": "관세",
+   "reports": 7,
+   "titles": [
+    "이형일 “대미 관세·CPTPP 불확실성 최소화…공정과세 실현”",
+    "\"낮은 관세 영향\" 영국 초토화…다음 타자는 한국?",
+    "DHL: Tech beats tariffs – the AI boom ‘has become a powerful driver of global trade’",
+    "CPTPP, 농산물 관세만의 문제 아니다…농가 지원·검역도 '시험대'"
+   ]
+  },
+  {
+   "keyword": "미국 경제제재",
+   "reports": 15,
+   "titles": [
+    "노벨평화상 필라이, ICC 제재한 미국 규탄",
+    "다카이치, 美 ICC 제재 직후 \"깊은 우려…ICC 역할 지원\"",
+    "푸틴에 손벌린 트럼프 \"러 경유 공급 합의\"…대러 제재 완화(종합)",
+    "유럽, 트럼프 ICC 제재에 우려…무력화 방안도 거론(종합)"
+   ]
+  },
+  {
+   "keyword": "미국 공급망·핵심광물",
+   "reports": 9,
+   "titles": [
+    "두산에너빌리티, 美 스페이스XAI 공급망 진입…380MW 가스터빈 공급",
+    "KOTRA Supports Entry of K-Aerospace Materials, Components, and Equipment into Global Supply Chain with U.S. Bell Textron",
+    "美 벨 텍스트론 구매단 방한…K항공우주 소부장 공급망 협력",
+    "코트라, 美 벨 텍스트론과 'K항공우주 소부장' 글로벌 공급망 진입 지원"
+   ]
+  },
+  {
+   "keyword": "미국 관세",
+   "reports": 9,
+   "titles": [
+    "코트라 지원에 50여개사 미국 관세환급 신청…5천200만불 수령",
+    "트럼프 관세, 美소비재 물가 2.9%p 올려…뉴욕연은 보고서",
+    "트럼프, 또 노벨평화상 타령…\"관세로 많은 전쟁 막았다\"",
+    "트럼프 \"한국에 관세 낮추려면 대가 지불해야 한다고 말해\"(종합)"
+   ]
+  },
+  {
+   "keyword": "미국 유가·원자재",
+   "reports": 10,
+   "titles": [
+    "\"韓당국, 알래스카주 의원들에 '상업성 있어야 LNG 투자' 전달\"",
+    "국제유가, 美 멕시코만 원유 생산 차질 속 상승…WTI 0.39%↑",
+    "美부통령 \"韓 현정부든 차기정부든 우린 알래스카 LNG 완수\"",
+    "그래도 버틴다…\"이란, 원유수출 막혀도 美 지치기 기다려\""
+   ]
+  },
+  {
+   "keyword": "수출입 동향",
+   "reports": 9,
+   "titles": [
+    "[속보] 반도체 호황…8월 경상수지 461억1000만달러 흑자 역대 2위",
+    "인도 재무장관 \"대미 무역협상 정체기…양보·타협 어려워\"",
+    "양병내 전 무역위 상임위원, KTC 제6대 원장에 취임",
+    "화장품株, 급락에 '매수 기회왔다'...비용 우려 과도 수출 수요 견조-신한"
+   ]
+  },
+  {
+   "keyword": "유가·원자재",
+   "reports": 10,
+   "titles": [
+    "국제유가, IEA 비축유 방출 가속에 하락…WTI 1.3%↓",
+    "이라크산 원유 시리아 통해 육로수송…호르무즈 우회",
+    "Korea Gas Corporation Moves to Stabilize LNG Supply: Strengthening Average Tariff System and Considering Stockpiling Obligations",
+    "김정관 \"알래스카 LNG 전략적 가치는 있어…상업성 전제로 검토\""
+   ]
+  },
+  {
+   "keyword": "중국 관세",
+   "reports": 7,
+   "titles": [
+    "Could Thai durian export duty mean higher prices, higher quality in China?",
+    "Tariffs targeting China's Temu, Shein shrink US small parcel deliveries",
+    "\"중국車가 도로 점령\"… 英, 최대 45% 관세 검토",
+    "英, EU 압박에 중국산 전기차 추가관세 검토"
+   ]
+  },
+  {
+   "keyword": "중국 해운·물류",
+   "reports": 8,
+   "titles": [
+    "4대 신항만 장비 38%가 '메이드 인 차이나'",
+    "Tradelanes: Intra-Asia freight rates ease after post-Covid high",
+    "[단독] 4대 신항 국산 장비비중 35%...中제품 더 많이 쓴다",
+    "독일 정부, 자국 물류업체 中 매각 차단…\"안보 우려\""
+   ]
+  },
+  {
+   "keyword": "중동 공급망·핵심광물",
+   "reports": 3,
+   "titles": [
+    "[2026국감]김정관 \"자원안보 더 단단히\"…원유 非중동산 50%·핵심광물 365일 비축",
+    "[2026 Audit] Kim Jeonggwan: \"Stronger Resource Security\"... 50% Non-Middle Eastern Crude Oil, 365-Day Stockpile of Critical Minerals",
+    "\"30개 테스트공장 풀가동\" SK엔무브 고급 윤활기유 1위 만든 R&D"
+   ]
+  },
+  {
+   "keyword": "중동 유가·원자재",
+   "reports": 14,
+   "titles": [
+    "국제유가, 美 이란 공격 우려·중동 유조선 피격에 급등",
+    "국제유가, 중동 수출 회복·공급 우려 속 강보합 마감",
+    "국제유가, 중동 원유수출 증가·G7 비축유 방출 약속에 1.8%↓",
+    "이란 위협에도 호르무즈 '셔틀운항'…원유 옮겨싣는데 500억원"
+   ]
+  },
+  {
+   "keyword": "중동 해운·물류",
+   "reports": 8,
+   "titles": [
+    "[영상] 사우디 연합군 \"홍해 요충지 탈환\"…후티는 사우디 공항 공습",
+    "High yields spark new container services on ‘bumpy’ India-Middle East trade",
+    "호르무즈 봉쇄 후 3번째 한국 선박 수에즈운하로 원유 운송",
+    "Middle East Oil Exports Top Pre-War Levels for Part of September But Tanker Attacks Increase"
+   ]
+  },
+  {
+   "keyword": "해운·물류",
+   "reports": 23,
+   "titles": [
+    "Freightmate admits using Flexport docs as AI trade secrets case settles",
+    "From Policy to Practice: Shipping’s Regulatory Autumn Puts Proof on Trial",
+    "Ethanol Could Offer Shipping Another Path to Lower Emissions",
+    "지방공항·항만서 지역여행 쉽게…관광공사, 외국인 편의 개선"
+   ]
+  },
+  {
+   "keyword": "환율",
+   "reports": 12,
+   "titles": [
+    "[외환] 원/달러 환율 4.3원 오른 1,342.8원(15:30 기준가)",
+    "한투증권 \"원/달러 환율, 1,330원대 복귀해도 추가 하락 압력\"",
+    "[외환] 원/달러 환율 1.9원 내린 1,338.5원(15:30 기준가)",
+    "환율, 수출기업 달러 매도 등에 3.2원 내린 1,340원"
+   ]
+  },
+  {
+   "keyword": "EU 경제제재",
+   "reports": 3,
+   "titles": [
+    "미러 '경유딜'에…EU \"제재 중단, 전쟁자금 대는 것\"",
+    "Statement on the International Criminal Court following announcement of US sanctions",
+    "미러 '경유딜'에 EU \"전쟁자금 대는 것\"…영국 \"우크라와 연대\"(종합)"
+   ]
+  },
+  {
+   "keyword": "EU 공급망·핵심광물",
+   "reports": 3,
+   "titles": [
+    "中, EU에 하이브리드차 수출 줄이기로…희토류 수출허가 편의(종합)",
+    "中 \"EU와 하이브리드차 무역 관련 합의…희토류 수출허가 편의\"",
+    "Commission selects 46 new Strategic Projects to bolster the EU's supply of critical raw materials"
+   ]
+  },
+  {
+   "keyword": "EU 수출입 동향",
+   "reports": 2,
+   "titles": [
+    "바이오의약품 수출 66억달러 '역대 최대'…유럽 시장서 날았다",
+    "유럽발 강달러에도 달러·원 1340원대 등락…수출 네고 상단 제한"
+   ]
+  },
+  {
+   "keyword": "FTA·통상협정",
+   "reports": 10,
+   "titles": [
+    "李대통령, CPTPP 연내 신청않도록 지시…\"농어민과 충분히 대화\"",
+    "산업부, CPTPP 가입 관련 서비스·지식재산권 업계 의견 수렴",
+    "李 \"CPTPP 연내 가입 신청하지 말라\"",
+    "송미령 \"CPTPP 가입 논의 원점 재검토…국익·민의 따라 결정\"(종합)"
+   ]
+  }
+ ]
+}

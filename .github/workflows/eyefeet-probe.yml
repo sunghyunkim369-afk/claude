@@ -23,8 +23,13 @@ jobs:
             echo "$h  IP=${ip:-없음(DNS 실패)}  응답=$res  ${err}"
           done
           # Eyefeet AI 서비스가 살아 있는지 (키 없이 보내서 응답 코드만 봐요: 401/403 = 서비스는 동작, 5xx·000 = 서비스 장애)
-          for u in https://www.eyefeetai.com/api/chat/completions https://www.eyefeetai.com/api/models; do
-            echo "AI $u  키 없이 응답=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -X POST -H 'Content-Type: application/json' -d '{}' "$u")"
+          for path in /api/chat/completions /api/v1/chat/completions /v1/chat/completions /api/chat /openai/chat/completions /api/models /v1/models /api/v1/models; do
+            for host in https://www.eyefeetai.com https://eyefeetai.com; do
+              p=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -X POST -H 'Content-Type: application/json' -d '{}' "$host$path")
+              g=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$host$path")
+              allow=$(curl -s -I -X OPTIONS --max-time 20 "$host$path" | tr -d '\r' | grep -i '^allow' | head -1)
+              echo "AI $host$path  POST=$p GET=$g $allow"
+            done
           done
           # 우리 사이트 AI 연결 (짧은 질문 1개)
           echo "tcmvp /api/ai 응답: $(curl -s --max-time 40 -X POST -H 'Content-Type: application/json' -H 'Origin: https://tcmvp.eyefeet.com' -d '{"task":"ask","query":"관세가 뭐야?","context":"테스트"}' https://tcmvp.eyefeet.com/api/ai | head -c 200)"

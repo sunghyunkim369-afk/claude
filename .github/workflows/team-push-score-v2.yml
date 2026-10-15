@@ -1,0 +1,103 @@
+name: Team push (score-v2)
+
+# score-v2 작업을 팀 저장소(GitSalt leesumin1517/tradecompass)의 mate/ 폴더에 score-v2 브랜치로 올려요.
+# - 팀 저장소의 main·dev 는 건드리지 않아요. 새 브랜치 score-v2 에만 올리고, 합치는 것은 팀원이 정해요.
+# - 우리 main 과 score-v2 의 차이(바뀐 파일)만 mate/ 에 옮겨요. 팀 저장소의 mate/ 파일이 우리 main 과 다르면
+#   (팀원이 고친 파일이면) 덮어쓰지 않고 멈춰요.
+# - 이 저장소는 공개라 로그도 공개예요. 팀 저장소 내용은 출력하지 않고, 우리 파일 경로와 개수만 출력해요.
+# - 이 작업 환경에서는 gitsalt.com 에 직접 접속할 수 없어서 GitHub Actions 로 올려요.
+on:
+  push:
+    branches: [score-v2]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: team-push-score-v2
+  cancel-in-progress: false
+
+env:
+  GS_HOST: gitsalt.com
+  GS_USER: ksunghyun0125
+  TEAM_REPO: leesumin1517/tradecompass
+  BRANCH: score-v2
+
+jobs:
+  push:
+    if: github.server_url == 'https://github.com'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: score-v2
+          fetch-depth: 0
+          path: ours
+      - name: Push to team repo
+        env:
+          TOKEN: ${{ secrets.GITSALT_TOKEN }}
+        run: |
+          set -u
+          TOKEN=$(printf '%s' "$TOKEN" | tr -d '[:space:]')
+          [ -n "$TOKEN" ] || { echo "::error::GITSALT_TOKEN 이 없어요"; exit 1; }
+          remote="https://$GS_USER:$TOKEN@$GS_HOST/$TEAM_REPO.git"
+          hide() { sed "s#$TOKEN#***#g"; }
+
+          # 1) 팀 저장소 받기 (내용은 출력하지 않아요)
+          ok=0
+          for i in 1 2 3 4; do
+            if git clone -q --no-checkout "$remote" team 2>err.txt; then ok=1; break; fi
+            hide < err.txt | tail -2; rm -rf team; sleep $((i * 20))
+          done
+          [ "$ok" = 1 ] || { echo "::error::팀 저장소를 받지 못했어요 (권한 또는 연결 문제)"; exit 1; }
+          cd team
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+            git checkout -q -B "$BRANCH" "origin/$BRANCH"; echo "팀 저장소의 기존 $BRANCH 브랜치에 이어서 올려요"
+          else
+            git checkout -q -B "$BRANCH" origin/HEAD; echo "팀 저장소 기본 브랜치에서 $BRANCH 브랜치를 새로 만들어요"
+          fi
+          [ -d mate ] || { echo "::error::팀 저장소에 mate/ 폴더가 없어서 올리지 않았어요"; exit 1; }
+
+          # 2) 우리 main → score-v2 에서 바뀐 파일만 옮겨요 (.github 는 빼요)
+          cd ../ours
+          git fetch -q origin main
+          files=$(git diff --name-only --diff-filter=AM origin/main HEAD -- . ':!.github')
+          echo "옮길 파일 $(echo "$files" | grep -c .)개:"; echo "$files" | sed 's/^/  /'
+          conflict=0
+          for f in $files; do
+            t="../team/mate/$f"
+            if [ -f "$t" ]; then
+              # 팀 쪽 파일이 우리 main 버전이나 이미 올린 score-v2 버전과 같을 때만 바꿔요
+              if git cat-file -e "origin/main:$f" 2>/dev/null && cmp -s <(git show "origin/main:$f") "$t"; then :;
+              elif cmp -s "$f" "$t"; then :;
+              else echo "::warning::mate/$f 가 우리 main 과 달라요 (팀원이 고친 파일일 수 있음)"; conflict=1; fi
+            fi
+          done
+          [ "$conflict" = 0 ] || { echo "::error::덮어쓰면 팀원 수정이 사라질 수 있어서 멈췄어요. 위 파일을 팀원과 확인하세요"; exit 1; }
+          for f in $files; do mkdir -p "../team/mate/$(dirname "$f")"; cp "$f" "../team/mate/$f"; done
+          src=$(git rev-parse --short HEAD)
+          # 참고: mate/ 전체가 우리 main 과 얼마나 다른지 (개수만)
+          same=0; diff=0
+          for f in $(git ls-tree -r --name-only origin/main); do
+            if [ -f "../team/mate/$f" ] && cmp -s <(git show "origin/main:$f") "../team/mate/$f"; then same=$((same+1)); else diff=$((diff+1)); fi
+          done
+          echo "참고: 우리 main 파일 중 mate/ 와 같은 것 $same개, 다르거나 없는 것 $diff개 (방금 옮긴 파일 포함)"
+
+          # 3) 커밋하고 올리기 (강제로 덮어쓰지 않아요)
+          cd ../team
+          git config user.name "sunghyunkim369 (GitHub Actions)"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mate
+          if git diff --cached --quiet; then echo "바뀐 것이 없어요"; exit 0; fi
+          git commit -q -m "mate: 분류·관련도 수정과 점수식 비교 (GitHub sunghyunkim369-afk/claude score-v2 $src)" \
+            -m "자세한 내용: mate/docs/score-v2-report.md. 팀 저장소 main·dev 는 바꾸지 않았어요." \
+            -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
+          for i in 1 2 3 4; do
+            out=$(git push -q "$remote" "HEAD:refs/heads/$BRANCH" 2>&1) && { echo "https://$GS_HOST/$TEAM_REPO/src/branch/$BRANCH 에 올렸어요 ($(git rev-parse --short HEAD))"; exit 0; }
+            echo "$out" | hide | tail -3
+            echo "$out" | grep -qiE "rejected|non-fast-forward|fetch first|denied|403" && { echo "::error::올리기가 거절됐어요 (권한이 없거나 브랜치가 바뀜)"; exit 1; }
+            sleep $((i * 20))
+          done
+          echo "::error::GitSalt 에 연결하지 못했어요"; exit 1

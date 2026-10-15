@@ -1,33 +1,13 @@
 {
- "generated": "2026-10-15T00:59:31.479Z",
+ "generated": "2026-10-15T07:06:01.349Z",
  "hours": 24,
  "items": [
   {
-   "title": "노벨평화상 필라이, 트럼프 ICC 제재 비판…\"불법 간섭\"",
-   "link": "https://www.yna.co.kr/view/AKR20261015041900009",
-   "source": "연합뉴스",
+   "title": "캠코 선박금융 90% 수도권에 집중…“해양수도 육성과 엇박자”",
+   "link": "https://www.mk.co.kr/news/politics/12176819",
+   "source": "매일경제",
    "outlets": 1,
-   "at": "2026-10-15T00:40:26.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "\"트럼프 '러시아 경유 딜'에도 가격 안정 어려울 듯\"",
-   "link": "https://www.yna.co.kr/view/AKR20261015037000009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-15T00:29:07.000Z",
-   "tag": "경제제재",
-   "direction": "down",
-   "sectors": []
-  },
-  {
-   "title": "수은, HJ중공업 선박 수출에 1.35억달러 금융 제공",
-   "link": "https://www.yna.co.kr/view/AKR20261015039600002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-15T00:28:31.000Z",
+   "at": "2026-10-15T07:03:52.000Z",
    "tag": "해운·물류",
    "direction": "info",
    "sectors": [
@@ -35,31 +15,31 @@
    ]
   },
   {
-   "title": "'트럼프 밀착' 베네수 국회의장 8년 만에 美 제재서 벗어나",
-   "link": "https://www.yna.co.kr/view/AKR20261015021000087",
+   "title": "농림축수산단체 \"CPTPP 반대 변함없다\"…5대 요구안 제시(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261015089951030",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-14T23:09:43.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "한중 FTA 서비스·투자 협상 속도 낸다…서울서 17차 협상",
-   "link": "https://www.yna.co.kr/view/AKR20261014167600003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-14T21:00:05.000Z",
+   "at": "2026-10-15T06:49:55.000Z",
    "tag": "FTA·통상협정",
    "direction": "neutral",
    "sectors": []
   },
   {
-   "title": "컨테이너 화물 검사용 엑스레이기 3대 중 1대 노후",
-   "link": "https://www.yna.co.kr/view/AKR20261014143200002",
+   "title": "대만 \"中, 타이베이시장 후보 부친 기업 제재로 지방선거 개입\"",
+   "link": "https://www.yna.co.kr/view/AKR20261015124000009",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-14T20:58:01.000Z",
+   "at": "2026-10-15T06:46:47.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "[영상] 컨테이너 2천500개 물에 둥둥…호르무즈 해협서 화물선 침몰",
+   "link": "https://www.yna.co.kr/view/AKR20261015132100704",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-15T06:45:55.000Z",
    "tag": "해운·물류",
    "direction": "info",
    "sectors": [
@@ -67,61 +47,83 @@
    ]
   },
   {
-   "title": "연준 베이지북 \"고유가에 물가 압력 심화…공급망 전반 비용↑\"",
-   "link": "https://www.yna.co.kr/view/AKR20261015005700072",
+   "title": "[외환] 원/달러 환율 6.3원 오른 1,344.6원(15:30 기준가)",
+   "link": "https://www.yna.co.kr/view/AKR20261015130900002",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-14T20:33:33.000Z",
-   "tag": "공급망·핵심광물",
+   "at": "2026-10-15T06:31:32.000Z",
+   "tag": "환율",
    "direction": "info",
-   "sectors": [
-    "chem"
-   ]
+   "sectors": []
   },
   {
-   "title": "국제유가, 사우디 아람코 피격·IEA 공급 경고에 상승",
-   "link": "https://www.yna.co.kr/view/AKR20261015005800072",
+   "title": "캠코 선박금융 2조8천억원 중 90% 수도권 해운사에 지원",
+   "link": "https://www.yna.co.kr/view/AKR20261015120500051",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-14T20:25:03.000Z",
-   "tag": "유가·원자재",
+   "at": "2026-10-15T06:18:41.000Z",
+   "tag": "해운·물류",
    "direction": "info",
    "sectors": [
-    "chem"
+    "ship"
    ]
   },
   {
-   "title": "Coal prices up 40% this year on LNG replacement demand, supply uncertainty",
-   "lang": "en",
-   "link": "https://asia.nikkei.com/business/energy/coal-prices-up-40-this-year-on-lng-replacement-demand-supply-uncertainty",
-   "source": "Nikkei Asia",
+   "title": "“내가 손절만 하면 다시 오르네”…하루 만에 반등한 금값 이유는?",
+   "link": "https://www.mk.co.kr/news/economy/12176754",
+   "source": "매일경제",
    "outlets": 1,
-   "at": "2026-10-14T18:59:56.401Z",
-   "tag": "유가·원자재",
+   "at": "2026-10-15T06:15:42.000Z",
+   "tag": "환율",
    "direction": "info",
-   "sectors": [
-    "chem"
-   ]
+   "sectors": []
   },
   {
-   "title": "Tokyo Gas turns to Philippine floating LNG terminal, eyeing Southeast Asia",
-   "lang": "en",
-   "link": "https://asia.nikkei.com/business/energy/tokyo-gas-turns-to-philippine-floating-lng-terminal-eyeing-southeast-asia",
-   "source": "Nikkei Asia",
-   "outlets": 1,
-   "at": "2026-10-14T18:59:56.400Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "트럼프 \"韓 500억·대만 800억·日 210억불 투자·구매 약속\"(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261015001651071",
+   "title": "관세청장 \"세관 '수사심사과' 신설 추진…공소청과 많은 협력\"",
+   "link": "https://www.yna.co.kr/view/AKR20261015112900002",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-14T18:23:28.000Z",
+   "at": "2026-10-15T06:04:31.000Z",
+   "tag": "통관·원산지",
+   "direction": "down",
+   "sectors": []
+  },
+  {
+   "title": "제주 수출 전년 대비 248% 증가, 무역수지 흑자 전환",
+   "link": "https://www.yna.co.kr/view/AKR20261015118900056",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-15T05:51:37.000Z",
+   "tag": "수출입 동향",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "9월 대구·경북 수출 두 자릿수 증가…각각 10.3%·12.9%↑",
+   "link": "https://www.yna.co.kr/view/AKR20260915119151053",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-15T05:19:37.000Z",
+   "tag": "수출입 동향",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "전남광주 9월 무역수지 18억8천만달러 흑자",
+   "link": "https://www.yna.co.kr/view/AKR20261015109200054",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-15T05:13:50.000Z",
+   "tag": "수출입 동향",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "포스코 개발 고망간강, LNG선 화물창 실증…한화오션과 맞손",
+   "link": "https://www.yna.co.kr/view/AKR20261015071100003",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-15T04:00:02.000Z",
    "tag": "유가·원자재",
    "direction": "info",
    "sectors": [
@@ -129,54 +131,38 @@
    ]
   },
   {
-   "title": "트럼프 \"韓 알래스카에 500억불 투자…무역·투자합의 일부\"",
-   "link": "https://www.yna.co.kr/view/AKR20261015001600071",
+   "title": "코트라 \"대일본 수출 2030년까지 350억달러로 확대\"",
+   "link": "https://www.yna.co.kr/view/AKR20261015087900003",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-14T16:54:52.000Z",
-   "tag": "유가·원자재",
+   "at": "2026-10-15T04:00:01.000Z",
+   "tag": "수출입 동향",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "\"EU, 중국과 제재 해제 맞교환해 ASML 공급사 구제\"",
+   "link": "https://www.yna.co.kr/view/AKR20261015062400009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-15T01:41:59.000Z",
+   "tag": "경제제재",
    "direction": "down",
    "sectors": [
-    "chem"
+    "semi",
+    "machinery"
    ]
   },
   {
-   "title": "U.S. Shipping Regulator Proposes $200,000 Fees on Spanish Ships Over Port Ban",
-   "lang": "en",
-   "link": "https://gcaptain.com/u-s-shipping-regulator-proposes-200000-fees-on-spanish-ships-over-port-ban/",
-   "source": "gCaptain",
+   "title": "日닛케이지수, 4% 가까이 하락…美물가 충격·반도체 약세 여파",
+   "link": "https://www.yna.co.kr/view/AKR20261015063600073",
+   "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-14T15:56:37.000Z",
-   "tag": "해운·물류",
-   "direction": "up",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "GFS ship sinks after missile attack, second ship sustains damage",
-   "lang": "en",
-   "link": "https://theloadstar.com/gfs-ship-sinks-after-missile-attack-second-ship-sustains-damage/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-14T15:09:34.000Z",
-   "tag": "해운·물류",
+   "at": "2026-10-15T01:28:07.000Z",
+   "tag": "유가·원자재",
    "direction": "info",
    "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "Containership Sinks as Hormuz Attacks Spiral Out of Control",
-   "lang": "en",
-   "link": "https://gcaptain.com/containership-sinks-as-hormuz-attacks-spiral-out-of-control/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-14T14:44:55.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
+    "semi"
    ]
   }
  ]

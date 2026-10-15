@@ -195,6 +195,41 @@ def kr_targets(kis, universe, today, out=print, p=None):
     return scored[:keep], risk_on
 
 
+def kr_tick(price):
+    """국내 주식 호가 단위 (2023년 개편, 코스피·코스닥 공통)."""
+    for limit, tick in ((2000, 1), (5000, 5), (20000, 10), (50000, 50), (200000, 100), (500000, 500)):
+        if price < limit:
+            return tick
+    return 1000
+
+
+def kr_limit_up(price, pct=0.01):
+    """현재가보다 pct 높은 지정가를 호가 단위로 올림. 시장가는 상한가(+30%) 기준으로 돈을 묶어서
+    두 번째 종목부터 '주문가능금액 부족'이 나요. 1% 높은 지정가는 실제 금액만 묶이고 거의 바로 체결돼요."""
+    raw = price * (1 + pct)
+    tick = kr_tick(raw)
+    return int(math.ceil(raw / tick) * tick)
+
+
+def kr_buy_order(kis, code, name, budget, reason, out=print):
+    """budget(원) 안에서 1% 높은 지정가 매수 주문. 주문가능금액도 확인해서 넘지 않게 해요."""
+    price = kis.kr_price(code)["price"]
+    if price <= 0:
+        return None
+    limit = kr_limit_up(price)
+    qty = math.floor(budget * 0.99 / limit)
+    try:
+        cash = kis.kr_buyable(code, limit)
+        qty = min(qty, math.floor(cash * 0.99 / limit))
+    except KisError as e:
+        out(f"    {name}({code}) 주문가능금액 조회 실패: {e}")
+    if qty <= 0:
+        out(f"    {name}({code}) 살 수 있는 수량이 0이에요")
+        return None
+    return {"market": "kr", "side": "buy", "symbol": code, "name": name, "qty": qty, "price": price,
+            "limit_price": limit, "currency": "KRW", "reason": reason}
+
+
 def kr_plan(kis, targets, p=None):
     """(매도 주문들, 매수 주문들). 목표에 없는 보유 종목은 전부 팔고, 새 목표는 총평가의 1/5 씩
     (시장이 나쁜 날 목표가 2종목이어도 1/5 씩이라 나머지는 현금으로 남아요)."""

@@ -294,6 +294,7 @@ class ContestModeTest(unittest.TestCase):
         return {
             "/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice": kr_daily,
             "/uapi/domestic-stock/v1/quotations/inquire-price": lambda q, b: {"rt_cd": "0", "output": {"stck_prpr": "10000"}},
+            "/uapi/domestic-stock/v1/trading/inquire-psbl-order": lambda q, b: {"rt_cd": "0", "output": {"nrcvb_buy_amt": "100000000"}},
             "/uapi/domestic-stock/v1/trading/inquire-balance": lambda q, b: {
                 "rt_cd": "0", "output1": held_kr, "output2": [{"dnca_tot_amt": "100000000", "tot_evlu_amt": "100000000"}]},
             "/uapi/overseas-stock/v1/trading/inquire-balance": lambda q, b: {"rt_cd": "0", "output1": held_us or []},
@@ -331,8 +332,9 @@ class ContestModeTest(unittest.TestCase):
         buys = [c["body"] for c in t.calls if c["path"].endswith("order-cash")]
         self.assertEqual(n, 5)
         self.assertEqual(sorted(b["PDNO"] for b in buys), ["000003", "000004", "000005", "000006", "000007"])
-        self.assertTrue(all(b["ORD_DVSN"] == "01" for b in buys))             # 시장가
-        self.assertEqual(int(buys[0]["ORD_QTY"]), 1980)                        # 1억/5*0.99/10000
+        self.assertTrue(all(b["ORD_DVSN"] == "00" for b in buys))             # 지정가
+        self.assertTrue(all(b["ORD_UNPR"] == "10100" for b in buys))          # 현재가 10000 + 1%
+        self.assertEqual(int(buys[0]["ORD_QTY"]), 1960)                        # 1억/5*0.99/10100
         self.assertEqual(state.d["kr_rebalances"], ["2026-10-15"])
         self.assertEqual(len(state.d["symbols"]), 5)
         self.assertTrue(self.contest.kr_due(state, "2026-10-19") and not self.contest.kr_due(state, "2026-10-16"))
@@ -364,7 +366,7 @@ class ContestModeTest(unittest.TestCase):
             n, state = self.cycle(kis, auto_utc(2026, 10, 15, 0, 30), universe)
         buys = [c["body"] for c in t.calls if c["path"].endswith("order-cash")]
         self.assertEqual(sorted(b["PDNO"] for b in buys), ["000006", "000007"])
-        self.assertEqual(int(buys[0]["ORD_QTY"]), 4950)   # 1억/2*0.99/10000
+        self.assertEqual(int(buys[0]["ORD_QTY"]), 4900)   # 1억/2*0.99/10100
         self.assertEqual(state.d["start_total"], 100_000_000)
 
     def test_switch_to_stable_after_gain(self):
@@ -405,6 +407,48 @@ class ContestModeTest(unittest.TestCase):
             n = auto.run_contest_cycle(kis, cfg, state, auto_utc(2026, 10, 15, 0, 20), self.logs.append, lambda *_: None, universe)
         self.assertEqual(len([c for c in t.calls if "itemchartprice" in c["path"]]), daily_before)  # 순위 다시 안 함
         self.assertEqual(n, 2)
+
+    def test_tick_and_limit(self):
+        c = self.contest
+        self.assertEqual([c.kr_tick(x) for x in (1999, 4999, 19990, 49950, 199900, 499500, 500000)],
+                         [1, 5, 10, 50, 100, 500, 1000])
+        self.assertEqual(c.kr_limit_up(10000), 10100)
+        self.assertEqual(c.kr_limit_up(27350), 27650)   # 27623.5 → 50원 단위 올림
+        self.assertEqual(c.kr_limit_up(198000), 200000)  # 199980 → 100원 단위 올림 → 200000
+
+    def test_buy_capped_by_buyable_and_retried_later(self):
+        strengths = {"000001": 0.01, "000002": 0.009}
+        universe = [(c, c) for c in strengths]
+        routes = self.market(strengths)
+        cash = {"v": "60000000"}
+        routes["/uapi/domestic-stock/v1/trading/inquire-psbl-order"] = lambda q, b: {"rt_cd": "0", "output": {"nrcvb_buy_amt": cash["v"]}}
+        kis, t = client(routes)
+        state = self.contest.State(os.path.join(self.tmp.name, "f.json"))
+        sc = lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1
+        cfg = {"us": {"watchlist": []}, "auto": {}}
+        with mock.patch.object(self.contest, "score", sc):
+            auto.run_contest_cycle(kis, cfg, state, auto_utc(2026, 10, 15, 0, 5), self.logs.append, lambda *_: None, universe)
+            cash["v"] = "0"  # 첫 매수 뒤 남은 돈이 없다고 가정 → 두 번째는 못 사요
+        buys = [c["body"]["PDNO"] for c in t.calls if c["path"].endswith("order-cash")]
+        self.assertEqual(len(buys), 2)  # 첫 사이클에서는 둘 다 시도 (cash 바꾸기 전에 둘 다 계획)
+        self.assertIsNone(state.d.get("kr_fill"))
+
+    def test_fill_missing_after_old_version_rebalance(self):
+        strengths = {"000001": 0.01, "000002": 0.009}
+        universe = [(c, c) for c in strengths]
+        held = [{"pdno": "000001", "prdt_name": "A", "hldg_qty": "10", "pchs_avg_pric": "1", "prpr": "1"}]
+        kis, t = client(self.market(strengths, held_kr=held))
+        state = self.contest.State(os.path.join(self.tmp.name, "o.json"))
+        state.d["kr_rebalances"] = ["2026-10-15"]  # 예전 버전이 오늘 리밸런스 기록만 하고 한 종목을 못 산 상태
+        sc = lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1
+        cfg = {"us": {"watchlist": []}, "auto": {}}
+        with mock.patch.object(self.contest, "score", sc):
+            auto.run_contest_cycle(kis, cfg, state, auto_utc(2026, 10, 15, 1, 0), self.logs.append, lambda *_: None, universe)
+            n_after_first = len([c for c in t.calls if c["path"].endswith("order-cash")])
+            auto.run_contest_cycle(kis, cfg, state, auto_utc(2026, 10, 15, 1, 15), self.logs.append, lambda *_: None, universe)
+        buys = [c["body"]["PDNO"] for c in t.calls if c["path"].endswith("order-cash")]
+        self.assertEqual(buys, ["000002"])           # 빠진 종목만, 한 번만
+        self.assertEqual(n_after_first, 1)
 
     def test_kr_sells_dropped_holdings(self):
         strengths = {"000001": 0.01}

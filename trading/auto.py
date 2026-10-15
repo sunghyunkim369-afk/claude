@@ -93,8 +93,9 @@ class OrderBook:
 
 def send(kis, o, slippage_pct):
     if o["market"] == "kr":
-        # 국내는 시장가로 내서 바로 체결되게 해요.
-        return kis.kr_order(o["side"], o["symbol"], o["qty"], None), o["qty"], None
+        # 국내는 시장가로 내서 바로 체결되게 해요. limit_price 가 있으면 그 지정가로.
+        limit = o.get("limit_price")
+        return kis.kr_order(o["side"], o["symbol"], o["qty"], limit), o["qty"], limit
     k = slippage_pct / 100
     price = round(o["price"] * (1 + k if o["side"] == "buy" else 1 - k), 2)
     qty = o["qty"]
@@ -198,6 +199,27 @@ def run_us_aggressive(kis, state, session, today, stamp, place, out=print):
     return d.get("us_orders", 0) - before
 
 
+def kr_fill_missing(kis, state, session, place, out=print):
+    """오늘 목표 종목 중 아직 안 산 것을 사요 (총평가 / 목표 수 만큼). 다 사면 kr_fill 을 지워요."""
+    from . import contest
+    fill = state.d["kr_fill"]
+    bal = kis.kr_balance()
+    held = bal["holdings"]
+    todo = [t for t in fill["targets"] if t[1] not in held and t[1] not in fill["placed"]]
+    if not todo:
+        state.d["kr_fill"] = None
+        return
+    per = bal["total"] / fill["top_k"]
+    for sc, code, name in todo:
+        o = contest.kr_buy_order(kis, code, name, per, f"20일 수익률 {sc * 100:+.1f}%", out)
+        if o and place(o, session):
+            fill["placed"].append(code)
+    if all(t[1] in fill["placed"] or t[1] in held for t in fill["targets"]):
+        state.d["kr_fill"] = None
+    else:
+        out("  못 산 종목은 다음 확인 때(15분 뒤) 다시 시도해요")
+
+
 def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
     """대회 모드 한 번 돌기 (trading/contest.py 공식). 반환: 낸 주문 수."""
     from . import contest
@@ -256,12 +278,35 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
         sells, buys = contest.kr_plan(kis, targets, p)
         for o in sells:
             place(o, kr_session)
-        for o in buys:
-            place(o, kr_session)
         state.d["kr_rebalances"].append(kr_session)
+        # 매수는 매도가 끝난 뒤 주문가능금액을 보고 1% 높은 지정가로. 못 산 건 같은 날 다음 확인 때 다시 시도해요.
+        state.d["kr_fill"] = {"session": kr_session, "targets": [list(t) for t in targets], "placed": [],
+                              "top_k": p["top_k"]}
+        kr_fill_missing(kis, state, kr_session, place, out)
         d = state.d
         out(f"  대회 조건 진행(주문 접수 기준): 매매금액 {d['amount'] / 1e8:.2f}억/5억, 매매일 {len(d['days'])}/5일, "
             f"종목 {len(d['symbols'])}/5, 주문 {d['orders']}/5회")
+        state.save()
+
+    elif kr_session:
+        if not state.d.get("kr_fill") and state.d.get("kr_rebalances", [None])[-1] == kr_session \
+                and state.d.get("kr_fill_checked") != kr_session:
+            # 오늘 리밸런스했는데 (예전 버전에서) 목표 종목을 다 못 샀을 수 있어요 → 한 번 확인해서 채워요
+            state.d["kr_fill_checked"] = kr_session
+            mode = state.d.get("kr_mode", contest.DEFAULT_KR_MODE)
+            p = contest.KR_MODES[mode]
+            if len(kis.kr_balance()["holdings"]) < p["top_k"]:
+                cached = state.d.get("kr_ranked")
+                if cached and cached.get("session") == kr_session:
+                    targets = [tuple(t) for t in cached["targets"]]
+                else:
+                    out(f"[{stamp}] 국내: 오늘 못 산 종목 확인용 순위 계산 (몇 분 걸려요)")
+                    targets, _ = contest.kr_targets(kis, universe, now_utc.astimezone(KST).date(), out, p)
+                state.d["kr_fill"] = {"session": kr_session, "targets": [list(t) for t in targets], "placed": [],
+                                      "top_k": p["top_k"]}
+        fill = state.d.get("kr_fill")
+        if fill and fill.get("session") == kr_session:
+            kr_fill_missing(kis, state, kr_session, place, out)
         state.save()
 
     us_session = market_session("us", now_utc)

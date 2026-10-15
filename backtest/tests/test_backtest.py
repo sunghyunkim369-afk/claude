@@ -376,6 +376,47 @@ class ContestTest(unittest.TestCase):
         curve, _ = self.contest.Rotation({"A": gap}, "US", cfg, p).run(dates[0], dates[-1], 1000.0)
         self.assertAlmostEqual(curve.iloc[-1], 1000.0 - 9 * 15)
 
+    def test_volume_factor_columns(self):
+        fr = self.contest.prepare(self.raw, CFG, [20])
+        f, i = fr["S1"], 300
+        v, c = f["Volume"], f["Close"]
+        self.assertAlmostEqual(f["vr_20_60"].iloc[i], v.iloc[i - 19:i + 1].mean() / v.iloc[i - 59:i + 1].mean())
+        self.assertAlmostEqual(f["vr_5_60"].iloc[i], v.iloc[i - 4:i + 1].mean() / v.iloc[i - 59:i + 1].mean())
+        up = (c.diff() > 0).iloc[i - 19:i + 1]
+        self.assertAlmostEqual(f["upvol_20"].iloc[i], v.iloc[i - 19:i + 1][up].sum() / v.iloc[i - 19:i + 1].sum())
+        self.assertAlmostEqual(f["turnover_20"].iloc[i], (c * v).iloc[i - 19:i + 1].mean())
+        self.assertAlmostEqual(f["vol_spike"].iloc[i], v.iloc[i] / v.iloc[i - 59:i + 1].mean())
+        # 미래 거래량을 바꿔도 그 전 값은 그대로
+        raw2 = {s: x.copy() for s, x in self.raw.items()}
+        raw2["S1"].loc[raw2["S1"].index[i + 1]:, "Volume"] *= 10
+        f2 = self.contest.prepare(raw2, CFG, [20])["S1"]
+        cols = ["vr_20_60", "vr_5_60", "upvol_20", "turnover_20", "vol_spike"]
+        pd.testing.assert_frame_equal(f[cols].iloc[:i + 1], f2[cols].iloc[:i + 1])
+        # 거래량 0 (거래 정지) 이면 NaN → 조건 통과 못 함
+        zero = {"S1": self.raw["S1"].assign(Volume=0.0)}
+        z = self.contest.prepare(zero, CFG, [20])["S1"].iloc[i]
+        self.assertFalse(self.contest.volume_ok(z.to_dict(), {"vr20_min": 1.0}))
+
+    def test_volume_filters_and_rank(self):
+        fr = self.contest.prepare(self.raw, CFG, [20])
+        p = {**self.contest.VOL_BASE, "rsi_max": 101, "trend_filter": False}
+        base = self.contest.Rotation(fr, "US", CFG, p)
+        d = base.dates[320]
+        self.assertEqual(base.targets(d), sorted(fr, key=lambda s: -fr[s].loc[d, "ret_20"])[:3])
+        none = self.contest.Rotation(fr, "US", CFG, {**p, "vr20_min": 100.0})
+        self.assertEqual(none.targets(d), [])
+        quiet = self.contest.Rotation(fr, "US", CFG, {**p, "vr20_max": 1.0})
+        self.assertTrue(all(fr[s].loc[d, "vr_20_60"] <= 1.0 for s in quiet.targets(d)))
+        rot = self.contest.Rotation(fr, "US", CFG, {**p, "rank": "ret_x_vr"})
+        def sc(s):
+            r, vr = fr[s].loc[d, "ret_20"], fr[s].loc[d, "vr_20_60"]
+            return r * vr if r >= 0 else r / vr
+        self.assertEqual(rot.targets(d), sorted(fr, key=lambda s: -sc(s))[:3])
+        self.assertEqual(self.contest.vol_name(p), "기준(거래량 조건 없음)")
+        self.assertEqual(self.contest.vol_name({**p, "turnover_min": 5e9}), "turnover_min=5e+09")
+        _, st = base.run(base.dates[300], base.dates[330], 100_000)
+        self.assertGreater(st["held"], 0)
+
     def test_rules(self):
         rule = self.contest.RULES["KR"]
         good = {"amount": 5e8, "days": 5, "symbols": 5, "orders": 5}

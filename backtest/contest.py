@@ -92,6 +92,31 @@ EXIT_GRID = {
     "tp_pct": [0.0, 0.10, 0.15, 0.25, 0.40],
     "sl_pct": [0.0, 0.07, 0.10, 0.15],
 }
+# 거래량 요소 검증(--volume): 지금 입상형에 거래량 조건을 하나씩(또는 둘) 붙여 비교. 모두 그날 종가까지의 값.
+#   vr20_min / vr20_max: 최근 20일 평균 거래량 ÷ 60일 평균 ≥ / ≤ x (오를 때 거래가 늘었나 / 조용히 올랐나)
+#     (Lee & Swaminathan 2000: 거래량 적게 오른 종목이 모멘텀이 더 오래 간다는 연구가 있어서 둘 다 봐요)
+#   vr5_min: 최근 5일 평균 거래량 ÷ 60일 평균 ≥ x (요즘 관심이 몰리는 중인가)
+#   upvol_min: 최근 20일 거래량 중 오른 날 거래량 비율 ≥ x (매수세가 우세했나)
+#   turnover_min: 20일 평균 거래대금(종가 × 거래량, 원) ≥ x (유동성)
+#   climax_max: 그날 거래량이 60일 평균의 x 배 넘으면 제외 (하루 폭발 = 고점 신호인지)
+#   rank: ret = 수익률 순 / ret_x_vr = 수익률 × (20일 ÷ 60일 거래량) 순
+VOL_BASE = {"lookback": 20, "skip": 0, "top_k": 3, "rebalance_days": 2, "full_rebalance": False,
+            "stop_atr": 0.0, "rsi_max": 101, "trend_filter": True, "regime": "none", "regime_off": "cash",
+            "rank": "ret", "vr20_min": 0.0, "vr20_max": 0.0, "vr5_min": 0.0, "upvol_min": 0.0,
+            "turnover_min": 0.0, "climax_max": 0.0}
+VOL_VARIANTS = [
+    {},                                        # 지금 입상형 (기준)
+    {"vr20_min": 1.0}, {"vr20_min": 1.3},
+    {"vr20_max": 1.0},
+    {"vr5_min": 1.0}, {"vr5_min": 1.5},
+    {"upvol_min": 0.55}, {"upvol_min": 0.6},
+    {"turnover_min": 5e9}, {"turnover_min": 2e10},
+    {"climax_max": 4.0},
+    {"rank": "ret_x_vr"},
+    {"vr20_min": 1.0, "upvol_min": 0.55},
+    {"turnover_min": 5e9, "climax_max": 4.0},
+]
+VOL_COLS = ["중앙값", "상위10%", "+30%확률", "하위10%", "최악", "조건충족률"]
 TAIL_GOAL = 0.30  # 5주에 +30% 이상이면 '대박 구간'으로 셈
 
 # 수상 조건. 해외 부문 조건은 확인 전이라 국내와 같은 횟수 조건만 적용하고 금액 조건은 빼요.
@@ -111,8 +136,55 @@ def prepare(raw, cfg, lookbacks, skips=(0,)):
                 if k:
                     # k 거래일 전 종가 기준 n 거래일 수익률 (최근 k 일은 안 봐요)
                     d[f"mom_{n}_{k}"] = d["Close"].shift(k) / d["Close"].shift(k + n) - 1
+        add_volume_factors(d)
         out[s] = d
     return out
+
+
+def add_volume_factors(d):
+    """거래량 요소 (모두 그날까지의 값만 써요). 거래 정지 등으로 거래량 0 이면 NaN → 조건 통과 못 함."""
+    v = d["Volume"].astype(float)
+    avg5, avg20, avg60 = (v.rolling(n).mean() for n in (5, 20, 60))
+    avg60 = avg60.where(avg60 > 0)
+    up = d["Close"] > d["Close"].shift(1)
+    total20 = v.rolling(20).sum()
+    d["vr_5_60"] = avg5 / avg60
+    d["vr_20_60"] = avg20 / avg60
+    d["upvol_20"] = v.where(up, 0.0).rolling(20).sum() / total20.where(total20 > 0)
+    d["turnover_20"] = (d["Close"] * v).rolling(20).mean()
+    d["vol_spike"] = v / avg60
+    return d
+
+
+def volume_ok(b, p):
+    """거래량 조건을 켠 것만 확인. NaN 이면 비교가 False 라 통과 못 해요."""
+    checks = (("vr20_min", "vr_20_60", 1), ("vr20_max", "vr_20_60", -1), ("vr5_min", "vr_5_60", 1),
+              ("upvol_min", "upvol_20", 1), ("turnover_min", "turnover_20", 1), ("climax_max", "vol_spike", -1))
+    for key, col, sign in checks:
+        x = p.get(key, 0.0)
+        if not x:
+            continue
+        val = b.get(col, float("nan"))
+        if not (val >= x if sign > 0 else val <= x):
+            return False
+    return True
+
+
+def rank_score(b, p):
+    score = b.get(score_key(p))
+    if p.get("rank", "ret") == "ret_x_vr" and score is not None:
+        vr = b.get("vr_20_60", float("nan"))
+        # 수익률이 음수면 거래량을 곱해도 순서가 뒤집히지 않게 나눠요
+        score = score * vr if score >= 0 else score / vr
+    return score
+
+
+def vol_name(p):
+    on = [f"{k}={p[k]:g}" for k in ("vr20_min", "vr20_max", "vr5_min", "upvol_min", "turnover_min", "climax_max")
+          if p.get(k)]
+    if p.get("rank", "ret") != "ret":
+        on.append(f"순위={p['rank']}")
+    return ", ".join(on) or "기준(거래량 조건 없음)"
 
 
 def score_key(p):
@@ -187,11 +259,11 @@ class Rotation:
             p = self.p
             cands = []
             for s, b in self.bars.get(d, {}).items():
-                score = b.get(score_key(p))
+                score = rank_score(b, p)
                 if score is None or not (score == score) or not (b["ema_slow"] == b["ema_slow"]):
                     continue
                 trend_ok = b["Close"] > b["ema_fast"] > b["ema_slow"] if p.get("trend_filter", True) else True
-                if trend_ok and b["rsi"] < p["rsi_max"]:
+                if trend_ok and b["rsi"] < p["rsi_max"] and volume_ok(b, p):
                     cands.append((score, s))
             cands.sort(reverse=True)
             self._rank[d] = [s for _, s in cands[:p["top_k"]]]
@@ -201,7 +273,7 @@ class Rotation:
         """반환: (자산곡선, 통계 dict: orders, days, symbols, amount)."""
         days = [d for d in self.dates if start <= d <= end]
         cash, pos, pending, curve = float(capital), {}, None, []
-        orders, traded_days, traded_syms, amount = 0, set(), set(), 0.0
+        orders, traded_days, traded_syms, amount, held = 0, set(), set(), 0.0, []
 
         def record(fill, d):
             nonlocal orders, amount
@@ -284,10 +356,12 @@ class Rotation:
                         del pos[s]
             value = cash + sum(p["qty"] * self._close(s, d) for s, p in pos.items())
             curve.append(value)
+            held.append(len(pos))
             if i < len(days) - 1 and i % self.p["rebalance_days"] == 0:
                 pending = (self.targets(d), value / self.p["top_k"])
         # 대회 끝: 보유 종목은 종가로 평가 (대회 수익률은 평가금액 기준이라 팔지 않아요)
-        stats = {"orders": orders, "days": len(traded_days), "symbols": len(traded_syms), "amount": amount}
+        stats = {"orders": orders, "days": len(traded_days), "symbols": len(traded_syms), "amount": amount,
+                 "held": float(np.mean(held)) if held else 0.0}
         return pd.Series(curve, index=days), stats
 
     def _close(self, s, d):
@@ -318,10 +392,11 @@ def summarize(rets, bench, stats, rule, scale):
 def fmt(df):
     shown = df.copy()
     for c in shown.columns:
-        if c in ("평균", "중앙값", "하위25%", "최악", "최고", "기준초과확률", "기준평균", "조건충족률",
+        base = c.split(" ")[-1]
+        if base in ("평균", "중앙값", "하위25%", "최악", "최고", "기준초과확률", "기준평균", "조건충족률",
                  "상위10%", "상위5%", "하위10%", "+30%확률"):
             shown[c] = shown[c].map(lambda v: f"{v * 100:.1f}%")
-        elif c in ("평균주문", "평균매매금액배수"):
+        elif base in ("평균주문", "평균매매금액배수", "보유수"):
             shown[c] = shown[c].map(lambda v: f"{v:.1f}")
     return shown.to_string(index=False)
 
@@ -501,6 +576,7 @@ def main(argv=None):
     ap.add_argument("--markets", default="KR,US", help="검증할 시장 (예: US)")
     ap.add_argument("--momentum", action="store_true", help="학계 방식 모멘텀(최근 1개월 제외)과 지금 입상형 비교")
     ap.add_argument("--exits", action="store_true", help="지금 입상형에 % 익절·손절을 붙여 비교")
+    ap.add_argument("--volume", action="store_true", help="지금 입상형에 거래량 조건을 붙여 비교")
     ap.add_argument("--us-list", default=None, help="미국 종목 목록으로 쓸 config 키 (예: us_aggressive)")
     args = ap.parse_args(argv)
     cfg = load_config(args.config)
@@ -517,9 +593,15 @@ def main(argv=None):
     symbols = list(dict.fromkeys(kr + (us if "US" in markets else [])))
     raw, start, end = load_all(symbols, cfg["period"], cache, log=lambda *_: None)
     print(f"받은 데이터: 국내 {sum(market_of(s) == 'KR' for s in raw)}종목, 해외 {sum(market_of(s) == 'US' for s in raw)}종목")
-    grid = EXIT_GRID if args.exits else MOM_GRID if args.momentum else AGG_GRID if args.aggressive else GRID
-    metric = "상위10%" if (args.aggressive or args.momentum or args.exits) else "중앙값"
-    tag = ("contest_exits" if args.exits else "contest_momentum" if args.momentum else
+    grid = (VOL_BASE if args.volume else EXIT_GRID if args.exits else MOM_GRID if args.momentum else
+            AGG_GRID if args.aggressive else GRID)
+    if args.volume:
+        param_list = [{**VOL_BASE, **v} for v in VOL_VARIANTS]
+    else:
+        param_list = [dict(zip(grid, values)) for values in itertools.product(*grid.values())]
+    tail_mode = args.aggressive or args.momentum or args.exits or args.volume
+    metric = "상위10%" if tail_mode else "중앙값"
+    tag = ("contest_volume" if args.volume else "contest_exits" if args.exits else "contest_momentum" if args.momentum else
            "contest_aggressive" if args.aggressive else "contest") + \
         ("" if markets == ["KR", "US"] else "_" + "_".join(markets))
     if args.us_list:
@@ -543,8 +625,8 @@ def main(argv=None):
         bars = build_bars(mf)
         regime = build_regime(bars)
         combos = {}  # 조합 이름 → (구간별 수익률, 구간별 조건 통계)
-        for values in itertools.product(*grid.values()):
-            params = dict(zip(grid, values))
+        vol_rows = []
+        for params in param_list:
             if params["regime"] == "none" and params["regime_off"] != "cash":
                 continue  # 레짐 필터를 안 쓰면 나쁜 날 행동은 의미 없어요
             rot = Rotation(mf, market, cfg, params, bars, regime)
@@ -554,12 +636,21 @@ def main(argv=None):
                 rets.append(curve.iloc[-1] / cap - 1)
                 stats.append(st)
             combos[combo_name(params)] = (rets, stats)
+            if args.volume:
+                tr, te = (summarize(rets[sl], bench[sl], stats[sl], rule, scale)
+                          for sl in (slice(0, cut), slice(cut, None)))
+                vol_rows.append({"거래량 조건": vol_name(params),
+                                 **{f"학습 {k}": tr[k] for k in VOL_COLS}, **{f"검증 {k}": te[k] for k in VOL_COLS},
+                                 "평균 보유수": np.mean([s["held"] for s in stats])})
             for part, sl in (("학습", slice(0, cut)), ("검증", slice(cut, None))):
                 rows.append({"시장": market, "구분": part, **params,
                              **summarize(rets[sl], bench[sl], stats[sl], rule, scale)})
         states = build_states(regime)
         now_lines = current_state_lines(market, states, dates)
-        if args.aggressive or args.momentum or args.exits:
+        if args.volume:
+            adaptive_lines = ["거래량 조건별 비교 (학습 = 앞 60% 구간, 검증 = 뒤 40% 구간):",
+                              fmt(pd.DataFrame(vol_rows))]
+        elif tail_mode:
             adaptive_lines = []
         else:
             adaptive_lines = adaptive_report(wins, combos, bench, rule, scale, cut)
@@ -574,6 +665,10 @@ def main(argv=None):
         picked[market] = {k: (v.item() if hasattr(v, "item") else v) for k, v in key.items()}
         test_best = test[np.logical_and.reduce([test[k] == v for k, v in key.items()])]
         cols = ["시장", "구분"]
+        if args.volume:
+            lines += now_lines + [f"[{market}] 학습 구간 {cut}개 / 검증 구간 {len(wins) - cut}개 "
+                                  f"({wins[cut][0]:%Y-%m-%d} 이후 시작)", *adaptive_lines, ""]
+            continue
         lines += now_lines + [f"[{market}] 학습 구간 {cut}개 / 검증 구간 {len(wins) - cut}개 ({wins[cut][0]:%Y-%m-%d} 이후 시작)",
                   f"학습 구간: 조건충족률 90% 이상 중 {metric} 상위 5개",
                   fmt((ok if len(ok) else train).sort_values(metric, ascending=False).head(5).drop(columns=cols)),

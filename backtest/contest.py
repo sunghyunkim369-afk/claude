@@ -75,6 +75,23 @@ MOM_GRID = {
     "regime": ["none"],
     "regime_off": ["cash"],
 }
+# 익절·손절 검증(--exits): 지금 입상형(20일 상위 3종목, 2일 교체)에 종목별 % 익절·손절을 붙여 비교
+#   tp_pct: 산 가격 대비 +x% 에 닿으면 그 가격에 장중 매도 / sl_pct: −x% 에 닿으면 장중 매도
+#   팔고 난 돈은 다음 리밸런스까지 현금. 같은 날 둘 다 닿으면 손절이 먼저라고 (보수적으로) 봐요.
+EXIT_GRID = {
+    "lookback": [20],
+    "skip": [0],
+    "top_k": [3],
+    "rebalance_days": [2],
+    "full_rebalance": [False],
+    "stop_atr": [0.0],
+    "rsi_max": [101],
+    "trend_filter": [True],
+    "regime": ["none"],
+    "regime_off": ["cash"],
+    "tp_pct": [0.0, 0.10, 0.15, 0.25, 0.40],
+    "sl_pct": [0.0, 0.07, 0.10, 0.15],
+}
 TAIL_GOAL = 0.30  # 5주에 +30% 이상이면 '대박 구간'으로 셈
 
 # 수상 조건. 해외 부문 조건은 확인 전이라 국내와 같은 횟수 조건만 적용하고 금액 조건은 빼요.
@@ -231,7 +248,8 @@ class Rotation:
                         if s in pos:
                             pos[s]["qty"] += f.qty
                         else:
-                            pos[s] = {"qty": f.qty, "stop": f.price - self.p["stop_atr"] * (bars[s]["atr"] or 0)}
+                            pos[s] = {"qty": f.qty, "stop": f.price - self.p["stop_atr"] * (bars[s]["atr"] or 0),
+                                      "entry": f.price}
                 pending = None
             # 장중 손절
             if self.p["stop_atr"] > 0:
@@ -243,6 +261,27 @@ class Rotation:
                             cash += f.gross - f.fee
                             record(f, d)
                             del pos[s]
+            # 장중 % 손절·익절 (산 가격 기준)
+            sl, tp = self.p.get("sl_pct", 0.0), self.p.get("tp_pct", 0.0)
+            if sl or tp:
+                for s in list(pos):
+                    b = bars.get(s)
+                    if b is None or "entry" not in pos[s]:
+                        continue
+                    e = pos[s]["entry"]
+                    if sl and b["Low"] <= e * (1 - sl):
+                        f = self.broker.submit(Order(s, self.market, "sell", pos[s]["qty"], kind="stop",
+                                                     stop_price=e * (1 - sl)), b, d)
+                    elif tp and b["High"] >= e * (1 + tp):
+                        raw = max(b["Open"], e * (1 + tp))  # 시가부터 넘었으면 시가에, 아니면 익절가에
+                        f = self.broker.submit(Order(s, self.market, "sell", pos[s]["qty"]),
+                                               {**b, "Open": raw}, d)
+                    else:
+                        f = None
+                    if f:
+                        cash += f.gross - f.fee
+                        record(f, d)
+                        del pos[s]
             value = cash + sum(p["qty"] * self._close(s, d) for s, p in pos.items())
             curve.append(value)
             if i < len(days) - 1 and i % self.p["rebalance_days"] == 0:
@@ -461,6 +500,7 @@ def main(argv=None):
     ap.add_argument("--aggressive", action="store_true", help="입상 노리기: 상위 10% 수익률 기준으로 고르기")
     ap.add_argument("--markets", default="KR,US", help="검증할 시장 (예: US)")
     ap.add_argument("--momentum", action="store_true", help="학계 방식 모멘텀(최근 1개월 제외)과 지금 입상형 비교")
+    ap.add_argument("--exits", action="store_true", help="지금 입상형에 % 익절·손절을 붙여 비교")
     ap.add_argument("--us-list", default=None, help="미국 종목 목록으로 쓸 config 키 (예: us_aggressive)")
     args = ap.parse_args(argv)
     cfg = load_config(args.config)
@@ -477,9 +517,10 @@ def main(argv=None):
     symbols = list(dict.fromkeys(kr + (us if "US" in markets else [])))
     raw, start, end = load_all(symbols, cfg["period"], cache, log=lambda *_: None)
     print(f"받은 데이터: 국내 {sum(market_of(s) == 'KR' for s in raw)}종목, 해외 {sum(market_of(s) == 'US' for s in raw)}종목")
-    grid = MOM_GRID if args.momentum else AGG_GRID if args.aggressive else GRID
-    metric = "상위10%" if (args.aggressive or args.momentum) else "중앙값"
-    tag = ("contest_momentum" if args.momentum else "contest_aggressive" if args.aggressive else "contest") + \
+    grid = EXIT_GRID if args.exits else MOM_GRID if args.momentum else AGG_GRID if args.aggressive else GRID
+    metric = "상위10%" if (args.aggressive or args.momentum or args.exits) else "중앙값"
+    tag = ("contest_exits" if args.exits else "contest_momentum" if args.momentum else
+           "contest_aggressive" if args.aggressive else "contest") + \
         ("" if markets == ["KR", "US"] else "_" + "_".join(markets))
     if args.us_list:
         tag += "_" + args.us_list
@@ -518,7 +559,7 @@ def main(argv=None):
                              **summarize(rets[sl], bench[sl], stats[sl], rule, scale)})
         states = build_states(regime)
         now_lines = current_state_lines(market, states, dates)
-        if args.aggressive or args.momentum:
+        if args.aggressive or args.momentum or args.exits:
             adaptive_lines = []
         else:
             adaptive_lines = adaptive_report(wins, combos, bench, rule, scale, cut)

@@ -358,6 +358,24 @@ class ContestTest(unittest.TestCase):
         ranked = sorted(fr, key=lambda s: -fr[s].loc[d, "mom_60_20"])[:3]
         self.assertEqual(rot.targets(d), ranked)
 
+    def test_take_profit_and_stop_loss(self):
+        dates = pd.bdate_range("2024-01-01", periods=10)
+        base = pd.DataFrame({"Open": 100.0, "High": 101.0, "Low": 99.0, "Close": 100.0, "Volume": 1.0,
+                             "ema_fast": 90.0, "ema_slow": 80.0, "rsi": 50.0, "atr": 1.0, "ret_20": 0.5}, index=dates)
+        cfg = {**CFG, "costs": {**CFG["costs"], "slippage": 0.0, "US": {"buy_fee": 0, "sell_fee": 0, "sell_tax": 0}}}
+        p = {**self.params, "top_k": 1, "rebalance_days": 100, "stop_atr": 0.0, "rsi_max": 101,
+             "tp_pct": 0.2, "sl_pct": 0.1}
+        up = base.copy()
+        up.loc[dates[3], "High"] = 125.0            # +20% 닿음 → 120 에 익절
+        rot = self.contest.Rotation({"A": up}, "US", cfg, p)
+        curve, st = rot.run(dates[0], dates[-1], 1000.0)
+        self.assertAlmostEqual(curve.iloc[-1], 1000.0 + 9 * 20)  # 9주(1% 여유 두고 매수) × +20
+        self.assertEqual(st["orders"], 2)
+        gap = base.copy()
+        gap.loc[dates[3], ["Open", "High", "Low"]] = [85.0, 86.0, 84.0]  # 시가부터 −15% → 시가 85 에 손절
+        curve, _ = self.contest.Rotation({"A": gap}, "US", cfg, p).run(dates[0], dates[-1], 1000.0)
+        self.assertAlmostEqual(curve.iloc[-1], 1000.0 - 9 * 15)
+
     def test_rules(self):
         rule = self.contest.RULES["KR"]
         good = {"amount": 5e8, "days": 5, "symbols": 5, "orders": 5}

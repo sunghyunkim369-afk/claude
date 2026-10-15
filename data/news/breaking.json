@@ -1,7 +1,95 @@
 {
- "generated": "2026-10-14T18:59:56.465Z",
+ "generated": "2026-10-15T00:59:31.479Z",
  "hours": 24,
  "items": [
+  {
+   "title": "노벨평화상 필라이, 트럼프 ICC 제재 비판…\"불법 간섭\"",
+   "link": "https://www.yna.co.kr/view/AKR20261015041900009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-15T00:40:26.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "\"트럼프 '러시아 경유 딜'에도 가격 안정 어려울 듯\"",
+   "link": "https://www.yna.co.kr/view/AKR20261015037000009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-15T00:29:07.000Z",
+   "tag": "경제제재",
+   "direction": "down",
+   "sectors": []
+  },
+  {
+   "title": "수은, HJ중공업 선박 수출에 1.35억달러 금융 제공",
+   "link": "https://www.yna.co.kr/view/AKR20261015039600002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-15T00:28:31.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "'트럼프 밀착' 베네수 국회의장 8년 만에 美 제재서 벗어나",
+   "link": "https://www.yna.co.kr/view/AKR20261015021000087",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-14T23:09:43.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "한중 FTA 서비스·투자 협상 속도 낸다…서울서 17차 협상",
+   "link": "https://www.yna.co.kr/view/AKR20261014167600003",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-14T21:00:05.000Z",
+   "tag": "FTA·통상협정",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "컨테이너 화물 검사용 엑스레이기 3대 중 1대 노후",
+   "link": "https://www.yna.co.kr/view/AKR20261014143200002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-14T20:58:01.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "연준 베이지북 \"고유가에 물가 압력 심화…공급망 전반 비용↑\"",
+   "link": "https://www.yna.co.kr/view/AKR20261015005700072",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-14T20:33:33.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "국제유가, 사우디 아람코 피격·IEA 공급 경고에 상승",
+   "link": "https://www.yna.co.kr/view/AKR20261015005800072",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-14T20:25:03.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
   {
    "title": "Coal prices up 40% this year on LNG replacement demand, supply uncertainty",
    "lang": "en",
@@ -90,105 +178,6 @@
    "sectors": [
     "ship"
    ]
-  },
-  {
-   "title": "Trump Touts Taiwan-Alaska LNG Deal Taipei Hasn’t Finalized",
-   "lang": "en",
-   "link": "https://gcaptain.com/trump-touts-taiwan-alaska-lng-deal-taipei-hasnt-finalized/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-14T13:17:00.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "Cyber-crime group hits 38 shipping and port groups with data leak threat",
-   "lang": "en",
-   "link": "https://theloadstar.com/cyber-crime-group-hits-38-shipping-and-port-groups-with-date-leak-threat/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-14T13:15:50.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "Vietnam sends final trade agreement wording to US, deputy PM says",
-   "lang": "en",
-   "link": "https://asia.nikkei.com/economy/trade/vietnam-sends-final-trade-agreement-wording-to-us-deputy-pm-says",
-   "source": "Nikkei Asia",
-   "outlets": 1,
-   "at": "2026-10-14T13:01:24.115Z",
-   "tag": "FTA·통상협정",
-   "direction": "down",
-   "sectors": []
-  },
-  {
-   "title": "AI shippers still looking for capacity risk sharp airfreight peak squeeze",
-   "lang": "en",
-   "link": "https://theloadstar.com/ai-shippers-still-looking-for-capacity-risk-sharp-airfreight-peak-squeeze/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-14T12:02:17.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "semi",
-    "ship"
-   ]
-  },
-  {
-   "title": "NSR box shipping test ‘a success’, but S Korean carriers are sceptical",
-   "lang": "en",
-   "link": "https://theloadstar.com/nsr-box-shipping-test-a-success-but-s-korean-carriers-are-sceptical/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-14T11:27:21.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "auto",
-    "ship"
-   ]
-  },
-  {
-   "title": "이란 혁명수비대 \"호르무즈서 컨테이너선 기뢰 충돌 후 침몰\"",
-   "link": "https://www.yna.co.kr/view/AKR20261014172100079",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-14T09:25:56.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "부산항만공사, 부산대 법학전문대학원과 업무협약",
-   "link": "https://www.yna.co.kr/view/AKR20261014151500051",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-14T07:49:55.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "\"미국에 할말 하겠다\"는 일본. ICC 제재 진의 파악 공들여",
-   "link": "https://www.yna.co.kr/view/AKR20261014145800009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-14T07:10:35.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
   }
  ]
 }

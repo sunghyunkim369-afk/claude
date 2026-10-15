@@ -3,6 +3,7 @@
 import os
 import sys
 import unittest
+import unittest.mock
 
 import numpy as np
 import pandas as pd
@@ -47,6 +48,32 @@ def cfg_with(**risk):
     c = yaml.safe_load(yaml.safe_dump(CFG))
     c["risk"].update(risk)
     return c
+
+
+class UniverseTest(unittest.TestCase):
+    def test_marcap_text_is_sorted_numerically(self):
+        import universe
+        n = 400
+        listing = pd.DataFrame({"Code": [f"{(i + 10) * 10:06d}" for i in range(n)],
+                                "Name": [f"종목{i}" for i in range(n)],
+                                "Marcap": [f"{(n - i) * 1000:,}" for i in range(n)]})  # 쉼표 있는 문자열
+        big = pd.DataFrame({"Code": ["005930", "000660", "005380"], "Name": ["삼성전자", "SK하이닉스", "현대차"],
+                            "Marcap": ["999,999,999", "888,888,888", "777,777,777"]})
+        fake = type("F", (), {"StockListing": staticmethod(lambda m: pd.concat([big, listing]) if m == "KOSPI" else listing)})
+        with unittest.mock.patch.dict(sys.modules, {"FinanceDataReader": fake}):
+            df, _ = universe.from_marcap()
+        kospi = df[df["index"] == "KOSPI200"]
+        self.assertEqual(list(kospi["code"][:3]), ["005930", "000660", "005380"])
+        self.assertEqual(len(kospi), 200)
+
+    def test_rejects_list_without_large_caps(self):
+        import universe
+        with self.assertRaises(ValueError):
+            universe.check(pd.DataFrame({"code": ["095570", "006840"]}))
+
+    def test_saved_universe_has_large_caps(self):
+        import universe
+        universe.check(universe.load())
 
 
 class DataTest(unittest.TestCase):

@@ -60,6 +60,21 @@ AGG_GRID = {
     "regime": ["none", "index20"],
     "regime_off": ["cash"],
 }
+# 학계 방식 모멘텀 비교(--momentum): 최근 skip 거래일은 빼고 그 전 lookback 거래일 수익률로 순위
+#   (Jegadeesh & Titman 1993 등. 1개월 이하는 오히려 되돌아가는 경향(단기 반전)이 있어서 최근 1개월을 빼요)
+#   skip=0, lookback=20 은 지금 쓰는 입상형과 같은 조합이라 기준으로 같이 돌려요.
+MOM_GRID = {
+    "lookback": [20, 60, 120],
+    "skip": [0, 20],
+    "top_k": [2, 3, 5],
+    "rebalance_days": [2, 5],
+    "full_rebalance": [False],
+    "stop_atr": [0.0],
+    "rsi_max": [101],
+    "trend_filter": [True, False],  # 종가 > EMA20 > EMA60 조건을 쓸지
+    "regime": ["none"],
+    "regime_off": ["cash"],
+}
 TAIL_GOAL = 0.30  # 5주에 +30% 이상이면 '대박 구간'으로 셈
 
 # 수상 조건. 해외 부문 조건은 확인 전이라 국내와 같은 횟수 조건만 적용하고 금액 조건은 빼요.
@@ -69,14 +84,22 @@ RULES = {
 }
 
 
-def prepare(raw, cfg, lookbacks):
+def prepare(raw, cfg, lookbacks, skips=(0,)):
     out = {}
     for s, f in raw.items():
         d = add_indicators(f, cfg["indicators"])
         for n in lookbacks:
             d[f"ret_{n}"] = d["Close"] / d["Close"].shift(n) - 1
+            for k in skips:
+                if k:
+                    # k 거래일 전 종가 기준 n 거래일 수익률 (최근 k 일은 안 봐요)
+                    d[f"mom_{n}_{k}"] = d["Close"].shift(k) / d["Close"].shift(k + n) - 1
         out[s] = d
     return out
+
+
+def score_key(p):
+    return f"mom_{p['lookback']}_{p['skip']}" if p.get("skip") else f"ret_{p['lookback']}"
 
 
 def build_bars(frames):
@@ -147,10 +170,11 @@ class Rotation:
             p = self.p
             cands = []
             for s, b in self.bars.get(d, {}).items():
-                score = b.get(f"ret_{p['lookback']}")
+                score = b.get(score_key(p))
                 if score is None or not (score == score) or not (b["ema_slow"] == b["ema_slow"]):
                     continue
-                if b["Close"] > b["ema_fast"] > b["ema_slow"] and b["rsi"] < p["rsi_max"]:
+                trend_ok = b["Close"] > b["ema_fast"] > b["ema_slow"] if p.get("trend_filter", True) else True
+                if trend_ok and b["rsi"] < p["rsi_max"]:
                     cands.append((score, s))
             cands.sort(reverse=True)
             self._rank[d] = [s for _, s in cands[:p["top_k"]]]
@@ -436,6 +460,7 @@ def main(argv=None):
     ap.add_argument("--days", type=int, default=26, help="대회 길이(거래일). 10/15~11/20 은 약 26일")
     ap.add_argument("--aggressive", action="store_true", help="입상 노리기: 상위 10% 수익률 기준으로 고르기")
     ap.add_argument("--markets", default="KR,US", help="검증할 시장 (예: US)")
+    ap.add_argument("--momentum", action="store_true", help="학계 방식 모멘텀(최근 1개월 제외)과 지금 입상형 비교")
     ap.add_argument("--us-list", default=None, help="미국 종목 목록으로 쓸 config 키 (예: us_aggressive)")
     args = ap.parse_args(argv)
     cfg = load_config(args.config)
@@ -452,12 +477,14 @@ def main(argv=None):
     symbols = list(dict.fromkeys(kr + (us if "US" in markets else [])))
     raw, start, end = load_all(symbols, cfg["period"], cache, log=lambda *_: None)
     print(f"받은 데이터: 국내 {sum(market_of(s) == 'KR' for s in raw)}종목, 해외 {sum(market_of(s) == 'US' for s in raw)}종목")
-    grid = AGG_GRID if args.aggressive else GRID
-    metric = "상위10%" if args.aggressive else "중앙값"
-    tag = ("contest_aggressive" if args.aggressive else "contest") + ("" if markets == ["KR", "US"] else "_" + "_".join(markets))
+    grid = MOM_GRID if args.momentum else AGG_GRID if args.aggressive else GRID
+    metric = "상위10%" if (args.aggressive or args.momentum) else "중앙값"
+    tag = ("contest_momentum" if args.momentum else "contest_aggressive" if args.aggressive else "contest") + \
+        ("" if markets == ["KR", "US"] else "_" + "_".join(markets))
     if args.us_list:
         tag += "_" + args.us_list
-    frames = prepare(raw, cfg, sorted(set(GRID["lookback"]) | set(AGG_GRID["lookback"])))
+    frames = prepare(raw, cfg, sorted(set(GRID["lookback"]) | set(AGG_GRID["lookback"]) | set(MOM_GRID["lookback"])),
+                     MOM_GRID["skip"])
     ratio = float(val.get("train_ratio", 0.6))
 
     rows, lines, picked = [], [f"대회 길이 {args.days}거래일, 5거래일 간격으로 자른 구간마다 새로 운용", ""], {}
@@ -491,7 +518,7 @@ def main(argv=None):
                              **summarize(rets[sl], bench[sl], stats[sl], rule, scale)})
         states = build_states(regime)
         now_lines = current_state_lines(market, states, dates)
-        if args.aggressive:
+        if args.aggressive or args.momentum:
             adaptive_lines = []
         else:
             adaptive_lines = adaptive_report(wins, combos, bench, rule, scale, cut)

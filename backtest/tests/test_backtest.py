@@ -317,6 +317,20 @@ class ContestTest(unittest.TestCase):
         self.assertGreater(st_c["flips"], 0.9)
         self.assertGreater(st_c["vol"], st_t["vol"])
 
+    def test_skip_month_momentum_column(self):
+        fr = self.contest.prepare(self.raw, CFG, [60], [20])
+        f = fr["S1"]
+        i = 300
+        expect = f["Close"].iloc[i - 20] / f["Close"].iloc[i - 80] - 1
+        self.assertAlmostEqual(f["mom_60_20"].iloc[i], expect)
+        self.assertEqual(self.contest.score_key({"lookback": 60, "skip": 20}), "mom_60_20")
+        self.assertEqual(self.contest.score_key({"lookback": 20, "skip": 0}), "ret_20")
+        p = {**self.params, "lookback": 60, "skip": 20, "trend_filter": False, "rsi_max": 101}
+        rot = self.contest.Rotation(fr, "US", CFG, p)
+        d = rot.dates[300]
+        ranked = sorted(fr, key=lambda s: -fr[s].loc[d, "mom_60_20"])[:3]
+        self.assertEqual(rot.targets(d), ranked)
+
     def test_rules(self):
         rule = self.contest.RULES["KR"]
         good = {"amount": 5e8, "days": 5, "symbols": 5, "orders": 5}

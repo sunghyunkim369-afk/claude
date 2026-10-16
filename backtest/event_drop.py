@@ -22,7 +22,8 @@ sys.path.insert(0, HERE)
 from data import load_all  # noqa: E402
 from main import load_config  # noqa: E402
 
-HORIZONS = (5, 10, 26)
+HORIZONS = (1, 2, 3, 5, 10, 26)
+ROUND_TRIP = 0.0043  # 한 번 사고팔 때 수수료·세금·체결 손해 (config.yaml 기준)
 THRESHOLDS = (0.04, 0.07)
 
 
@@ -41,12 +42,13 @@ def events(frames, thr, market_ret, gap=5):
     return out
 
 
-def forward(f, i, h, entry):
-    """i 일 이벤트, entry='close' 면 그날 종가, 'open' 이면 다음 날 시가에 사서 i+h 일 종가까지."""
-    if i + h >= len(f):
+def forward(f, i, h, entry, exit_at="close"):
+    """i 일 이벤트, entry='close' 면 그날 종가, 'open' 이면 다음 날 시가에 사서 i+h 일 종가(exit_at='open' 이면 시가)까지."""
+    if i + h >= len(f) or (entry == "open" and h < 1):
         return None
     buy = f["Close"].iloc[i] if entry == "close" else f["Open"].iloc[i + 1]
-    return f["Close"].iloc[i + h] / buy - 1
+    sell = f["Close"].iloc[i + h] if exit_at == "close" else f["Open"].iloc[i + h]
+    return sell / buy - 1
 
 
 def stats(rets):
@@ -54,14 +56,16 @@ def stats(rets):
     if not len(r):
         return {"건수": 0}
     return {"건수": len(r), "평균": r.mean(), "중앙값": np.median(r), "오른 비율": (r > 0).mean(),
-            "하위10%": np.percentile(r, 10), "상위10%": np.percentile(r, 90)}
+            "하위10%": np.percentile(r, 10), "상위10%": np.percentile(r, 90),
+            "비용 뺀 평균": r.mean() - ROUND_TRIP, "비용 뺀 승률": (r > ROUND_TRIP).mean()}
 
 
 def fmt(df):
     shown = df.copy()
-    for c in ("평균", "중앙값", "오른 비율", "하위10%", "상위10%"):
+    for c in ("평균", "중앙값", "오른 비율", "하위10%", "상위10%", "비용 뺀 평균", "비용 뺀 승률"):
         if c in shown:
-            shown[c] = shown[c].map(lambda v: "" if v != v else f"{v * 100:+.1f}%" if c != "오른 비율" else f"{v * 100:.0f}%")
+            pct = c in ("오른 비율", "비용 뺀 승률")
+            shown[c] = shown[c].map(lambda v: "" if v != v else f"{v * 100:.0f}%" if pct else f"{v * 100:+.2f}%")
     return shown.to_string(index=False)
 
 
@@ -89,7 +93,19 @@ def main():
             for together, label in ((True, "시장도 −2% 이하"), (False, "그 종목만")):
                 rows.append({"조건": f"−{thr * 100:.0f}% 이상, {label} → 그날 종가", "기간": f"{h}일",
                              **stats([forward(frames[s], i, h, "close") for s, i, m in ev if m == together])})
-    lines += ["대형주 급락 날 매수 후 수익률 (비용 제외):", fmt(pd.DataFrame(rows)), ""]
+    lines += ["대형주 급락 날 매수 후 수익률 ('비용 뺀' 열 말고는 비용 제외):", fmt(pd.DataFrame(rows)), ""]
+
+    # 급락 날 종가에 사서 다음 날 시가(밤사이 갭만) / 다음 날 종가에 파는 초단기
+    rows = []
+    base = [forward(f, i, 1, "close", "open") for f in frames.values() for i in range(1, len(f))]
+    rows.append({"조건": "아무 날에나 종가 매수 → 다음 날 시가 매도 (기준)", **stats(base)})
+    for thr in THRESHOLDS:
+        ev = events(frames, thr, market_ret)
+        for together, label in ((None, "전체"), (True, "시장도 −2% 이하"), (False, "그 종목만")):
+            sel = [(s, i) for s, i, m in ev if together is None or m == together]
+            rows.append({"조건": f"−{thr * 100:.0f}% 이상, {label} → 다음 날 시가 매도",
+                         **stats([forward(frames[s], i, 1, "close", "open") for s, i in sel])})
+    lines += ["급락 날 종가 매수 → 다음 날 시가 매도 (밤사이 갭만):", fmt(pd.DataFrame(rows)), ""]
 
     for code in ("005930", "000660"):
         f = frames.get(code)

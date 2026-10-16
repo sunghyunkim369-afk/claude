@@ -436,6 +436,37 @@ class ContestTest(unittest.TestCase):
         _, st = base.run(base.dates[300], base.dates[330], 100_000)
         self.assertGreater(st["held"], 0)
 
+    def test_chart_factors_and_rerank(self):
+        dates = pd.bdate_range("2024-01-01", periods=80)
+        smooth = pd.Series(100 * 1.01 ** np.arange(80), index=dates)                  # 매일 +1%
+        jumpy = pd.Series(np.r_[np.full(70, 100.0), np.full(10, 125.0)], index=dates)  # 하루 +25% 한 번
+        f = {}
+        for name, c in (("S", smooth), ("J", jumpy)):
+            f[name] = self.contest.add_chart_factors(pd.DataFrame({"Close": c}))
+        self.assertAlmostEqual(f["S"]["r2_20"].iloc[-1], 1.0, places=6)
+        self.assertAlmostEqual(f["S"]["fip_20"].iloc[-1], 1.0)
+        self.assertAlmostEqual(f["J"]["fip_20"].iloc[-1], 0.05)   # 20일 중 1일만 오름
+        self.assertAlmostEqual(f["S"]["high_60"].iloc[-1], 1.0)
+        self.assertLess(f["J"]["r2_20"].iloc[-1], 0.8)
+        # 미래 값을 바꿔도 그 전 값은 그대로
+        c2 = smooth.copy()
+        c2.iloc[60:] *= 0.5
+        g = self.contest.add_chart_factors(pd.DataFrame({"Close": c2}))
+        cols = ["r2_20", "fip_20", "high_60", "ext_20"]
+        pd.testing.assert_frame_equal(f["S"][cols].iloc[:60], g[cols].iloc[:60])
+        # 수익률은 J 가 높지만 꾸준함(fip)으로 다시 고르면 S 가 먼저
+        bars = {"S": f["S"].iloc[-1].to_dict(), "J": f["J"].iloc[-1].to_dict()}
+        pool = [(0.25, "J"), (0.22, "S")]
+        self.assertEqual([s for _, s in self.contest.rerank(pool, bars, "fip")], ["S", "J"])
+        self.assertEqual([s for _, s in self.contest.rerank(pool, bars, "combo")], ["S", "J"])
+        fr = self.contest.prepare(self.raw, CFG, [20])
+        p = {**self.contest.RERANK_BASE, "rsi_max": 101, "trend_filter": False}
+        base = self.contest.Rotation(fr, "US", CFG, p)
+        rr = self.contest.Rotation(fr, "US", CFG, {**p, "pool": 6, "rerank": "high"})
+        d = base.dates[320]
+        top6 = sorted(fr, key=lambda s: -fr[s].loc[d, "ret_20"])[:6]
+        self.assertEqual(rr.targets(d), sorted(top6, key=lambda s: -fr[s].loc[d, "high_60"])[:3])
+
     def test_crash_slot_buys_close_and_sells_next_open(self):
         dates = pd.bdate_range("2024-01-01", periods=10)
 

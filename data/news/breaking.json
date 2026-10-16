@@ -1,7 +1,46 @@
 {
- "generated": "2026-10-16T13:03:36.545Z",
+ "generated": "2026-10-16T18:56:10.671Z",
  "hours": 24,
  "items": [
+  {
+   "title": "Supertanker Rates Fall from Record Highs",
+   "lang": "en",
+   "link": "https://gcaptain.com/supertanker-rates-fall-from-record-highs/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-16T16:36:16.000Z",
+   "tag": "경제제재",
+   "direction": "down",
+   "sectors": [
+    "chem",
+    "ship"
+   ]
+  },
+  {
+   "title": "Lawmakers Seek to Strip COSCO Ships of U.S. Port Inspection Privileges Over Espionage Claims",
+   "lang": "en",
+   "link": "https://gcaptain.com/lawmakers-seek-to-strip-cosco-ships-of-u-s-port-inspection-privileges-over-espionage-claims/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-16T15:58:14.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "후티, 사우디 리야드·얀부 공격…연합군 \"미사일·드론 요격\"",
+   "link": "https://www.yna.co.kr/view/AKR20261016178500079",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-16T14:27:42.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
   {
    "title": "Asian countries should consider sanctions on the Houthis",
    "lang": "en",
@@ -34,6 +73,33 @@
    "tag": "해운·물류",
    "direction": "up",
    "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "Iran Ships Some LPG, Jet Fuel Despite US Blockade, Data Shows",
+   "lang": "en",
+   "link": "https://gcaptain.com/iran-ships-some-lpg-jet-fuel-despite-us-blockade-data-shows/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-16T12:10:04.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "Ship-Fuel Crunch to Persist Despite More Oil, Vitol Says",
+   "lang": "en",
+   "link": "https://gcaptain.com/ship-fuel-crunch-to-persist-despite-more-oil-vitol-says/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-16T12:07:25.000Z",
+   "tag": "해운·물류",
+   "direction": "up",
+   "sectors": [
+    "chem",
     "ship"
    ]
   },
@@ -115,59 +181,6 @@
    "outlets": 1,
    "at": "2026-10-16T07:46:38.000Z",
    "tag": "환율",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "한국, 뉴질랜드와 전략대화 개최…에너지공급망 안정성 등 논의",
-   "link": "https://www.yna.co.kr/view/AKR20261016133300504",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-16T07:20:41.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "[외환] 원/달러 환율 13.2원 내린 1,331.4원(15:30 기준가)",
-   "link": "https://www.yna.co.kr/view/AKR20261016120200002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-16T06:30:52.000Z",
-   "tag": "환율",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "China says only joint action, not exchange rates alone, can address global imbalances",
-   "lang": "en",
-   "link": "https://www.scmp.com/economy/global-economy/article/3371116/china-says-only-joint-action-not-exchange-rates-alone-can-address-global-imbalances?utm_source=rss_feed",
-   "source": "SCMP",
-   "outlets": 1,
-   "at": "2026-10-16T06:13:13.000Z",
-   "tag": "환율",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "경남 9월 수출 47억6천만달러…올해 월간 최대 실적",
-   "link": "https://www.yna.co.kr/view/AKR20261016107600052",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-16T05:52:54.000Z",
-   "tag": "수출입 동향",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "韓, 싱가포르와 국부펀드 협력 논의…獨과 피지컬AI 공조",
-   "link": "https://www.mk.co.kr/news/economy/12177768",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-16T04:59:50.000Z",
-   "tag": "공급망·핵심광물",
    "direction": "info",
    "sectors": []
   }

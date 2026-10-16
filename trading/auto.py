@@ -252,6 +252,36 @@ def kr_top_up(kis, fill, bal, manual, per, session, place, out=print):
                "limit_price": limit, "currency": "KRW", "reason": "남은 현금 채우기 (1/top_k 까지)"}, session)
 
 
+def kr_manual_adjust(kis, state, session, place, today, out=print):
+    """수동 보유 종목: 'manual keep' 으로 정한 비중(target_pct)보다 많으면 한 번만 그만큼 팔아 맞추고,
+    어제 종가가 20일선 아래면 알려 줘요 (파는 건 직접: manual sell)."""
+    from . import contest
+    manual = state.d.get("manual", {})
+    bal = kis.kr_balance()
+    for code, v in manual.items():
+        h = bal["holdings"].get(code)
+        if not h or h["price"] <= 0:
+            continue
+        name = v.get("name") or h["name"]
+        pct = v.get("target_pct")
+        if pct:
+            extra = math.floor((h["qty"] * h["price"] - bal["total"] * pct / 100) / h["price"])
+            if extra <= 0 or extra * h["price"] < bal["total"] * 0.01:
+                v.pop("target_pct")
+            elif place({"market": "kr", "side": "sell", "symbol": code, "name": name, "qty": extra, "price": h["price"],
+                        "currency": "KRW", "reason": f"수동 보유 비중 {pct:.0f}% 로 맞춤"}, session):
+                v.pop("target_pct")
+                time.sleep(1)  # 매도 체결이 잔고에 반영되게 잠깐 쉬어요
+        try:
+            closes = contest.closes_until_yesterday(kis.kr_daily(code, with_dates=True), today)
+        except KisError:
+            continue
+        e = contest.ema(closes, 20)
+        if e and closes and closes[-1] < e:
+            out(f"  ※ {name}: 어제 종가 {closes[-1]:,.0f}원 < 20일선 {e:,.0f}원, 단기 추세가 꺾였어요. "
+                f"팔려면: python -m trading manual sell {code}")
+
+
 def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
     """대회 모드 한 번 돌기 (trading/contest.py 공식). 반환: 낸 주문 수."""
     from . import contest
@@ -297,6 +327,7 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
         manual = state.d.get("manual", {})
         if manual:
             out("  수동 보유(자동매매가 안 건드림): " + ", ".join(f"{v.get('name', c)}({c})" for c, v in manual.items()))
+            kr_manual_adjust(kis, state, kr_session, place, today, out)
         cached = state.d.get("kr_ranked")
         if cached and cached.get("session") == kr_session and cached.get("mode") == mode:
             # 같은 날 앞선 시도에서 순위를 이미 계산했으면 (주문 단계에서 실패한 경우) 다시 계산하지 않아요

@@ -60,6 +60,7 @@ NYSE Arca 상장 ETF(SOXL 등)는 거래소 AMEX 로 주문해요.
 python -m trading manual check            # 오늘 급락 반등 조건인지 (시총 상위 30 평균 −2% 이하 + −7% 이상 빠진 종목)
 python -m trading manual buy 005930       # 총평가의 20% 를 1% 높은 지정가로 매수 + 수동 보유로 등록 (--pct 10 처럼 비율 변경)
 python -m trading manual sell 005930      # 전부 시장가 매도 + 등록 해제
+python -m trading manual keep 053800      # 가진 종목을 총평가의 1/3 만 남기고 수동 보유로 (넘는 만큼은 다음 리밸런스 때 한 번 매도)
 python -m trading manual add 005930       # MTS 로 직접 산 종목을 수동 보유로 등록 (주문 안 함)
 python -m trading manual remove 005930    # 등록 해제 → 다음 리밸런스부터 자동매매가 관리 (목표가 아니면 팔아요)
 python -m trading manual list             # 수동 보유 종목과 손익
@@ -69,6 +70,7 @@ python -m trading manual list             # 수동 보유 종목과 손익
 - 급락 반등 조건(`check`)은 과거 5년 검증 기준이에요: 그날 종가 근처(15:10~15:20)에 사서 다음 날 시가에 팔면
   비용 빼고 평균 +0.9%(62% 이익), 5일 보유 평균 +3.1%(64% 이익). 그 종목만 빠진 날은 효과가 없었어요.
 - `start_contest.bat` 을 켜 둔 채로 다른 창에서 써도 돼요. 다음 확인 때 수동 목록을 다시 읽어요.
+- 수동 보유 종목이 20일선 아래로 내려오면 리밸런스 때 알려 줘요 (파는 건 직접 `manual sell`).
 - `contest --reset` 을 하면 수동 목록도 지워져요.
 
 - 국내 순위 계산은 250종목 일봉을 받느라 4~5분 걸려요.

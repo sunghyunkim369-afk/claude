@@ -11,6 +11,7 @@
   python3 -m trading manual check      오늘 급락 반등 조건 확인 (시총 상위 30 평균 −2% 이하 + −7% 이상 빠진 종목)
   python3 -m trading manual buy 005930 [--pct 20]   수동 매수 (총평가의 20%), 자동매매가 안 파는 종목으로 등록
   python3 -m trading manual sell 005930  수동 보유 종목 전부 매도하고 등록 해제
+  python3 -m trading manual keep 053800 [--pct 33]   가진 종목을 총평가의 33% 만 남기고(다음 리밸런스 때 넘는 만큼 매도) 수동 보유로
   python3 -m trading manual add|remove 005930   MTS 로 직접 산 종목 등록 / 해제 (해제하면 자동매매가 관리)
   python3 -m trading manual list       수동 보유 종목 보기
   python3 -m trading schedule          Windows 작업 스케줄러에 예약 (절전에서 깨워 평일 09:10·23:40 실행)
@@ -231,7 +232,7 @@ def cmd_order(kis, side, symbol, qty, exchange=None, ask=input, wait=None):
         print("아직 잔고에 반영되지 않았어요. 미체결이거나 잔고 반영이 늦은 거예요. 몇 분 뒤 status 로 다시 확인하세요.")
 
 
-def cmd_manual(kis, args, pct=20.0, ask=input, wait=None):
+def cmd_manual(kis, args, pct=None, ask=input, wait=None):
     """수동 매매. 등록한 종목은 대회 자동매매가 팔지도 사지도 않아요 (상태: .cache/contest-demo.json 의 manual)."""
     import time
     from datetime import date
@@ -239,12 +240,13 @@ def cmd_manual(kis, args, pct=20.0, ask=input, wait=None):
     wait = wait or time.sleep
     if kis.env == "real":
         sys.exit("수동 매매 기능은 대회 모드(모의투자) 전용이에요.")
-    usage = "사용법: python -m trading manual check | list | buy 종목코드 [--pct 20] | sell 종목코드 | add 종목코드 | remove 종목코드"
-    if not args or args[0] not in ("check", "list", "buy", "sell", "add", "remove"):
+    usage = ("사용법: python -m trading manual check | list | buy 종목코드 [--pct 20] | sell 종목코드 | "
+             "keep 종목코드 [--pct 33] | add 종목코드 | remove 종목코드")
+    if not args or args[0] not in ("check", "list", "buy", "sell", "keep", "add", "remove"):
         sys.exit(usage)
     action = args[0]
     code = args[1].zfill(6) if len(args) > 1 else None
-    if action in ("buy", "sell", "add", "remove") and not (code and code.isdigit() and len(code) == 6):
+    if action in ("buy", "sell", "keep", "add", "remove") and not (code and code.isdigit() and len(code) == 6):
         sys.exit(usage)
     state = contest.State(os.path.join(HERE, ".cache", f"contest-{kis.env}.json"))
     manual = state.d.setdefault("manual", {})
@@ -283,6 +285,18 @@ def cmd_manual(kis, args, pct=20.0, ask=input, wait=None):
                 print(f"  {v.get('name', c)}({c}) 등록돼 있지만 잔고에 없어요 (remove 로 지우세요)")
         return
 
+    if action == "keep":
+        keep = pct if pct is not None else 100 / 3
+        h = kis.kr_balance()["holdings"].get(code)
+        if not h:
+            sys.exit(f"{code} 을(를) 가지고 있지 않아요. 새로 사려면: python -m trading manual buy {code}")
+        manual[code] = {"name": h["name"], "since": today, "target_pct": keep}
+        state.save()
+        print(f"{h['name']}({code}) 을(를) 수동 보유로 등록했어요. 자동매매가 팔지 않아요.\n"
+              f"다음 리밸런스 때 총평가의 {keep:.0f}% 를 넘는 만큼만 한 번 팔고, 나머지 돈으로 자동매매가 3종목을 사요.\n"
+              f"20일선 아래로 내려오면 알려 줘요. 팔 때: python -m trading manual sell {code}")
+        return
+
     if action == "add":
         name = kis.kr_price(code).get("name") or code
         manual[code] = {"name": name, "since": today}
@@ -301,6 +315,7 @@ def cmd_manual(kis, args, pct=20.0, ask=input, wait=None):
         bal = kis.kr_balance()
         q = kis.kr_price(code)
         name = q.get("name") or code
+        pct = pct if pct is not None else 20.0
         budget = bal["total"] * pct / 100
         o = contest.kr_buy_order(kis, code, name, budget, "수동 매수")
         if not o:
@@ -399,7 +414,7 @@ def main(argv=None):
     ap.add_argument("--market", choices=["kr", "us", "all"], default="all")
     ap.add_argument("--exchange", choices=["NASD", "NYSE", "AMEX"], help="미국 종목 거래소 (기본 NASD)")
     ap.add_argument("-y", "--yes", action="store_true", help="order·manual 을 확인(y) 없이 바로 주문")
-    ap.add_argument("--pct", type=float, default=20.0, help="manual buy 금액 (총평가의 %%, 기본 20)")
+    ap.add_argument("--pct", type=float, default=None, help="manual buy 금액(기본 20) / keep 남길 비중(기본 33), 총평가의 %%")
     ap.add_argument("--once", action="store_true", help="contest 를 한 번만 돌고 끝내기 (작업 스케줄러용)")
     ap.add_argument("--reset", action="store_true", help="contest 진행 상태 지우기 (계좌를 초기화했을 때)")
     ap.add_argument("--mode", choices=["aggressive", "stable"], help="contest 국내 공식 바꾸기 (입상형/안정형)")
@@ -447,7 +462,7 @@ def main(argv=None):
             sys.exit("\n중단했어요.")
         return
     if args.command == "manual":
-        if not 0 < args.pct <= 100:
+        if args.pct is not None and not 0 < args.pct <= 100:
             sys.exit("--pct 는 0 보다 크고 100 이하로 정해 주세요.")
         try:
             cmd_manual(kis, args.args, args.pct, ask=None if args.yes else input)

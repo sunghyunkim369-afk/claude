@@ -470,7 +470,8 @@ class ContestModeTest(unittest.TestCase):
         self.assertEqual(orders[0][2], 2666)   # (1억 − 수동 2천만) / 3 ÷ 10000
         daily = [c for c in t.calls if c["path"].endswith("itemchartprice")]
         self.assertTrue(daily)
-        self.assertFalse(any(c["query"]["FID_INPUT_ISCD"] == "999999" for c in daily))  # 순위 계산에서도 빼요
+        # 순위 계산에서는 빼고, 20일선 확인용으로 한 번만 받아요
+        self.assertEqual(sum(c["query"]["FID_INPUT_ISCD"] == "999999" for c in daily), 1)
 
     def test_buys_fill_budget_and_top_up_leftover_cash(self):
         strengths = {"000001": 0.012, "000002": 0.011, "000003": 0.01}
@@ -541,6 +542,33 @@ class ContestModeTest(unittest.TestCase):
             cli.cmd_manual(kis, ["remove", "000660"], 20, ask=None)
             state = self.contest.State(os.path.join(self.tmp.name, ".cache", "contest-demo.json"))
             self.assertEqual(state.d["manual"], {})
+
+    def test_manual_keep_trims_once_at_rebalance(self):
+        from trading import cli
+        strengths = {"053800": 0.012, "000001": 0.011, "000002": 0.01, "000003": 0.009}
+        universe = [(c, c) for c in strengths]
+        held = [{"pdno": "053800", "prdt_name": "안랩", "hldg_qty": "567", "pchs_avg_pric": "85084", "prpr": "87300"}]
+        kis, t = client(self.market(strengths, held_kr=held))
+        with mock.patch.object(cli, "HERE", self.tmp.name):
+            cli.cmd_manual(kis, ["keep", "053800"], None, ask=None)
+        path = os.path.join(self.tmp.name, ".cache", "contest-demo.json")
+        state = self.contest.State(path)
+        self.assertAlmostEqual(state.d["manual"]["053800"]["target_pct"], 100 / 3)
+        self.assertFalse(any(c["path"].endswith("order-cash") for c in t.calls))   # keep 은 바로 주문 안 함
+        sc = lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1
+        cfg = {"us": {"watchlist": []}, "auto": {}}
+        with mock.patch.object(self.contest, "score", sc):
+            auto.run_contest_cycle(kis, cfg, state, auto_utc(2026, 10, 19, 0, 30), self.logs.append, lambda *_: None,
+                                   universe)
+            first = [(c["headers"]["tr_id"], c["body"]["PDNO"], int(c["body"]["ORD_QTY"]))
+                     for c in t.calls if c["path"].endswith("order-cash")]
+            auto.run_contest_cycle(kis, cfg, state, auto_utc(2026, 10, 21, 0, 30), self.logs.append, lambda *_: None,
+                                   universe)
+        self.assertEqual(first[0], ("VTTC0011U", "053800", 185))   # (49,499,100 − 1억/3) ÷ 87,300
+        self.assertEqual(sorted(p for tr, p, _ in first if tr == "VTTC0012U"), ["000001", "000002", "000003"])
+        self.assertNotIn("target_pct", state.d["manual"]["053800"])
+        later = [c for c in t.calls if c["path"].endswith("order-cash")][len(first):]
+        self.assertFalse(any(c["body"]["PDNO"] == "053800" for c in later))   # 두 번째부터는 안 팔아요
 
     def test_crash_check(self):
         changes = {"A": "-8.5", "B": "-1.0", "C": "-0.5"}

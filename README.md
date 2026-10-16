@@ -133,7 +133,7 @@ GitHub Pages는 헤더를 설정할 수 없어서 이 헤더가 적용되지 않
 
 원본은 GitHub 이고, 팀 저장소는 GitSalt `leesumin1517/tradecompass` 예요. 우리 코드는 그 저장소 `dev` 브랜치의 `mate/` 폴더에 들어가요.
 
-- **자동 동기화**: GitHub `main` 이 바뀌면(뉴스 수집·발행 뒤 포함) `.github/workflows/team-sync.yml` 이 팀 저장소 `dev` 의 `mate/` 를 똑같이 맞춰요(팀원 동의, 2026-10-15). `mate/tradecompass-mvp/auth.js` 는 팀원이 관리해서 덮어쓰지 않고, 팀원이 `mate/` 파일을 직접 고쳤으면 멈춰서 알려 줘요. `dev` → `main` 합치기는 팀원이 해요.
+- **자동 동기화**: GitHub `main` 이 바뀌면(뉴스 수집·발행 뒤 포함) `.github/workflows/team-sync.yml` 이 팀 저장소 `dev` 의 `mate/` 를 똑같이 맞춰요(팀원 동의, 2026-10-15). `mate/tradecompass-mvp/auth.js` 는 팀원이 관리해서 덮어쓰지 않고, `api/`·`.github/`·`vercel.json` 은 팀 서버에서 쓰지 않아서 넣지 않고(팀원 요청), 팀원이 `mate/` 파일을 직접 고쳤으면 멈춰서 알려 줘요. `dev` → `main` 합치기는 팀원이 해요.
 - **토큰**: GitHub Secrets 의 `GITSALT_TOKEN` (GitSalt `ksunghyun0125` 계정, 팀 저장소 협력자). 토큰은 채팅·코드에 쓰지 않아요.
 - 모든 자동 작업(`.github/workflows`)은 `github.server_url` 이 GitHub 일 때만 돌아요.
 - 예전 제출용 사본 `ksunghyun0125/tradecompass` 로 복사하던 작업(gitsalt-mirror)은 2026-10-15 에 껐어요. 그 저장소는 마지막 복사 상태로 남아 있어요.

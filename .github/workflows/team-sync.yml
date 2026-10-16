@@ -4,6 +4,7 @@ name: Team sync (mate)
 # - 팀원 동의(2026-10-15): dev 에 봇이 자동 커밋해도 됨, 뉴스 데이터도 맞춤, dev → main 합치기는 팀원이 함.
 # - mate/tradecompass-mvp/auth.js 는 팀원이 고친 로그인 파일이라 덮어쓰지 않아요.
 # - 그 밖에 팀원이 mate/ 파일을 직접 고쳤으면(우리 기록에 없는 내용) 덮어쓰지 않고 멈춰서 알려 줘요.
+# - api/·.github/·vercel.json 은 팀 서버에서 쓰지 않아서 mate/ 에 넣지 않아요 (팀원 요청, 2026-10-16).
 # - 우리 main 에서 지운 파일은 mate/ 에서도 지우고, 팀원이 mate/ 에 새로 넣은 파일은 그대로 둬요.
 # - 강제로 덮어쓰지 않아요. 팀원이 그사이 dev 에 올렸으면 새로 받아서 다시 맞춰요.
 # - 이 저장소는 공개라 로그도 공개예요. 우리 파일 경로와 개수만 출력해요.
@@ -28,6 +29,8 @@ env:
   TEAM_REPO: leesumin1517/tradecompass
   TEAM_BRANCH: dev
   KEEP: tradecompass-mvp/auth.js
+  # 팀 서버에서 쓰지 않아서 mate/ 에 넣지 않는 것 (팀원 요청, 2026-10-16): Vercel 서버 함수, Vercel 설정, GitHub 자동 작업
+  SKIP: "api .github vercel.json"
 
 jobs:
   sync:
@@ -76,6 +79,7 @@ jobs:
             while IFS= read -r f; do
               [ "$f" = "$KEEP" ] && continue
               [ "$f" = ".synced-from" ] && continue
+              skipme=0; for x in $SKIP; do case "$f" in "$x"|"$x"/*) skipme=1;; esac; done; [ "$skipme" = 1 ] && continue
               if git -C "$OURS" cat-file -e "HEAD:$f" 2>/dev/null; then
                 git -C "$OURS" show "HEAD:$f" | cmp -s - "$M/$f" && continue
                 known "$f" "$M/$f" || touched="$touched $f"
@@ -95,7 +99,11 @@ jobs:
             # 2) 우리 main 내용으로 맞추기 (auth.js 는 mate/ 에 없을 때만 넣어요)
             keep_tmp=""
             [ -f "$M/$KEEP" ] && { keep_tmp=$(mktemp); cp "$M/$KEEP" "$keep_tmp"; }
-            git -C "$OURS" archive HEAD | tar -x -C "$M"
+            ex=(); for x in $SKIP; do ex+=(":(exclude)$x"); done
+            git -C "$OURS" archive HEAD -- . "${ex[@]}" | tar -x -C "$M"
+            for x in $SKIP; do
+              if [ -e "$M/$x" ]; then git -C team rm -r -q --ignore-unmatch "mate/$x"; rm -rf "$M/$x"; echo "뺌: $x (팀 서버에서 안 씀)"; fi
+            done
             [ -n "$keep_tmp" ] && cp "$keep_tmp" "$M/$KEEP"
             for f in $gone; do git -C team rm -q "mate/$f"; echo "지움: $f"; done
             git -C "$OURS" rev-parse HEAD > "$M/.synced-from"

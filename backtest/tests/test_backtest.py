@@ -436,6 +436,34 @@ class ContestTest(unittest.TestCase):
         _, st = base.run(base.dates[300], base.dates[330], 100_000)
         self.assertGreater(st["held"], 0)
 
+    def test_crash_slot_buys_close_and_sells_next_open(self):
+        dates = pd.bdate_range("2024-01-01", periods=10)
+
+        def frame(ret20, closes=None, opens=None):
+            f = pd.DataFrame({"Open": 100.0, "High": 101.0, "Low": 89.0, "Close": 100.0, "Volume": 1.0,
+                              "ema_fast": 90.0, "ema_slow": 80.0, "rsi": 50.0, "atr": 1.0, "ret_20": ret20,
+                              "ret_1": 0.0}, index=dates)
+            for i, v in (closes or {}).items():
+                f.iloc[i, f.columns.get_loc("Close")] = v
+            for i, v in (opens or {}).items():
+                f.iloc[i, f.columns.get_loc("Open")] = v
+            f["ret_1"] = f["Close"].pct_change().fillna(0.0)
+            return f
+        # A: 3일째 종가 90 (−10%), 4일째부터 95 / B: 모멘텀 1위, 가격 그대로 / C: 그대로
+        a = frame(0.1, {3: 90.0, **{i: 95.0 for i in range(4, 10)}}, {i: 95.0 for i in range(4, 10)})
+        frames = {"A": a, "B": frame(0.5), "C": frame(0.2)}
+        cfg = {**CFG, "costs": {**CFG["costs"], "slippage": 0.0, "US": {"buy_fee": 0, "sell_fee": 0, "sell_tax": 0}}}
+        p = {**self.contest.CRASH_BASE, "top_k": 1, "crash_n": 3, "crash_hold": 1, "crash_exit": "open"}
+        rot = self.contest.Rotation(frames, "US", cfg, p)
+        self.assertEqual(rot.crash_pick(dates[3]), "A")   # 3종목 평균 −3.3% ≤ −2%, A −10%
+        self.assertIsNone(rot.crash_pick(dates[2]))
+        curve, st = rot.run(dates[0], dates[-1], 1000.0)
+        # B 9주 → 3일째 종가에 B 팔고 A 11주(90) → 4일째 시가 95 매도 → 5일째 B 10주 다시
+        self.assertAlmostEqual(curve.iloc[-1], 1055.0)
+        self.assertEqual(st["orders"], 5)
+        off = self.contest.Rotation(frames, "US", cfg, {**p, "crash_hold": 0}).run(dates[0], dates[-1], 1000.0)
+        self.assertAlmostEqual(off[0].iloc[-1], 1000.0)
+
     def test_rules(self):
         rule = self.contest.RULES["KR"]
         good = {"amount": 5e8, "days": 5, "symbols": 5, "orders": 5}

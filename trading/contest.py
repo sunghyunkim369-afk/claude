@@ -227,10 +227,11 @@ def kr_buy_order(kis, code, name, budget, reason, out=print):
     if price <= 0:
         return None
     limit = kr_limit_up(price)
-    qty = math.floor(budget * 0.99 / limit)
+    # 수량은 현재가 기준으로 예산을 꽉 채우고(실제 체결은 현재가 근처), 주문가능금액은 지정가(+1%) 기준으로 넘지 않게
+    qty = math.floor(budget / price)
     try:
         cash = kis.kr_buyable(code, limit)
-        qty = min(qty, math.floor(cash * 0.99 / limit))
+        qty = min(qty, math.floor(cash * 0.998 / limit))
     except KisError as e:
         out(f"    {name}({code}) 주문가능금액 조회 실패: {e}")
     if qty <= 0:

@@ -200,25 +200,56 @@ def run_us_aggressive(kis, state, session, today, stamp, place, out=print):
 
 
 def kr_fill_missing(kis, state, session, place, out=print):
-    """오늘 목표 종목 중 아직 안 산 것을 사요 (총평가 / 목표 수 만큼). 다 사면 kr_fill 을 지워요."""
+    """오늘 목표 종목 중 아직 안 산 것을 사요 (총평가 / 목표 수 만큼). 다 사면 남은 현금을 한 번 채우고 kr_fill 을 지워요."""
     from . import contest
     fill = state.d["kr_fill"]
     bal = kis.kr_balance()
     held = bal["holdings"]
     manual = state.d.get("manual", {})
     todo = [t for t in fill["targets"] if t[1] not in held and t[1] not in fill["placed"] and t[1] not in manual]
-    if not todo:
-        state.d["kr_fill"] = None
-        return
     per = contest.auto_budget(bal, manual, fill["top_k"])
     for sc, code, name in todo:
         o = contest.kr_buy_order(kis, code, name, per, f"20일 수익률 {sc * 100:+.1f}%", out)
         if o and place(o, session):
             fill["placed"].append(code)
+            fill.setdefault("spent", {})[code] = o["qty"] * o["price"]
     if all(t[1] in fill["placed"] or t[1] in held or t[1] in manual for t in fill["targets"]):
+        if not fill.get("topped"):
+            fill["topped"] = True
+            kr_top_up(kis, fill, bal, manual, per, session, place, out)
         state.d["kr_fill"] = None
     else:
         out("  못 산 종목은 다음 확인 때(15분 뒤) 다시 시도해요")
+
+
+def kr_top_up(kis, fill, bal, manual, per, session, place, out=print):
+    """마지막 종목은 주문가능금액(지정가 +1% 기준) 때문에 1/top_k 보다 조금 덜 사져요.
+    그 모자란 만큼(1/top_k 까지만, 남은 현금 안에서) 한 번 더 사서 놀고 있는 현금을 줄여요."""
+    from . import contest
+    spent = fill.get("spent", {})
+    held = bal["holdings"]
+    value = {c: spent.get(c, held[c]["qty"] * held[c]["price"] if c in held else 0.0) for _, c, _ in fill["targets"]}
+    used = sum(h["qty"] * h["price"] for c, h in held.items() if c not in spent) + sum(spent.values())
+    left = bal["total"] - used
+    # 이번에 새로 산 종목만 (이미 들고 있던 종목이 떨어져서 모자란 건 채우지 않아요 — 백테스트와 같게)
+    cands = [(per - value[c], c, n) for _, c, n in fill["targets"] if c in spent and c not in manual]
+    if not cands or left <= 0:
+        return
+    short, code, name = max(cands)
+    price = kis.kr_price(code)["price"]
+    if price <= 0 or min(short, left) < price:
+        return
+    limit = contest.kr_limit_up(price)
+    try:
+        cash = kis.kr_buyable(code, limit)
+    except KisError as e:
+        out(f"    {name}({code}) 주문가능금액 조회 실패: {e}")
+        return
+    qty = math.floor(min(short, left, cash * 0.998) / price)
+    qty = min(qty, math.floor(cash * 0.998 / limit))
+    if qty > 0:
+        place({"market": "kr", "side": "buy", "symbol": code, "name": name, "qty": qty, "price": price,
+               "limit_price": limit, "currency": "KRW", "reason": "남은 현금 채우기 (1/top_k 까지)"}, session)
 
 
 def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):

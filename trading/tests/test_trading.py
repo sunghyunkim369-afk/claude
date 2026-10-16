@@ -334,7 +334,7 @@ class ContestModeTest(unittest.TestCase):
         self.assertEqual(sorted(b["PDNO"] for b in buys), ["000003", "000004", "000005", "000006", "000007"])
         self.assertTrue(all(b["ORD_DVSN"] == "00" for b in buys))             # 지정가
         self.assertTrue(all(b["ORD_UNPR"] == "10100" for b in buys))          # 현재가 10000 + 1%
-        self.assertEqual(int(buys[0]["ORD_QTY"]), 1960)                        # 1억/5*0.99/10100
+        self.assertEqual(int(buys[0]["ORD_QTY"]), 2000)                        # 1억/5 ÷ 현재가 10000
         self.assertEqual(state.d["kr_rebalances"], ["2026-10-15"])
         self.assertEqual(len(state.d["symbols"]), 5)
         self.assertTrue(self.contest.kr_due(state, "2026-10-19") and not self.contest.kr_due(state, "2026-10-16"))
@@ -366,7 +366,7 @@ class ContestModeTest(unittest.TestCase):
             n, state = self.cycle(kis, auto_utc(2026, 10, 15, 0, 30), universe)
         buys = [c["body"] for c in t.calls if c["path"].endswith("order-cash")]
         self.assertEqual(sorted(b["PDNO"] for b in buys), ["000005", "000006", "000007"])
-        self.assertEqual(int(buys[0]["ORD_QTY"]), 3267)   # 1억/3*0.99/10100
+        self.assertEqual(int(buys[0]["ORD_QTY"]), 3333)   # 1억/3 ÷ 현재가 10000
         self.assertEqual(state.d["start_total"], 100_000_000)
 
     def test_switch_to_stable_after_gain(self):
@@ -467,10 +467,34 @@ class ContestModeTest(unittest.TestCase):
                   for c in t.calls if c["path"].endswith("order-cash")]
         self.assertFalse(any(tr == "VTTC0011U" for tr, _, _ in orders))          # 수동 종목은 안 팔아요
         self.assertEqual(sorted(p for _, p, _ in orders), ["000001", "000002", "000003"])  # 수동 종목 빼고 상위 3
-        self.assertEqual(orders[0][2], 2613)   # (1억 − 수동 2천만) / 3 * 0.99 / 10100
+        self.assertEqual(orders[0][2], 2666)   # (1억 − 수동 2천만) / 3 ÷ 10000
         daily = [c for c in t.calls if c["path"].endswith("itemchartprice")]
         self.assertTrue(daily)
         self.assertFalse(any(c["query"]["FID_INPUT_ISCD"] == "999999" for c in daily))  # 순위 계산에서도 빼요
+
+    def test_buys_fill_budget_and_top_up_leftover_cash(self):
+        strengths = {"000001": 0.012, "000002": 0.011, "000003": 0.01}
+        universe = [(c, c) for c in strengths]
+        routes = self.market(strengths)
+        spent = []
+
+        def order(q, b):  # 바로 체결된다고 보고 주문가능금액을 줄여요
+            spent.append(int(b["ORD_QTY"]) * 10000)
+            return {"rt_cd": "0", "output": {"ODNO": str(len(spent))}}
+        routes["/uapi/domestic-stock/v1/trading/order-cash"] = order
+        routes["/uapi/domestic-stock/v1/trading/inquire-psbl-order"] = lambda q, b: {
+            "rt_cd": "0", "output": {"nrcvb_buy_amt": str(100_000_000 - sum(spent))}}
+        kis, t = client(routes)
+        state = self.contest.State(os.path.join(self.tmp.name, "f.json"))
+        sc = lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1
+        with mock.patch.object(self.contest, "score", sc):
+            auto.run_contest_cycle(kis, {"us": {"watchlist": []}, "auto": {}}, state, auto_utc(2026, 10, 19, 0, 30),
+                                   self.logs.append, lambda *_: None, universe)
+        qty = [(c["body"]["PDNO"], int(c["body"]["ORD_QTY"])) for c in t.calls if c["path"].endswith("order-cash")]
+        # 3333, 3333, 마지막은 주문가능금액(지정가 기준) 때문에 3294 → 모자란 39주를 한 번 더
+        self.assertEqual(qty, [("000001", 3333), ("000002", 3333), ("000003", 3294), ("000003", 39)])
+        self.assertLessEqual(100_000_000 - sum(spent), 20_000)   # 남는 현금 2만 원 이하
+        self.assertIsNone(state.d["kr_fill"])
 
     def test_first_top3_rebalance_trims_half_weight_holdings_once(self):
         strengths = {"000001": 0.012, "000002": 0.011, "000003": 0.01, "000004": 0.001}
@@ -503,7 +527,7 @@ class ContestModeTest(unittest.TestCase):
             self.assertIn("005930", state.d["manual"])
             buy = [c["body"] for c in t.calls if c["path"].endswith("order-cash")][-1]
             self.assertEqual((buy["PDNO"], buy["ORD_DVSN"], buy["ORD_UNPR"]), ("005930", "00", "10100"))
-            self.assertEqual(int(buy["ORD_QTY"]), 1960)   # 1억 * 20% * 0.99 / 10100
+            self.assertEqual(int(buy["ORD_QTY"]), 2000)   # 1억 * 20% ÷ 10000
             self.assertEqual(state.d["orders"], 1)
             held = [{"pdno": "005930", "prdt_name": "삼성전자", "hldg_qty": "1960", "pchs_avg_pric": "10000",
                      "prpr": "10000"}]

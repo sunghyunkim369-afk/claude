@@ -246,9 +246,10 @@ def auto_budget(bal, manual, top_k):
     return max(bal["total"] - manual_value, 0) / top_k if bal["total"] > 0 else 0
 
 
-def kr_plan(kis, targets, p=None, manual=()):
+def kr_plan(kis, targets, p=None, manual=(), trim=False):
     """(매도 주문들, 매수 주문들). 목표에 없는 보유 종목은 전부 팔고(수동 보유 종목은 빼고), 새 목표는
-    (총평가 − 수동 보유분)의 1/top_k 씩 (시장이 나쁜 날 목표가 적어도 1/top_k 씩이라 나머지는 현금으로 남아요)."""
+    (총평가 − 수동 보유분)의 1/top_k 씩 (시장이 나쁜 날 목표가 적어도 1/top_k 씩이라 나머지는 현금으로 남아요).
+    trim 이면 목표에 남는 보유 종목도 1/top_k 보다 많은 만큼 팔아 맞춰요 (2종목 → 3종목으로 바꾼 뒤 한 번만)."""
     bal = kis.kr_balance()
     held = bal["holdings"]
     want = {code for _, code, _ in targets}
@@ -256,6 +257,13 @@ def kr_plan(kis, targets, p=None, manual=()):
               "currency": "KRW", "reason": "목표에서 빠짐"} for c, h in held.items()
              if c not in want and c not in manual]
     per = auto_budget(bal, manual, (p or KR)["top_k"])
+    if trim:
+        for c, h in held.items():
+            if c in want and c not in manual and h["price"] > 0:
+                extra = math.floor((h["qty"] * h["price"] - per) / h["price"])
+                if extra > 0 and extra * h["price"] > per * 0.05:  # 5% 넘게 많을 때만
+                    sells.append({"market": "kr", "side": "sell", "symbol": c, "name": h["name"], "qty": extra,
+                                  "price": h["price"], "currency": "KRW", "reason": f"1/{(p or KR)['top_k']} 비중으로 맞춤"})
     buys = []
     for sc, code, name in targets:
         if code in held:

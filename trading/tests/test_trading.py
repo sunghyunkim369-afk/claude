@@ -472,6 +472,28 @@ class ContestModeTest(unittest.TestCase):
         self.assertTrue(daily)
         self.assertFalse(any(c["query"]["FID_INPUT_ISCD"] == "999999" for c in daily))  # 순위 계산에서도 빼요
 
+    def test_first_top3_rebalance_trims_half_weight_holdings_once(self):
+        strengths = {"000001": 0.012, "000002": 0.011, "000003": 0.01, "000004": 0.001}
+        universe = [(c, c) for c in strengths]
+        held = [{"pdno": c, "prdt_name": c, "hldg_qty": "5000", "pchs_avg_pric": "10000", "prpr": "10000"}
+                for c in ("000001", "000002")]  # 2종목 시절: 1/2 씩
+        kis, t = client(self.market(strengths, held_kr=held))
+        state = self.contest.State(os.path.join(self.tmp.name, "e.json"))
+        sc = lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1
+        cfg = {"us": {"watchlist": []}, "auto": {}}
+        with mock.patch.object(self.contest, "score", sc):
+            auto.run_contest_cycle(kis, cfg, state, auto_utc(2026, 10, 19, 0, 30), self.logs.append, lambda *_: None,
+                                   universe)
+            first = [(c["headers"]["tr_id"], c["body"]["PDNO"], c["body"]["ORD_QTY"])
+                     for c in t.calls if c["path"].endswith("order-cash")]
+            auto.run_contest_cycle(kis, cfg, state, auto_utc(2026, 10, 21, 0, 30), self.logs.append, lambda *_: None,
+                                   universe)
+        sells = [o for o in first if o[0] == "VTTC0011U"]
+        self.assertEqual(sorted(sells), [("VTTC0011U", "000001", "1666"), ("VTTC0011U", "000002", "1666")])
+        self.assertIn("000003", [o[1] for o in first if o[0] == "VTTC0012U"])
+        later = [c for c in t.calls if c["path"].endswith("order-cash")][len(first):]
+        self.assertFalse(any(c["headers"]["tr_id"] == "VTTC0011U" for c in later))   # 두 번째부터는 안 맞춰요
+
     def test_manual_command_buy_registers_and_sell_unregisters(self):
         from trading import cli
         kis, t = client(self.market({}))

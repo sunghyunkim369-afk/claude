@@ -281,7 +281,10 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
                              else "나쁜 날 (지수 < 20일 평균) → 상위 2종목만, 나머지 현금"))
         out(f"  목표 {len(targets)}종목: " + ", ".join(f"{n}({c}) {s * 100:+.1f}%" for s, c, n in targets) if targets
             else "  상승 추세 종목이 없어 현금 보유")
-        sells, buys = contest.kr_plan(kis, targets, p, manual)
+        # 2종목 시절에 산 종목이 1/2 씩이라, 3종목 공식의 첫 리밸런스 때 한 번만 1/3 로 맞춰요
+        trim = mode == "aggressive" and state.d.get("kr_equalized_top_k") != p["top_k"]
+        sells, buys = contest.kr_plan(kis, targets, p, manual, trim=trim)
+        state.d["kr_equalized_top_k"] = p["top_k"]
         for o in sells:
             place(o, kr_session)
         state.d["kr_rebalances"].append(kr_session)

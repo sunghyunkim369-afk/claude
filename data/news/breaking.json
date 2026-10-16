@@ -1,7 +1,76 @@
 {
- "generated": "2026-10-15T18:59:54.434Z",
+ "generated": "2026-10-16T00:59:10.053Z",
  "hours": 24,
  "items": [
+  {
+   "title": "\"美, 경윳값 잡으려 러·이란 '그림자 선단' 제재완화도 검토\"",
+   "link": "https://www.yna.co.kr/view/AKR20261016029000009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-16T00:12:18.000Z",
+   "tag": "경제제재",
+   "direction": "down",
+   "sectors": []
+  },
+  {
+   "title": "인하대, AI로 인천항 선박 도착시간 예측…오차 6분 이내",
+   "link": "https://www.yna.co.kr/view/AKR20261016032700065",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-16T00:06:39.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "[글로컬] 알래스카 LNG 투자, '트럼프 압박' 넘어서야",
+   "link": "https://www.yna.co.kr/view/AKR20261015148400546",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-15T22:07:00.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "공화 접전지 후보들의 입장 선회…선거 이후 관세정책 제동걸까",
+   "link": "https://www.yna.co.kr/view/AKR20261016009100071",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-15T21:29:25.000Z",
+   "tag": "관세",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "환율 내렸지만 유가 올라서…9월 수입물가 넉 달만에 상승",
+   "link": "https://www.yna.co.kr/view/AKR20261015160300002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-15T21:00:01.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "국제유가 혼조…WTI 6거래일째 상승·브렌트유는 약보합",
+   "link": "https://www.yna.co.kr/view/AKR20261016004400072",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-15T20:15:59.000Z",
+   "tag": "유가·원자재",
+   "direction": "down",
+   "sectors": [
+    "chem",
+    "ship"
+   ]
+  },
   {
    "title": "Mazda brings part of its supply chain back to Japan with help from robots",
    "lang": "en",
@@ -106,77 +175,6 @@
    "source": "연합뉴스",
    "outlets": 1,
    "at": "2026-10-15T08:53:58.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "[단독] 韓, 알래스카 LNG사업 稅감면 요청",
-   "link": "https://www.mk.co.kr/news/economy/12177083",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-15T08:46:53.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "[단독] 韓, 연간 최대 1조원 알래스카 LNG 재산세 ‘감면 요청’",
-   "link": "https://www.mk.co.kr/news/economy/12177076",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-15T08:44:33.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "'알래스카 신중론' 펼치던 정부 … 稅감면 역제안하며 반전 모색",
-   "link": "https://www.mk.co.kr/news/economy/12177066",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-15T08:41:42.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "Notable Chinese demographer calls for 18-fold increase to nation’s childcare subsidies",
-   "lang": "en",
-   "link": "https://www.scmp.com/economy/china-economy/article/3370991/notable-chinese-demographer-calls-18-fold-increase-nations-childcare-subsidies?utm_source=rss_feed",
-   "source": "SCMP",
-   "outlets": 1,
-   "at": "2026-10-15T08:02:36.000Z",
-   "tag": "보조금·산업정책",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "日닛케이지수, 4.9% 급락…AI·반도체 약세 등 여파(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261015063651073",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-15T07:49:16.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "semi"
-   ]
-  },
-  {
-   "title": "동해시장, 해수부에 동해신항 4∼7선석 국가재정 전환 건의",
-   "link": "https://www.yna.co.kr/view/AKR20261015149200062",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-15T07:38:34.000Z",
    "tag": "해운·물류",
    "direction": "info",
    "sectors": [

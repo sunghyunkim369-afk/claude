@@ -8,6 +8,11 @@
   python3 -m trading contest --once    대회 모드를 한 번만 돌고 끝내기
   python3 -m trading contest --reset   계좌를 초기화했을 때 진행 상태 지우기
   python3 -m trading contest --mode stable   국내 공식을 안정형으로 (aggressive = 입상형)
+  python3 -m trading manual check      오늘 급락 반등 조건 확인 (시총 상위 30 평균 −2% 이하 + −7% 이상 빠진 종목)
+  python3 -m trading manual buy 005930 [--pct 20]   수동 매수 (총평가의 20%), 자동매매가 안 파는 종목으로 등록
+  python3 -m trading manual sell 005930  수동 보유 종목 전부 매도하고 등록 해제
+  python3 -m trading manual add|remove 005930   MTS 로 직접 산 종목 등록 / 해제 (해제하면 자동매매가 관리)
+  python3 -m trading manual list       수동 보유 종목 보기
   python3 -m trading schedule          Windows 작업 스케줄러에 예약 (절전에서 깨워 평일 09:10·23:40 실행)
   python3 -m trading auto              자동매매 (장중에 정해진 간격으로 확인하고 바로 주문)
   python3 -m trading update            최신 프로그램 받기 (.env·config.json 은 그대로)
@@ -226,6 +231,117 @@ def cmd_order(kis, side, symbol, qty, exchange=None, ask=input, wait=None):
         print("아직 잔고에 반영되지 않았어요. 미체결이거나 잔고 반영이 늦은 거예요. 몇 분 뒤 status 로 다시 확인하세요.")
 
 
+def cmd_manual(kis, args, pct=20.0, ask=input, wait=None):
+    """수동 매매. 등록한 종목은 대회 자동매매가 팔지도 사지도 않아요 (상태: .cache/contest-demo.json 의 manual)."""
+    import time
+    from datetime import date
+    from . import contest
+    wait = wait or time.sleep
+    if kis.env == "real":
+        sys.exit("수동 매매 기능은 대회 모드(모의투자) 전용이에요.")
+    usage = "사용법: python -m trading manual check | list | buy 종목코드 [--pct 20] | sell 종목코드 | add 종목코드 | remove 종목코드"
+    if not args or args[0] not in ("check", "list", "buy", "sell", "add", "remove"):
+        sys.exit(usage)
+    action = args[0]
+    code = args[1].zfill(6) if len(args) > 1 else None
+    if action in ("buy", "sell", "add", "remove") and not (code and code.isdigit() and len(code) == 6):
+        sys.exit(usage)
+    state = contest.State(os.path.join(HERE, ".cache", f"contest-{kis.env}.json"))
+    manual = state.d.setdefault("manual", {})
+    today = date.today().isoformat()
+
+    if action == "check":
+        universe = contest.load_universe(os.path.join(HERE, "universe_kr.csv"))
+        r = contest.CRASH_RULE
+        print(f"시총 상위 {r['n']}종목 시세 확인 중 (30초쯤 걸려요)...")
+        avg, drops, ok = contest.crash_check(kis, universe)
+        print(f"시총 상위 {r['n']}종목 평균 등락률: {avg * 100:+.2f}% (조건: −{r['market'] * 100:.0f}% 이하)")
+        if drops:
+            print(f"−{r['stock'] * 100:.0f}% 이상 빠진 종목: " +
+                  ", ".join(f"{n}({c}) {ch * 100:+.1f}%" for ch, c, n in drops))
+        else:
+            print(f"−{r['stock'] * 100:.0f}% 이상 빠진 종목: 없음")
+        if ok:
+            print("→ 조건 충족. 과거 5년: 이런 날 종가에 사면 다음 날 시가까지 비용 빼고 평균 +0.9%(62% 이익), "
+                  "5일 보유 평균 +3.1%(64% 이익). 장 마감 직전(15:10~15:20)에 사는 게 가장 좋았어요.")
+        else:
+            print("→ 오늘은 급락 반등 조건이 아니에요. 그 종목만 혼자 빠진 날은 과거에 반등 효과가 없었어요.")
+        return
+
+    if action == "list":
+        if not manual:
+            print("수동 보유로 등록한 종목이 없어요.")
+            return
+        held = kis.kr_balance()["holdings"]
+        for c, v in manual.items():
+            h = held.get(c)
+            if h:
+                gain = h["price"] / h["avg_price"] - 1 if h["avg_price"] else 0.0
+                print(f"  {h['name']}({c}) {h['qty']}주, 평가 {h['qty'] * h['price']:,.0f}원 ({gain * 100:+.2f}%), "
+                      f"{v.get('since', '?')} 부터")
+            else:
+                print(f"  {v.get('name', c)}({c}) 등록돼 있지만 잔고에 없어요 (remove 로 지우세요)")
+        return
+
+    if action == "add":
+        name = kis.kr_price(code).get("name") or code
+        manual[code] = {"name": name, "since": today}
+        state.save()
+        print(f"{name}({code}) 을(를) 수동 보유로 등록했어요. 자동매매가 이 종목을 팔지 않아요.")
+        return
+
+    if action == "remove":
+        v = manual.pop(code, None)
+        state.save()
+        print(f"{(v or {}).get('name', code)}({code}) 등록을 풀었어요. 다음 리밸런스 때 목표 종목이 아니면 자동매매가 팔아요."
+              if v else f"{code} 은(는) 등록돼 있지 않아요.")
+        return
+
+    if action == "buy":
+        bal = kis.kr_balance()
+        q = kis.kr_price(code)
+        name = q.get("name") or code
+        budget = bal["total"] * pct / 100
+        o = contest.kr_buy_order(kis, code, name, budget, "수동 매수")
+        if not o:
+            return
+        text = (f"[수동 매수] {name}({code}) {o['qty']}주, 지정가 {o['limit_price']:,}원 "
+                f"(현재가 {q['price']:,.0f}원, 오늘 {q.get('change', 0) * 100:+.1f}%, 총평가의 {pct:g}% ≈ {budget:,.0f}원)")
+        if ask is None:
+            print(text)
+        elif ask(f"{text}\n주문할까요? [y/N] ").strip().lower() != "y":
+            print("취소했어요.")
+            return
+        res = kis.kr_order("buy", code, o["qty"], o["limit_price"])
+    else:  # sell
+        held = kis.kr_balance()["holdings"]
+        h = held.get(code)
+        if not h:
+            manual.pop(code, None)
+            state.save()
+            sys.exit(f"{code} 을(를) 가지고 있지 않아요. (수동 보유 등록도 지웠어요)")
+        name = h["name"]
+        text = f"[수동 매도] {name}({code}) {h['qty']}주 시장가 (현재가 {h['price']:,.0f}원)"
+        if ask is None:
+            print(text)
+        elif ask(f"{text}\n주문할까요? [y/N] ").strip().lower() != "y":
+            print("취소했어요.")
+            return
+        o = {"qty": h["qty"], "price": h["price"]}
+        res = kis.kr_order("sell", code, h["qty"], None)
+    print(f"→ 접수됨 (주문번호 {res.get('ODNO', '?')})")
+    state.record("kr", code, o["qty"] * o["price"], today)
+    if action == "buy":
+        manual[code] = {"name": name, "since": today}
+        print("자동매매가 이 종목을 팔지 않게 등록했어요. 팔 때: python -m trading manual sell " + code)
+    else:
+        manual.pop(code, None)
+        print("수동 보유 등록도 풀었어요.")
+    state.save()
+    write_log({"event": "order_sent", "env": kis.env, "manual": True, "contest": True,
+               "order": {"market": "kr", "side": action, "symbol": code, "qty": o["qty"]}, "result": res})
+
+
 def cmd_contest(kis, cfg, markets, once=False):
     if kis.env == "real":
         sys.exit("대회 모드는 모의투자(KIS_ENV=demo) 전용이에요.")
@@ -277,11 +393,13 @@ def cmd_update(fetch=None):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="python3 -m trading", description="한국투자증권 매매 프로그램 (국내+미국)")
-    ap.add_argument("command", choices=["status", "plan", "trade", "auto", "contest", "order", "schedule", "unschedule", "update"])
+    ap.add_argument("command", choices=["status", "plan", "trade", "auto", "contest", "order", "manual", "schedule",
+                                        "unschedule", "update"])
     ap.add_argument("args", nargs="*", help="order 일 때: buy|sell 종목 수량 (예: buy AAPL 1)")
     ap.add_argument("--market", choices=["kr", "us", "all"], default="all")
     ap.add_argument("--exchange", choices=["NASD", "NYSE", "AMEX"], help="미국 종목 거래소 (기본 NASD)")
-    ap.add_argument("-y", "--yes", action="store_true", help="order 를 확인(y) 없이 바로 주문")
+    ap.add_argument("-y", "--yes", action="store_true", help="order·manual 을 확인(y) 없이 바로 주문")
+    ap.add_argument("--pct", type=float, default=20.0, help="manual buy 금액 (총평가의 %%, 기본 20)")
     ap.add_argument("--once", action="store_true", help="contest 를 한 번만 돌고 끝내기 (작업 스케줄러용)")
     ap.add_argument("--reset", action="store_true", help="contest 진행 상태 지우기 (계좌를 초기화했을 때)")
     ap.add_argument("--mode", choices=["aggressive", "stable"], help="contest 국내 공식 바꾸기 (입상형/안정형)")
@@ -327,6 +445,14 @@ def main(argv=None):
             sys.exit(f"API 오류: {e}")
         except KeyboardInterrupt:
             sys.exit("\n중단했어요.")
+        return
+    if args.command == "manual":
+        if not 0 < args.pct <= 100:
+            sys.exit("--pct 는 0 보다 크고 100 이하로 정해 주세요.")
+        try:
+            cmd_manual(kis, args.args, args.pct, ask=None if args.yes else input)
+        except KisError as e:
+            sys.exit(f"API 오류: {e}")
         return
     if args.command == "order":
         if len(args.args) != 3 or args.args[0] not in ("buy", "sell") or not args.args[2].isdigit():

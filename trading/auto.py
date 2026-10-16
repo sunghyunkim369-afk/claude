@@ -205,16 +205,17 @@ def kr_fill_missing(kis, state, session, place, out=print):
     fill = state.d["kr_fill"]
     bal = kis.kr_balance()
     held = bal["holdings"]
-    todo = [t for t in fill["targets"] if t[1] not in held and t[1] not in fill["placed"]]
+    manual = state.d.get("manual", {})
+    todo = [t for t in fill["targets"] if t[1] not in held and t[1] not in fill["placed"] and t[1] not in manual]
     if not todo:
         state.d["kr_fill"] = None
         return
-    per = bal["total"] / fill["top_k"]
+    per = contest.auto_budget(bal, manual, fill["top_k"])
     for sc, code, name in todo:
         o = contest.kr_buy_order(kis, code, name, per, f"20일 수익률 {sc * 100:+.1f}%", out)
         if o and place(o, session):
             fill["placed"].append(code)
-    if all(t[1] in fill["placed"] or t[1] in held for t in fill["targets"]):
+    if all(t[1] in fill["placed"] or t[1] in held or t[1] in manual for t in fill["targets"]):
         state.d["kr_fill"] = None
     else:
         out("  못 산 종목은 다음 확인 때(15분 뒤) 다시 시도해요")
@@ -252,6 +253,8 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
             return False
 
     kr_session = market_session("kr", now_utc)
+    if kr_session:
+        state.reload_manual()
     if kr_session and contest.kr_due(state, kr_session):
         today = now_utc.astimezone(KST).date()
         threshold = cfg.get("contest", {}).get("switch_to_stable_at", contest.SWITCH_TO_STABLE_AT)
@@ -260,13 +263,16 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
         p = contest.KR_MODES[mode]
         out(f"[{stamp}] 국내 리밸런스 ({'입상형: 상위 3종목' if mode == 'aggressive' else '안정형: 상위 5종목'}, "
             f"시작 대비 {gain * 100:+.1f}%): {len(universe)}종목 순위 계산 중 (몇 분 걸려요)")
+        manual = state.d.get("manual", {})
+        if manual:
+            out("  수동 보유(자동매매가 안 건드림): " + ", ".join(f"{v.get('name', c)}({c})" for c, v in manual.items()))
         cached = state.d.get("kr_ranked")
         if cached and cached.get("session") == kr_session and cached.get("mode") == mode:
             # 같은 날 앞선 시도에서 순위를 이미 계산했으면 (주문 단계에서 실패한 경우) 다시 계산하지 않아요
-            targets, risk_on = [tuple(t) for t in cached["targets"]], cached["risk_on"]
+            targets, risk_on = [tuple(t) for t in cached["targets"] if t[1] not in manual], cached["risk_on"]
             out("  (아까 계산한 순위를 그대로 써요)")
         else:
-            targets, risk_on = contest.kr_targets(kis, universe, today, out, p)
+            targets, risk_on = contest.kr_targets(kis, universe, today, out, p, exclude=manual)
             state.d["kr_ranked"] = {"session": kr_session, "mode": mode, "targets": targets, "risk_on": risk_on}
             state.save()
             time.sleep(2)  # 250종목 조회 직후라 계좌 조회 전에 잠깐 쉬어요
@@ -275,7 +281,7 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
                              else "나쁜 날 (지수 < 20일 평균) → 상위 2종목만, 나머지 현금"))
         out(f"  목표 {len(targets)}종목: " + ", ".join(f"{n}({c}) {s * 100:+.1f}%" for s, c, n in targets) if targets
             else "  상승 추세 종목이 없어 현금 보유")
-        sells, buys = contest.kr_plan(kis, targets, p)
+        sells, buys = contest.kr_plan(kis, targets, p, manual)
         for o in sells:
             place(o, kr_session)
         state.d["kr_rebalances"].append(kr_session)
@@ -295,13 +301,15 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
             state.d["kr_fill_checked"] = kr_session
             mode = state.d.get("kr_mode", contest.DEFAULT_KR_MODE)
             p = contest.KR_MODES[mode]
-            if len(kis.kr_balance()["holdings"]) < p["top_k"]:
+            manual = state.d.get("manual", {})
+            if len([c for c in kis.kr_balance()["holdings"] if c not in manual]) < p["top_k"]:
                 cached = state.d.get("kr_ranked")
                 if cached and cached.get("session") == kr_session:
                     targets = [tuple(t) for t in cached["targets"]]
                 else:
                     out(f"[{stamp}] 국내: 오늘 못 산 종목 확인용 순위 계산 (몇 분 걸려요)")
-                    targets, _ = contest.kr_targets(kis, universe, now_utc.astimezone(KST).date(), out, p)
+                    targets, _ = contest.kr_targets(kis, universe, now_utc.astimezone(KST).date(), out, p,
+                                                    exclude=manual)
                 state.d["kr_fill"] = {"session": kr_session, "targets": [list(t) for t in targets], "placed": [],
                                       "top_k": p["top_k"]}
         fill = state.d.get("kr_fill")

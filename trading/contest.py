@@ -98,6 +98,12 @@ class State:
             with open(path, encoding="utf-8") as f:
                 self.d.update(json.load(f))
 
+    def reload_manual(self):
+        """켜 둔 프로그램이 다른 창의 'manual' 명령으로 바뀐 수동 보유 목록을 놓치지 않게 파일에서 다시 읽어요."""
+        if os.path.exists(self.path):
+            with open(self.path, encoding="utf-8") as f:
+                self.d["manual"] = json.load(f).get("manual", {})
+
     def save(self):
         os.makedirs(os.path.dirname(self.path), exist_ok=True)
         with open(self.path, "w", encoding="utf-8") as f:
@@ -173,12 +179,14 @@ def market_risk_on(index_values, n):
     return True if e is None else index_values[-1] > e
 
 
-def kr_targets(kis, universe, today, out=print, p=None):
-    """반환: (목표 [(점수, 코드, 이름)], 시장이 좋은 날인지)."""
+def kr_targets(kis, universe, today, out=print, p=None, exclude=()):
+    """반환: (목표 [(점수, 코드, 이름)], 시장이 좋은 날인지). exclude(수동 보유 종목)는 후보에서 빼요."""
     p = p or KR
     scored, series = [], {}
     t = today.strftime("%Y%m%d")
     for i, (code, name) in enumerate(universe, 1):
+        if code in exclude:
+            continue
         try:
             rows = kis.kr_daily(code, with_dates=True)
         except KisError as e:
@@ -232,15 +240,22 @@ def kr_buy_order(kis, code, name, budget, reason, out=print):
             "limit_price": limit, "currency": "KRW", "reason": reason}
 
 
-def kr_plan(kis, targets, p=None):
-    """(매도 주문들, 매수 주문들). 목표에 없는 보유 종목은 전부 팔고, 새 목표는 총평가의 1/5 씩
-    (시장이 나쁜 날 목표가 2종목이어도 1/5 씩이라 나머지는 현금으로 남아요)."""
+def auto_budget(bal, manual, top_k):
+    """자동매매 한 종목 몫 = (총평가 − 수동 보유 평가금액) / top_k."""
+    manual_value = sum(h["qty"] * h["price"] for c, h in bal["holdings"].items() if c in manual)
+    return max(bal["total"] - manual_value, 0) / top_k if bal["total"] > 0 else 0
+
+
+def kr_plan(kis, targets, p=None, manual=()):
+    """(매도 주문들, 매수 주문들). 목표에 없는 보유 종목은 전부 팔고(수동 보유 종목은 빼고), 새 목표는
+    (총평가 − 수동 보유분)의 1/top_k 씩 (시장이 나쁜 날 목표가 적어도 1/top_k 씩이라 나머지는 현금으로 남아요)."""
     bal = kis.kr_balance()
     held = bal["holdings"]
     want = {code for _, code, _ in targets}
     sells = [{"market": "kr", "side": "sell", "symbol": c, "name": h["name"], "qty": h["qty"], "price": h["price"],
-              "currency": "KRW", "reason": "목표 5종목에서 빠짐"} for c, h in held.items() if c not in want]
-    per = bal["total"] / (p or KR)["top_k"] if bal["total"] > 0 else 0
+              "currency": "KRW", "reason": "목표에서 빠짐"} for c, h in held.items()
+             if c not in want and c not in manual]
+    per = auto_budget(bal, manual, (p or KR)["top_k"])
     buys = []
     for sc, code, name in targets:
         if code in held:
@@ -251,6 +266,29 @@ def kr_plan(kis, targets, p=None):
             buys.append({"market": "kr", "side": "buy", "symbol": code, "name": name, "qty": qty, "price": price,
                          "currency": "KRW", "reason": f"20일 수익률 {sc * 100:+.1f}%"})
     return sells, buys
+
+
+# ---------- 수동 매매 (python -m trading manual ...) ----------
+# 수동으로 산 종목은 state["manual"] 에 적어 두고, 자동매매는 그 종목을 팔지도 사지도 않아요.
+# 자동매매 몫은 (총평가 − 수동 보유분)을 top_k 로 나눠요.
+
+CRASH_RULE = {"market": 0.02, "stock": 0.07, "n": 30}  # backtest/event_drop.py 로 검증한 급락 반등 조건
+
+
+def crash_check(kis, universe, out=print, rule=CRASH_RULE):
+    """오늘 시총 상위 n 종목(universe 앞쪽) 평균 등락률과 −stock 이상 빠진 종목.
+    반환: (평균 등락률, [(등락률, 코드, 이름)] 많이 빠진 순, 조건 충족 여부)."""
+    rows = []
+    for code, name in universe[:rule["n"]]:
+        try:
+            q = kis.kr_price(code)
+        except KisError as e:
+            out(f"    {name}({code}) 시세 실패: {e}")
+            continue
+        rows.append((q.get("change", 0.0), code, name))
+    avg = sum(r for r, _, _ in rows) / len(rows) if rows else 0.0
+    drops = sorted(r for r in rows if r[0] <= -rule["stock"])
+    return avg, drops, avg <= -rule["market"] and bool(drops)
 
 
 # ---------- 미국 ----------

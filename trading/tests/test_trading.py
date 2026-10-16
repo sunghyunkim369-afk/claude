@@ -450,6 +450,65 @@ class ContestModeTest(unittest.TestCase):
         self.assertEqual(buys, ["000002"])           # 빠진 종목만, 한 번만
         self.assertEqual(n_after_first, 1)
 
+    def test_manual_holding_is_not_sold_and_shrinks_budget(self):
+        strengths = {"999999": 0.02, "000001": 0.01, "000002": 0.009, "000003": 0.008, "000004": 0.007}
+        universe = [(c, c) for c in strengths]
+        held = [{"pdno": "999999", "prdt_name": "수동", "hldg_qty": "2000", "pchs_avg_pric": "9000", "prpr": "10000"}]
+        kis, t = client(self.market(strengths, held_kr=held))
+        state = self.contest.State(os.path.join(self.tmp.name, "m.json"))
+        other = self.contest.State(state.path)   # 다른 창에서 manual add 한 것처럼 파일에만 저장
+        other.d["manual"] = {"999999": {"name": "수동", "since": "2026-10-15"}}
+        other.save()
+        sc = lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1
+        with mock.patch.object(self.contest, "score", sc):
+            auto.run_contest_cycle(kis, {"us": {"watchlist": []}, "auto": {}}, state, auto_utc(2026, 10, 15, 0, 30),
+                                   self.logs.append, lambda *_: None, universe)
+        orders = [(c["headers"]["tr_id"], c["body"]["PDNO"], int(c["body"]["ORD_QTY"]))
+                  for c in t.calls if c["path"].endswith("order-cash")]
+        self.assertFalse(any(tr == "VTTC0011U" for tr, _, _ in orders))          # 수동 종목은 안 팔아요
+        self.assertEqual(sorted(p for _, p, _ in orders), ["000001", "000002", "000003"])  # 수동 종목 빼고 상위 3
+        self.assertEqual(orders[0][2], 2613)   # (1억 − 수동 2천만) / 3 * 0.99 / 10100
+        daily = [c for c in t.calls if c["path"].endswith("itemchartprice")]
+        self.assertTrue(daily)
+        self.assertFalse(any(c["query"]["FID_INPUT_ISCD"] == "999999" for c in daily))  # 순위 계산에서도 빼요
+
+    def test_manual_command_buy_registers_and_sell_unregisters(self):
+        from trading import cli
+        kis, t = client(self.market({}))
+        with mock.patch.object(cli, "HERE", self.tmp.name):
+            cli.cmd_manual(kis, ["buy", "005930"], 20, ask=None)
+            state = self.contest.State(os.path.join(self.tmp.name, ".cache", "contest-demo.json"))
+            self.assertIn("005930", state.d["manual"])
+            buy = [c["body"] for c in t.calls if c["path"].endswith("order-cash")][-1]
+            self.assertEqual((buy["PDNO"], buy["ORD_DVSN"], buy["ORD_UNPR"]), ("005930", "00", "10100"))
+            self.assertEqual(int(buy["ORD_QTY"]), 1960)   # 1억 * 20% * 0.99 / 10100
+            self.assertEqual(state.d["orders"], 1)
+            held = [{"pdno": "005930", "prdt_name": "삼성전자", "hldg_qty": "1960", "pchs_avg_pric": "10000",
+                     "prpr": "10000"}]
+            kis, t = client(self.market({}, held_kr=held))
+            cli.cmd_manual(kis, ["sell", "005930"], 20, ask=None)
+            state = self.contest.State(os.path.join(self.tmp.name, ".cache", "contest-demo.json"))
+            self.assertNotIn("005930", state.d["manual"])
+            sell = [c for c in t.calls if c["path"].endswith("order-cash")][-1]
+            self.assertEqual((sell["headers"]["tr_id"], sell["body"]["ORD_QTY"]), ("VTTC0011U", "1960"))
+            cli.cmd_manual(kis, ["add", "000660"], 20, ask=None)
+            cli.cmd_manual(kis, ["remove", "000660"], 20, ask=None)
+            state = self.contest.State(os.path.join(self.tmp.name, ".cache", "contest-demo.json"))
+            self.assertEqual(state.d["manual"], {})
+
+    def test_crash_check(self):
+        changes = {"A": "-8.5", "B": "-1.0", "C": "-0.5"}
+        routes = self.market({})
+        routes["/uapi/domestic-stock/v1/quotations/inquire-price"] = lambda q, b: {
+            "rt_cd": "0", "output": {"stck_prpr": "100", "prdy_ctrt": changes[q["FID_INPUT_ISCD"]]}}
+        kis, _ = client(routes)
+        avg, drops, ok = self.contest.crash_check(kis, [("A", "a"), ("B", "b"), ("C", "c")])
+        self.assertAlmostEqual(avg, -0.0333333, places=5)
+        self.assertEqual([c for _, c, _ in drops], ["A"])
+        self.assertTrue(ok)
+        changes["A"] = "-5.0"
+        self.assertFalse(self.contest.crash_check(kis, [("A", "a"), ("B", "b"), ("C", "c")])[2])
+
     def test_kr_sells_dropped_holdings(self):
         strengths = {"000001": 0.01}
         held = [{"pdno": "999999", "prdt_name": "빠진종목", "hldg_qty": "7", "pchs_avg_pric": "1", "prpr": "1"}]

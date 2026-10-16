@@ -163,7 +163,8 @@ class Kis:
         res = self._call("GET", "/uapi/domestic-stock/v1/quotations/inquire-price", "FHKST01010100",
                          {"FID_COND_MRKT_DIV_CODE": "J", "FID_INPUT_ISCD": code})
         out = res["output"]
-        return {"price": _num(out["stck_prpr"]), "name": out.get("hts_kor_isnm", "")}
+        return {"price": _num(out["stck_prpr"]), "name": out.get("hts_kor_isnm", ""),
+                "change": _num(out.get("prdy_ctrt", 0)) / 100}  # 전일 대비 등락률 (−0.08 = −8%)
 
     def kr_daily(self, code, days=150, with_dates=False):
         """일봉 종가 (오래된 날짜 → 최근 순). 수정주가 기준, 한 번에 최대 100개.

@@ -1,0 +1,37 @@
+name: Ops team delete (one-off)
+
+# 한 번만 쓰는 정리 작업 (2026-10-17, 사용자·팀원 요청): 팀 저장소 dev 의 mate/api, mate/.github, mate/vercel.json 삭제.
+# 다른 파일은 건드리지 않고, 강제로 덮어쓰지 않아요. 실행 뒤 이 파일은 지워요.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  delete:
+    if: github.server_url == 'https://github.com'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - env:
+          TOKEN: ${{ secrets.GITSALT_TOKEN }}
+        run: |
+          TOKEN=$(printf '%s' "$TOKEN" | tr -d '[:space:]')
+          remote="https://ksunghyun0125:$TOKEN@gitsalt.com/leesumin1517/tradecompass.git"
+          for i in 1 2 3 4 5; do git clone -q --branch dev "$remote" team 2>/dev/null && break; rm -rf team; echo "연결 재시도 $i"; sleep $((i * 30)); done
+          [ -d team ] || { echo "::error::팀 저장소에 연결하지 못했어요"; exit 1; }
+          cd team
+          git config user.name "sunghyunkim369 (GitHub Actions)"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -r -q --ignore-unmatch mate/api mate/.github mate/vercel.json
+          if git diff --cached --quiet; then echo "이미 지워져 있어요"; exit 0; fi
+          echo "지울 파일 $(git diff --cached --name-only | wc -l)개 (mate/api, mate/.github, mate/vercel.json)"
+          git commit -q -m "mate: 팀 서버에서 안 쓰는 api·.github·vercel.json 삭제 (팀원 요청)"
+          for i in 1 2 3; do
+            out=$(git push -q "$remote" HEAD:refs/heads/dev 2>&1) && { echo "dev 에 올렸어요 ($(git rev-parse --short HEAD))"; exit 0; }
+            echo "$out" | sed "s#$TOKEN#***#g" | tail -2
+            git pull -q --rebase "$remote" dev 2>/dev/null || true
+            sleep 15
+          done
+          echo "::error::올리지 못했어요"; exit 1

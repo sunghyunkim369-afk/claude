@@ -33,3 +33,8 @@ jobs:
           done
           # 우리 사이트 AI 연결 (짧은 질문 1개)
           echo "tcmvp /api/ai 응답: $(curl -s --max-time 40 -X POST -H 'Content-Type: application/json' -H 'Origin: https://tcmvp.eyefeet.com' -d '{"task":"ask","query":"관세가 뭐야?","context":"테스트"}' https://tcmvp.eyefeet.com/api/ai | head -c 200)"
+          # 새 운영 주소에서 화면 경로 확인 (2026-10-17): 응답 코드와 페이지 제목만
+          for path in / /tradecompass-mvp/ /mate/tradecompass-mvp/ /mate/ /hs-code-finder/ /mate/hs-code-finder/ /login /settings /api/health; do
+            code=$(curl -s -L -o page.txt -w '%{http_code}' --max-time 20 "https://tradecompass.eyefeet.com$path")
+            echo "tradecompass.eyefeet.com$path  $code  $(grep -o '<title>[^<]*' page.txt | head -1)"
+          done

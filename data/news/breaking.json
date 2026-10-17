@@ -1,7 +1,17 @@
 {
- "generated": "2026-10-17T12:54:16.597Z",
+ "generated": "2026-10-17T18:47:55.305Z",
  "hours": 24,
  "items": [
+  {
+   "title": "\"푸틴에 굴복\"…트럼프 대러제재 면제에 여당서도 비난 빗발",
+   "link": "https://www.yna.co.kr/view/AKR20261018001000071",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-17T17:06:01.000Z",
+   "tag": "경제제재",
+   "direction": "down",
+   "sectors": []
+  },
   {
    "title": "미얀마 희토류에 눈독 들이는 美…군부와 잇단 비밀 회담",
    "link": "https://www.yna.co.kr/view/AKR20261017034100009",
@@ -118,67 +128,6 @@
    "sectors": [
     "ship"
    ]
-  },
-  {
-   "title": "Supertanker Rates Fall from Record Highs",
-   "lang": "en",
-   "link": "https://gcaptain.com/supertanker-rates-fall-from-record-highs/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-16T16:36:16.000Z",
-   "tag": "경제제재",
-   "direction": "down",
-   "sectors": [
-    "chem",
-    "ship"
-   ]
-  },
-  {
-   "title": "Lawmakers Seek to Strip COSCO Ships of U.S. Port Inspection Privileges Over Espionage Claims",
-   "lang": "en",
-   "link": "https://gcaptain.com/lawmakers-seek-to-strip-cosco-ships-of-u-s-port-inspection-privileges-over-espionage-claims/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-16T15:58:14.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "후티, 사우디 리야드·얀부 공격…연합군 \"미사일·드론 요격\"",
-   "link": "https://www.yna.co.kr/view/AKR20261016178500079",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-16T14:27:42.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "Asian countries should consider sanctions on the Houthis",
-   "lang": "en",
-   "link": "https://asia.nikkei.com/opinion/asian-countries-should-consider-sanctions-on-the-houthis",
-   "source": "Nikkei Asia",
-   "outlets": 1,
-   "at": "2026-10-16T13:03:36.467Z",
-   "tag": "경제제재",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "China to add AI, biopharma and solar tech to export control list",
-   "lang": "en",
-   "link": "https://asia.nikkei.com/business/technology/artificial-intelligence/china-to-add-ai-biopharma-and-solar-tech-to-export-control-list",
-   "source": "Nikkei Asia",
-   "outlets": 1,
-   "at": "2026-10-16T13:03:36.464Z",
-   "tag": "수출통제",
-   "direction": "neutral",
-   "sectors": []
   }
  ]
 }

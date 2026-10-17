@@ -1,8 +1,32 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-17T01:00:56.897Z",
+ "generated": "2026-10-17T06:59:18.472Z",
  "hours": 24,
  "items": [
+  {
+   "title": "미얀마 희토류에 눈독 들이는 美…군부와 잇단 비밀 회담",
+   "link": "https://www.yna.co.kr/view/AKR20261017034100009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-17T06:45:33.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": [
+    "steel"
+   ]
+  },
+  {
+   "title": "트럼프, '그레이엄법' 대러제재·고율관세 시행 않고 면제 발표",
+   "link": "https://www.yna.co.kr/view/AKR20261017023100009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-17T02:09:39.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": [
+    "chem"
+   ]
+  },
   {
    "title": "Implementing the Lindsey O. Graham Sanctioning Russia and Iran Act of 2026",
    "lang": "en",
@@ -156,32 +180,6 @@ window.TC_BREAKING = {
    "tag": "수출통제",
    "direction": "neutral",
    "sectors": []
-  },
-  {
-   "title": "Asia-Europe spot rates on the rise ahead of new FAK hikes",
-   "lang": "en",
-   "link": "https://theloadstar.com/carriers-eye-fak-hikes-as-spot-decline-eases-and-capacity-stays-tight/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-16T12:28:41.000Z",
-   "tag": "해운·물류",
-   "direction": "up",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "Iran Ships Some LPG, Jet Fuel Despite US Blockade, Data Shows",
-   "lang": "en",
-   "link": "https://gcaptain.com/iran-ships-some-lpg-jet-fuel-despite-us-blockade-data-shows/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-16T12:10:04.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
   }
  ]
 };

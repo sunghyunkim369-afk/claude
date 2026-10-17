@@ -131,9 +131,12 @@ GitHub Pages는 헤더를 설정할 수 없어서 이 헤더가 적용되지 않
 
 ## 팀 저장소 (GitSalt)
 
-원본은 GitHub 이고, 팀 저장소는 GitSalt `leesumin1517/tradecompass` 예요. 우리 코드는 그 저장소 `dev` 브랜치의 `mate/` 폴더에 들어가요.
+원본은 GitHub 이고, 팀 저장소는 GitSalt `leesumin1517/tradecompass` 예요. 우리 화면·뉴스 분석 코드는 그 저장소 `dev` 브랜치의 `mate/` 폴더에 들어 있고, **`mate/` 는 팀원이 관리해요** (2026-10-17 결정).
 
-- **자동 동기화**: GitHub `main` 이 바뀌면(뉴스 수집·발행 뒤 포함) `.github/workflows/team-sync.yml` 이 팀 저장소 `dev` 의 `mate/` 를 똑같이 맞춰요(팀원 동의, 2026-10-15). `mate/tradecompass-mvp/auth.js` 는 팀원이 관리해서 덮어쓰지 않고, `api/`·`.github/`·`vercel.json` 은 팀 서버에서 쓰지 않아서 넣지 않고(팀원 요청), 팀원이 `mate/` 파일을 직접 고쳤으면 멈춰서 알려 줘요. `dev` → `main` 합치기는 팀원이 해요.
-- **토큰**: GitHub Secrets 의 `GITSALT_TOKEN` (GitSalt `ksunghyun0125` 계정, 팀 저장소 협력자). 토큰은 채팅·코드에 쓰지 않아요.
-- 모든 자동 작업(`.github/workflows`)은 `github.server_url` 이 GitHub 일 때만 돌아요.
+- **자동 동기화는 껐어요** (2026-10-17). 팀원이 `mate/` 를 직접 고쳐 쓰고 있어서, GitHub 에서 덮어쓰면 팀원 수정이 사라지기 때문이에요. GitHub 에서 GitSalt 로 자동으로 보내는 작업은 이제 없어요.
+- **앞으로 화면을 바꿀 때**는 둘 중 하나로 해요.
+  1. GitSalt 팀 저장소에서 `feat/` 로 시작하는 브랜치를 만들어 `dev` 로 병합 요청(PR)
+  2. 바뀐 파일 목록을 팀원에게 알려 주고, 팀원이 필요한 파일만 `mate/` 로 가져감
+- `mate/api`·`mate/.github`·`mate/vercel.json` 은 팀 서버에서 쓰지 않아서 팀원 저장소에서 지워요(팀원 요청).
+- `GITSALT_TOKEN` (GitHub Secrets) 은 지금 쓰는 작업이 없어요. 필요 없으면 GitHub Settings → Secrets 에서 지워도 돼요.
 - 예전 제출용 사본 `ksunghyun0125/tradecompass` 로 복사하던 작업(gitsalt-mirror)은 2026-10-15 에 껐어요. 그 저장소는 마지막 복사 상태로 남아 있어요.

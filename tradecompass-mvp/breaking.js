@@ -1,8 +1,84 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-17T18:47:55.305Z",
+ "generated": "2026-10-18T01:01:02.224Z",
  "hours": 24,
  "items": [
+  {
+   "title": "수은 행장, 국제금융공사 총재와 글로벌 공급망 협력 논의",
+   "link": "https://www.yna.co.kr/view/AKR20261018012100002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-18T00:18:39.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "김영권, 외국납부세액공제 다툰 8억원대 소득세 소송 최종 패소",
+   "link": "https://www.yna.co.kr/view/AKR20261017031000004",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-18T00:00:02.000Z",
+   "tag": "보조금·산업정책",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "젤렌스키, 트럼프 대러제재 유예에 \"푸틴만 돕는 오판\"",
+   "link": "https://www.yna.co.kr/view/AKR20261018004300009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-17T21:49:55.000Z",
+   "tag": "경제제재",
+   "direction": "down",
+   "sectors": []
+  },
+  {
+   "title": "대미 무역흑자 1천억불 눈앞…트럼프 투자 압박에 난감한 정부",
+   "link": "https://www.yna.co.kr/view/AKR20261017041500003",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-17T21:17:00.000Z",
+   "tag": "수출입 동향",
+   "direction": "up",
+   "sectors": [
+    "consumer"
+   ]
+  },
+  {
+   "title": "개인 달러예금 4년10개월만에 최대…'빚투' 수요도 꿈틀",
+   "link": "https://www.yna.co.kr/view/AKR20261017044300002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-17T20:55:01.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "이달 환율 2년1개월만에 최저…원/엔 19년만에 가장 낮아",
+   "link": "https://www.yna.co.kr/view/AKR20261017023400002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-17T20:54:00.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": [
+    "semi"
+   ]
+  },
+  {
+   "title": "보름여 남은 중간선거…트럼프, 주말에도 지원유세로 결집 호소",
+   "link": "https://www.yna.co.kr/view/AKR20261018002400071",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-17T20:47:18.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
   {
    "title": "\"푸틴에 굴복\"…트럼프 대러제재 면제에 여당서도 비난 빗발",
    "link": "https://www.yna.co.kr/view/AKR20261018001000071",
@@ -35,99 +111,6 @@ window.TC_BREAKING = {
    "direction": "up",
    "sectors": [
     "chem"
-   ]
-  },
-  {
-   "title": "Implementing the Lindsey O. Graham Sanctioning Russia and Iran Act of 2026",
-   "lang": "en",
-   "link": "https://www.whitehouse.gov/presidential-actions/2026/10/implementing-the-lindsey-o-graham-sanctioning-russia-and-iran-act-of-2026/",
-   "source": "White House",
-   "outlets": 1,
-   "at": "2026-10-17T00:34:24.000Z",
-   "tag": "경제제재",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "올해 북미산 LNG 수입 두배로…정부, 알래스카 사업도 고심",
-   "link": "https://www.yna.co.kr/view/AKR20261016160900003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-17T00:05:00.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "'속도전' 멈춘 CPTPP…'수출영토'·'식량안보'에 타협점 찾을까",
-   "link": "https://www.yna.co.kr/view/AKR20261016022300030",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-16T23:00:20.000Z",
-   "tag": "FTA·통상협정",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "전세계 GDP 14% 묶은 거대블록 CPTPP…트럼프 시대 뜨거운 감자",
-   "link": "https://www.yna.co.kr/view/AKR20261016069000003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-16T23:00:15.000Z",
-   "tag": "FTA·통상협정",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "Wind-Assisted Shipping Gains Ground as Airbus RoRo Adds Rotor Sails",
-   "lang": "en",
-   "link": "https://gcaptain.com/wind-assisted-shipping-gains-ground-as-airbus-roro-adds-rotor-sails/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-16T20:52:12.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "중동도 우크라도 불안…브렌트유 109달러대, 5개월만에 최고",
-   "link": "https://www.yna.co.kr/view/AKR20261017004900072",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-16T20:04:06.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "美 철강 가격, 4년여만에 최고…트럼프 관세로 공급 부족",
-   "link": "https://www.yna.co.kr/view/AKR20261017004500072",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-16T19:27:04.000Z",
-   "tag": "관세",
-   "direction": "up",
-   "sectors": [
-    "steel"
-   ]
-  },
-  {
-   "title": "Fog of War Deepens in Hormuz as UKMTO Says Most Ship Attacks Go Unreported",
-   "lang": "en",
-   "link": "https://gcaptain.com/fog-of-war-deepens-in-hormuz-as-ukmto-says-most-ship-attacks-go-unreported/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-16T18:53:29.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
    ]
   }
  ]

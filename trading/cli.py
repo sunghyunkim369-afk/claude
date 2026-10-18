@@ -427,8 +427,10 @@ def main(argv=None):
     if args.command in ("schedule", "unschedule"):
         from . import schedule
         if args.command == "schedule":
-            make_client()  # .env 가 제대로 있는지 먼저 확인
-            schedule.register(HERE)
+            kis = make_client()  # .env 가 제대로 있는지 먼저 확인
+            from . import contest
+            st = contest.State(os.path.join(HERE, ".cache", f"contest-{kis.env}.json"))
+            schedule.register(HERE, us=st.d.get("us_mode", "basic") != "off")
         else:
             schedule.unregister()
         return

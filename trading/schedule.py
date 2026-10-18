@@ -58,7 +58,8 @@ def task_xml(python, workdir, start_time, today=None):
 """
 
 
-def register(here, run=subprocess.run, out=print):
+def register(here, run=subprocess.run, out=print, us=True):
+    """us=False 면 (미국을 꺼 뒀으면) 미국 예약은 안 걸고, 이미 있으면 지워요."""
     if os.name != "nt":
         sys.exit("작업 스케줄러 예약은 Windows 에서만 돼요.")
     workdir = os.path.dirname(here)
@@ -66,6 +67,10 @@ def register(here, run=subprocess.run, out=print):
     if not os.path.exists(python):
         python = sys.executable
     for name, at in TASKS.items():
+        if not us and name == "KIS 대회 미국":
+            r = run(["schtasks", "/Delete", "/TN", name, "/F"], capture_output=True, text=True, errors="replace")
+            out(f"미국은 꺼 둬서 예약 안 함{' (있던 예약 지움)' if r.returncode == 0 else ''}: {name}")
+            continue
         with tempfile.NamedTemporaryFile("w", suffix=".xml", delete=False, encoding="utf-16") as f:
             f.write(task_xml(python, workdir, at))
             path = f.name

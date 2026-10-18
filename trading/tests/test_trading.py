@@ -691,6 +691,19 @@ class ScheduleTest(unittest.TestCase):
         self.assertEqual(doc.getElementsByTagName("Arguments")[0].firstChild.data, "-m trading contest --once")
         self.assertEqual(len(doc.getElementsByTagName("DaysOfWeek")[0].childNodes), 5)
 
+    def test_register_skips_and_deletes_us_when_off(self):
+        from trading import schedule
+        calls = []
+
+        def run(cmd, **kw):
+            calls.append(cmd)
+            return mock.Mock(returncode=0, stdout="", stderr="")
+        with mock.patch.object(schedule.os, "name", "nt"), mock.patch.object(schedule.os, "unlink", lambda p: None):
+            schedule.register("C:\\x\\trading", run=run, out=lambda *_: None, us=False)
+        self.assertEqual([c[1] for c in calls], ["/Create", "/Delete"])
+        self.assertEqual(calls[0][3], "KIS 대회 국내")
+        self.assertEqual(calls[1][3], "KIS 대회 미국")
+
     def test_us_task_time_inside_session_all_year(self):
         from trading import schedule
         h, m = map(int, schedule.TASKS["KIS 대회 미국"][:5].split(":"))

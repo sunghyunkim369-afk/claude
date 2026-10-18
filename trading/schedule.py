@@ -70,7 +70,7 @@ def register(here, run=subprocess.run, out=print):
             f.write(task_xml(python, workdir, at))
             path = f.name
         try:
-            r = run(["schtasks", "/Create", "/TN", name, "/XML", path, "/F"], capture_output=True, text=True)
+            r = run(["schtasks", "/Create", "/TN", name, "/XML", path, "/F"], capture_output=True, text=True, errors="replace")
         finally:
             os.unlink(path)
         if r.returncode != 0:
@@ -84,5 +84,5 @@ def register(here, run=subprocess.run, out=print):
 
 def unregister(run=subprocess.run, out=print):
     for name in TASKS:
-        r = run(["schtasks", "/Delete", "/TN", name, "/F"], capture_output=True, text=True)
+        r = run(["schtasks", "/Delete", "/TN", name, "/F"], capture_output=True, text=True, errors="replace")
         out(f"{'지움' if r.returncode == 0 else '없음'}: {name}")

@@ -1,8 +1,33 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-18T12:54:25.671Z",
+ "generated": "2026-10-18T18:49:12.868Z",
  "hours": 24,
  "items": [
+  {
+   "title": "美에너지장관, 러 제재 면제에 \"전쟁 끝내기 위한 당근책\"",
+   "link": "https://www.yna.co.kr/view/AKR20261019000300071",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-18T16:11:57.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "News in Brief Podcast | Week 41 2026 | Congestion, cyber threat, and capacity constraint",
+   "lang": "en",
+   "link": "https://theloadstar.com/news-in-brief-podcast-week-41-2026-congestion-cyberthreat-and-capacity-constraint/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-18T16:00:26.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": [
+    "auto"
+   ]
+  },
   {
    "title": "대미 무역흑자 1천억弗 눈앞 … 트럼프 통상압박 우려 커져",
    "link": "https://www.mk.co.kr/news/economy/12178999",
@@ -132,16 +157,6 @@ window.TC_BREAKING = {
    "sectors": [
     "chem"
    ]
-  },
-  {
-   "title": "\"푸틴에 굴복\"…트럼프 대러제재 면제에 여당서도 비난 빗발",
-   "link": "https://www.yna.co.kr/view/AKR20261018001000071",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-17T17:06:01.000Z",
-   "tag": "경제제재",
-   "direction": "down",
-   "sectors": []
   }
  ]
 };

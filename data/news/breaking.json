@@ -1,7 +1,29 @@
 {
- "generated": "2026-10-18T01:01:02.224Z",
+ "generated": "2026-10-18T06:58:30.484Z",
  "hours": 24,
  "items": [
+  {
+   "title": "트럼프, 대러제재 관련해 \"미국·세계에 좋은 결정 있을 것\"",
+   "link": "https://www.yna.co.kr/view/AKR20261018019900009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-18T02:17:03.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "K-차부품, 미국 디트로이트서 GM·포드 등과 수출 상담",
+   "link": "https://www.yna.co.kr/view/AKR20261018019100003",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-18T02:00:00.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": [
+    "auto"
+   ]
+  },
   {
    "title": "수은 행장, 국제금융공사 총재와 글로벌 공급망 협력 논의",
    "link": "https://www.yna.co.kr/view/AKR20261018012100002",
@@ -87,30 +109,6 @@
    "tag": "경제제재",
    "direction": "down",
    "sectors": []
-  },
-  {
-   "title": "미얀마 희토류에 눈독 들이는 美…군부와 잇단 비밀 회담",
-   "link": "https://www.yna.co.kr/view/AKR20261017034100009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-17T06:45:33.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": [
-    "steel"
-   ]
-  },
-  {
-   "title": "트럼프, '그레이엄법' 대러제재·고율관세 시행 않고 면제 발표",
-   "link": "https://www.yna.co.kr/view/AKR20261017023100009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-17T02:09:39.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": [
-    "chem"
-   ]
   }
  ]
 }

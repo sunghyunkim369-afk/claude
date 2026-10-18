@@ -1,16 +1,48 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-18T06:58:30.484Z",
+ "generated": "2026-10-18T12:54:25.671Z",
  "hours": 24,
  "items": [
   {
-   "title": "트럼프, 대러제재 관련해 \"미국·세계에 좋은 결정 있을 것\"",
-   "link": "https://www.yna.co.kr/view/AKR20261018019900009",
+   "title": "대미 무역흑자 1천억弗 눈앞 … 트럼프 통상압박 우려 커져",
+   "link": "https://www.mk.co.kr/news/economy/12178999",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-18T08:21:35.000Z",
+   "tag": "유가·원자재",
+   "direction": "up",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "베트남·유럽자유무역연합, FTA 체결…공식협상 시작 14년만",
+   "link": "https://www.yna.co.kr/view/AKR20261018041900104",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-18T02:17:03.000Z",
+   "at": "2026-10-18T07:48:29.000Z",
+   "tag": "FTA·통상협정",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "원달러환율 2년 1개웖만에 최저",
+   "link": "https://www.mk.co.kr/news/economy/12178910",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-18T07:30:15.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "트럼프, 대러제재 완화 만지작…\"美·세계에 좋은 결정 있을 것\"(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261018038300009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-18T06:55:00.000Z",
    "tag": "경제제재",
-   "direction": "up",
+   "direction": "down",
    "sectors": []
   },
   {

@@ -1,7 +1,64 @@
 {
- "generated": "2026-10-18T18:49:12.868Z",
+ "generated": "2026-10-19T01:02:35.255Z",
  "hours": 24,
  "items": [
+  {
+   "title": "“339조 국가자산 굴리는데, 사내 AI는 중국산”…KIC 보안 이슈 ‘도마’",
+   "link": "https://www.mk.co.kr/news/economy/12179264",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-19T00:45:04.000Z",
+   "tag": "수출통제",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "한미반도체, 현지법인 '한미USA' 설립…반도체 공급망 공략",
+   "link": "https://www.yna.co.kr/view/AKR20261019034100003",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-19T00:44:13.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": [
+    "semi"
+   ]
+  },
+  {
+   "title": "현대글로비스, 필라델피아 항만 개발 참여…물류 허브 구축 속도",
+   "link": "https://www.yna.co.kr/view/AKR20261019032300003",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-19T00:18:42.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship",
+    "auto"
+   ]
+  },
+  {
+   "title": "트럼프 \"내 대러 결정은 간단…종전협상서 러 떠나길 원치 않아\"",
+   "link": "https://www.yna.co.kr/view/AKR20261019007500071",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-18T22:19:58.000Z",
+   "tag": "경제제재",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "트럼프 '러 에너지 유화책'에 공화 반발기류…美여권 내분 양상(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261019000351071",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-18T19:34:03.000Z",
+   "tag": "유가·원자재",
+   "direction": "up",
+   "sectors": [
+    "chem"
+   ]
+  },
   {
    "title": "美에너지장관, 러 제재 면제에 \"전쟁 끝내기 위한 당근책\"",
    "link": "https://www.yna.co.kr/view/AKR20261019000300071",
@@ -79,82 +136,6 @@
    "direction": "info",
    "sectors": [
     "auto"
-   ]
-  },
-  {
-   "title": "수은 행장, 국제금융공사 총재와 글로벌 공급망 협력 논의",
-   "link": "https://www.yna.co.kr/view/AKR20261018012100002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-18T00:18:39.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "김영권, 외국납부세액공제 다툰 8억원대 소득세 소송 최종 패소",
-   "link": "https://www.yna.co.kr/view/AKR20261017031000004",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-18T00:00:02.000Z",
-   "tag": "보조금·산업정책",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "젤렌스키, 트럼프 대러제재 유예에 \"푸틴만 돕는 오판\"",
-   "link": "https://www.yna.co.kr/view/AKR20261018004300009",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-17T21:49:55.000Z",
-   "tag": "경제제재",
-   "direction": "down",
-   "sectors": []
-  },
-  {
-   "title": "대미 무역흑자 1천억불 눈앞…트럼프 투자 압박에 난감한 정부",
-   "link": "https://www.yna.co.kr/view/AKR20261017041500003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-17T21:17:00.000Z",
-   "tag": "수출입 동향",
-   "direction": "up",
-   "sectors": [
-    "consumer"
-   ]
-  },
-  {
-   "title": "개인 달러예금 4년10개월만에 최대…'빚투' 수요도 꿈틀",
-   "link": "https://www.yna.co.kr/view/AKR20261017044300002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-17T20:55:01.000Z",
-   "tag": "환율",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "이달 환율 2년1개월만에 최저…원/엔 19년만에 가장 낮아",
-   "link": "https://www.yna.co.kr/view/AKR20261017023400002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-17T20:54:00.000Z",
-   "tag": "환율",
-   "direction": "info",
-   "sectors": [
-    "semi"
-   ]
-  },
-  {
-   "title": "보름여 남은 중간선거…트럼프, 주말에도 지원유세로 결집 호소",
-   "link": "https://www.yna.co.kr/view/AKR20261018002400071",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-17T20:47:18.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
    ]
   }
  ]

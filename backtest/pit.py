@@ -97,6 +97,9 @@ def main():
         return search(args[0] if args else os.path.join(HERE, ".cache", "marcap"))
     if "--eras" in sys.argv:
         return eras(args[0] if args else os.path.join(HERE, ".cache", "marcap"))
+    if "--weak" in sys.argv:
+        return eras(args[0] if args else os.path.join(HERE, ".cache", "marcap"), WEAK_VARIANTS, "pit_weak",
+                    with_refs=False)
     folder = args[0] if args else os.path.join(HERE, ".cache", "marcap")
     cfg = load_config(os.path.join(HERE, "config.yaml"))
     df = load_marcap(folder)
@@ -325,8 +328,41 @@ def event_table(windows_df):
     return pd.DataFrame(rows)
 
 
-def eras(folder):
+# 약세장·변동장에 강한 공식 후보 (모두 그때 기준 시총 상위 250종목, 2일마다 교체, 비용 포함)
+_PULLBACK = {"rank": "rev5", "trend_filter": "above60"}
+_REVERSAL = {"rank": "rev5", "trend_filter": False}
+WEAK_VARIANTS = [
+    ("지금 공식(모멘텀)", {}),
+    ("단기 반전: 5일 낙폭 상위 3", _REVERSAL),
+    ("눌림목: 60일선 위 중 5일 낙폭 상위 3", _PULLBACK),
+    ("과매도: RSI 최저 3 (60일선 위)", {"rank": "rsi_low", "trend_filter": "above60"}),
+    ("저변동: 60일 변동성 최저 5, 5일 교체", {"rank": "lowvol", "trend_filter": False, "top_k": 5, "rebalance_days": 5}),
+    ("국면전환(약세장=60일선 위 40% 미만): 모멘텀/눌림목", {"regime": "breadth40", "weak_params": _PULLBACK}),
+    ("국면전환(약세장): 모멘텀/단기 반전", {"regime": "breadth40", "weak_params": _REVERSAL}),
+    ("국면전환(변동장): 모멘텀/눌림목", {"regime": "chop", "weak_params": _PULLBACK}),
+    ("국면전환(변동장): 모멘텀/단기 반전", {"regime": "chop", "weak_params": _REVERSAL}),
+]
+
+
+def event_median_table(windows_df, names):
+    """사건별 중앙값 (방식마다 한 열) + 시장 평균."""
+    rows = []
+    for ev, a, b in EVENTS:
+        a, b = pd.Timestamp(a), pd.Timestamp(b)
+        sel = windows_df[(windows_df["start"] <= b) & (windows_df["end"] >= a)]
+        if sel.empty:
+            continue
+        row = {"사건": ev}
+        for i, n in enumerate(names):
+            row[f"{i + 1} 중앙값"] = sel[sel["방식"] == n]["ret"].median()
+        row["시장 평균"] = sel[sel["방식"] == names[0]]["bench"].mean()
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def eras(folder, variants=None, out_name="pit_eras", with_refs=True):
     import multiprocessing as mp
+    variants = variants or ERA_VARIANTS
     window_rows = []
     out_lines = ["시대별 비교 (생존 편향 제거: 구간 시작 전날 코스피 시총 상위 150 + 코스닥 100, 상장폐지 포함)",
                  "26거래일 구간을 5거래일씩 밀며, 비용 포함. 무작위는 5번 합친 값", ""]
@@ -347,20 +383,21 @@ def eras(folder):
             if len(g) > 70:
                 raw[c] = g[["Open", "High", "Low", "Close", "Volume"]]
         del df, by_date
-        frames = contest.prepare(raw, cfg, [10, 20, 60])
+        frames = contest.prepare(raw, cfg, [5, 10, 20, 60])
         bars = contest.build_bars(frames)
         _G.clear()
         _G.update(cfg=cfg, wins=wins, pit=pit, frames=frames, bars=bars, regime=contest.build_regime(bars))
-        params = [{**contest.VOL_BASE, **v} for _, v in ERA_VARIANTS] + \
-                 [{**contest.VOL_BASE, "rank": f"random{i}", "trend_filter": False} for i in range(SEEDS)] + \
-                 [{**contest.VOL_BASE, "rank": "vol", "trend_filter": False}]
+        refs = ([{**contest.VOL_BASE, "rank": f"random{i}", "trend_filter": False} for i in range(SEEDS)] +
+                [{**contest.VOL_BASE, "rank": "vol", "trend_filter": False}]) if with_refs else []
+        params = [{**contest.VOL_BASE, **v} for _, v in variants] + refs
         with mp.get_context("fork").Pool(3) as pool:
             res = pool.map(_run_one, params, chunksize=1)
         rule, scale = contest.RULES["KR"], cfg["capital"]["KR"] / 1e8
         bench = [contest.equal_weight_return({s: frames[s] for s in u if s in frames}, a, b) for (a, b), u in zip(wins, pit)]
-        groups = [(n, [res[i]]) for i, (n, _) in enumerate(ERA_VARIANTS)] + \
-                 [("무작위 3종목 (5번)", res[len(ERA_VARIANTS):len(ERA_VARIANTS) + SEEDS]),
-                  ("변동성 상위 3종목", res[len(ERA_VARIANTS) + SEEDS:])]
+        groups = [(n, [res[i]]) for i, (n, _) in enumerate(variants)]
+        if with_refs:
+            groups += [("무작위 3종목 (5번)", res[len(variants):len(variants) + SEEDS]),
+                       ("변동성 상위 3종목", res[len(variants) + SEEDS:])]
         rows = []
         for name, rs in groups:
             r = sum((x[1] for x in rs), [])
@@ -378,13 +415,19 @@ def eras(folder):
         del frames, bars, raw
         _G.clear()
     wdf = pd.DataFrame(window_rows)
-    wdf.to_csv(os.path.join(HERE, "results", "pit_eras_windows.csv"), index=False, encoding="utf-8-sig")
-    ev = event_table(wdf)
-    out_lines += ["[시기별 큰 사건] 사건 기간과 겹치는 26일 구간들 (지금 공식 vs 무작위 3종목 vs 시장 전체 동일비중)",
-                  contest.fmt(ev).replace("구간수", "구간수"), ""]
+    wdf.to_csv(os.path.join(HERE, "results", f"{out_name}_windows.csv"), index=False, encoding="utf-8-sig")
+    if with_refs:
+        ev = event_table(wdf)
+        out_lines += ["[시기별 큰 사건] 사건 기간과 겹치는 26일 구간들 (지금 공식 vs 무작위 3종목 vs 시장 전체 동일비중)",
+                      contest.fmt(ev), ""]
+    else:
+        names = [n for n, _ in variants]
+        out_lines += ["[시기별 큰 사건] 사건 기간과 겹치는 26일 구간들의 중앙값 (번호는 아래 방식)",
+                      "  " + " / ".join(f"{i + 1}={n}" for i, n in enumerate(names)),
+                      contest.fmt(event_median_table(wdf, names)), ""]
     print("\n".join(out_lines[-3:]), flush=True)
     text = "\n".join(out_lines)
-    with open(os.path.join(HERE, "results", "pit_eras.txt"), "w", encoding="utf-8") as f:
+    with open(os.path.join(HERE, "results", f"{out_name}.txt"), "w", encoding="utf-8") as f:
         f.write(text + "\n")
 
 

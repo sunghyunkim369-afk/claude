@@ -172,6 +172,7 @@ def prepare(raw, cfg, lookbacks, skips=(0,)):
         add_volume_factors(d)
         d["ret_1"] = d["Close"].pct_change()
         d["vol_20"] = d["ret_1"].rolling(20).std()
+        d["vol_60"] = d["ret_1"].rolling(60).std()
         add_chart_factors(d)
         out[s] = d
     return out
@@ -270,6 +271,17 @@ def volume_ok(b, p):
 
 
 def rank_score(b, p):
+    r = p.get("rank", "ret")
+    # 약세장·변동장 후보: rev5 = 최근 5일 많이 빠진 순(단기 반전), lowvol = 60일 변동성 낮은 순, rsi_low = RSI 낮은 순
+    if r == "rev5":
+        v = b.get("ret_5")
+        return None if v is None else -v
+    if r == "lowvol":
+        v = b.get("vol_60")
+        return None if v is None else -v
+    if r == "rsi_low":
+        v = b.get("rsi")
+        return None if v is None else -v
     score = b.get(score_key(p))
     if p.get("rank", "ret") == "ret_x_vr" and score is not None:
         vr = b.get("vr_20_60", float("nan"))
@@ -379,6 +391,7 @@ class Rotation:
         self._rank = {}
         self.big = list(frames)[:params.get("crash_n", 30)]
         self.allowed = None   # 그 구간에 매매 가능한 종목 (생존 편향 검증용, None 이면 전부)
+        self._states = None
         self.run_key = ""
 
     def risk_on(self, d):
@@ -393,10 +406,17 @@ class Rotation:
             return r["breadth"] >= int(mode[7:]) / 100
         if mode.startswith("drop"):
             return r.get("ret", 0.0) > -int(mode[4:]) / 100
+        if mode == "chop":  # 변동 큰 오락가락장(변동성 상위 1/3 + 추세 효율 하위 절반)이면 나쁜 장
+            if self._states is None:
+                self._states = build_states(self.regime)
+            return state_label(self._states.get(d)) != "변동 큰 오락가락장"
         return r["index_up"]
 
     def targets(self, d):
         """그날 종가 기준 목표 종목 (그날까지 데이터만 사용). 날짜별로 한 번만 계산해 둬요."""
+        if not self.risk_on(d) and self.p.get("weak_params"):
+            # 국면 전환: 나쁜 장(약세장·변동장)에는 다른 공식으로 골라요
+            return self._ranked(d, {**self.p, **self.p["weak_params"]}, key="weak")
         if not self.risk_on(d):
             off = self.p.get("regime_off", "cash")
             if off == "cash":
@@ -408,9 +428,10 @@ class Rotation:
             return self._ranked(d)[:int(off[3:])]
         return self._ranked(d)
 
-    def _ranked(self, d):
-        if d not in self._rank:
-            p = self.p
+    def _ranked(self, d, p=None, key=None):
+        k = d if key is None else (d, key)
+        if k not in self._rank:
+            p = p or self.p
             cands = []
             rnd = p.get("rank", "ret").startswith("random")
             for s, b in self.bars.get(d, {}).items():
@@ -421,14 +442,18 @@ class Rotation:
                          b.get("vol_20") if p.get("rank") == "vol" else rank_score(b, p))
                 if score is None or not (score == score) or not (b["ema_slow"] == b["ema_slow"]):
                     continue
-                trend_ok = b["Close"] > b["ema_fast"] > b["ema_slow"] if p.get("trend_filter", True) else True
+                tf = p.get("trend_filter", True)
+                if tf == "above60":  # 눌림목: 60일선 위(중기 상승) 종목만
+                    trend_ok = b["Close"] > b["ema_slow"]
+                else:
+                    trend_ok = b["Close"] > b["ema_fast"] > b["ema_slow"] if tf else True
                 if trend_ok and b["rsi"] < p["rsi_max"] and volume_ok(b, p):
                     cands.append((score, s))
             cands.sort(reverse=True)
             if p.get("pool", 0) > p["top_k"] and p.get("rerank", "none") != "none":
                 cands = rerank(cands[:p["pool"]], self.bars[d], p["rerank"])
-            self._rank[d] = [s for _, s in cands[:p["top_k"]]]
-        return self._rank[d]
+            self._rank[k] = [s for _, s in cands[:p["top_k"]]]
+        return self._rank[k]
 
     def run(self, start, end, capital, allowed=None):
         """반환: (자산곡선, 통계 dict: orders, days, symbols, amount). allowed: 그 구간 매매 가능 종목."""
@@ -627,7 +652,7 @@ def fmt(df):
     for c in shown.columns:
         base = c.split(" ")[-1]
         if base in ("평균", "중앙값", "하위25%", "최악", "최고", "기준초과확률", "기준평균", "조건충족률",
-                 "상위10%", "상위5%", "하위10%", "+30%확률") or c == "시장(동일비중) 평균":
+                 "상위10%", "상위5%", "하위10%", "+30%확률") or c in ("시장(동일비중) 평균", "시장 평균"):
             shown[c] = shown[c].map(lambda v: f"{v * 100:.1f}%")
         elif base in ("평균주문", "평균매매금액배수", "보유수"):
             shown[c] = shown[c].map(lambda v: f"{v:.1f}")

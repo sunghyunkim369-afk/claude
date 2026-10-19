@@ -377,6 +377,27 @@ class ContestTest(unittest.TestCase):
         keys = [self.contest.random_key("S1", str(d[300]), "random1"), self.contest.random_key("S1", str(d[400]), "random1")]
         self.assertNotEqual(keys[0], keys[1])                     # 구간마다 다른 무작위
 
+    def test_weak_market_candidates_and_switching(self):
+        fr = self.contest.prepare(self.raw, CFG, [5, 20])
+        bars = self.contest.build_bars(fr)
+        d = sorted(bars)
+        x = d[320]
+        p = {**self.contest.VOL_BASE, "rsi_max": 101}
+        rev = self.contest.Rotation(fr, "US", CFG, {**p, "rank": "rev5", "trend_filter": False}, bars)
+        self.assertEqual(rev.targets(x), sorted(fr, key=lambda s: fr[s].loc[x, "ret_5"])[:3])   # 많이 빠진 순
+        pb = self.contest.Rotation(fr, "US", CFG, {**p, "rank": "rev5", "trend_filter": "above60"}, bars)
+        self.assertTrue(all(fr[s].loc[x, "Close"] > fr[s].loc[x, "ema_slow"] for s in pb.targets(x)))
+        low = self.contest.Rotation(fr, "US", CFG, {**p, "rank": "lowvol", "trend_filter": False}, bars)
+        self.assertEqual(low.targets(x), sorted(fr, key=lambda s: fr[s].loc[x, "vol_60"])[:3])
+        bad = {y: {"breadth": 0.1, "index": 1.0, "index_up": False, "ret": 0.0} for y in d}
+        sw = self.contest.Rotation(fr, "US", CFG, {**p, "regime": "breadth40",
+                                                   "weak_params": {"rank": "rev5", "trend_filter": False}}, bars, bad)
+        self.assertEqual(sw.targets(x), rev.targets(x))              # 약세장이면 단기 반전으로
+        good = {y: {**bad[y], "breadth": 0.9} for y in d}
+        sw2 = self.contest.Rotation(fr, "US", CFG, {**p, "regime": "breadth40",
+                                                    "weak_params": {"rank": "rev5", "trend_filter": False}}, bars, good)
+        self.assertEqual(sw2.targets(x), self.contest.Rotation(fr, "US", CFG, p, bars, good).targets(x))
+
     def test_entry_bar(self):
         b = {"Open": 110.0, "High": 115.0, "Low": 97.0, "Close": 105.0, "ret_1": 0.05}   # 전날 종가 100
         eb = self.contest.entry_bar

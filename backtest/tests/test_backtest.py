@@ -332,6 +332,36 @@ class ContestTest(unittest.TestCase):
         x0, x1 = d[100], d[101]
         self.assertAlmostEqual(r[x1]["ret"], r[x1]["index"] / r[x0]["index"] - 1)
 
+    def test_regime_scale_keeps_three_with_less_money(self):
+        fr = self.contest.prepare(self.raw, CFG, [20])
+        bars = self.contest.build_bars(fr)
+        d = sorted(bars)
+        bad = {x: {"breadth": 0.1, "index": 1.0, "index_up": False, "ret": 0.0} for x in d}
+        good = {x: {**bad[x], "breadth": 0.9} for x in d}
+        mixed = {x: (bad if i < 310 else good)[x] for i, x in enumerate(d)}
+        p = {**self.contest.VOL_BASE, "rsi_max": 101, "trend_filter": False, "regime": "breadth40",
+             "regime_off": "scale50"}
+
+        def invested(regime, end):
+            rot = self.contest.Rotation(fr, "US", CFG, p, bars, regime)
+            rot.run(d[300], d[end], 100_000)
+            return rot
+        rot = self.contest.Rotation(fr, "US", CFG, p, bars, bad)
+        self.assertEqual(len(rot.targets(d[300])), 3)                  # 종목 수는 그대로
+        curve, st = rot.run(d[300], d[302], 100_000)
+        cash_like = curve.iloc[1]
+        self.assertGreater(st["orders"], 0)
+        # 첫 매수는 1/3 × 0.5 씩 → 절반쯤만 투자 (나머지 현금): 평가금액 변화가 전부 투자했을 때보다 작아야
+        full = self.contest.Rotation(fr, "US", CFG, {**p, "regime": "none"}, bars, bad).run(d[300], d[302], 100_000)[0]
+        self.assertLess(abs(curve.iloc[-1] - 100_000), abs(full.iloc[-1] - 100_000) + 1)
+        # 약세장 → 보통으로 바뀐 날은 보유 종목도 1/3 까지 채워서 거래가 더 생겨요
+        _, st_mixed = self.contest.Rotation(fr, "US", CFG, p, bars, mixed).run(d[300], d[320], 100_000)
+        _, st_bad = self.contest.Rotation(fr, "US", CFG, p, bars, bad).run(d[300], d[320], 100_000)
+        self.assertGreater(st_mixed["amount"], 0)
+        self.assertEqual(self.contest.exposure_name({"regime": "breadth40", "regime_off": "scale67"}),
+                         "60일선 위 40% 미만 → 3종목 그대로, 금액 2/3")
+        self.assertIsNotNone(cash_like)
+
     def test_regime_values_use_only_past(self):
         fr = self.contest.prepare(self.raw, CFG, [20])
         r1 = self.contest.build_regime(self.contest.build_bars(fr))

@@ -37,7 +37,7 @@ jobs:
       - name: 엔진 테스트
         run: python -m unittest discover -s tests -v
       - name: 백테스트 실행
-        if: ${{ !(contains(github.event.head_commit.message, '[us-only]') || contains(github.event.head_commit.message, '[momentum-only]') || contains(github.event.head_commit.message, '[exits-only]') || contains(github.event.head_commit.message, '[volume-only]') || contains(github.event.head_commit.message, '[drop-only]') || contains(github.event.head_commit.message, '[regime-only]') || contains(github.event.head_commit.message, '[crash-only]') || contains(github.event.head_commit.message, '[chart-only]') || contains(github.event.head_commit.message, '[rerank-only]')) }}
+        if: ${{ !(contains(github.event.head_commit.message, '[us-only]') || contains(github.event.head_commit.message, '[momentum-only]') || contains(github.event.head_commit.message, '[exits-only]') || contains(github.event.head_commit.message, '[volume-only]') || contains(github.event.head_commit.message, '[drop-only]') || contains(github.event.head_commit.message, '[regime-only]') || contains(github.event.head_commit.message, '[crash-only]') || contains(github.event.head_commit.message, '[chart-only]') || contains(github.event.head_commit.message, '[rerank-only]') || contains(github.event.head_commit.message, '[exposure-only]')) }}
         run: |
           mkdir -p results
           python main.py 2>&1 | tee results/console.txt
@@ -46,16 +46,16 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: python optimize.py
       - name: 대회 매매 가능 종목 (코스피200 + 코스닥150)
-        if: ${{ !(contains(github.event.head_commit.message, '[us-only]') || contains(github.event.head_commit.message, '[momentum-only]') || contains(github.event.head_commit.message, '[exits-only]') || contains(github.event.head_commit.message, '[volume-only]') || contains(github.event.head_commit.message, '[drop-only]') || contains(github.event.head_commit.message, '[regime-only]') || contains(github.event.head_commit.message, '[crash-only]') || contains(github.event.head_commit.message, '[chart-only]') || contains(github.event.head_commit.message, '[rerank-only]')) }}
+        if: ${{ !(contains(github.event.head_commit.message, '[us-only]') || contains(github.event.head_commit.message, '[momentum-only]') || contains(github.event.head_commit.message, '[exits-only]') || contains(github.event.head_commit.message, '[volume-only]') || contains(github.event.head_commit.message, '[drop-only]') || contains(github.event.head_commit.message, '[regime-only]') || contains(github.event.head_commit.message, '[crash-only]') || contains(github.event.head_commit.message, '[chart-only]') || contains(github.event.head_commit.message, '[rerank-only]') || contains(github.event.head_commit.message, '[exposure-only]')) }}
         run: python universe.py
       - name: 대회용 공식 검증 (5주 구간 반복)
-        if: ${{ !(contains(github.event.head_commit.message, '[us-only]') || contains(github.event.head_commit.message, '[momentum-only]') || contains(github.event.head_commit.message, '[exits-only]') || contains(github.event.head_commit.message, '[volume-only]') || contains(github.event.head_commit.message, '[drop-only]') || contains(github.event.head_commit.message, '[regime-only]') || contains(github.event.head_commit.message, '[crash-only]') || contains(github.event.head_commit.message, '[chart-only]') || contains(github.event.head_commit.message, '[rerank-only]')) }}
+        if: ${{ !(contains(github.event.head_commit.message, '[us-only]') || contains(github.event.head_commit.message, '[momentum-only]') || contains(github.event.head_commit.message, '[exits-only]') || contains(github.event.head_commit.message, '[volume-only]') || contains(github.event.head_commit.message, '[drop-only]') || contains(github.event.head_commit.message, '[regime-only]') || contains(github.event.head_commit.message, '[crash-only]') || contains(github.event.head_commit.message, '[chart-only]') || contains(github.event.head_commit.message, '[rerank-only]') || contains(github.event.head_commit.message, '[exposure-only]')) }}
         run: python contest.py
       - name: 입상 노리는 공식 검증 (상위 10% 수익률 기준)
-        if: ${{ !(contains(github.event.head_commit.message, '[us-only]') || contains(github.event.head_commit.message, '[momentum-only]') || contains(github.event.head_commit.message, '[exits-only]') || contains(github.event.head_commit.message, '[volume-only]') || contains(github.event.head_commit.message, '[drop-only]') || contains(github.event.head_commit.message, '[regime-only]') || contains(github.event.head_commit.message, '[crash-only]') || contains(github.event.head_commit.message, '[chart-only]') || contains(github.event.head_commit.message, '[rerank-only]')) }}
+        if: ${{ !(contains(github.event.head_commit.message, '[us-only]') || contains(github.event.head_commit.message, '[momentum-only]') || contains(github.event.head_commit.message, '[exits-only]') || contains(github.event.head_commit.message, '[volume-only]') || contains(github.event.head_commit.message, '[drop-only]') || contains(github.event.head_commit.message, '[regime-only]') || contains(github.event.head_commit.message, '[crash-only]') || contains(github.event.head_commit.message, '[chart-only]') || contains(github.event.head_commit.message, '[rerank-only]') || contains(github.event.head_commit.message, '[exposure-only]')) }}
         run: python contest.py --aggressive
       - name: 미국 입상형 검증 (레버리지 ETF·고변동 종목)
-        if: ${{ !(contains(github.event.head_commit.message, '[momentum-only]') || contains(github.event.head_commit.message, '[exits-only]') || contains(github.event.head_commit.message, '[volume-only]') || contains(github.event.head_commit.message, '[drop-only]') || contains(github.event.head_commit.message, '[regime-only]') || contains(github.event.head_commit.message, '[crash-only]') || contains(github.event.head_commit.message, '[chart-only]') || contains(github.event.head_commit.message, '[rerank-only]')) }}
+        if: ${{ !(contains(github.event.head_commit.message, '[momentum-only]') || contains(github.event.head_commit.message, '[exits-only]') || contains(github.event.head_commit.message, '[volume-only]') || contains(github.event.head_commit.message, '[drop-only]') || contains(github.event.head_commit.message, '[regime-only]') || contains(github.event.head_commit.message, '[crash-only]') || contains(github.event.head_commit.message, '[chart-only]') || contains(github.event.head_commit.message, '[rerank-only]') || contains(github.event.head_commit.message, '[exposure-only]')) }}
         run: python contest.py --aggressive --markets US --us-list us_aggressive
       - name: 학계 방식 모멘텀(최근 1개월 제외) 비교 (국내)
         if: ${{ contains(github.event.head_commit.message, '[momentum-only]') }}
@@ -83,6 +83,9 @@ jobs:
       - name: 차트 점수로 다시 고르기 비교 (국내 입상형)
         if: ${{ contains(github.event.head_commit.message, '[rerank-only]') }}
         run: python contest.py --rerank --markets KR
+      - name: 약세장 대응 방식(종목 수 vs 금액) 비교 (국내 입상형)
+        if: ${{ contains(github.event.head_commit.message, '[exposure-only]') }}
+        run: python contest.py --exposure --markets KR
       - name: 결과 올리기
         run: |
           git config user.name "github-actions[bot]"

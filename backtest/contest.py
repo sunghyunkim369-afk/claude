@@ -133,6 +133,10 @@ CRASH_BASE = {**VOL_BASE, "crash_hold": 0, "crash_exit": "close", "crash_thr": 0
 RERANK_BASE = {**VOL_BASE, "pool": 0, "rerank": "none"}
 RERANK_VARIANTS = [{}] + [{"pool": n, "rerank": k} for n in (6, 10)
                           for k in ("r2", "fip", "high", "low_ext", "combo")]
+# 약세장 대응 방식 비교(--exposure): 종목 수를 줄이기(top1·top2) vs 3종목 그대로 금액만 줄이기(scale67·scale50)
+#   × 약세장 기준(60일선 위 종목 30·40·50% 미만). scale 은 판단이 바뀐 날 보유 종목도 그 비중으로 다시 맞춰요.
+EXPOSURE_VARIANTS = [{}] + [{"regime": f"breadth{b}", "regime_off": off}
+                            for b in (30, 40, 50) for off in ("top2", "top1", "scale67", "scale50")]
 CRASH_VARIANTS = [
     {},
     {"crash_hold": 1, "crash_exit": "open"},
@@ -250,6 +254,15 @@ REGIME_LABELS = {"none": "안 씀", "index20": "지수<EMA20", "breadth40": "EMA
 OFF_LABELS = {"cash": "전부 현금", "top1": "1종목만", "top2": "2종목만", "hold": "거래 쉬기"}
 
 
+def exposure_name(p):
+    if p.get("regime", "none") == "none":
+        return "기준(약세장 대응 없음)"
+    off = p["regime_off"]
+    how = {"top2": "2종목만 (금액 2/3)", "top1": "1종목만 (금액 1/3)",
+           "scale67": "3종목 그대로, 금액 2/3", "scale50": "3종목 그대로, 금액 1/2"}[off]
+    return f"60일선 위 {p['regime'][7:]}% 미만 → {how}"
+
+
 def rerank_name(p):
     if not p.get("pool") or p.get("rerank", "none") == "none":
         return "기준(수익률 상위 3)"
@@ -350,6 +363,8 @@ class Rotation:
                 return []
             if off == "hold":
                 return None  # 그날은 거래 안 함
+            if off.startswith("scale"):
+                return self._ranked(d)  # 종목 수는 그대로, 금액만 줄여요 (run 에서)
             return self._ranked(d)[:int(off[3:])]
         return self._ranked(d)
 
@@ -384,6 +399,7 @@ class Rotation:
             traded_syms.add(fill.order.symbol)
 
         cpos = None  # 급락 반등 슬롯: {"s", "qty", "exit_i"}
+        last_on = True  # 약세장 금액 조절(scale)용: 지난 리밸런스 때 시장 판단
         hold_n, exit_at = self.p.get("crash_hold", 0), self.p.get("crash_exit", "close")
 
         def crash_sell(i, d, at):
@@ -405,7 +421,8 @@ class Rotation:
             if pending is not None and pending[0] is None:
                 pending = None
             if pending is not None:
-                target, per = pending
+                target, per, adjust = pending
+                full = self.p["full_rebalance"] or adjust  # 약세장 금액 조절이 바뀐 날은 보유 종목도 다시 맞춰요
                 # 1) 목표에서 빠진 종목 매도
                 for s in [s for s in pos if s not in target]:
                     if s in bars:
@@ -414,7 +431,7 @@ class Rotation:
                         record(f, d)
                         del pos[s]
                 # 2) 다시 맞추기: 넘치는 만큼 매도
-                if self.p["full_rebalance"]:
+                if full:
                     for s in list(pos):
                         if s in bars:
                             extra = pos[s]["qty"] - int(per // bars[s]["Open"])
@@ -428,7 +445,7 @@ class Rotation:
                     if s not in bars:
                         continue
                     have = pos.get(s, {}).get("qty", 0)
-                    if have and not self.p["full_rebalance"]:
+                    if have and not full:
                         continue
                     want = int(min(per, cash) // (bars[s]["Open"] * 1.01)) - have
                     if want <= 0:
@@ -507,7 +524,14 @@ class Rotation:
                 t = self.targets(d)
                 if cpos and t is not None:
                     t = t[:self.p["top_k"] - 1]
-                pending = (t, value / self.p["top_k"])
+                scale, adjust = 1.0, False
+                off = self.p.get("regime_off", "cash")
+                if off.startswith("scale"):
+                    on = self.risk_on(d)
+                    scale = 1.0 if on else int(off[5:]) / 100
+                    adjust = on != last_on
+                    last_on = on
+                pending = (t, value / self.p["top_k"] * scale, adjust)
         # 대회 끝: 보유 종목은 종가로 평가 (대회 수익률은 평가금액 기준이라 팔지 않아요)
         stats = {"orders": orders, "days": len(traded_days), "symbols": len(traded_syms), "amount": amount,
                  "held": float(np.mean(held)) if held else 0.0}
@@ -736,6 +760,7 @@ def main(argv=None):
     ap.add_argument("--momentum", action="store_true", help="학계 방식 모멘텀(최근 1개월 제외)과 지금 입상형 비교")
     ap.add_argument("--exits", action="store_true", help="지금 입상형에 % 익절·손절을 붙여 비교")
     ap.add_argument("--volume", action="store_true", help="지금 입상형에 거래량 조건을 붙여 비교")
+    ap.add_argument("--exposure", action="store_true", help="약세장 때 종목 수 줄이기 vs 금액만 줄이기 비교")
     ap.add_argument("--rerank", action="store_true", help="수익률 상위 6·10종목 안에서 차트 점수로 3종목 다시 고르기 비교")
     ap.add_argument("--crash", action="store_true", help="지금 입상형에 급락 반등 슬롯(급락 날 종가 매수, N일 보유)을 붙여 비교")
     ap.add_argument("--regime", action="store_true", help="지금 입상형에 하락장 판단(현금·비중 축소·거래 쉬기)을 붙여 비교")
@@ -755,9 +780,11 @@ def main(argv=None):
     symbols = list(dict.fromkeys(kr + (us if "US" in markets else [])))
     raw, start, end = load_all(symbols, cfg["period"], cache, log=lambda *_: None)
     print(f"받은 데이터: 국내 {sum(market_of(s) == 'KR' for s in raw)}종목, 해외 {sum(market_of(s) == 'US' for s in raw)}종목")
-    grid = (RERANK_BASE if args.rerank else CRASH_BASE if args.crash else REGIME_GRID if args.regime else VOL_BASE if args.volume else EXIT_GRID if args.exits else MOM_GRID if args.momentum else
+    grid = (VOL_BASE if args.exposure else RERANK_BASE if args.rerank else CRASH_BASE if args.crash else REGIME_GRID if args.regime else VOL_BASE if args.volume else EXIT_GRID if args.exits else MOM_GRID if args.momentum else
             AGG_GRID if args.aggressive else GRID)
-    if args.rerank:
+    if args.exposure:
+        param_list = [{**VOL_BASE, **v} for v in EXPOSURE_VARIANTS]
+    elif args.rerank:
         param_list = [{**RERANK_BASE, **v} for v in RERANK_VARIANTS]
     elif args.crash:
         param_list = [{**CRASH_BASE, **v} for v in CRASH_VARIANTS]
@@ -765,9 +792,9 @@ def main(argv=None):
         param_list = [{**VOL_BASE, **v} for v in VOL_VARIANTS]
     else:
         param_list = [dict(zip(grid, values)) for values in itertools.product(*grid.values())]
-    tail_mode = args.aggressive or args.momentum or args.exits or args.volume or args.regime or args.crash or args.rerank
+    tail_mode = args.aggressive or args.momentum or args.exits or args.volume or args.regime or args.crash or args.rerank or args.exposure
     metric = "상위10%" if tail_mode else "중앙값"
-    tag = ("contest_rerank" if args.rerank else "contest_crash" if args.crash else "contest_regime" if args.regime else "contest_volume" if args.volume else "contest_exits" if args.exits else "contest_momentum" if args.momentum else
+    tag = ("contest_exposure" if args.exposure else "contest_rerank" if args.rerank else "contest_crash" if args.crash else "contest_regime" if args.regime else "contest_volume" if args.volume else "contest_exits" if args.exits else "contest_momentum" if args.momentum else
            "contest_aggressive" if args.aggressive else "contest") + \
         ("" if markets == ["KR", "US"] else "_" + "_".join(markets))
     if args.us_list:
@@ -802,10 +829,10 @@ def main(argv=None):
                 rets.append(curve.iloc[-1] / cap - 1)
                 stats.append(st)
             combos[combo_name(params)] = (rets, stats)
-            if args.volume or args.regime or args.crash or args.rerank:
+            if args.volume or args.regime or args.crash or args.rerank or args.exposure:
                 tr, te = (summarize(rets[sl], bench[sl], stats[sl], rule, scale)
                           for sl in (slice(0, cut), slice(cut, None)))
-                label = (rerank_name(params) if args.rerank else crash_name(params) if args.crash else regime_name(params) if args.regime
+                label = (exposure_name(params) if args.exposure else rerank_name(params) if args.rerank else crash_name(params) if args.crash else regime_name(params) if args.regime
                          else vol_name(params))
                 vol_rows.append({"조건": label,
                                  **{f"학습 {k}": tr[k] for k in VOL_COLS}, **{f"검증 {k}": te[k] for k in VOL_COLS},
@@ -815,8 +842,8 @@ def main(argv=None):
                              **summarize(rets[sl], bench[sl], stats[sl], rule, scale)})
         states = build_states(regime)
         now_lines = current_state_lines(market, states, dates)
-        if args.volume or args.regime or args.crash or args.rerank:
-            what = "차트 점수 다시 고르기별" if args.rerank else "급락 반등 슬롯별" if args.crash else "하락장 판단별" if args.regime else "거래량 조건별"
+        if args.volume or args.regime or args.crash or args.rerank or args.exposure:
+            what = "약세장 대응 방식별" if args.exposure else "차트 점수 다시 고르기별" if args.rerank else "급락 반등 슬롯별" if args.crash else "하락장 판단별" if args.regime else "거래량 조건별"
             adaptive_lines = [what + " 비교 (학습 = 앞 60% 구간, 검증 = 뒤 40% 구간):",
                               fmt(pd.DataFrame(vol_rows))]
         elif tail_mode:
@@ -834,7 +861,7 @@ def main(argv=None):
         picked[market] = {k: (v.item() if hasattr(v, "item") else v) for k, v in key.items()}
         test_best = test[np.logical_and.reduce([test[k] == v for k, v in key.items()])]
         cols = ["시장", "구분"]
-        if args.volume or args.regime or args.crash or args.rerank:
+        if args.volume or args.regime or args.crash or args.rerank or args.exposure:
             lines += now_lines + [f"[{market}] 학습 구간 {cut}개 / 검증 구간 {len(wins) - cut}개 "
                                   f"({wins[cut][0]:%Y-%m-%d} 이후 시작)", *adaptive_lines, ""]
             continue

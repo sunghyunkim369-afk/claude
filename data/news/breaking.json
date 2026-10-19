@@ -1,7 +1,123 @@
 {
- "generated": "2026-10-19T07:11:03.810Z",
+ "generated": "2026-10-19T13:04:29.310Z",
  "hours": 24,
  "items": [
+  {
+   "title": "Solar power a shining example of export progress across sub-Saharan Africa",
+   "lang": "en",
+   "link": "https://theloadstar.com/solar-power-a-shining-example-of-export-progress-across-sub-saharan-africa/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-19T12:07:23.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "‘Redeployment and agility’ key to continued success of LNG transition, says CMA",
+   "lang": "en",
+   "link": "https://theloadstar.com/redeployment-and-agility-key-to-continued-success-of-lng-transition-says-cma/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-19T11:59:58.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem",
+    "auto"
+   ]
+  },
+  {
+   "title": "New EU parcel charges add pressure for rethink on cross-border fulfilment",
+   "lang": "en",
+   "link": "https://theloadstar.com/new-eu-parcel-charges-add-pressure-for-rethink-on-cross-border-fulfilment/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-19T11:45:18.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "New report reveals hidden extra costs of cargo crime",
+   "lang": "en",
+   "link": "https://theloadstar.com/new-report-reveals-hidden-extra-costs-of-cargo-crime/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-19T11:40:13.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "auto",
+    "ship"
+   ]
+  },
+  {
+   "title": "Northern Sea Route Transits Surpass 2025 Total as Arctic Shipping Gains Momentum",
+   "lang": "en",
+   "link": "https://gcaptain.com/northern-sea-route-transits-surpass-2025-total-as-arctic-shipping-gains-momentum/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-19T10:53:54.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "Qatar LNG Cargo Makes Rare Red Sea Journey to Get Gas to Europe",
+   "lang": "en",
+   "link": "https://gcaptain.com/qatar-lng-cargo-makes-rare-red-sea-journey-to-get-gas-to-europe/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-19T10:50:00.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "auto",
+    "chem"
+   ]
+  },
+  {
+   "title": "Shippers eye transloading to ease truck constraints at US-Mexico border",
+   "lang": "en",
+   "link": "https://theloadstar.com/shippers-eye-transloading-to-ease-truck-constraints-at-us-mexico-border/",
+   "source": "The Loadstar",
+   "outlets": 1,
+   "at": "2026-10-19T10:44:40.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "울산항만공사, 폐현수막으로 장바구니 제작…상권 활성화 연계도",
+   "link": "https://www.yna.co.kr/view/AKR20261019166500057",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-19T09:39:57.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "원/달러 환율 2년만에 또 최저…위안화 환율도 1년만에 최저(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261019137151002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-19T07:24:48.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": []
+  },
   {
    "title": "Indian chemical firms turn to foreign partners to crack chip supply chains",
    "lang": "en",
@@ -69,111 +185,6 @@
    "sectors": [
     "steel"
    ]
-  },
-  {
-   "title": "Diamond Sawblades and Parts Thereof From the People's Republic of China: Notice of Covered Merchandise Referral and Initiation of Covered Merchandise Inquiry",
-   "lang": "en",
-   "link": "https://www.federalregister.gov/documents/2026/10/19/2026-21281/diamond-sawblades-and-parts-thereof-from-the-peoples-republic-of-china-notice-of-covered-merchandise",
-   "source": "Federal Register",
-   "outlets": 1,
-   "at": "2026-10-19T04:00:00.000Z",
-   "tag": "통관·원산지",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "국감서 인천신항 하역장비 중국산 도입 '질타'",
-   "link": "https://www.yna.co.kr/view/AKR20261019091300065",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-19T03:37:32.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "machinery",
-    "ship"
-   ]
-  },
-  {
-   "title": "日미쓰비시 중공업, 군함 수요 늘자 휴면 조선 시설 재가동",
-   "link": "https://www.yna.co.kr/view/AKR20261019089200073",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-19T03:10:51.000Z",
-   "tag": "수출통제",
-   "direction": "down",
-   "sectors": [
-    "ship",
-    "machinery"
-   ]
-  },
-  {
-   "title": "대미투자, 언제까지 수비만 할건가요…‘판’ 좀 뒤집어봅시다 [기자24시]",
-   "link": "https://www.mk.co.kr/news/economy/12179404",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-19T02:21:00.000Z",
-   "tag": "유가·원자재",
-   "direction": "up",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "한·칠레 자유무역위원회, 10년만에 개최…FTA 개선 논의",
-   "link": "https://www.yna.co.kr/view/AKR20261019032700003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-19T02:00:06.000Z",
-   "tag": "FTA·통상협정",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "지방기업과 중국 유통망 연결…대구·청주서 소비재 수출상담회",
-   "link": "https://www.yna.co.kr/view/AKR20261019056200003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-19T02:00:03.000Z",
-   "tag": "수출입 동향",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "[쇼츠] 이란 \"유조선 2척 기뢰 충돌\"",
-   "link": "https://www.yna.co.kr/view/AKR20261019070100704",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-19T01:58:25.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "ship",
-    "chem"
-   ]
-  },
-  {
-   "title": "[영상] 호르무즈서 유조선 잇단 화재…이란 \"기뢰 충돌\" 주장",
-   "link": "https://www.yna.co.kr/view/AKR20261019062000704",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-19T01:40:31.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "ship",
-    "chem"
-   ]
-  },
-  {
-   "title": "이형일 “올해 3.4~3.6% 성장 가능…내년부터 경제전망 연 3회 검토”",
-   "link": "https://www.mk.co.kr/news/economy/12179289",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-19T01:09:50.000Z",
-   "tag": "환율",
-   "direction": "info",
-   "sectors": []
   }
  ]
 }

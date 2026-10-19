@@ -92,7 +92,10 @@ def pooled(rows):
 
 
 def main():
-    folder = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, ".cache", "marcap")
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    if "--search" in sys.argv:
+        return search(args[0] if args else os.path.join(HERE, ".cache", "marcap"))
+    folder = args[0] if args else os.path.join(HERE, ".cache", "marcap")
     cfg = load_config(os.path.join(HERE, "config.yaml"))
     df = load_marcap(folder)
     dates = sorted(df["Date"].unique())
@@ -166,6 +169,103 @@ def main():
     out = os.path.join(HERE, "results")
     os.makedirs(out, exist_ok=True)
     with open(os.path.join(out, "pit.txt"), "w", encoding="utf-8") as f:
+        f.write(text + "\n")
+
+
+# ---------- 변수 탐색 (그때 기준 종목으로) ----------
+# 미리 정한 고르는 법: 학습 구간에서 수상 조건 충족률 95% 이상 중 +30% 확률 1위 (같으면 중앙값).
+# 검증 구간은 고른 뒤에 한 번만 봐요. 지금 공식·무작위·변동성 상위와 같이 보여 줘요.
+SEARCH_GRID = {"lookback": [5, 10, 20, 60], "top_k": [2, 3, 5], "rebalance_days": [1, 2, 5],
+               "trend_filter": [True, False], "regime": ["none", "breadth40"]}
+_G = {}
+
+
+def _prepare(folder):
+    cfg = load_config(os.path.join(HERE, "config.yaml"))
+    df = load_marcap(folder)
+    dates = sorted(df["Date"].unique())
+    by_date = dict(tuple(df.groupby("Date")))
+    wins = contest.windows(dates[130:], 26, 5)
+    pit = [universe_on(by_date[dates[dates.index(a) - 1]]) for a, _ in wins]
+    codes = set().union(*pit)
+    raw = {}
+    for c, g in df[df["Code"].isin(codes)].groupby("Code"):
+        g = adjust_splits(g).set_index("Date")
+        if len(g) > 70:
+            raw[c] = g[["Open", "High", "Low", "Close", "Volume"]]
+    frames = contest.prepare(raw, cfg, [5, 10, 20, 60])
+    bars = contest.build_bars(frames)
+    _G.update(cfg=cfg, wins=wins, pit=pit, frames=frames, bars=bars, regime=contest.build_regime(bars))
+
+
+def _run_one(params):
+    g = _G
+    cap = g["cfg"]["capital"]["KR"]
+    rot = contest.Rotation(g["frames"], "KR", g["cfg"], params, g["bars"], g["regime"])
+    rets, stats = [], []
+    for (a, b), allowed in zip(g["wins"], g["pit"]):
+        curve, st = rot.run(a, b, cap, allowed=allowed)
+        rets.append(curve.iloc[-1] / cap - 1)
+        stats.append(st)
+    return params, rets, stats
+
+
+def search(folder):
+    import itertools
+    import multiprocessing as mp
+    _prepare(folder)
+    g = _G
+    rule, scale = contest.RULES["KR"], g["cfg"]["capital"]["KR"] / 1e8
+    cut = int(len(g["wins"]) * 0.6)
+    bench = [0.0] * len(g["wins"])
+    combos = []
+    for values in itertools.product(*SEARCH_GRID.values()):
+        p = {**contest.VOL_BASE, **dict(zip(SEARCH_GRID, values))}
+        if p["regime"] != "none":
+            p["regime_off"] = "scale50"
+        combos.append(p)
+    refs = [{**contest.VOL_BASE, "rank": f"random{i}", "trend_filter": False} for i in range(SEEDS)] + \
+           [{**contest.VOL_BASE, "rank": "vol", "trend_filter": False}]
+    with mp.get_context("fork").Pool(4) as pool:
+        results = pool.map(_run_one, combos + refs, chunksize=2)
+    rows = []
+    for p, rets, stats in results[:len(combos)]:
+        row = {k: p[k] for k in SEARCH_GRID}
+        for part, sl in (("학습", slice(0, cut)), ("검증", slice(cut, None))):
+            sm = contest.summarize(rets[sl], bench[sl], stats[sl], rule, scale)
+            for k in ("중앙값", "평균", "상위10%", "+30%확률", "하위10%", "최악", "조건충족률"):
+                row[f"{part} {k}"] = sm[k]
+        rows.append(row)
+    df = pd.DataFrame(rows)
+    ok = df[df["학습 조건충족률"] >= 0.95].sort_values(["학습 +30%확률", "학습 중앙값"], ascending=False)
+    best = ok.iloc[0]
+    cur = df[(df.lookback == 20) & (df.top_k == 3) & (df.rebalance_days == 2) & (df.trend_filter)
+             & (df.regime == "breadth40")]
+    cur0 = df[(df.lookback == 20) & (df.top_k == 3) & (df.rebalance_days == 2) & (df.trend_filter)
+              & (df.regime == "none")]
+    ref_rows = []
+    for name, part_runs in (("무작위 3종목 (5번)", results[len(combos):len(combos) + SEEDS]),
+                            ("변동성 상위 3종목", results[len(combos) + SEEDS:])):
+        row = {"lookback": name}
+        for part, sl in (("학습", slice(0, cut)), ("검증", slice(cut, None))):
+            r = sum((x[1][sl] for x in part_runs), [])
+            s = sum((x[2][sl] for x in part_runs), [])
+            sm = contest.summarize(r, [0.0] * len(r), s, rule, scale)
+            for k in ("중앙값", "평균", "상위10%", "+30%확률", "하위10%", "최악", "조건충족률"):
+                row[f"{part} {k}"] = sm[k]
+        ref_rows.append(row)
+    show = lambda d: contest.fmt(d.reset_index(drop=True))
+    text = "\n".join([
+        f"변수 탐색 (그때 기준 종목, 생존 편향 제거): 조합 {len(combos)}개, 구간 {len(g['wins'])}개 "
+        f"(학습 {cut}개 / 검증 {len(g['wins']) - cut}개)",
+        "고르는 법(미리 정함): 학습 구간 조건충족률 95% 이상 중 +30% 확률 1위",
+        "", "[학습 기준 상위 10개 — 검증 값은 참고]", show(ok.head(10)),
+        "", "[고른 조합]", show(ok.head(1)),
+        "", "[지금 공식: 20일·3종목·2일·추세조건, 약세장 절반 / 약세장 대응 없음]", show(pd.concat([cur, cur0])),
+        "", "[비교 기준]", show(pd.DataFrame(ref_rows)), ""])
+    print(text)
+    df.to_csv(os.path.join(HERE, "results", "pit_search.csv"), index=False, encoding="utf-8-sig")
+    with open(os.path.join(HERE, "results", "pit_search.txt"), "w", encoding="utf-8") as f:
         f.write(text + "\n")
 
 

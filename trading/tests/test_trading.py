@@ -601,7 +601,7 @@ class ContestModeTest(unittest.TestCase):
                                       out=lambda *_: None)
         self.assertEqual((len(calls), waits, n), (2, [120], 2))
 
-    def test_aggressive_weak_market_keeps_top2(self):
+    def test_aggressive_weak_market_keeps_three_with_half_money(self):
         rising = {"000001": 0.012, "000002": 0.011, "000003": 0.01}
         falling = {f"00010{i}": -0.004 for i in range(7)}       # 10종목 중 7종목이 60일선 아래 → 30%
         universe = [(c, c) for c in {**rising, **falling}]
@@ -610,12 +610,34 @@ class ContestModeTest(unittest.TestCase):
         with mock.patch.object(self.contest, "score", sc):
             _, state = self.cycle(kis, auto_utc(2026, 10, 21, 0, 30), universe)
         buys = [(c["body"]["PDNO"], int(c["body"]["ORD_QTY"])) for c in t.calls if c["path"].endswith("order-cash")]
-        self.assertEqual([b[0] for b in buys], ["000001", "000002"])   # 상위 2종목만
-        self.assertEqual(buys[0][1], 3333)                              # 그래도 1/3 씩 (나머지 1/3 현금)
+        self.assertEqual(buys, [("000001", 1666), ("000002", 1666), ("000003", 1666)])  # 3종목, 1/3 의 절반씩
         self.assertFalse(state.d["kr_ranked"]["risk_on"])
+        self.assertFalse(state.d["kr_last_risk_on"])
         series = {"A": [("d", 100 * 1.01 ** i) for i in range(70)], "B": [("d", 100 * 0.99 ** i) for i in range(70)],
                   "C": [("d", 1.0)] * 10}                                # C 는 데이터 부족이라 빼요
         self.assertAlmostEqual(self.contest.breadth_above_ema(series), 0.5)
+
+    def test_weak_market_start_trims_and_recovery_tops_up(self):
+        rising = {"000001": 0.012, "000002": 0.011, "000003": 0.01}
+        falling = {f"00010{i}": -0.004 for i in range(7)}
+        sc = lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1
+
+        def run(strengths, qty, last_on):
+            held = [{"pdno": c, "prdt_name": c, "hldg_qty": qty, "pchs_avg_pric": "10000", "prpr": "10000"}
+                    for c in rising]
+            kis, t = client(self.market(strengths, held_kr=held))
+            state = self.contest.State(os.path.join(self.tmp.name, f"r{qty}.json"))
+            state.d.update({"kr_equalized_top_k": 3, "kr_last_risk_on": last_on})
+            with mock.patch.object(self.contest, "score", sc):
+                auto.run_contest_cycle(kis, {"us": {"watchlist": []}, "auto": {}}, state, auto_utc(2026, 10, 21, 0, 30),
+                                       self.logs.append, lambda *_: None, [(c, c) for c in strengths])
+            return [(c["headers"]["tr_id"], c["body"]["PDNO"], int(c["body"]["ORD_QTY"]))
+                    for c in t.calls if c["path"].endswith("order-cash")]
+        # 보통 → 약세장: 1/3(3333주)씩 들고 있던 걸 절반(1/6 = 16,666,666원)으로 → 1666주 매도
+        self.assertEqual(run({**rising, **falling}, "3333", True),
+                         [("VTTC0011U", c, 1666) for c in rising])
+        # 약세장 → 보통: 절반(1666주)씩이던 걸 1/3 까지 다시
+        self.assertEqual(run(rising, "1666", False), [("VTTC0012U", c, 1667) for c in rising])
 
     def test_crash_check(self):
         changes = {"A": "-8.5", "B": "-1.0", "C": "-0.5"}

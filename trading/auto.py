@@ -207,7 +207,7 @@ def kr_fill_missing(kis, state, session, place, out=print):
     held = bal["holdings"]
     manual = state.d.get("manual", {})
     todo = [t for t in fill["targets"] if t[1] not in held and t[1] not in fill["placed"] and t[1] not in manual]
-    per = contest.auto_budget(bal, manual, fill["top_k"])
+    per = contest.auto_budget(bal, manual, fill["top_k"]) * fill.get("scale", 1.0)
     for sc, code, name in todo:
         o = contest.kr_buy_order(kis, code, name, per, f"20일 수익률 {sc * 100:+.1f}%", out)
         if o and place(o, session):
@@ -260,7 +260,7 @@ def kr_fill_short(kis, state, bal, manual, p, session, place, out=print):
     cached = state.d.get("kr_ranked")
     if not cached or cached.get("session") != session:
         return
-    per = contest.auto_budget(bal, manual, p["top_k"])
+    per = contest.auto_budget(bal, manual, p["top_k"]) * cached.get("scale", 1.0)
     for sc, code, name in [tuple(t) for t in cached["targets"]]:
         h = bal["holdings"].get(code)
         if not h or code in manual:
@@ -269,6 +269,23 @@ def kr_fill_short(kis, state, bal, manual, p, session, place, out=print):
         if cost < per * 0.9:
             out(f"  {name}({code}) 산 금액 {cost:,.0f}원이 몫 {per:,.0f}원보다 적어서 마저 사요")
             o = contest.kr_buy_order(kis, code, name, per - cost, "모자란 비중 채우기", out)
+            if o:
+                place(o, session)
+
+
+def kr_regime_top_up(kis, state, targets, manual, p, session, place, out=print):
+    """약세장 → 보통으로 바뀐 날: 약세장 때 절반 금액으로 들고 있던 목표 종목을 다시 1/top_k 까지 채워요."""
+    from . import contest
+    bal = kis.kr_balance()
+    per = contest.auto_budget(bal, manual, p["top_k"])
+    for sc, code, name in targets:
+        h = bal["holdings"].get(code)
+        if not h or code in manual:
+            continue
+        value = h["qty"] * h["price"]
+        if value < per * 0.9:
+            out(f"  {name}({code}) 약세장이 끝나서 1/{p['top_k']} 까지 다시 채워요")
+            o = contest.kr_buy_order(kis, code, name, per - value, "약세장 끝, 비중 다시 채우기", out)
             if o:
                 place(o, session)
 
@@ -363,22 +380,31 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
             out("  시장: " + ("좋은 날 (지수 > 20일 평균) → 5종목" if risk_on
                              else "나쁜 날 (지수 < 20일 평균) → 상위 2종목만, 나머지 현금"))
         elif p.get("regime_breadth"):
-            out("  시장: " + (f"보통 → 상위 {p['top_k']}종목" if risk_on
+            out("  시장: " + (f"보통 → 상위 {p['top_k']}종목, 1/{p['top_k']} 씩" if risk_on
                              else f"약세장 (60일선 위 종목 {p['regime_breadth'] * 100:.0f}% 미만) → "
-                                  f"상위 {p['risk_off_top']}종목만, 1/{p['top_k']} 은 현금"))
+                                  f"상위 {p['risk_off_top']}종목, 금액은 {p.get('risk_off_scale', 1):.0%} 만 (나머지 현금)"))
         out(f"  목표 {len(targets)}종목: " + ", ".join(f"{n}({c}) {s * 100:+.1f}%" for s, c, n in targets) if targets
             else "  상승 추세 종목이 없어 현금 보유")
+        # 약세장이면 금액만 줄여요 (risk_off_scale). 판단이 바뀐 날은 들고 있던 종목도 그 비중으로 맞춰요.
+        scale = 1.0 if risk_on else p.get("risk_off_scale", 1.0)
+        last_on = state.d.get("kr_last_risk_on", True)
+        state.d["kr_ranked"]["scale"] = scale
         # 2종목 시절에 산 종목이 1/2 씩이라, 3종목 공식의 첫 리밸런스 때 한 번만 1/3 로 맞춰요
-        trim = mode == "aggressive" and state.d.get("kr_equalized_top_k") != p["top_k"]
-        sells, buys = contest.kr_plan(kis, targets, p, manual, trim=trim)
+        trim = (mode == "aggressive" and state.d.get("kr_equalized_top_k") != p["top_k"]) \
+            or (scale < 1 and last_on)
+        sells, buys = contest.kr_plan(kis, targets, p, manual, trim=trim, scale=scale)
         state.d["kr_equalized_top_k"] = p["top_k"]
+        regained = risk_on and not last_on and p.get("risk_off_scale", 1.0) < 1
+        state.d["kr_last_risk_on"] = risk_on
         for o in sells:
             place(o, kr_session)
         state.d["kr_rebalances"].append(kr_session)
         # 매수는 매도가 끝난 뒤 주문가능금액을 보고 1% 높은 지정가로. 못 산 건 같은 날 다음 확인 때 다시 시도해요.
         state.d["kr_fill"] = {"session": kr_session, "targets": [list(t) for t in targets], "placed": [],
-                              "top_k": p["top_k"]}
+                              "top_k": p["top_k"], "scale": scale}
         kr_fill_missing(kis, state, kr_session, place, out)
+        if regained:
+            kr_regime_top_up(kis, state, targets, manual, p, kr_session, place, out)
         d = state.d
         out(f"  대회 조건 진행(주문 접수 기준): 매매금액 {d['amount'] / 1e8:.2f}억/5억, 매매일 {len(d['days'])}/5일, "
             f"종목 {len(d['symbols'])}/5, 주문 {d['orders']}/5회")

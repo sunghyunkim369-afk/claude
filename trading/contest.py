@@ -4,7 +4,7 @@ backtest/contest.py 로 과거 5년의 '5주 구간' 수백 개를 시험해서 
 
 국내는 두 가지 공식 중 하나로 돌아요 (state 의 kr_mode):
   aggressive (기본, 입상형): 20거래일 수익률 상위 3종목, 2거래일마다 교체, 과열 제외 없음
-    약세장(60일선 위 종목 40% 미만)이면 상위 2종목만 (1/3 현금) — 10/19 추가
+    약세장(60일선 위 종목 40% 미만)이면 3종목 그대로 금액만 절반 (나머지 현금) — 10/19 추가
     → 과거 5주 구간 검증(backtest contest.py --momentum): 중앙값 +3.4%/+5.7%, +30% 이상 확률 19%/28%,
       상위 10% +47%/+63%, 하위 10% −21%/−29%, 최악 −55% (앞 기간/최근 기간). 2종목보다 균형이 좋아서 바꿨어요.
       학계 방식(최근 1개월 빼고 60·120일)은 +30% 확률이 절반 정도라 대회에는 안 맞았어요.
@@ -37,9 +37,10 @@ KR_MODES = {
                # 시장 국면 필터: 대상 종목 동일비중 지수가 그 지수의 EMA20 아래면(나쁜 날) 상위 2종목만, 나머지 현금
                "regime_ema": 20, "risk_off_top": 2},
     "aggressive": {"lookback": 20, "top_k": 3, "rebalance_days": 2, "rsi_max": 101,
-                   # 약세장 판단(10/19 추가): 60일선 위 종목이 40% 미만이면 상위 2종목만, 1/3 은 현금
-                   #   (backtest contest.py --regime: +30% 확률은 거의 그대로, 최악 −45/−55% → −37/−45%)
-                   "regime_ema": None, "regime_breadth": 0.40, "risk_off_top": 2},
+                   # 약세장 판단(10/19 추가): 60일선 위 종목이 40% 미만이면 3종목 그대로 금액만 절반 (나머지 현금)
+                   #   (backtest contest.py --exposure: +30% 확률 20.8/26.0% 로 그대로 이상, 최악 −45/−51% → −30/−39%.
+                   #    2종목만 남기기보다 손실 쪽이 두 기간 모두 얕았어요)
+                   "regime_ema": None, "regime_breadth": 0.40, "risk_off_top": 3, "risk_off_scale": 0.5},
 }
 KR = KR_MODES["stable"]  # 예전 이름 (호환용)
 DEFAULT_KR_MODE = "aggressive"
@@ -267,7 +268,7 @@ def auto_budget(bal, manual, top_k):
     return max(bal["total"] - manual_value, 0) / top_k if bal["total"] > 0 else 0
 
 
-def kr_plan(kis, targets, p=None, manual=(), trim=False):
+def kr_plan(kis, targets, p=None, manual=(), trim=False, scale=1.0):
     """(매도 주문들, 매수 주문들). 목표에 없는 보유 종목은 전부 팔고(수동 보유 종목은 빼고), 새 목표는
     (총평가 − 수동 보유분)의 1/top_k 씩 (시장이 나쁜 날 목표가 적어도 1/top_k 씩이라 나머지는 현금으로 남아요).
     trim 이면 목표에 남는 보유 종목도 1/top_k 보다 많은 만큼 팔아 맞춰요 (2종목 → 3종목으로 바꾼 뒤 한 번만)."""
@@ -277,7 +278,7 @@ def kr_plan(kis, targets, p=None, manual=(), trim=False):
     sells = [{"market": "kr", "side": "sell", "symbol": c, "name": h["name"], "qty": h["qty"], "price": h["price"],
               "currency": "KRW", "reason": "목표에서 빠짐"} for c, h in held.items()
              if c not in want and c not in manual]
-    per = auto_budget(bal, manual, (p or KR)["top_k"])
+    per = auto_budget(bal, manual, (p or KR)["top_k"]) * scale
     if trim:
         for c, h in held.items():
             if c in want and c not in manual and h["price"] > 0:

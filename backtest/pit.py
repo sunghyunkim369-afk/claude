@@ -36,10 +36,10 @@ N_KOSPI, N_KOSDAQ = 150, 100
 SEEDS = 5
 
 
-def load_marcap(folder):
+def load_marcap(folder, years=YEARS):
     os.makedirs(folder, exist_ok=True)
     frames = []
-    for y in YEARS:
+    for y in years:
         path = os.path.join(folder, f"marcap-{y}.parquet")
         if not os.path.exists(path):
             urllib.request.urlretrieve(URL.format(y), path)
@@ -95,6 +95,8 @@ def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     if "--search" in sys.argv:
         return search(args[0] if args else os.path.join(HERE, ".cache", "marcap"))
+    if "--eras" in sys.argv:
+        return eras(args[0] if args else os.path.join(HERE, ".cache", "marcap"))
     folder = args[0] if args else os.path.join(HERE, ".cache", "marcap")
     cfg = load_config(os.path.join(HERE, "config.yaml"))
     df = load_marcap(folder)
@@ -266,6 +268,73 @@ def search(folder):
     print(text)
     df.to_csv(os.path.join(HERE, "results", "pit_search.csv"), index=False, encoding="utf-8-sig")
     with open(os.path.join(HERE, "results", "pit_search.txt"), "w", encoding="utf-8") as f:
+        f.write(text + "\n")
+
+
+# ---------- 시대별 비교 (더 긴 기간) ----------
+# 2015-06-15 전에는 하루 가격제한폭이 ±15% (지금 ±30%) 라 급등주 모양이 달라요 → 시대를 나눠서 봐요.
+ERAS = [("2005-01-01", "2015-06-12", "2005~2015.6 (가격제한 ±15%)"),
+        ("2015-06-15", "2019-12-31", "2015.6~2019"),
+        ("2020-01-01", "2026-12-31", "2020~2026")]
+ERA_VARIANTS = [
+    ("지금 공식: 20일·3종목·2일·추세", {}),
+    ("20일·2종목·2일·추세 없음", {"top_k": 2, "trend_filter": False}),
+    ("20일·3종목·매일", {"rebalance_days": 1}),
+    ("10일·3종목·2일", {"lookback": 10}),
+    ("60일·3종목·2일", {"lookback": 60}),
+    ("20일·5종목·2일", {"top_k": 5}),
+]
+
+
+def eras(folder):
+    import multiprocessing as mp
+    out_lines = ["시대별 비교 (생존 편향 제거: 구간 시작 전날 코스피 시총 상위 150 + 코스닥 100, 상장폐지 포함)",
+                 "26거래일 구간을 5거래일씩 밀며, 비용 포함. 무작위는 5번 합친 값", ""]
+    for start, end, label in ERAS:
+        y0, y1 = int(start[:4]) - 1, int(end[:4])
+        cfg = load_config(os.path.join(HERE, "config.yaml"))
+        df = load_marcap(folder, range(y0, min(y1, 2026) + 1))
+        dates = sorted(df["Date"].unique())
+        by_date = dict(tuple(df.groupby("Date")))
+        s0 = pd.Timestamp(start)
+        inside = [d for d in dates if s0 <= d <= pd.Timestamp(end)]
+        wins = contest.windows(inside, 26, 5)
+        pit = [universe_on(by_date[dates[dates.index(a) - 1]]) for a, _ in wins]
+        codes = set().union(*pit)
+        raw = {}
+        for c, g in df[df["Code"].isin(codes)].groupby("Code"):
+            g = adjust_splits(g).set_index("Date")
+            if len(g) > 70:
+                raw[c] = g[["Open", "High", "Low", "Close", "Volume"]]
+        del df, by_date
+        frames = contest.prepare(raw, cfg, [10, 20, 60])
+        bars = contest.build_bars(frames)
+        _G.clear()
+        _G.update(cfg=cfg, wins=wins, pit=pit, frames=frames, bars=bars, regime=contest.build_regime(bars))
+        params = [{**contest.VOL_BASE, **v} for _, v in ERA_VARIANTS] + \
+                 [{**contest.VOL_BASE, "rank": f"random{i}", "trend_filter": False} for i in range(SEEDS)] + \
+                 [{**contest.VOL_BASE, "rank": "vol", "trend_filter": False}]
+        with mp.get_context("fork").Pool(3) as pool:
+            res = pool.map(_run_one, params, chunksize=1)
+        rule, scale = contest.RULES["KR"], cfg["capital"]["KR"] / 1e8
+        bench = [contest.equal_weight_return({s: frames[s] for s in u if s in frames}, a, b) for (a, b), u in zip(wins, pit)]
+        groups = [(n, [res[i]]) for i, (n, _) in enumerate(ERA_VARIANTS)] + \
+                 [("무작위 3종목 (5번)", res[len(ERA_VARIANTS):len(ERA_VARIANTS) + SEEDS]),
+                  ("변동성 상위 3종목", res[len(ERA_VARIANTS) + SEEDS:])]
+        rows = []
+        for name, rs in groups:
+            r = sum((x[1] for x in rs), [])
+            st = sum((x[2] for x in rs), [])
+            sm = contest.summarize(r, bench * len(rs), st, rule, scale)
+            rows.append({"방식": name, **{k: sm[k] for k in ("중앙값", "평균", "상위10%", "+30%확률", "하위10%", "최악",
+                                                          "조건충족률", "기준평균")}})
+        out_lines += [f"[{label}] 구간 {len(wins)}개 ({wins[0][0]:%Y-%m-%d} ~ {wins[-1][1]:%Y-%m-%d}), 대상이 된 종목 {len(codes)}개",
+                      contest.fmt(pd.DataFrame(rows)), ""]
+        print("\n".join(out_lines[-3:]), flush=True)
+        del frames, bars, raw
+        _G.clear()
+    text = "\n".join(out_lines)
+    with open(os.path.join(HERE, "results", "pit_eras.txt"), "w", encoding="utf-8") as f:
         f.write(text + "\n")
 
 

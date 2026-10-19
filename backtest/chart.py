@@ -1,6 +1,6 @@
 """종목 차트·지표 뽑기 (Claude 가 차트를 보고 판단할 수 있게).
 
-chart_list.txt 의 종목코드마다:
+chart_list.txt 와 holdings.csv(보유 종목: code,name,qty,avg_price)의 종목코드마다:
   results/charts/{코드}_daily.png  일봉 6개월: 캔들, EMA5/20/60, 거래량, RSI14
   results/charts/{코드}_5m.png     5분봉 최근 5거래일 (yfinance, 못 받으면 건너뜀)
   results/charts/summary.txt       숫자 요약 (종가, 이평선 대비 위치, RSI, 20일 수익률, 고점 대비, 거래량 배수 등)
@@ -129,29 +129,62 @@ def summary(code, df):
     return rows
 
 
+def load_holdings():
+    """holdings.csv: code,name,qty,avg_price (매입가 기록. 계좌번호·키는 넣지 않아요)."""
+    path = os.path.join(HERE, "holdings.csv")
+    if not os.path.exists(path):
+        return {}
+    df = pd.read_csv(path, dtype={"code": str}, comment="#")
+    return {r.code.zfill(6): {"name": r.name, "qty": float(r.qty), "avg": float(r.avg_price)} for r in df.itertuples()}
+
+
+def holdings_lines(hold, last):
+    out = ["[보유 종목 손익] (가격은 일봉 종가 또는 5분봉 마지막 값, 수수료·세금 제외)"]
+    cost = value = 0.0
+    for code, h in hold.items():
+        p = last.get(code)
+        if p is None:
+            out.append(f"  {h['name']}({code}) 가격 못 받음")
+            continue
+        c, v = h["qty"] * h["avg"], h["qty"] * p
+        cost, value = cost + c, value + v
+        out.append(f"  {h['name']}({code}) {h['qty']:,.0f}주, 매입가 {h['avg']:,.0f} → {p:,.0f} ({p / h['avg'] - 1:+.2%}), "
+                   f"평가 {v:,.0f}원 (손익 {v - c:+,.0f}원)")
+    if cost:
+        out.append(f"  합계: 매입 {cost:,.0f}원 → 평가 {value:,.0f}원 ({value / cost - 1:+.2%}, {value - cost:+,.0f}원)")
+    return out
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     path = os.path.join(HERE, "chart_list.txt")
     codes = [l.split("#")[0].strip() for l in open(path, encoding="utf-8")] if os.path.exists(path) else []
     codes = [c for c in codes if c]
+    hold = load_holdings()
+    codes = list(dict.fromkeys(list(hold) + codes))
     lines = [f"만든 날: {date.today()}"]
+    last_close = {}
     for code in codes:
         try:
             df = daily(code)
             plot_daily(code, df, os.path.join(OUT, f"{code}_daily.png"))
             lines += summary(code, df)
+            last_close[code] = float(df["Close"].iloc[-1])
         except Exception as e:
             lines.append(f"[{code}] 일봉 실패: {e}")
             continue
         try:
             m = intraday(code)
             if m is not None:
+                last_close[code] = float(m["Close"].iloc[-1])  # 5분봉이 더 최근 (보통 15~20분 늦음)
                 plot_5m(code, m, os.path.join(OUT, f"{code}_5m.png"))
                 lines.append(f"  5분봉: {m.index[0]:%m-%d %H:%M} ~ {m.index[-1]:%m-%d %H:%M}, 마지막 {m['Close'].iloc[-1]:,.0f}")
             else:
                 lines.append("  5분봉: 못 받음")
         except Exception as e:
             lines.append(f"  5분봉 실패: {e}")
+    if hold:
+        lines = lines[:1] + holdings_lines(hold, last_close) + [""] + lines[1:]
     text = "\n".join(lines)
     print(text)
     with open(os.path.join(OUT, "summary.txt"), "w", encoding="utf-8") as f:

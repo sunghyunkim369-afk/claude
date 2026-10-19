@@ -286,8 +286,48 @@ ERA_VARIANTS = [
 ]
 
 
+# 시기별 큰 사건 (이 구간과 겹치는 26일 구간들만 따로 모아서 봐요)
+EVENTS = [
+    ("2008 글로벌 금융위기", "2008-06-01", "2009-03-06"),
+    ("2009~2010 위기 후 반등", "2009-03-09", "2010-12-31"),
+    ("2011 미국 신용강등·유럽 재정위기", "2011-08-01", "2011-12-30"),
+    ("2015 가격제한 ±30% 확대·중국 증시 폭락", "2015-06-15", "2015-12-30"),
+    ("2017 반도체 대형주 랠리", "2017-01-02", "2017-12-28"),
+    ("2018 미중 무역분쟁 급락", "2018-10-01", "2019-01-31"),
+    ("2020 코로나 폭락", "2020-02-17", "2020-03-31"),
+    ("2020~2021 코로나 후 유동성 랠리", "2020-04-01", "2021-06-30"),
+    ("2022 금리 인상 약세장", "2022-01-03", "2022-10-31"),
+    ("2023 2차전지 테마 과열", "2023-03-02", "2023-08-31"),
+    ("2024.8 블랙먼데이", "2024-07-25", "2024-08-30"),
+    ("2024.12 비상계엄·탄핵 정국", "2024-12-02", "2025-01-31"),
+    ("2025.4 미국 관세 충격", "2025-03-25", "2025-05-15"),
+    ("2025 하반기~2026 AI 반도체 랠리", "2025-06-02", "2026-06-30"),
+    ("2026.6~10 급등락 장세", "2026-06-15", "2026-10-16"),
+]
+
+
+def event_table(windows_df):
+    """사건 구간과 겹치는 26일 구간들의 성적 (지금 공식 / 무작위 / 전체 동일비중)."""
+    rows = []
+    w = windows_df
+    for name, a, b in EVENTS:
+        a, b = pd.Timestamp(a), pd.Timestamp(b)
+        sel = w[(w["start"] <= b) & (w["end"] >= a)]
+        if sel.empty:
+            continue
+        cur = sel[sel["방식"] == ERA_VARIANTS[0][0]]
+        rnd = sel[sel["방식"] == "무작위 3종목 (5번)"]
+        rows.append({"사건": name, "구간수": len(cur),
+                     "공식 중앙값": cur["ret"].median(), "공식 평균": cur["ret"].mean(),
+                     "공식 +30%확률": (cur["ret"] >= contest.TAIL_GOAL).mean(), "공식 최악": cur["ret"].min(),
+                     "무작위 중앙값": rnd["ret"].median(), "무작위 +30%확률": (rnd["ret"] >= contest.TAIL_GOAL).mean(),
+                     "시장(동일비중) 평균": cur["bench"].mean()})
+    return pd.DataFrame(rows)
+
+
 def eras(folder):
     import multiprocessing as mp
+    window_rows = []
     out_lines = ["시대별 비교 (생존 편향 제거: 구간 시작 전날 코스피 시총 상위 150 + 코스닥 100, 상장폐지 포함)",
                  "26거래일 구간을 5거래일씩 밀며, 비용 포함. 무작위는 5번 합친 값", ""]
     for start, end, label in ERAS:
@@ -325,6 +365,10 @@ def eras(folder):
         for name, rs in groups:
             r = sum((x[1] for x in rs), [])
             st = sum((x[2] for x in rs), [])
+            for k, ret in enumerate(r):
+                (a, b) = wins[k % len(wins)]
+                window_rows.append({"era": label, "방식": name, "start": a, "end": b, "ret": ret,
+                                    "bench": bench[k % len(wins)]})
             sm = contest.summarize(r, bench * len(rs), st, rule, scale)
             rows.append({"방식": name, **{k: sm[k] for k in ("중앙값", "평균", "상위10%", "+30%확률", "하위10%", "최악",
                                                           "조건충족률", "기준평균")}})
@@ -333,6 +377,12 @@ def eras(folder):
         print("\n".join(out_lines[-3:]), flush=True)
         del frames, bars, raw
         _G.clear()
+    wdf = pd.DataFrame(window_rows)
+    wdf.to_csv(os.path.join(HERE, "results", "pit_eras_windows.csv"), index=False, encoding="utf-8-sig")
+    ev = event_table(wdf)
+    out_lines += ["[시기별 큰 사건] 사건 기간과 겹치는 26일 구간들 (지금 공식 vs 무작위 3종목 vs 시장 전체 동일비중)",
+                  contest.fmt(ev).replace("구간수", "구간수"), ""]
+    print("\n".join(out_lines[-3:]), flush=True)
     text = "\n".join(out_lines)
     with open(os.path.join(HERE, "results", "pit_eras.txt"), "w", encoding="utf-8") as f:
         f.write(text + "\n")

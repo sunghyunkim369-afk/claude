@@ -627,7 +627,7 @@ def fmt(df):
     for c in shown.columns:
         base = c.split(" ")[-1]
         if base in ("평균", "중앙값", "하위25%", "최악", "최고", "기준초과확률", "기준평균", "조건충족률",
-                 "상위10%", "상위5%", "하위10%", "+30%확률"):
+                 "상위10%", "상위5%", "하위10%", "+30%확률") or c == "시장(동일비중) 평균":
             shown[c] = shown[c].map(lambda v: f"{v * 100:.1f}%")
         elif base in ("평균주문", "평균매매금액배수", "보유수"):
             shown[c] = shown[c].map(lambda v: f"{v:.1f}")

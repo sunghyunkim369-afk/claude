@@ -362,6 +362,17 @@ class ContestTest(unittest.TestCase):
                          "60일선 위 40% 미만 → 3종목 그대로, 금액 2/3")
         self.assertIsNotNone(cash_like)
 
+    def test_entry_bar(self):
+        b = {"Open": 110.0, "High": 115.0, "Low": 97.0, "Close": 105.0, "ret_1": 0.05}   # 전날 종가 100
+        eb = self.contest.entry_bar
+        self.assertEqual(eb(b, "open")["Open"], 110.0)
+        self.assertEqual(eb(b, "close")["Open"], 105.0)
+        self.assertAlmostEqual(eb(b, "lim2")["Open"], 98.0)      # 저가 97 이 98 에 닿음
+        self.assertIsNone(eb({**b, "Low": 99.0}, "lim2skip"))     # 안 닿음 → 안 삼
+        self.assertEqual(eb({**b, "Low": 99.0}, "lim2")["Open"], 105.0)   # 안 닿음 → 종가
+        self.assertEqual(eb({**b, "Open": 95.0, "Low": 94.0}, "lim2")["Open"], 95.0)  # 시가부터 더 낮으면 시가
+        self.assertEqual(self.contest.entry_name({"entry": "lim4skip"}), "전날 종가 −4% 지정가 걸어 두기 → 안 닿으면 안 삼")
+
     def test_regime_values_use_only_past(self):
         fr = self.contest.prepare(self.raw, CFG, [20])
         r1 = self.contest.build_regime(self.contest.build_bars(fr))

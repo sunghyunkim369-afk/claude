@@ -137,6 +137,9 @@ RERANK_VARIANTS = [{}] + [{"pool": n, "rerank": k} for n in (6, 10)
 #   × 약세장 기준(60일선 위 종목 30·40·50% 미만). scale 은 판단이 바뀐 날 보유 종목도 그 비중으로 다시 맞춰요.
 EXPOSURE_VARIANTS = [{}] + [{"regime": f"breadth{b}", "regime_off": off}
                             for b in (30, 40, 50) for off in ("top2", "top1", "scale67", "scale50")]
+# 매수 방식 비교(--entry): 시가에 바로(지금) vs 종가에 vs 전날 종가 −x% 지정가를 걸어 두기
+ENTRY_VARIANTS = [{}, {"entry": "close"}, {"entry": "lim0"}, {"entry": "lim2"}, {"entry": "lim4"},
+                  {"entry": "lim2skip"}, {"entry": "lim4skip"}]
 CRASH_VARIANTS = [
     {},
     {"crash_hold": 1, "crash_exit": "open"},
@@ -227,6 +230,25 @@ def _num(v):
     return v if v is not None and v == v else -np.inf
 
 
+def entry_bar(b, entry):
+    """매수 가격 정하기 (broker 는 bar['Open'] 에 체결해요).
+    open: 시가에 바로 / close: 장 마감 직전(종가)에
+    lim{x}: 전날 종가 −x% 지정가를 걸어 둠. 그날 저가가 닿으면 그 가격(시가가 더 낮으면 시가)에 체결,
+            안 닿으면 종가에 삼 / lim{x}skip: 안 닿으면 그날은 안 삼"""
+    if entry == "open":
+        return b
+    if entry == "close":
+        return {**b, "Open": b["Close"]}
+    r1 = b.get("ret_1")
+    if r1 is None or r1 != r1:
+        return b
+    x = int("".join(ch for ch in entry[3:] if ch.isdigit()))
+    limit = b["Close"] / (1 + r1) * (1 - x / 100)
+    if b["Low"] <= limit:
+        return {**b, "Open": min(b["Open"], limit)}
+    return None if entry.endswith("skip") else {**b, "Open": b["Close"]}
+
+
 def volume_ok(b, p):
     """거래량 조건을 켠 것만 확인. NaN 이면 비교가 False 라 통과 못 해요."""
     checks = (("vr20_min", "vr_20_60", 1), ("vr20_max", "vr_20_60", -1), ("vr5_min", "vr_5_60", 1),
@@ -252,6 +274,16 @@ def rank_score(b, p):
 
 REGIME_LABELS = {"none": "안 씀", "index20": "지수<EMA20", "breadth40": "EMA60위 종목<40%", "drop2": "그날 지수 −2% 이하"}
 OFF_LABELS = {"cash": "전부 현금", "top1": "1종목만", "top2": "2종목만", "hold": "거래 쉬기"}
+
+
+def entry_name(p):
+    e = p.get("entry", "open")
+    if e == "open":
+        return "기준(시가에 바로 매수)"
+    if e == "close":
+        return "장 마감 직전(종가) 매수"
+    x = "".join(ch for ch in e[3:] if ch.isdigit())
+    return f"전날 종가 −{x}% 지정가 걸어 두기 → " + ("안 닿으면 안 삼" if e.endswith("skip") else "안 닿으면 종가에")
 
 
 def exposure_name(p):
@@ -447,10 +479,13 @@ class Rotation:
                     have = pos.get(s, {}).get("qty", 0)
                     if have and not full:
                         continue
-                    want = int(min(per, cash) // (bars[s]["Open"] * 1.01)) - have
+                    bar = entry_bar(bars[s], self.p.get("entry", "open"))
+                    if bar is None:
+                        continue  # 걸어 둔 지정가에 안 닿았고 '안 사기' 방식이면 다음 리밸런스까지 현금
+                    want = int(min(per, cash) // (bar["Open"] * 1.01)) - have
                     if want <= 0:
                         continue
-                    f = self.broker.submit(Order(s, self.market, "buy", want), bars[s], d, cash=cash)
+                    f = self.broker.submit(Order(s, self.market, "buy", want), bar, d, cash=cash)
                     if f:
                         cash -= f.gross + f.fee
                         record(f, d)
@@ -760,6 +795,7 @@ def main(argv=None):
     ap.add_argument("--momentum", action="store_true", help="학계 방식 모멘텀(최근 1개월 제외)과 지금 입상형 비교")
     ap.add_argument("--exits", action="store_true", help="지금 입상형에 % 익절·손절을 붙여 비교")
     ap.add_argument("--volume", action="store_true", help="지금 입상형에 거래량 조건을 붙여 비교")
+    ap.add_argument("--entry", action="store_true", help="매수 방식: 시가 바로 vs 종가 vs 지정가 걸어 두기 비교")
     ap.add_argument("--exposure", action="store_true", help="약세장 때 종목 수 줄이기 vs 금액만 줄이기 비교")
     ap.add_argument("--rerank", action="store_true", help="수익률 상위 6·10종목 안에서 차트 점수로 3종목 다시 고르기 비교")
     ap.add_argument("--crash", action="store_true", help="지금 입상형에 급락 반등 슬롯(급락 날 종가 매수, N일 보유)을 붙여 비교")
@@ -780,9 +816,11 @@ def main(argv=None):
     symbols = list(dict.fromkeys(kr + (us if "US" in markets else [])))
     raw, start, end = load_all(symbols, cfg["period"], cache, log=lambda *_: None)
     print(f"받은 데이터: 국내 {sum(market_of(s) == 'KR' for s in raw)}종목, 해외 {sum(market_of(s) == 'US' for s in raw)}종목")
-    grid = (VOL_BASE if args.exposure else RERANK_BASE if args.rerank else CRASH_BASE if args.crash else REGIME_GRID if args.regime else VOL_BASE if args.volume else EXIT_GRID if args.exits else MOM_GRID if args.momentum else
+    grid = (VOL_BASE if args.exposure or args.entry else RERANK_BASE if args.rerank else CRASH_BASE if args.crash else REGIME_GRID if args.regime else VOL_BASE if args.volume else EXIT_GRID if args.exits else MOM_GRID if args.momentum else
             AGG_GRID if args.aggressive else GRID)
-    if args.exposure:
+    if args.entry:
+        param_list = [{**VOL_BASE, **v} for v in ENTRY_VARIANTS]
+    elif args.exposure:
         param_list = [{**VOL_BASE, **v} for v in EXPOSURE_VARIANTS]
     elif args.rerank:
         param_list = [{**RERANK_BASE, **v} for v in RERANK_VARIANTS]
@@ -792,9 +830,9 @@ def main(argv=None):
         param_list = [{**VOL_BASE, **v} for v in VOL_VARIANTS]
     else:
         param_list = [dict(zip(grid, values)) for values in itertools.product(*grid.values())]
-    tail_mode = args.aggressive or args.momentum or args.exits or args.volume or args.regime or args.crash or args.rerank or args.exposure
+    tail_mode = args.aggressive or args.momentum or args.exits or args.volume or args.regime or args.crash or args.rerank or args.exposure or args.entry
     metric = "상위10%" if tail_mode else "중앙값"
-    tag = ("contest_exposure" if args.exposure else "contest_rerank" if args.rerank else "contest_crash" if args.crash else "contest_regime" if args.regime else "contest_volume" if args.volume else "contest_exits" if args.exits else "contest_momentum" if args.momentum else
+    tag = ("contest_entry" if args.entry else "contest_exposure" if args.exposure else "contest_rerank" if args.rerank else "contest_crash" if args.crash else "contest_regime" if args.regime else "contest_volume" if args.volume else "contest_exits" if args.exits else "contest_momentum" if args.momentum else
            "contest_aggressive" if args.aggressive else "contest") + \
         ("" if markets == ["KR", "US"] else "_" + "_".join(markets))
     if args.us_list:
@@ -829,10 +867,10 @@ def main(argv=None):
                 rets.append(curve.iloc[-1] / cap - 1)
                 stats.append(st)
             combos[combo_name(params)] = (rets, stats)
-            if args.volume or args.regime or args.crash or args.rerank or args.exposure:
+            if args.volume or args.regime or args.crash or args.rerank or args.exposure or args.entry:
                 tr, te = (summarize(rets[sl], bench[sl], stats[sl], rule, scale)
                           for sl in (slice(0, cut), slice(cut, None)))
-                label = (exposure_name(params) if args.exposure else rerank_name(params) if args.rerank else crash_name(params) if args.crash else regime_name(params) if args.regime
+                label = (entry_name(params) if args.entry else exposure_name(params) if args.exposure else rerank_name(params) if args.rerank else crash_name(params) if args.crash else regime_name(params) if args.regime
                          else vol_name(params))
                 vol_rows.append({"조건": label,
                                  **{f"학습 {k}": tr[k] for k in VOL_COLS}, **{f"검증 {k}": te[k] for k in VOL_COLS},
@@ -842,8 +880,8 @@ def main(argv=None):
                              **summarize(rets[sl], bench[sl], stats[sl], rule, scale)})
         states = build_states(regime)
         now_lines = current_state_lines(market, states, dates)
-        if args.volume or args.regime or args.crash or args.rerank or args.exposure:
-            what = "약세장 대응 방식별" if args.exposure else "차트 점수 다시 고르기별" if args.rerank else "급락 반등 슬롯별" if args.crash else "하락장 판단별" if args.regime else "거래량 조건별"
+        if args.volume or args.regime or args.crash or args.rerank or args.exposure or args.entry:
+            what = "매수 방식별" if args.entry else "약세장 대응 방식별" if args.exposure else "차트 점수 다시 고르기별" if args.rerank else "급락 반등 슬롯별" if args.crash else "하락장 판단별" if args.regime else "거래량 조건별"
             adaptive_lines = [what + " 비교 (학습 = 앞 60% 구간, 검증 = 뒤 40% 구간):",
                               fmt(pd.DataFrame(vol_rows))]
         elif tail_mode:
@@ -861,7 +899,7 @@ def main(argv=None):
         picked[market] = {k: (v.item() if hasattr(v, "item") else v) for k, v in key.items()}
         test_best = test[np.logical_and.reduce([test[k] == v for k, v in key.items()])]
         cols = ["시장", "구분"]
-        if args.volume or args.regime or args.crash or args.rerank or args.exposure:
+        if args.volume or args.regime or args.crash or args.rerank or args.exposure or args.entry:
             lines += now_lines + [f"[{market}] 학습 구간 {cut}개 / 검증 구간 {len(wins) - cut}개 "
                                   f"({wins[cut][0]:%Y-%m-%d} 이후 시작)", *adaptive_lines, ""]
             continue

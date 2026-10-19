@@ -601,6 +601,22 @@ class ContestModeTest(unittest.TestCase):
                                       out=lambda *_: None)
         self.assertEqual((len(calls), waits, n), (2, [120], 2))
 
+    def test_aggressive_weak_market_keeps_top2(self):
+        rising = {"000001": 0.012, "000002": 0.011, "000003": 0.01}
+        falling = {f"00010{i}": -0.004 for i in range(7)}       # 10종목 중 7종목이 60일선 아래 → 30%
+        universe = [(c, c) for c in {**rising, **falling}]
+        kis, t = client(self.market({**rising, **falling}))
+        sc = lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1
+        with mock.patch.object(self.contest, "score", sc):
+            _, state = self.cycle(kis, auto_utc(2026, 10, 21, 0, 30), universe)
+        buys = [(c["body"]["PDNO"], int(c["body"]["ORD_QTY"])) for c in t.calls if c["path"].endswith("order-cash")]
+        self.assertEqual([b[0] for b in buys], ["000001", "000002"])   # 상위 2종목만
+        self.assertEqual(buys[0][1], 3333)                              # 그래도 1/3 씩 (나머지 1/3 현금)
+        self.assertFalse(state.d["kr_ranked"]["risk_on"])
+        series = {"A": [("d", 100 * 1.01 ** i) for i in range(70)], "B": [("d", 100 * 0.99 ** i) for i in range(70)],
+                  "C": [("d", 1.0)] * 10}                                # C 는 데이터 부족이라 빼요
+        self.assertAlmostEqual(self.contest.breadth_above_ema(series), 0.5)
+
     def test_crash_check(self):
         changes = {"A": "-8.5", "B": "-1.0", "C": "-0.5"}
         routes = self.market({})

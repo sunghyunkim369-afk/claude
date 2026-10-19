@@ -362,6 +362,10 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
         if p.get("regime_ema"):
             out("  시장: " + ("좋은 날 (지수 > 20일 평균) → 5종목" if risk_on
                              else "나쁜 날 (지수 < 20일 평균) → 상위 2종목만, 나머지 현금"))
+        elif p.get("regime_breadth"):
+            out("  시장: " + (f"보통 → 상위 {p['top_k']}종목" if risk_on
+                             else f"약세장 (60일선 위 종목 {p['regime_breadth'] * 100:.0f}% 미만) → "
+                                  f"상위 {p['risk_off_top']}종목만, 1/{p['top_k']} 은 현금"))
         out(f"  목표 {len(targets)}종목: " + ", ".join(f"{n}({c}) {s * 100:+.1f}%" for s, c, n in targets) if targets
             else "  상승 추세 종목이 없어 현금 보유")
         # 2종목 시절에 산 종목이 1/2 씩이라, 3종목 공식의 첫 리밸런스 때 한 번만 1/3 로 맞춰요

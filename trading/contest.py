@@ -3,7 +3,8 @@
 backtest/contest.py 로 과거 5년의 '5주 구간' 수백 개를 시험해서 정한 공식이에요.
 
 국내는 두 가지 공식 중 하나로 돌아요 (state 의 kr_mode):
-  aggressive (기본, 입상형): 20거래일 수익률 상위 3종목, 2거래일마다 교체, 과열 제외·시장 필터 없음
+  aggressive (기본, 입상형): 20거래일 수익률 상위 3종목, 2거래일마다 교체, 과열 제외 없음
+    약세장(60일선 위 종목 40% 미만)이면 상위 2종목만 (1/3 현금) — 10/19 추가
     → 과거 5주 구간 검증(backtest contest.py --momentum): 중앙값 +3.4%/+5.7%, +30% 이상 확률 19%/28%,
       상위 10% +47%/+63%, 하위 10% −21%/−29%, 최악 −55% (앞 기간/최근 기간). 2종목보다 균형이 좋아서 바꿨어요.
       학계 방식(최근 1개월 빼고 60·120일)은 +30% 확률이 절반 정도라 대회에는 안 맞았어요.
@@ -36,7 +37,9 @@ KR_MODES = {
                # 시장 국면 필터: 대상 종목 동일비중 지수가 그 지수의 EMA20 아래면(나쁜 날) 상위 2종목만, 나머지 현금
                "regime_ema": 20, "risk_off_top": 2},
     "aggressive": {"lookback": 20, "top_k": 3, "rebalance_days": 2, "rsi_max": 101,
-                   "regime_ema": None, "risk_off_top": 2},
+                   # 약세장 판단(10/19 추가): 60일선 위 종목이 40% 미만이면 상위 2종목만, 1/3 은 현금
+                   #   (backtest contest.py --regime: +30% 확률은 거의 그대로, 최악 −45/−55% → −37/−45%)
+                   "regime_ema": None, "regime_breadth": 0.40, "risk_off_top": 2},
 }
 KR = KR_MODES["stable"]  # 예전 이름 (호환용)
 DEFAULT_KR_MODE = "aggressive"
@@ -173,6 +176,19 @@ def equal_weight_index(series_by_code):
     return out
 
 
+def breadth_above_ema(series_by_code, n=60):
+    """{코드: [(날짜, 종가)]} 중 어제 종가가 EMA(n) 위인 종목 비율 (데이터가 n 일 안 되는 종목은 빼요)."""
+    above = valid = 0
+    for rows in series_by_code.values():
+        closes = [c for _, c in rows]
+        e = ema(closes, n)
+        if e is None:
+            continue
+        valid += 1
+        above += closes[-1] > e
+    return above / valid if valid else 1.0
+
+
 def market_risk_on(index_values, n):
     """지수 > 지수 EMA(n) 이면 True (좋은 날). 데이터가 부족하면 True."""
     e = ema(index_values, n)
@@ -201,6 +217,10 @@ def kr_targets(kis, universe, today, out=print, p=None, exclude=()):
             out(f"    종목 확인 {i}/{len(universe)}")
     scored.sort(reverse=True)
     risk_on = True if not p.get("regime_ema") else market_risk_on(equal_weight_index(series), p["regime_ema"])
+    if p.get("regime_breadth"):
+        b = breadth_above_ema(series)
+        out(f"    60일선 위 종목 비율 {b * 100:.0f}% (기준 {p['regime_breadth'] * 100:.0f}%)")
+        risk_on = risk_on and b >= p["regime_breadth"]
     keep = p["top_k"] if risk_on else p["risk_off_top"]
     return scored[:keep], risk_on
 

@@ -1,8 +1,33 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-19T13:04:29.310Z",
+ "generated": "2026-10-19T19:01:12.669Z",
  "hours": 24,
  "items": [
+  {
+   "title": "Russian Oil Exports by Arctic Route Jump Amid World Freight Crisis",
+   "lang": "en",
+   "link": "https://gcaptain.com/russian-oil-exports-by-arctic-route-jump-amid-world-freight-crisis/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-19T17:04:12.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "chem",
+    "ship"
+   ]
+  },
+  {
+   "title": "U.S. Sets First Deep-Sea Mining Lease Sale for November",
+   "lang": "en",
+   "link": "https://gcaptain.com/u-s-sets-first-deep-sea-mining-lease-sale-for-november/",
+   "source": "gCaptain",
+   "outlets": 1,
+   "at": "2026-10-19T15:04:51.000Z",
+   "tag": "공급망·핵심광물",
+   "direction": "info",
+   "sectors": []
+  },
   {
    "title": "Solar power a shining example of export progress across sub-Saharan Africa",
    "lang": "en",
@@ -161,31 +186,6 @@ window.TC_BREAKING = {
    "tag": "공급망·핵심광물",
    "direction": "info",
    "sectors": []
-  },
-  {
-   "title": "여수 석유화학제품 수출액 100억달러…6% 감소",
-   "link": "https://www.yna.co.kr/view/AKR20261019117900054",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-19T06:04:24.000Z",
-   "tag": "수출입 동향",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "Certain Steel Nails From Taiwan: Final Results of Antidumping Duty Administrative Review; 2024-2025",
-   "lang": "en",
-   "link": "https://www.federalregister.gov/documents/2026/10/19/2026-21362/certain-steel-nails-from-taiwan-final-results-of-antidumping-duty-administrative-review-2024-2025",
-   "source": "Federal Register",
-   "outlets": 1,
-   "at": "2026-10-19T04:00:00.000Z",
-   "tag": "반덤핑·무역구제",
-   "direction": "neutral",
-   "sectors": [
-    "steel"
-   ]
   }
  ]
 };

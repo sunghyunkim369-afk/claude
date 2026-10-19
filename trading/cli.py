@@ -418,6 +418,7 @@ def main(argv=None):
     ap.add_argument("--once", action="store_true", help="contest 를 한 번만 돌고 끝내기 (작업 스케줄러용)")
     ap.add_argument("--reset", action="store_true", help="contest 진행 상태 지우기 (계좌를 초기화했을 때)")
     ap.add_argument("--mode", choices=["aggressive", "stable"], help="contest 국내 공식 바꾸기 (입상형/안정형)")
+    ap.add_argument("--weak", choices=["half", "off"], help="contest 입상형 약세장 대응 (half: 금액 절반, off: 안 함)")
     ap.add_argument("--us-mode", choices=["aggressive", "basic", "off"], help="contest 미국 공식 (aggressive: 고변동 입상형, off: 미국 쉬기)")
     args = ap.parse_args(argv)
     markets = ("kr", "us") if args.market == "all" else (args.market,)
@@ -437,7 +438,7 @@ def main(argv=None):
 
     cfg = load_config()
     kis = make_client()
-    if args.command == "contest" and (args.reset or args.mode or args.us_mode):
+    if args.command == "contest" and (args.reset or args.mode or args.us_mode or args.weak):
         from . import contest
         path = os.path.join(HERE, ".cache", f"contest-{kis.env}.json")
         if args.reset and os.path.exists(path):
@@ -448,6 +449,11 @@ def main(argv=None):
             st.d["kr_mode"] = args.mode
             st.save()
             print(f"국내 공식: {'입상형' if args.mode == 'aggressive' else '안정형'}으로 바꿨어요.")
+        if args.weak:
+            st = contest.State(path)
+            st.d["weak_mode"] = args.weak
+            st.save()
+            print("약세장 대응: " + ("켬 (60일선 위 종목 40% 미만이면 금액 절반)" if args.weak == "half" else "끔"))
         if args.us_mode:
             st = contest.State(path)
             st.d["us_mode"] = args.us_mode

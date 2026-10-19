@@ -304,10 +304,12 @@ class ContestModeTest(unittest.TestCase):
             "/uapi/overseas-stock/v1/trading/inquire-psamount": lambda q, b: {"rt_cd": "0", "output": {"ovrs_ord_psbl_amt": "50000"}},
         }
 
-    def cycle(self, kis, when, universe, cfg=None, mode=None):
+    def cycle(self, kis, when, universe, cfg=None, mode=None, weak=None):
         state = self.contest.State(os.path.join(self.tmp.name, "state.json"))
         if mode:
             state.d["kr_mode"] = mode
+        if weak:
+            state.d["weak_mode"] = weak
         cfg = cfg or {"us": {"watchlist": [{"symbol": "UP", "exchange": "NASD"}, {"symbol": "SLOW", "exchange": "NYSE"}]},
                       "auto": {}}
         return auto.run_contest_cycle(kis, cfg, state, when, self.logs.append, out=lambda *_: None, universe=universe), state
@@ -608,9 +610,13 @@ class ContestModeTest(unittest.TestCase):
         kis, t = client(self.market({**rising, **falling}))
         sc = lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1
         with mock.patch.object(self.contest, "score", sc):
-            _, state = self.cycle(kis, auto_utc(2026, 10, 21, 0, 30), universe)
+            _, state = self.cycle(kis, auto_utc(2026, 10, 21, 0, 30), universe, weak="half")
         buys = [(c["body"]["PDNO"], int(c["body"]["ORD_QTY"])) for c in t.calls if c["path"].endswith("order-cash")]
-        self.assertEqual(buys, [("000001", 1666), ("000002", 1666), ("000003", 1666)])  # 3종목, 1/3 의 절반씩
+        self.assertEqual(buys, [("000001", 1666), ("000002", 1666), ("000003", 1666)])
+        kis2, t2 = client(self.market({**rising, **falling}))
+        with mock.patch.object(self.contest, "score", sc):
+            self.cycle(kis2, auto_utc(2026, 10, 21, 0, 30), universe)        # 기본(끔): 1/3 씩 그대로
+        self.assertEqual([int(c["body"]["ORD_QTY"]) for c in t2.calls if c["path"].endswith("order-cash")][0], 3333)  # 3종목, 1/3 의 절반씩
         self.assertFalse(state.d["kr_ranked"]["risk_on"])
         self.assertFalse(state.d["kr_last_risk_on"])
         series = {"A": [("d", 100 * 1.01 ** i) for i in range(70)], "B": [("d", 100 * 0.99 ** i) for i in range(70)],
@@ -627,7 +633,7 @@ class ContestModeTest(unittest.TestCase):
                     for c in rising]
             kis, t = client(self.market(strengths, held_kr=held))
             state = self.contest.State(os.path.join(self.tmp.name, f"r{qty}.json"))
-            state.d.update({"kr_equalized_top_k": 3, "kr_last_risk_on": last_on})
+            state.d.update({"kr_equalized_top_k": 3, "kr_last_risk_on": last_on, "weak_mode": "half"})
             with mock.patch.object(self.contest, "score", sc):
                 auto.run_contest_cycle(kis, {"us": {"watchlist": []}, "auto": {}}, state, auto_utc(2026, 10, 21, 0, 30),
                                        self.logs.append, lambda *_: None, [(c, c) for c in strengths])

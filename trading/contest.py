@@ -4,9 +4,11 @@ backtest/contest.py 로 과거 5년의 '5주 구간' 수백 개를 시험해서 
 
 국내는 두 가지 공식 중 하나로 돌아요 (state 의 kr_mode):
   aggressive (기본, 입상형): 20거래일 수익률 상위 3종목, 2거래일마다 교체, 과열 제외 없음
-    약세장(60일선 위 종목 40% 미만)이면 3종목 그대로 금액만 절반 (나머지 현금) — 10/19 추가
-    → 과거 5주 구간 검증(backtest contest.py --momentum): 중앙값 +3.4%/+5.7%, +30% 이상 확률 19%/28%,
-      상위 10% +47%/+63%, 하위 10% −21%/−29%, 최악 −55% (앞 기간/최근 기간). 2종목보다 균형이 좋아서 바꿨어요.
+    (선택) --weak half: 약세장(60일선 위 종목 40% 미만)이면 3종목 그대로 금액만 절반
+    → 생존 편향을 뺀 검증(backtest pit.py, 그때 기준 시총 상위 250종목, 2020-07~2026-10 구간 302개):
+      +30% 이상 확률 10.5%/13.2%, 중앙값 −5.9%/+1.4%, 하위 10% −29%/−24% (앞 기간/최근 기간).
+      무작위 3종목(+30% 확률 1~5%)·변동성 상위 3종목(4~10%)보다 높아서 모멘텀 효과는 있어요.
+      (예전에 적었던 19%/28% 는 '오늘' 종목 목록으로 시험해서 부풀려진 숫자였어요)
       학계 방식(최근 1개월 빼고 60·120일)은 +30% 확률이 절반 정도라 대회에는 안 맞았어요.
   stable (안정형): 아래 설명. 총평가가 시작 대비 +20%(SWITCH_TO_STABLE_AT) 이상이 되면 자동으로 바꿔요.
 
@@ -37,10 +39,10 @@ KR_MODES = {
                # 시장 국면 필터: 대상 종목 동일비중 지수가 그 지수의 EMA20 아래면(나쁜 날) 상위 2종목만, 나머지 현금
                "regime_ema": 20, "risk_off_top": 2},
     "aggressive": {"lookback": 20, "top_k": 3, "rebalance_days": 2, "rsi_max": 101,
-                   # 약세장 판단(10/19 추가): 60일선 위 종목이 40% 미만이면 3종목 그대로 금액만 절반 (나머지 현금)
-                   #   (backtest contest.py --exposure: +30% 확률 20.8/26.0% 로 그대로 이상, 최악 −45/−51% → −30/−39%.
-                   #    2종목만 남기기보다 손실 쪽이 두 기간 모두 얕았어요)
-                   "regime_ema": None, "regime_breadth": 0.40, "risk_off_top": 3, "risk_off_scale": 0.5},
+                   # 약세장 판단은 기본으로 끔 (10/19): 생존 편향을 뺀 검증(backtest pit.py)에서
+                   #   +30% 확률 10.5/13.2% → 7.7/9.9%, 수상 조건 충족 97/100% → 87/84% 로 떨어졌어요.
+                   #   켜기: python -m trading contest --weak half (WEAK_HALF 설정을 더해요)
+                   "regime_ema": None, "risk_off_top": 3},
 }
 KR = KR_MODES["stable"]  # 예전 이름 (호환용)
 DEFAULT_KR_MODE = "aggressive"
@@ -144,8 +146,16 @@ def load_universe(path):
 
 # ---------- 국내 ----------
 
+# 약세장(60일선 위 종목 40% 미만)이면 3종목 그대로 금액만 절반. 입상형에서 --weak half 로 켰을 때만.
+WEAK_HALF = {"regime_breadth": 0.40, "risk_off_top": 3, "risk_off_scale": 0.5}
+
+
 def kr_params(state):
-    return KR_MODES[state.d.get("kr_mode", DEFAULT_KR_MODE)]
+    mode = state.d.get("kr_mode", DEFAULT_KR_MODE)
+    p = dict(KR_MODES[mode])
+    if mode == "aggressive" and state.d.get("weak_mode") == "half":
+        p.update(WEAK_HALF)
+    return p
 
 
 def maybe_switch_to_stable(state, total, threshold=SWITCH_TO_STABLE_AT, out=print):

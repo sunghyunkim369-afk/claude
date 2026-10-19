@@ -252,6 +252,27 @@ def kr_top_up(kis, fill, bal, manual, per, session, place, out=print):
                "limit_price": limit, "currency": "KRW", "reason": "남은 현금 채우기 (1/top_k 까지)"}, session)
 
 
+def kr_fill_short(kis, state, bal, manual, p, session, place, out=print):
+    """리밸런스한 날, 오늘 목표 종목 중 산 금액(수량 × 매입가)이 몫의 90% 도 안 되는 것을 마저 사요.
+    지정가(+1%)보다 값이 뛰어 일부만 체결됐거나 매도 대금이 늦게 잡혀 덜 산 경우예요.
+    매입가 기준이라 산 뒤에 값이 떨어진 종목을 더 사지는 않아요 (백테스트와 같게)."""
+    from . import contest
+    cached = state.d.get("kr_ranked")
+    if not cached or cached.get("session") != session:
+        return
+    per = contest.auto_budget(bal, manual, p["top_k"])
+    for sc, code, name in [tuple(t) for t in cached["targets"]]:
+        h = bal["holdings"].get(code)
+        if not h or code in manual:
+            continue
+        cost = h["qty"] * h["avg_price"]
+        if cost < per * 0.9:
+            out(f"  {name}({code}) 산 금액 {cost:,.0f}원이 몫 {per:,.0f}원보다 적어서 마저 사요")
+            o = contest.kr_buy_order(kis, code, name, per - cost, "모자란 비중 채우기", out)
+            if o:
+                place(o, session)
+
+
 def kr_manual_adjust(kis, state, session, place, today, out=print):
     """수동 보유 종목: 'manual keep' 으로 정한 비중(target_pct)보다 많으면 한 번만 그만큼 팔아 맞추고,
     어제 종가가 20일선 아래면 알려 줘요 (파는 건 직접: manual sell)."""
@@ -367,7 +388,10 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
             mode = state.d.get("kr_mode", contest.DEFAULT_KR_MODE)
             p = contest.KR_MODES[mode]
             manual = state.d.get("manual", {})
-            if len([c for c in kis.kr_balance()["holdings"] if c not in manual]) < p["top_k"]:
+            bal = kis.kr_balance()
+            if len([c for c in bal["holdings"] if c not in manual]) >= p["top_k"]:
+                kr_fill_short(kis, state, bal, manual, p, kr_session, place, out)
+            else:
                 cached = state.d.get("kr_ranked")
                 if cached and cached.get("session") == kr_session:
                     targets = [tuple(t) for t in cached["targets"]]
@@ -440,6 +464,13 @@ def run_contest_once(kis, cfg, here, log, now=lambda: datetime.now(timezone.utc)
         for attempt in range(retries):
             try:
                 n = run_contest_cycle(kis, cfg, state, now(), log, out, universe)
+                kr_session = market_session("kr", now())
+                if kr_session and state.d.get("kr_rebalances", [None])[-1] == kr_session \
+                        and state.d.get("kr_fill_checked") != kr_session:
+                    # 리밸런스한 날은 2분 뒤 한 번 더: 못 산 종목·덜 산 종목을 채워요 (예약 실행은 한 번만 돌아서)
+                    out("  2분 뒤 체결 확인하고 덜 산 종목을 채워요")
+                    sleep(120)
+                    n += run_contest_cycle(kis, cfg, state, now(), log, out, universe)
                 out(f"[{now().astimezone(KST):%m-%d %H:%M}] 끝 (주문 {n}건)")
                 return n
             except Exception as e:

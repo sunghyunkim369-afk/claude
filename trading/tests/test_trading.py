@@ -570,6 +570,37 @@ class ContestModeTest(unittest.TestCase):
         later = [c for c in t.calls if c["path"].endswith("order-cash")][len(first):]
         self.assertFalse(any(c["body"]["PDNO"] == "053800" for c in later))   # 두 번째부터는 안 팔아요
 
+    def test_rebalance_day_fills_partially_bought_target_once(self):
+        held = [{"pdno": c, "prdt_name": c, "hldg_qty": q, "pchs_avg_pric": "10000", "prpr": "10500"}
+                for c, q in (("000001", "3333"), ("000002", "3333"), ("000003", "1500"))]  # 000003 은 절반만 체결
+        kis, t = client(self.market({}, held_kr=held))
+        state = self.contest.State(os.path.join(self.tmp.name, "s.json"))
+        state.d["kr_rebalances"] = ["2026-10-19"]
+        state.d["kr_ranked"] = {"session": "2026-10-19", "mode": "aggressive", "risk_on": True,
+                                "targets": [[0.3, "000001", "A"], [0.2, "000002", "B"], [0.1, "000003", "C"]]}
+        cfg = {"us": {"watchlist": []}, "auto": {}}
+        for minute in (0, 15):
+            auto.run_contest_cycle(kis, cfg, state, auto_utc(2026, 10, 19, 1, minute), self.logs.append,
+                                   lambda *_: None, [])
+        orders = [(c["body"]["PDNO"], int(c["body"]["ORD_QTY"])) for c in t.calls if c["path"].endswith("order-cash")]
+        # 1억/3 − 산 금액 1,500만(매입가 기준) = 18,333,333 ÷ 현재가 10000 → 1833주, 한 번만
+        self.assertEqual(orders, [("000003", 1833)])
+
+    def test_scheduled_run_checks_again_after_rebalance(self):
+        kis, _ = client(self.market({}))
+        calls, waits = [], []
+
+        def cycle(kis_, cfg, state, now_utc, log, out, universe):
+            calls.append(now_utc)
+            if len(calls) == 1:
+                state.d["kr_rebalances"] = ["2026-10-19"]
+            return 1
+        with mock.patch.object(auto, "run_contest_cycle", cycle):
+            n = auto.run_contest_once(kis, {}, os.path.dirname(cli.__file__), lambda e: None,
+                                      now=lambda: auto_utc(2026, 10, 19, 0, 10), sleep=waits.append,
+                                      out=lambda *_: None)
+        self.assertEqual((len(calls), waits, n), (2, [120], 2))
+
     def test_crash_check(self):
         changes = {"A": "-8.5", "B": "-1.0", "C": "-0.5"}
         routes = self.market({})

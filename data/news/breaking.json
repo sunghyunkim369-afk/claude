@@ -1,23 +1,14 @@
 {
- "generated": "2026-10-19T01:02:35.255Z",
+ "generated": "2026-10-19T07:11:03.810Z",
  "hours": 24,
  "items": [
   {
-   "title": "“339조 국가자산 굴리는데, 사내 AI는 중국산”…KIC 보안 이슈 ‘도마’",
-   "link": "https://www.mk.co.kr/news/economy/12179264",
-   "source": "매일경제",
+   "title": "Indian chemical firms turn to foreign partners to crack chip supply chains",
+   "lang": "en",
+   "link": "https://asia.nikkei.com/business/tech/semiconductors/indian-chemical-firms-turn-to-foreign-partners-to-crack-chip-supply-chains",
+   "source": "Nikkei Asia",
    "outlets": 1,
-   "at": "2026-10-19T00:45:04.000Z",
-   "tag": "수출통제",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "한미반도체, 현지법인 '한미USA' 설립…반도체 공급망 공략",
-   "link": "https://www.yna.co.kr/view/AKR20261019034100003",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-19T00:44:13.000Z",
+   "at": "2026-10-19T07:11:03.736Z",
    "tag": "공급망·핵심광물",
    "direction": "info",
    "sectors": [
@@ -25,118 +16,164 @@
    ]
   },
   {
-   "title": "현대글로비스, 필라델피아 항만 개발 참여…물류 허브 구축 속도",
-   "link": "https://www.yna.co.kr/view/AKR20261019032300003",
+   "title": "[외환] 원/달러 환율 1.1원 내린 1,330.3원(15:30 기준가)",
+   "link": "https://www.yna.co.kr/view/AKR20261019129000002",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-19T00:18:42.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship",
-    "auto"
-   ]
-  },
-  {
-   "title": "트럼프 \"내 대러 결정은 간단…종전협상서 러 떠나길 원치 않아\"",
-   "link": "https://www.yna.co.kr/view/AKR20261019007500071",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-18T22:19:58.000Z",
-   "tag": "경제제재",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "트럼프 '러 에너지 유화책'에 공화 반발기류…美여권 내분 양상(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261019000351071",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-18T19:34:03.000Z",
-   "tag": "유가·원자재",
-   "direction": "up",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "美에너지장관, 러 제재 면제에 \"전쟁 끝내기 위한 당근책\"",
-   "link": "https://www.yna.co.kr/view/AKR20261019000300071",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-18T16:11:57.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "News in Brief Podcast | Week 41 2026 | Congestion, cyber threat, and capacity constraint",
-   "lang": "en",
-   "link": "https://theloadstar.com/news-in-brief-podcast-week-41-2026-congestion-cyberthreat-and-capacity-constraint/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-18T16:00:26.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": [
-    "auto"
-   ]
-  },
-  {
-   "title": "대미 무역흑자 1천억弗 눈앞 … 트럼프 통상압박 우려 커져",
-   "link": "https://www.mk.co.kr/news/economy/12178999",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-18T08:21:35.000Z",
-   "tag": "유가·원자재",
-   "direction": "up",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "베트남·유럽자유무역연합, FTA 체결…공식협상 시작 14년만",
-   "link": "https://www.yna.co.kr/view/AKR20261018041900104",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-18T07:48:29.000Z",
-   "tag": "FTA·통상협정",
-   "direction": "neutral",
-   "sectors": []
-  },
-  {
-   "title": "원달러환율 2년 1개웖만에 최저",
-   "link": "https://www.mk.co.kr/news/economy/12178910",
-   "source": "매일경제",
-   "outlets": 1,
-   "at": "2026-10-18T07:30:15.000Z",
+   "at": "2026-10-19T06:30:49.000Z",
    "tag": "환율",
    "direction": "info",
    "sectors": []
   },
   {
-   "title": "트럼프, 대러제재 완화 만지작…\"美·세계에 좋은 결정 있을 것\"(종합)",
-   "link": "https://www.yna.co.kr/view/AKR20261018038300009",
+   "title": "트럼프의 푸틴 유화책에 접전지 공화당 후보들 '거리두기'",
+   "link": "https://www.yna.co.kr/view/AKR20261019124500009",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-18T06:55:00.000Z",
+   "at": "2026-10-19T06:17:30.000Z",
    "tag": "경제제재",
    "direction": "down",
    "sectors": []
   },
   {
-   "title": "K-차부품, 미국 디트로이트서 GM·포드 등과 수출 상담",
-   "link": "https://www.yna.co.kr/view/AKR20261018019100003",
+   "title": "'2026 진주 K-기업가정신 국제포럼' 개막…AI시대 성장전략 모색",
+   "link": "https://www.yna.co.kr/view/AKR20261019124200052",
    "source": "연합뉴스",
    "outlets": 1,
-   "at": "2026-10-18T02:00:00.000Z",
+   "at": "2026-10-19T06:16:08.000Z",
    "tag": "공급망·핵심광물",
    "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "여수 석유화학제품 수출액 100억달러…6% 감소",
+   "link": "https://www.yna.co.kr/view/AKR20261019117900054",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-19T06:04:24.000Z",
+   "tag": "수출입 동향",
+   "direction": "info",
    "sectors": [
-    "auto"
+    "chem"
    ]
+  },
+  {
+   "title": "Certain Steel Nails From Taiwan: Final Results of Antidumping Duty Administrative Review; 2024-2025",
+   "lang": "en",
+   "link": "https://www.federalregister.gov/documents/2026/10/19/2026-21362/certain-steel-nails-from-taiwan-final-results-of-antidumping-duty-administrative-review-2024-2025",
+   "source": "Federal Register",
+   "outlets": 1,
+   "at": "2026-10-19T04:00:00.000Z",
+   "tag": "반덤핑·무역구제",
+   "direction": "neutral",
+   "sectors": [
+    "steel"
+   ]
+  },
+  {
+   "title": "Diamond Sawblades and Parts Thereof From the People's Republic of China: Notice of Covered Merchandise Referral and Initiation of Covered Merchandise Inquiry",
+   "lang": "en",
+   "link": "https://www.federalregister.gov/documents/2026/10/19/2026-21281/diamond-sawblades-and-parts-thereof-from-the-peoples-republic-of-china-notice-of-covered-merchandise",
+   "source": "Federal Register",
+   "outlets": 1,
+   "at": "2026-10-19T04:00:00.000Z",
+   "tag": "통관·원산지",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "국감서 인천신항 하역장비 중국산 도입 '질타'",
+   "link": "https://www.yna.co.kr/view/AKR20261019091300065",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-19T03:37:32.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "machinery",
+    "ship"
+   ]
+  },
+  {
+   "title": "日미쓰비시 중공업, 군함 수요 늘자 휴면 조선 시설 재가동",
+   "link": "https://www.yna.co.kr/view/AKR20261019089200073",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-19T03:10:51.000Z",
+   "tag": "수출통제",
+   "direction": "down",
+   "sectors": [
+    "ship",
+    "machinery"
+   ]
+  },
+  {
+   "title": "대미투자, 언제까지 수비만 할건가요…‘판’ 좀 뒤집어봅시다 [기자24시]",
+   "link": "https://www.mk.co.kr/news/economy/12179404",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-19T02:21:00.000Z",
+   "tag": "유가·원자재",
+   "direction": "up",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "한·칠레 자유무역위원회, 10년만에 개최…FTA 개선 논의",
+   "link": "https://www.yna.co.kr/view/AKR20261019032700003",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-19T02:00:06.000Z",
+   "tag": "FTA·통상협정",
+   "direction": "neutral",
+   "sectors": []
+  },
+  {
+   "title": "지방기업과 중국 유통망 연결…대구·청주서 소비재 수출상담회",
+   "link": "https://www.yna.co.kr/view/AKR20261019056200003",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-19T02:00:03.000Z",
+   "tag": "수출입 동향",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "[쇼츠] 이란 \"유조선 2척 기뢰 충돌\"",
+   "link": "https://www.yna.co.kr/view/AKR20261019070100704",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-19T01:58:25.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "ship",
+    "chem"
+   ]
+  },
+  {
+   "title": "[영상] 호르무즈서 유조선 잇단 화재…이란 \"기뢰 충돌\" 주장",
+   "link": "https://www.yna.co.kr/view/AKR20261019062000704",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-19T01:40:31.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "ship",
+    "chem"
+   ]
+  },
+  {
+   "title": "이형일 “올해 3.4~3.6% 성장 가능…내년부터 경제전망 연 3회 검토”",
+   "link": "https://www.mk.co.kr/news/economy/12179289",
+   "source": "매일경제",
+   "outlets": 1,
+   "at": "2026-10-19T01:09:50.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": []
   }
  ]
 }

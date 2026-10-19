@@ -171,6 +171,7 @@ def prepare(raw, cfg, lookbacks, skips=(0,)):
                     d[f"mom_{n}_{k}"] = d["Close"].shift(k) / d["Close"].shift(k + n) - 1
         add_volume_factors(d)
         d["ret_1"] = d["Close"].pct_change()
+        d["vol_20"] = d["ret_1"].rolling(20).std()
         add_chart_factors(d)
         out[s] = d
     return out
@@ -247,6 +248,11 @@ def entry_bar(b, entry):
     if b["Low"] <= limit:
         return {**b, "Open": min(b["Open"], limit)}
     return None if entry.endswith("skip") else {**b, "Open": b["Close"]}
+
+
+def random_key(s, run_key, seed):
+    import hashlib
+    return int(hashlib.md5(f"{seed}|{run_key}|{s}".encode()).hexdigest()[:8], 16) / 16 ** 8
 
 
 def volume_ok(b, p):
@@ -372,6 +378,8 @@ class Rotation:
         self.regime = regime if regime is not None else build_regime(self.bars)
         self._rank = {}
         self.big = list(frames)[:params.get("crash_n", 30)]
+        self.allowed = None   # 그 구간에 매매 가능한 종목 (생존 편향 검증용, None 이면 전부)
+        self.run_key = ""
 
     def risk_on(self, d):
         """그날 종가까지로 본 시장 국면. 레짐 필터를 안 쓰면 항상 True."""
@@ -404,8 +412,13 @@ class Rotation:
         if d not in self._rank:
             p = self.p
             cands = []
+            rnd = p.get("rank", "ret").startswith("random")
             for s, b in self.bars.get(d, {}).items():
-                score = rank_score(b, p)
+                if self.allowed is not None and s not in self.allowed:
+                    continue
+                # 위약 테스트: random = 구간마다 정해진 무작위 순서 (구간 안에서는 안 바뀌어요), vol = 20일 변동성
+                score = (random_key(s, self.run_key, p["rank"]) if rnd else
+                         b.get("vol_20") if p.get("rank") == "vol" else rank_score(b, p))
                 if score is None or not (score == score) or not (b["ema_slow"] == b["ema_slow"]):
                     continue
                 trend_ok = b["Close"] > b["ema_fast"] > b["ema_slow"] if p.get("trend_filter", True) else True
@@ -417,8 +430,10 @@ class Rotation:
             self._rank[d] = [s for _, s in cands[:p["top_k"]]]
         return self._rank[d]
 
-    def run(self, start, end, capital):
-        """반환: (자산곡선, 통계 dict: orders, days, symbols, amount)."""
+    def run(self, start, end, capital, allowed=None):
+        """반환: (자산곡선, 통계 dict: orders, days, symbols, amount). allowed: 그 구간 매매 가능 종목."""
+        if allowed is not None or self.allowed is not None or self.p.get("rank", "ret").startswith("random"):
+            self.allowed, self.run_key, self._rank = allowed, str(start), {}
         days = [d for d in self.dates if start <= d <= end]
         cash, pos, pending, curve = float(capital), {}, None, []
         orders, traded_days, traded_syms, amount, held = 0, set(), set(), 0.0, []

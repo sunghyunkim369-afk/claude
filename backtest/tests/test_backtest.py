@@ -362,6 +362,21 @@ class ContestTest(unittest.TestCase):
                          "60일선 위 40% 미만 → 3종목 그대로, 금액 2/3")
         self.assertIsNotNone(cash_like)
 
+    def test_allowed_universe_and_random_placebo(self):
+        fr = self.contest.prepare(self.raw, CFG, [20])
+        p = {**self.contest.VOL_BASE, "rsi_max": 101, "trend_filter": False}
+        rot = self.contest.Rotation(fr, "US", CFG, p)
+        d = rot.dates
+        rot.run(d[300], d[310], 100_000, allowed={"S1", "S2"})
+        self.assertTrue(set(rot.targets(d[305])) <= {"S1", "S2"})
+        rnd = self.contest.Rotation(fr, "US", CFG, {**p, "rank": "random1"})
+        rnd.run(d[300], d[310], 100_000)
+        first = rnd.targets(d[302])
+        self.assertEqual(first, rnd.targets(d[308]))             # 구간 안에서는 같은 무작위 순서
+        rnd.run(d[400], d[410], 100_000)
+        keys = [self.contest.random_key("S1", str(d[300]), "random1"), self.contest.random_key("S1", str(d[400]), "random1")]
+        self.assertNotEqual(keys[0], keys[1])                     # 구간마다 다른 무작위
+
     def test_entry_bar(self):
         b = {"Open": 110.0, "High": 115.0, "Low": 97.0, "Close": 105.0, "ret_1": 0.05}   # 전날 종가 100
         eb = self.contest.entry_bar

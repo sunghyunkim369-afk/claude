@@ -14,14 +14,16 @@
 | 위치 | 주소 | 배포 방식 |
 |---|---|---|
 | Eyefeet Cloud | https://tcmvp.eyefeet.com | 테넌트가 이 저장소의 `main`을 가져가 `npm run build`로 `dist/`를 만들고 배포해요 (런타임 `vercel`). 무료 플랜은 컨테이너 1개라 **정지 → 배포 → 시작** 순서로 배포해요 |
-| GitHub Pages | https://sunghyunkim369-afk.github.io/claude/ | 기본 브랜치에 푸시하면 `.github/workflows/pages.yml`이 배포 (정적 파일만, `api/` 없음) |
+| GitHub Pages | https://sunghyunkim369-afk.github.io/claude/ | 자동 배포 꺼짐 (2026-10-20). 마지막 배포 상태로 남아 있어요 |
 
 ## 실제 무역 뉴스 (매주 갱신)
 
 대시보드의 Top10 이슈·섹터 노출도·리스크·뉴스는 연합뉴스·한국경제·매일경제·WTO RSS와 Google 뉴스 검색(신뢰 언론사 30여 곳만)으로 모은 **실제 기사**로 계산해요. 공식과 근거 논문은 [docs/news-algorithm.md](docs/news-algorithm.md).
 
-- 수집: `.github/workflows/news-collect.yml` 이 6시간마다 `data/news/archive.json` 에 기사를 쌓아요.
-- 발행: `.github/workflows/news-publish.yml` 이 매주 월요일 06:47(KST)에 `tradecompass-mvp/data.js`, `data/news/latest.json` 을 만들어 두 브랜치에 올리고 GitHub Pages 를 다시 배포해요.
+> **2026-10-20: 이 저장소의 자동 수집·발행·Pages 배포를 껐어요.** 운영 사이트(tradecompass.eyefeet.com)는 팀 저장소(GitSalt `leesumin1517/tradecompass`)의 통합 서버가 수집·발행해요. 코드는 팀 저장소에서 `feat/` 브랜치 → `dev` 병합 요청으로 고쳐요. 아래 수집·발행 설명은 예전 방식 기록이에요.
+
+- 수집(꺼짐): `.github/workflows/news-collect.yml` 이 6시간마다 `data/news/archive.json` 에 기사를 쌓았어요.
+- 발행(꺼짐): `.github/workflows/news-publish.yml` 이 매주 월요일 06:47(KST)에 `tradecompass-mvp/data.js`, `data/news/latest.json` 을 만들어 두 브랜치에 올리고 GitHub Pages 를 다시 배포해요.
 - eyefeet: `/api/data` 가 `main` 의 `latest.json` 을 전달해서, 재배포 없이 새 주간 데이터가 보여요.
 - 직접 실행: `node scripts/news/collect.js` → `node scripts/news/publish.js` (출처는 `scripts/news/config.js` 의 enabled RSS, 확인 기록은 `docs/sources.md`)
 - 파일 위치 바꾸기: `NEWS_DATA_DIR` (archive·latest·history·breaking.json, 기본 `data/news`), `NEWS_WEB_DIR` (data.js·breaking.js, 기본 `tradecompass-mvp`, `off` 면 쓰지 않음). Node 기본 모듈만 써요 (`scripts/news/paths.js`)

@@ -52,3 +52,16 @@ jobs:
               for (const k of Object.keys(d)) if(Array.isArray(d[k])) console.log("   배열키",k,d[k].length);
             '
           done
+          # 운영 사이트가 화면에 쓰는 기사·언론사 숫자 (공개 데이터만, 2026-10-20)
+          B=https://tradecompass.eyefeet.com
+          for path in /tradecompass-mvp/data.js /api/data /api/dashboard /api/news/latest /api/issues/top10; do
+            code=$(curl -s -L -o d.txt -w '%{http_code}' --max-time 25 "$B$path"); echo "== $path $code $(wc -c < d.txt)B"
+            node -e '
+              let t=require("fs").readFileSync("d.txt","utf8"); const i=t.search(/[\[{]/); if(i<0) process.exit(0); t=t.slice(i).replace(/;\s*$/,"");
+              let d; try{d=JSON.parse(t)}catch(e){console.log("  JSON 아님:",t.slice(0,160).replace(/\s+/g," "));process.exit(0)}
+              const m=d.meta||d; const pick=o=>Object.fromEntries(Object.entries(o).filter(([k,v])=>typeof v!=="object").slice(0,25));
+              if(!Array.isArray(m)) console.log("  ",JSON.stringify(pick(m)).slice(0,600));
+              if(Array.isArray(d)) console.log("   배열",d.length, JSON.stringify(d[0]||{}).slice(0,240));
+              else for (const k of Object.keys(d)) if(Array.isArray(d[k])) console.log("   배열키",k,d[k].length, JSON.stringify(d[k][0]||{}).slice(0,160));
+            '
+          done

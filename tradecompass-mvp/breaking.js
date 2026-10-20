@@ -1,8 +1,98 @@
 // 24시간 속보 — scripts/news/breaking.js 가 6시간마다 자동 생성해요. 직접 고치지 마세요.
 window.TC_BREAKING = {
- "generated": "2026-10-20T01:04:03.842Z",
+ "generated": "2026-10-20T07:04:45.655Z",
  "hours": 24,
  "items": [
+  {
+   "title": "원/달러 환율 1,325원 연저점 또 경신…원/엔 환율도",
+   "link": "https://www.yna.co.kr/view/AKR20261020131100002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-20T06:55:50.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "[외환] 원/달러 환율 2.2원 내린 1,328.1원(15:30 기준가)",
+   "link": "https://www.yna.co.kr/view/AKR20261020124400002",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-20T06:30:48.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": []
+  },
+  {
+   "title": "\"'中 희토류 수출규제 풀게 도와달라' 日, 미국에 SOS\"",
+   "link": "https://www.yna.co.kr/view/AKR20261020116800009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-20T06:21:42.000Z",
+   "tag": "수출통제",
+   "direction": "up",
+   "sectors": [
+    "steel",
+    "semi"
+   ]
+  },
+  {
+   "title": "이란전쟁 장기화에 미주 산유국 반사이익…투자·생산 급증",
+   "link": "https://www.yna.co.kr/view/AKR20261020115400009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-20T06:16:46.000Z",
+   "tag": "유가·원자재",
+   "direction": "info",
+   "sectors": [
+    "chem"
+   ]
+  },
+  {
+   "title": "HD현대, HMM 초대형 친환경 컨테이너선 8척 수주…1.9조원 규모",
+   "link": "https://www.yna.co.kr/view/AKR20261020082300003",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-20T02:41:12.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship"
+   ]
+  },
+  {
+   "title": "코트라, 콜롬비아서 FTA 발효 10주년 기념 설명·상담회",
+   "link": "https://www.yna.co.kr/view/AKR20261020071200003",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-20T02:06:58.000Z",
+   "tag": "FTA·통상협정",
+   "direction": "down",
+   "sectors": []
+  },
+  {
+   "title": "유럽의회, 트럼프 위협에도 ICC 지지…인권상 후보 지명",
+   "link": "https://www.yna.co.kr/view/AKR20261020063200009",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-20T01:37:59.000Z",
+   "tag": "경제제재",
+   "direction": "up",
+   "sectors": []
+  },
+  {
+   "title": "호르무즈 봉쇄 후 19번째 한국 선박 홍해 통해 원유 운송",
+   "link": "https://www.yna.co.kr/view/AKR20261020062400051",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-20T01:22:37.000Z",
+   "tag": "해운·물류",
+   "direction": "info",
+   "sectors": [
+    "ship",
+    "chem"
+   ]
+  },
   {
    "title": "Toyota, Honda resume Thai production after floods as supply chains come back",
    "lang": "en",
@@ -13,6 +103,18 @@ window.TC_BREAKING = {
    "tag": "공급망·핵심광물",
    "direction": "info",
    "sectors": []
+  },
+  {
+   "title": "농협, 요소비료 가격 13.9% 인하…무기질비료도 평균 5.1% 내려",
+   "link": "https://www.yna.co.kr/view/AKR20261020053900030",
+   "source": "연합뉴스",
+   "outlets": 1,
+   "at": "2026-10-20T01:02:14.000Z",
+   "tag": "환율",
+   "direction": "info",
+   "sectors": [
+    "consumer"
+   ]
   },
   {
    "title": "지평주조, 3분기 누적 수출액 50% 증가…연내 18개국 진출 목표",
@@ -70,119 +172,6 @@ window.TC_BREAKING = {
    "direction": "neutral",
    "sectors": [
     "chem",
-    "ship"
-   ]
-  },
-  {
-   "title": "美단체 \"트럼프 알래스카 유세 동행 상무장관, 정치활동금지 위반\"",
-   "link": "https://www.yna.co.kr/view/AKR20261020008300071",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-19T21:45:33.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "5년여간 10대 증권사 주식매매규정 위반제재 97명…30%는 퇴직자",
-   "link": "https://www.yna.co.kr/view/AKR20261019176600002",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-19T20:55:00.000Z",
-   "tag": "경제제재",
-   "direction": "up",
-   "sectors": []
-  },
-  {
-   "title": "국제유가, 러시아 제재 완화·후티 반군 석유시설 공격에 혼조",
-   "link": "https://www.yna.co.kr/view/AKR20261020005500072",
-   "source": "연합뉴스",
-   "outlets": 1,
-   "at": "2026-10-19T20:08:27.000Z",
-   "tag": "경제제재",
-   "direction": "neutral",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "Russian Oil Exports by Arctic Route Jump Amid World Freight Crisis",
-   "lang": "en",
-   "link": "https://gcaptain.com/russian-oil-exports-by-arctic-route-jump-amid-world-freight-crisis/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-19T17:04:12.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "chem",
-    "ship"
-   ]
-  },
-  {
-   "title": "U.S. Sets First Deep-Sea Mining Lease Sale for November",
-   "lang": "en",
-   "link": "https://gcaptain.com/u-s-sets-first-deep-sea-mining-lease-sale-for-november/",
-   "source": "gCaptain",
-   "outlets": 1,
-   "at": "2026-10-19T15:04:51.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": []
-  },
-  {
-   "title": "Solar power a shining example of export progress across sub-Saharan Africa",
-   "lang": "en",
-   "link": "https://theloadstar.com/solar-power-a-shining-example-of-export-progress-across-sub-saharan-africa/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-19T12:07:23.000Z",
-   "tag": "공급망·핵심광물",
-   "direction": "info",
-   "sectors": [
-    "chem"
-   ]
-  },
-  {
-   "title": "‘Redeployment and agility’ key to continued success of LNG transition, says CMA",
-   "lang": "en",
-   "link": "https://theloadstar.com/redeployment-and-agility-key-to-continued-success-of-lng-transition-says-cma/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-19T11:59:58.000Z",
-   "tag": "유가·원자재",
-   "direction": "info",
-   "sectors": [
-    "chem",
-    "auto"
-   ]
-  },
-  {
-   "title": "New EU parcel charges add pressure for rethink on cross-border fulfilment",
-   "lang": "en",
-   "link": "https://theloadstar.com/new-eu-parcel-charges-add-pressure-for-rethink-on-cross-border-fulfilment/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-19T11:45:18.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "ship"
-   ]
-  },
-  {
-   "title": "New report reveals hidden extra costs of cargo crime",
-   "lang": "en",
-   "link": "https://theloadstar.com/new-report-reveals-hidden-extra-costs-of-cargo-crime/",
-   "source": "The Loadstar",
-   "outlets": 1,
-   "at": "2026-10-19T11:40:13.000Z",
-   "tag": "해운·물류",
-   "direction": "info",
-   "sectors": [
-    "auto",
     "ship"
    ]
   }

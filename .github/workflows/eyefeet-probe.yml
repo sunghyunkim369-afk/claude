@@ -75,3 +75,21 @@ jobs:
               (x.articles||[]).slice(1,4).forEach(a=>console.log("   - "+a.title+" ("+a.source+")")); });
             console.log("섹터", d.sectors.map(s=>s.name+" "+s.score+" "+s.state+" "+s.articles+"건").join(" | "));
           '
+          # 실제 화면을 브라우저로 열어 보이는 글자 확인 (#/news)
+          mkdir -p pw && cd pw && npm init -y >/dev/null && npm i -s playwright@1.48.2 >/dev/null 2>&1 && npx -y playwright@1.48.2 install --with-deps chromium >/dev/null 2>&1
+          cat > shot.js <<'JS'
+          const { chromium } = require("playwright");
+          (async () => {
+            const b = await chromium.launch();
+            const p = await b.newPage({ viewport: { width: 1400, height: 1000 } });
+            const reqs = [];
+            p.on("response", r => { if (/\/api\//.test(r.url())) reqs.push(r.status() + " " + r.url()); });
+            await p.goto("https://tradecompass.eyefeet.com/tradecompass-mvp/#/news", { waitUntil: "networkidle", timeout: 60000 });
+            await p.waitForTimeout(4000);
+            console.log("API 요청:", reqs.join(" | "));
+            const t = await p.evaluate(() => document.body.innerText);
+            console.log(t.replace(/\n{2,}/g, "\n").slice(0, 3500));
+            await b.close();
+          })();
+          JS
+          node shot.js

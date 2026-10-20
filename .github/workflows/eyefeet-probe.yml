@@ -65,3 +65,13 @@ jobs:
               else for (const k of Object.keys(d)) if(Array.isArray(d[k])) console.log("   배열키",k,d[k].length, JSON.stringify(d[k][0]||{}).slice(0,160));
             '
           done
+          # 운영 사이트 이번 주 Top 10 (이슈·점수·보도 수·대표 기사·보여 주는 기사 4개)
+          curl -s --max-time 25 https://tradecompass.eyefeet.com/api/data -o top.json
+          node -e '
+            const d=JSON.parse(require("fs").readFileSync("top.json","utf8"));
+            console.log("기간",d.meta.period,"기사",d.meta.sources,"언론사",d.meta.outlets);
+            d.issues.forEach((x,i)=>{ console.log(`#${i+1} ${x.keyword} | 점수 ${x.score} | 보도 ${x.reports} | 직전 ${x.prev} | 관련도 ${x.leadRelevance} | V ${x.parts&&x.parts.volume} M ${x.parts&&x.parts.momentum} R ${x.parts&&x.parts.relevance}`);
+              console.log("   대표: "+x.title+" ("+x.source+")");
+              (x.articles||[]).slice(1,4).forEach(a=>console.log("   - "+a.title+" ("+a.source+")")); });
+            console.log("섹터", d.sectors.map(s=>s.name+" "+s.score+" "+s.state+" "+s.articles+"건").join(" | "));
+          '

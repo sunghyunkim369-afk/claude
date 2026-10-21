@@ -331,6 +331,36 @@ def kr_regime_top_up(kis, state, targets, manual, p, session, place, out=print):
                 place(o, session)
 
 
+CRASH_SELL = -0.25  # 전날 이만큼 이상 빠진(하한가 근처) 자동매매 종목은 다음 날 아침에 바로 팔아요
+
+
+def kr_sell_crashed(kis, state, session, place, today, out=print, limit=CRASH_SELL):
+    """하루 −25% 이하 급락 다음 날 처리 (2015.6~2026 하한가 근처 급락 2,556건 검증:
+    다음 날 시가 매도 평균 −4.2%, 반등 노리기(+3~5% 지정가) −5.8~−5.9%, 2일 보유 −8.7%).
+    2일마다 리밸런스라 이런 날에도 이틀씩 들고 있던 걸 막아요. 수동 보유 종목은 알림만."""
+    from . import contest
+    manual = state.d.get("manual", {})
+    held = kis.kr_balance()["holdings"]
+    for code, h in held.items():
+        try:
+            closes = contest.closes_until_yesterday(kis.kr_daily(code, days=10, with_dates=True), today)
+        except Exception as e:  # 이 확인이 실패해도 리밸런스는 계속해요
+            out(f"    {h['name']}({code}) 급락 확인 실패: {e}")
+            continue
+        if len(closes) < 2 or closes[-2] <= 0:
+            continue
+        chg = closes[-1] / closes[-2] - 1
+        if chg > limit:
+            continue
+        if code in manual:
+            out(f"  ※ {h['name']}({code}) 어제 {chg * 100:+.1f}% 급락. 수동 보유라 안 팔아요 "
+                f"(과거엔 다음 날 시가에 파는 게 평균적으로 나았어요: python -m trading manual sell {code})")
+            continue
+        out(f"  {h['name']}({code}) 어제 {chg * 100:+.1f}% 급락 → 오늘 바로 매도 (반등 기다리기보다 평균적으로 나았어요)")
+        place({"market": "kr", "side": "sell", "symbol": code, "name": h["name"], "qty": h["qty"], "price": h["price"],
+               "currency": "KRW", "reason": f"전날 {chg * 100:+.1f}% 급락 다음 날 매도"}, session)
+
+
 def kr_manual_adjust(kis, state, session, place, today, out=print):
     """수동 보유 종목: 'manual keep' 으로 정한 비중(target_pct)보다 많으면 한 번만 그만큼 팔아 맞추고,
     어제 종가가 20일선 아래면 알려 줘요 (파는 건 직접: manual sell)."""
@@ -395,6 +425,9 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
     kr_session = market_session("kr", now_utc)
     if kr_session:
         state.reload_manual()
+        if state.d.get("kr_crash_checked") != kr_session:
+            state.d["kr_crash_checked"] = kr_session
+            kr_sell_crashed(kis, state, kr_session, place, now_utc.astimezone(KST).date(), out)
     if kr_session and contest.kr_due(state, kr_session):
         today = now_utc.astimezone(KST).date()
         threshold = cfg.get("contest", {}).get("switch_to_stable_at", contest.SWITCH_TO_STABLE_AT)

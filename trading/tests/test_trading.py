@@ -394,7 +394,7 @@ class ContestModeTest(unittest.TestCase):
 
         def flaky(q, b):
             fail["n"] += 1
-            if fail["n"] == 2:  # 순위 계산 뒤 주문 단계의 잔고 조회에서 실패
+            if fail["n"] == 3:  # 급락 확인·수익률 확인 뒤, 순위 계산 다음 주문 단계의 잔고 조회에서 실패
                 raise OSError("network")
             return bal(q, b)
         routes["/uapi/domestic-stock/v1/trading/inquire-balance"] = flaky
@@ -472,8 +472,8 @@ class ContestModeTest(unittest.TestCase):
         self.assertEqual(orders[0][2], 2666)   # (1억 − 수동 2천만) / 3 ÷ 10000
         daily = [c for c in t.calls if c["path"].endswith("itemchartprice")]
         self.assertTrue(daily)
-        # 순위 계산에서는 빼고, 20일선 확인용으로 한 번만 받아요
-        self.assertEqual(sum(c["query"]["FID_INPUT_ISCD"] == "999999" for c in daily), 1)
+        # 순위 계산에서는 빼고, 급락 확인·20일선 확인용으로만 받아요
+        self.assertEqual(sum(c["query"]["FID_INPUT_ISCD"] == "999999" for c in daily), 2)
 
     def test_buys_fill_budget_and_top_up_leftover_cash(self):
         strengths = {"000001": 0.012, "000002": 0.011, "000003": 0.01}
@@ -669,6 +669,29 @@ class ContestModeTest(unittest.TestCase):
             targets, _ = self.contest.kr_targets(kis2, universe, auto_utc(2026, 10, 23, 0, 30).date(), lambda *_: None,
                                                  self.contest.kr_params(state), exclude=set(state.d["blocked"]))
         self.assertNotIn("000002", [x[1] for x in targets])
+
+    def test_sells_holding_after_limit_down_day_even_without_rebalance(self):
+        held = [{"pdno": c, "prdt_name": c, "hldg_qty": "100", "pchs_avg_pric": "10000", "prpr": "7000"}
+                for c in ("000001", "000002", "053800")]
+        routes = self.market({"000001": 0.01})
+
+        def daily(q, b):
+            c = q["FID_INPUT_ISCD"]
+            closes = [10000, 10000, 7000] if c in ("000001", "053800") else [10000, 10000, 9500]  # 마지막이 어제
+            return {"rt_cd": "0", "output2": [{"stck_bsop_date": f"202610{d:02d}", "stck_clpr": str(x)}
+                                              for d, x in zip((15, 16, 19), closes)]}
+        routes["/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice"] = daily
+        routes["/uapi/domestic-stock/v1/trading/inquire-balance"] = lambda q, b: {
+            "rt_cd": "0", "output1": held, "output2": [{"dnca_tot_amt": "0", "tot_evlu_amt": "100000000"}]}
+        kis, t = client(routes)
+        state = self.contest.State(os.path.join(self.tmp.name, "c.json"))
+        state.d["kr_rebalances"] = ["2026-10-19"]            # 오늘(10/20)은 리밸런스 날이 아님
+        state.d["manual"] = {"053800": {"name": "안랩"}}
+        for minute in (0, 15):
+            auto.run_contest_cycle(kis, {"us": {"watchlist": []}, "auto": {}}, state, auto_utc(2026, 10, 20, 0, minute),
+                                   self.logs.append, lambda *_: None, [])
+        sells = [(c["headers"]["tr_id"], c["body"]["PDNO"]) for c in t.calls if c["path"].endswith("order-cash")]
+        self.assertEqual(sells, [("VTTC0011U", "000001")])   # −30% 종목만, 한 번만 (수동 안랩·−5% 종목은 그대로)
 
     def test_crash_check(self):
         changes = {"A": "-8.5", "B": "-1.0", "C": "-0.5"}

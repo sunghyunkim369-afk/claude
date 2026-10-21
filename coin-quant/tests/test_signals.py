@@ -136,3 +136,24 @@ def test_upbit_tick_rounding():
     assert round_down_tick(3_456.7) == 3_455
     assert round_down_tick(512.34) == 512
     assert round_down_tick(0.123456) == 0.123
+
+
+def test_levels_no_lookahead_and_basic():
+    from coinquant.levels import pivot_lines, volume_zones
+    rng = np.random.default_rng(7)
+    n = 500
+    idx = pd.date_range("2020-01-01", periods=n)
+    c = pd.Series(100 * np.exp(np.cumsum(rng.normal(0, 0.03, n))), index=idx)
+    h, l_ = c * 1.02, c * 0.98
+    v = pd.Series(rng.lognormal(10, 0.5, n), index=idx)
+    atr = (h - l_).rolling(14).mean()
+    T = 400
+    for f, args in ((volume_zones, (h, l_, c, v)), (pivot_lines, (h, l_, c, atr))):
+        full = f(*args)
+        cut = f(*[s.iloc[:T] for s in args])
+        pd.testing.assert_frame_equal(full.iloc[:T], cut, check_freq=False)
+    z = volume_zones(h, l_, c, v)
+    ok = z.dropna(subset=["res_lo"])
+    assert (ok["res_lo"] > c.reindex(ok.index)).all()        # 위쪽 매물대는 현재가보다 위
+    p = pivot_lines(h, l_, c, atr).dropna(subset=["sup"])
+    assert (p["sup"] < c.reindex(p.index)).all()              # 아래쪽 지지선은 현재가보다 아래

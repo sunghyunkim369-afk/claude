@@ -143,6 +143,23 @@ def _swing_plan(doc: Doc, cfg: dict, F, d, core, final_w, cur_w, info) -> None:
               f"느린 EMA {num(r['느린 EMA'])} ({r['느린 EMA'] / c - 1:+.1%})" for r in snap if not pd.isna(r["채널 하단 40%선"])]
         items = [f"목표 비중 {_p(tw)} (지금 {_p(cw)}) — 공식 신호: {info['formula']['core_signal'] if a in core else info['formula']['others_signal']}",
                  "약해지는 기준 가격(종가가 이 아래면 그 기간 근거가 −로 바뀜): " + " · ".join(lv)]
+        try:  # 매물대·강한 선 (참고: docs/levels 검증상 예측력은 약함, 지정가·손절 위치 판단용)
+            from .. import levels as lv
+            z = lv.volume_zones(F.h[a], F.l[a], F.c[a], F.v[a]).loc[d]
+            pl = lv.pivot_lines(F.h[a], F.l[a], F.c[a], F.atr(14)[a]).loc[d]
+            parts = []
+            if not pd.isna(z["res_lo"]):
+                parts.append(f"위 매물대 {num(z['res_lo'])}~{num(z['res_hi'])} ({z['res_lo'] / c - 1:+.1%})")
+            if not pd.isna(z["sup_hi"]):
+                parts.append(f"아래 매물대 {num(z['sup_lo'])}~{num(z['sup_hi'])} ({z['sup_hi'] / c - 1:+.1%})")
+            if not pd.isna(pl["res"]):
+                parts.append(f"강한 저항선 {num(pl['res'])} ({int(pl['res_touch'])}회, {pl['res'] / c - 1:+.1%})")
+            if not pd.isna(pl["sup"]):
+                parts.append(f"강한 지지선 {num(pl['sup'])} ({int(pl['sup_touch'])}회, {pl['sup'] / c - 1:+.1%})")
+            if parts:
+                items.append("매물대·선(참고, 예측력 약함 — docs/levels): " + " · ".join(parts))
+        except Exception:
+            pass
         if stats is not None and combo:
             grp = "코어" if a in core else "기타"
             m = stats[(stats["그룹"] == grp) & (stats["조합(단기/중기/장기)"] == combo) & (stats["기간(일)"] == 20)]

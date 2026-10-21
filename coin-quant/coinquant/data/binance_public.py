@@ -227,3 +227,62 @@ def fetch_funding_history(symbol: str) -> pd.DataFrame:
     df["time"] = pd.to_datetime(t, unit="ms")
     df["rate"] = df["rate"].astype(float)
     return df[["time", "rate"]].drop_duplicates("time").sort_values("time").reset_index(drop=True)
+
+
+# ---------------------------------------------------------------- USDⓈ-M 무기한 선물 (숏 검증용)
+
+def list_um_symbols() -> list[str]:
+    return [p.rstrip("/").split("/")[-1] for p in list_prefix("data/futures/um/monthly/klines/")]
+
+
+def fetch_um_daily(symbol: str, since_month: str | None = None) -> pd.DataFrame:
+    """무기한 선물 일봉 (월 파일 + 이번 달 일 파일). 현물과 같은 형식으로 돌려줌."""
+    frames, last_month = [], None
+    for k in [k for k in list_prefix(f"data/futures/um/monthly/klines/{symbol}/1d/") if k.endswith(".zip")]:
+        m = re.search(r"-(\d{4}-\d{2})\.zip$", k).group(1)
+        last_month = max(last_month or m, m)
+        if since_month and m < since_month:
+            continue
+        r = _get("/" + k)
+        if r is not None:
+            frames.append(_read_zip(r.content))
+    for k in [k for k in list_prefix(f"data/futures/um/daily/klines/{symbol}/1d/") if k.endswith(".zip")]:
+        d = re.search(r"-(\d{4}-\d{2})-\d{2}\.zip$", k).group(1)
+        if last_month and d <= last_month:
+            continue
+        r = _get("/" + k)
+        if r is not None:
+            frames.append(_read_zip(r.content))
+    if not frames:
+        return pd.DataFrame(columns=["date", "open", "high", "low", "close", "volume", "quote_volume", "trades"])
+    df = _normalize(pd.concat(frames, ignore_index=True))
+    return df.drop_duplicates("date").sort_values("date").reset_index(drop=True)
+
+
+def update_um_cache(out_dir: Path, symbols: list[str], workers: int = 24, log=print) -> dict:
+    """선물 일봉 + 펀딩비(하루 합계)를 심볼별 파일로."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    def job(sym):
+        try:
+            k = fetch_um_daily(sym)
+            if k.empty:
+                return sym, 0
+            f = fetch_funding_history(sym)
+            if len(f):
+                fd = f.set_index("time")["rate"].resample("D").sum(min_count=1).rename("funding")
+                k = k.set_index("date").join(fd).reset_index()
+            else:
+                k["funding"] = float("nan")
+            k.to_csv(out_dir / f"{sym}.csv", index=False, date_format="%Y-%m-%d")
+            return sym, len(k)
+        except Exception as e:
+            return sym, f"error: {e}"
+
+    res = {}
+    with ThreadPoolExecutor(workers) as ex:
+        for i, (sym, n) in enumerate(ex.map(job, symbols), 1):
+            res[sym] = n
+            if i % 25 == 0 or i == len(symbols):
+                log(f"  선물 {i}/{len(symbols)}")
+    return res

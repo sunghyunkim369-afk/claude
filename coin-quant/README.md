@@ -14,6 +14,7 @@
 | 지표 검증 | ✅ [`docs/validation-2026-10-21.md`](docs/validation-2026-10-21.md) (지표별·워크포워드·위약·DSR) |
 | 스윙(추세) 검증 | ✅ [`docs/trend-study-2026-10-21.md`](docs/trend-study-2026-10-21.md) (며칠·몇 주·몇 달 추세 포착률) |
 | 4년 주기 검증 | ✅ [`docs/cycle-analysis-2026-10-21.md`](docs/cycle-analysis-2026-10-21.md) |
+| 숏(무기한 선물) 검증 | ✅ [`docs/short-study-2026-10-21.md`](docs/short-study-2026-10-21.md) — 2020~24년 추세 숏은 모두 손실, 현물 롱에 숏을 더하면 수익이 더 크게 줄어 **숏은 공식에 넣지 않는 걸 권함** (바이비트 대신 바이낸스 선물 데이터, 바이비트 수수료) |
 | 공식 확정 | ⏳ **같이 정할 차례** — `config.toml [formula]` 에 후보 7번 '스윙(중기 중심)'을 **임시 제안**으로 넣어 둠 (`python -m coinquant candidates` 로 후보 비교) |
 | 최종 검증 구간 | 🔒 2025-01-01 ~ 현재는 잠금. 공식 확정 후 `final-check` 로 한 번만 엶 |
 | 리포트·내 판단·주문·예약 실행 | ✅ 동작 (공식이 임시라 추천도 임시) |
@@ -36,6 +37,7 @@ python -m coinquant validate [--quick]  지표 검증 → docs/validation-날짜
 python -m coinquant trend-study         스윙 매매 검증 (기간별 추세 포착률, 추세 조합별 이후 수익)
 python -m coinquant candidates          완성 공식 후보 비교 + 파라미터 민감도
 python -m coinquant cycle               비트코인 4년 주기 검증
+python -m coinquant short-study         숏(무기한 선물) 검증, 현물 롱 + 선물 숏 합산
 python -m coinquant report [--no-news]  매일 리포트 (HTML/MD)
 python -m coinquant daily               update + report (예약 실행이 부르는 명령)
 python -m coinquant judge lock BTC "이유"          보유 고정 (공식이 안 팖)
@@ -68,6 +70,7 @@ python -m coinquant check               보안 점검
 |---|---|---|
 | 바이낸스 공개 데이터 (data.binance.vision) | 과거 가격·거래량 (검증) | 상장폐지 페어 포함, 2017-08~ |
 | 바이낸스 시세 API | 최근 며칠 보강 | 막혀 있으면 건너뜀 |
+| 바이낸스 USDⓈ-M 무기한 선물 (공개 데이터) | 숏 검증 (일봉·펀딩비, 2020-01~) | 바이비트 공개 데이터는 이 환경에서 막혀 대신 씀 |
 | Coin Metrics 공개 데이터 (GitHub) | 날짜별 시가총액 순위, BTC 도미넌스 | 추정 유통 시총 우선 |
 | 업비트 API | 원화 가격, 상장 목록·유의종목, 주문 | 내 PC에서 |
 | FRED 환율 (GitHub 미러) | 김치 프리미엄 | |

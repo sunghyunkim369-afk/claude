@@ -5,6 +5,7 @@
   python -m coinquant candidates          완성 공식 후보 비교 (개발 구간)
   python -m coinquant cycle               비트코인 4년 주기(반감기 사이클) 검증 → docs/cycle-analysis-날짜.md
   python -m coinquant trend-study         스윙 매매 검증 (며칠·몇 주·몇 달 추세 포착률) → docs/trend-study-날짜.md
+  python -m coinquant short-study         숏(무기한 선물) 검증 → docs/short-study-날짜.md
   python -m coinquant report [--no-news]  매일 리포트 → reports/daily-날짜.html
   python -m coinquant daily               update + report (예약 실행용)
   python -m coinquant judge ...           내 판단 넣기/빼기 (judge -h)
@@ -56,6 +57,11 @@ def cmd_cycle(a, cfg):
 def cmd_trend_study(a, cfg):
     from .research import trend_study
     trend_study.main(cfg)
+
+
+def cmd_short_study(a, cfg):
+    from .research import short_study
+    short_study.main(cfg)
 
 
 def cmd_report(a, cfg):
@@ -154,6 +160,8 @@ def main(argv=None):
     s.set_defaults(fn=cmd_cycle)
     s = sub.add_parser("trend-study", help="스윙(추세) 매매 검증: 기간별 추세 포착률")
     s.set_defaults(fn=cmd_trend_study)
+    s = sub.add_parser("short-study", help="숏(무기한 선물) 검증, 현물 롱 + 선물 숏 합산")
+    s.set_defaults(fn=cmd_short_study)
     s = sub.add_parser("report")
     s.add_argument("--no-news", action="store_true")
     s.add_argument("--rebalance-now", action="store_true", help="리밸런스 날이 아니어도 오늘 목표대로 주문 목록 만들기 (처음 시작할 때)")

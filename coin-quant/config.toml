@@ -1,0 +1,54 @@
+# coin-quant 설정 파일
+# 숫자를 바꾸면 백테스트·리포트·주문이 모두 이 값을 씁니다. (비밀 값은 여기 말고 .env 에)
+
+[data]
+# 데이터 보관 폴더 (저장소에 올리지 않음)
+cache_dir = "data_cache"
+# 일봉 기준 시각: 업비트·바이낸스 일봉 모두 UTC 00:00(= KST 09:00)에 끊깁니다. 바꾸지 마세요.
+bar_close = "UTC 00:00 (KST 09:00)"
+# 시계열이 이 일수 이상 끊기면 다른 코인으로 봅니다 (예: 옛 LUNA → 새 LUNA 심볼 재사용)
+gap_split_days = 10
+
+[universe]
+core = ["BTC", "ETH", "SOL"]
+# 기타 그룹: 그 날짜 시가총액 상위 N개 (코어 제외)
+others_top_n = 30
+include_meme = false
+# 순위 기준: "mcap" (Coin Metrics 시가총액) 또는 "volume" (최근 30일 거래대금, 상장폐지 포함 전체 페어로 계산)
+rank_method = "mcap"
+# 최소 거래 일수. 200일선 같은 지표가 계산되려면 200일이 필요해서, 모든 신호를 같은 조건으로 비교하려고 200으로 둠
+min_history_days = 200
+
+[costs]
+fee = 0.0005            # 업비트 KRW 마켓 0.05% (한 번 매매마다)
+slippage_core = 0.001   # 코어 0.1%
+slippage_other = 0.003  # 기타 0.3%
+
+[portfolio]
+core_weight = 0.70
+other_weight = 0.30
+max_weight_per_coin = 0.35
+max_orders_per_day = 10
+max_total_invest = 1.0      # 총 투자 한도 (1.0 = 평가금의 100%)
+min_trade_weight = 0.01     # 이보다 작은 비중 변화는 주문하지 않음 (잦은 매매 비용 방지)
+rebalance_days = 7          # 1 = 매일, 3 = 3일, 7 = 주 1회
+
+[validation]
+# 이 날짜 이후는 '최종 검증 구간' — 공식을 고른 뒤 딱 한 번만 엽니다.
+holdout_start = "2025-01-01"
+# 워크포워드: 학습 N개월 → 다음 M개월 검증, M개월씩 밀기
+wf_train_months = 24
+wf_test_months = 6
+random_placebo_draws = 200
+
+[report]
+output_dir = "reports"
+format = "html"   # "html" 또는 "md"
+news_max_items = 5
+
+[trading]
+# 1 = 추천만, 2 = 확인(y/N) 후 주문. 자동 주문은 auto_order = true 를 직접 켤 때만.
+stage = 1
+auto_order = false
+paper = true            # true면 모의 주문 (실제 거래소로 보내지 않음)
+max_order_krw = 100000  # 2단계 소액 시험: 주문 1건 최대 금액

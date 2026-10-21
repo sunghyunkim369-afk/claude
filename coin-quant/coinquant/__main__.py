@@ -1,0 +1,162 @@
+"""coin-quant 명령 모음.
+
+  python -m coinquant update              데이터 갱신 (바이낸스·Coin Metrics·환율·업비트) + 가격 패널
+  python -m coinquant validate [--quick]  지표 검증 (최종 검증 구간 제외) → docs/validation-날짜.md
+  python -m coinquant report [--no-news]  매일 리포트 → reports/daily-날짜.html
+  python -m coinquant daily               update + report (예약 실행용)
+  python -m coinquant judge ...           내 판단 넣기/빼기 (judge -h)
+  python -m coinquant trade [--auto]      추천 주문 실행 (stage 2 에서만, 주문마다 y/N)
+  python -m coinquant final-check         확정한 공식으로 최종 검증 구간을 '한 번' 열기
+  python -m coinquant check               보안 점검 (.env, 키 권한 안내)
+"""
+from __future__ import annotations
+
+import argparse
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+from . import config as config_mod
+
+
+def _env():
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(config_mod.ROOT / ".env")
+    except ImportError:
+        pass
+
+
+def cmd_update(a, cfg):
+    from .data.update import update_all
+    clone = Path(a.cm_clone) if a.cm_clone else None
+    update_all(cfg, config_mod.cache_dir(cfg), upbit_too=not a.no_upbit, cm_clone=clone)
+
+
+def cmd_validate(a, cfg):
+    from .research import indicator_validation
+    indicator_validation.main(cfg, quick=a.quick)
+
+
+def cmd_report(a, cfg):
+    from .app import report
+    path, orders = report.build(cfg, with_news=not a.no_news, rebalance_now=getattr(a, "rebalance_now", False))
+    print(f"추천 주문 {len(orders)}건 → `python -m coinquant trade` 로 확인 후 실행 (stage 2 일 때)")
+
+
+def cmd_daily(a, cfg):
+    a.cm_clone, a.no_upbit, a.no_news = None, False, False
+    cmd_update(a, cfg)
+    cmd_report(a, cfg)
+
+
+def cmd_judge(a, cfg):
+    from .app.report import user_dir
+    from .overrides import ACTIONS, Judgments
+    j = Judgments(user_dir())
+    if a.action == "list":
+        act = j.active()
+        if not act:
+            print("유효한 판단 없음")
+        for k, r in act.items():
+            v = f" {r['value']:.1%}" if r.get("value") is not None else ""
+            print(f"{k:<8} {ACTIONS[r['action']]}{v}  이유: {r['reason']}  ({r['time'][:10]}{', ~' + r['until'] if r.get('until') else ''})")
+        return
+    if a.action == "weight":
+        if len(a.rest) < 2:
+            sys.exit('사용법: judge weight SOL 0.15 "이유"')
+        value, reason = float(a.rest[0]), " ".join(a.rest[1:])
+    else:
+        value, reason = None, " ".join(a.rest)
+    rec = j.add(a.action, a.asset, reason, value, a.until)
+    print(f"기록: {rec['asset']} {ACTIONS[rec['action']]} — {rec['reason']}")
+
+
+def cmd_trade(a, cfg):
+    from .app import trade
+    trade.run(cfg, auto=a.auto)
+
+
+def cmd_final_check(a, cfg):
+    from .research import final_check
+    final_check.main(cfg, force=a.force)
+
+
+def cmd_check(a, cfg):
+    root = config_mod.ROOT
+    ok = True
+    env = root / ".env"
+    print(f".env 파일: {'있음' if env.exists() else '없음 (.env.example 을 복사해 만드세요)'}")
+    try:
+        ign = subprocess.run(["git", "check-ignore", "-q", str(env)], cwd=root).returncode == 0
+        tracked = subprocess.run(["git", "ls-files", "--error-unmatch", ".env"], cwd=root,
+                                 capture_output=True).returncode == 0
+        print(f".gitignore 가 .env 를 막는지: {'예' if ign else '아니오 ← 위험'}")
+        print(f".env 가 git 에 올라가 있는지: {'예 ← 즉시 키 폐기·재발급하세요' if tracked else '아니오'}")
+        ok &= ign and not tracked
+    except FileNotFoundError:
+        print("git 이 없어 .gitignore 점검을 건너뜁니다")
+    has = bool(os.environ.get("UPBIT_ACCESS_KEY")) and bool(os.environ.get("UPBIT_SECRET_KEY"))
+    print(f"업비트 키: {'있음' if has else '없음 (추천만 쓰면 필요 없음)'}")
+    if has:
+        try:
+            from .data.upbit import UpbitPrivate
+            keys = UpbitPrivate().api_keys()
+            for k in keys:
+                print(f"  키 만료일: {k.get('expire_at')}")
+        except Exception as e:
+            print(f"  키 확인 실패: {e} (허용 IP가 이 컴퓨터가 아니거나 키가 잘못됨)")
+    print("\n꼭 확인 (업비트 웹 → 마이페이지 → Open API 관리):")
+    print("  1) 권한: '자산조회', '주문조회', '주문하기'만. '출금하기'·'입금하기'는 끄기 (출금 권한은 절대 켜지 마세요)")
+    print("  2) 허용 IP: 이 컴퓨터의 공인 IP만 등록")
+    print("  3) 키는 .env 에만. 대화창·메신저·GitHub 에 붙여넣지 않기. 유출 의심 시 즉시 삭제 후 재발급")
+    t = cfg["trading"]
+    print(f"\n주문 설정: stage={t['stage']} (1=추천만, 2=확인 후 주문), paper={t['paper']}, auto_order={t['auto_order']}, "
+          f"1건 최대 {t['max_order_krw']:,}원")
+    sys.exit(0 if ok else 1)
+
+
+def main(argv=None):
+    _env()
+    ap = argparse.ArgumentParser(prog="coinquant", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--config", help="설정 파일 (기본 config.toml)")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    s = sub.add_parser("update")
+    s.add_argument("--no-upbit", action="store_true")
+    s.add_argument("--cm-clone", help="(개발용) Coin Metrics 저장소 사본 csv 폴더")
+    s.set_defaults(fn=cmd_update)
+    s = sub.add_parser("validate")
+    s.add_argument("--quick", action="store_true", help="무작위 위약 횟수를 줄여 빨리")
+    s.set_defaults(fn=cmd_validate)
+    s = sub.add_parser("report")
+    s.add_argument("--no-news", action="store_true")
+    s.add_argument("--rebalance-now", action="store_true", help="리밸런스 날이 아니어도 오늘 목표대로 주문 목록 만들기 (처음 시작할 때)")
+    s.set_defaults(fn=cmd_report)
+    s = sub.add_parser("daily")
+    s.set_defaults(fn=cmd_daily)
+    s = sub.add_parser("judge", help="내 판단: lock/exclude/weight/release/list")
+    s.add_argument("action", choices=["lock", "exclude", "weight", "release", "list"])
+    s.add_argument("asset", nargs="?", default="")
+    s.add_argument("rest", nargs="*", help="(weight 면 비중 먼저) 이유 한 줄")
+    s.add_argument("--until", help="유효 기한 YYYY-MM-DD")
+    s.set_defaults(fn=cmd_judge)
+    s = sub.add_parser("trade")
+    s.add_argument("--auto", action="store_true", help="확인 없이 실행 (config 의 auto_order = true 일 때만)")
+    s.set_defaults(fn=cmd_trade)
+    s = sub.add_parser("final-check")
+    s.add_argument("--force", action="store_true", help="공식이 '확정'이 아니어도 열기 (권하지 않음)")
+    s.set_defaults(fn=cmd_final_check)
+    s = sub.add_parser("check")
+    s.set_defaults(fn=cmd_check)
+    a = ap.parse_args(argv)
+    if a.cmd == "judge" and a.action != "list" and not a.asset:
+        ap.error("코인을 적어 주세요. 예: judge lock BTC \"이유\"")
+    if a.cmd == "judge" and a.action in ("lock", "exclude", "release") and not a.rest:
+        ap.error('이유 한 줄을 적어 주세요. 예: judge lock BTC "ETF 자금 유입"')
+    cfg = config_mod.load(a.config)
+    a.fn(a, cfg)
+
+
+if __name__ == "__main__":
+    main()

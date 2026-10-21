@@ -1,0 +1,19 @@
+# 큰 일정 (리포트의 '위험 경고'에 7일 전부터 표시)
+# 연준이 발표한 일정 기준으로 적었지만 바뀔 수 있으니 federalreserve.gov 에서 확인하세요.
+# 미국 CPI·고용 발표, 대형 토큰 언락, 업그레이드 일정 등은 직접 추가하세요.
+#   [[event]]
+#   date = "2026-11-12"
+#   name = "미국 10월 CPI 발표"
+#   coins = ["BTC", "ETH"]
+
+[[event]]
+date = "2026-10-28"
+name = "FOMC 금리 결정 (10/27~28 회의)"
+coins = ["ALL"]
+source = "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+
+[[event]]
+date = "2026-12-09"
+name = "FOMC 금리 결정 (12/8~9 회의)"
+coins = ["ALL"]
+source = "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"

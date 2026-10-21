@@ -8,6 +8,7 @@
 | `hs-code-finder/` | HS코드 찾기 · 코드 좁히기 질문 · 관세/FTA 계산 |
 | `shared/` | 페이지 공통 스크립트 (브라우저 에러 수집기, AI 호출 도우미) |
 | `api/` | 서버 함수 (eyefeet `vercel` 런타임에서 실행) |
+| `coin-quant/` | 코인 퀀트 + 개인 판단 도우미 (Python, 별도 프로그램 — [coin-quant/README.md](coin-quant/README.md)) |
 
 ## 배포
 

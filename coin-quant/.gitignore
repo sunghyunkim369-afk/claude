@@ -1,0 +1,13 @@
+# 비밀 값 — 절대 커밋하지 않음 (견본 .env.example 만 커밋)
+.env
+.env.*
+!.env.example
+# 받은 데이터·개인 기록·리포트 (개인 자산 정보가 들어 있음)
+data_cache/
+user_data/
+reports/
+logs/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/

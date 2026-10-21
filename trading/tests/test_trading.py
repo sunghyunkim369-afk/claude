@@ -645,6 +645,31 @@ class ContestModeTest(unittest.TestCase):
         # 약세장 → 보통: 절반(1666주)씩이던 걸 1/3 까지 다시
         self.assertEqual(run(rising, "1666", False), [("VTTC0012U", c, 1667) for c in rising])
 
+    def test_blocked_target_replaced_by_next_rank(self):
+        strengths = {"000001": 0.012, "000002": 0.011, "000003": 0.010, "000004": 0.009, "000005": 0.008}
+        universe = [(c, c) for c in strengths]
+        routes = self.market(strengths)
+
+        def order(q, b):
+            if b["PDNO"] == "000002":
+                return {"rt_cd": "1", "msg_cd": "40070000", "msg1": "모의투자 주문처리가 안되었습니다(매매불가 종목)"}
+            return {"rt_cd": "0", "output": {"ODNO": "1"}}
+        routes["/uapi/domestic-stock/v1/trading/order-cash"] = order
+        kis, t = client(routes)
+        sc = lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1
+        with mock.patch.object(self.contest, "score", sc):
+            _, state = self.cycle(kis, auto_utc(2026, 10, 21, 0, 30), universe)
+        tried = [c["body"]["PDNO"] for c in t.calls if c["path"].endswith("order-cash")]
+        self.assertEqual(tried, ["000001", "000002", "000003", "000004"])   # 000002 대신 4위 000004
+        self.assertIn("000002", state.d["blocked"])
+        self.assertEqual([x[1] for x in state.d["kr_ranked"]["reserve"]], ["000004", "000005"])
+        # 다음 리밸런스 순위에서도 빠져요
+        kis2, t2 = client(self.market(strengths))
+        with mock.patch.object(self.contest, "score", sc):
+            targets, _ = self.contest.kr_targets(kis2, universe, auto_utc(2026, 10, 23, 0, 30).date(), lambda *_: None,
+                                                 self.contest.kr_params(state), exclude=set(state.d["blocked"]))
+        self.assertNotIn("000002", [x[1] for x in targets])
+
     def test_crash_check(self):
         changes = {"A": "-8.5", "B": "-1.0", "C": "-0.5"}
         routes = self.market({})

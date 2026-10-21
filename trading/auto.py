@@ -199,20 +199,28 @@ def run_us_aggressive(kis, state, session, today, stamp, place, out=print):
     return d.get("us_orders", 0) - before
 
 
-def kr_fill_missing(kis, state, session, place, out=print):
-    """오늘 목표 종목 중 아직 안 산 것을 사요 (총평가 / 목표 수 만큼). 다 사면 남은 현금을 한 번 채우고 kr_fill 을 지워요."""
+def kr_fill_missing(kis, state, session, place, out=print, universe=None):
+    """오늘 목표 종목 중 아직 안 산 것을 사요 (총평가 / 목표 수 만큼). 다 사면 남은 현금을 한 번 채우고 kr_fill 을 지워요.
+    모의투자 매매불가 종목이면 다음 순위 종목으로 바꿔서 사요."""
     from . import contest
     fill = state.d["kr_fill"]
     bal = kis.kr_balance()
     held = bal["holdings"]
     manual = state.d.get("manual", {})
-    todo = [t for t in fill["targets"] if t[1] not in held and t[1] not in fill["placed"] and t[1] not in manual]
     per = contest.auto_budget(bal, manual, fill["top_k"]) * fill.get("scale", 1.0)
-    for sc, code, name in todo:
-        o = contest.kr_buy_order(kis, code, name, per, f"20일 수익률 {sc * 100:+.1f}%", out)
-        if o and place(o, session):
-            fill["placed"].append(code)
-            fill.setdefault("spent", {})[code] = o["qty"] * o["price"]
+    for _ in range(3):  # 매매불가로 바꾼 종목도 같은 번에 사 보려고 몇 번 돌아요
+        kr_substitute_blocked(kis, state, fill, held, manual, session, out, universe)
+        todo = [t for t in fill["targets"] if t[1] not in held and t[1] not in fill["placed"] and t[1] not in manual
+                and t[1] not in state.d.get("blocked", [])]
+        if not todo:
+            break
+        for sc, code, name in todo:
+            o = contest.kr_buy_order(kis, code, name, per, f"20일 수익률 {sc * 100:+.1f}%", out)
+            if o and place(o, session):
+                fill["placed"].append(code)
+                fill.setdefault("spent", {})[code] = o["qty"] * o["price"]
+        if not any(t[1] in state.d.get("blocked", []) for t in fill["targets"]):
+            break
     if all(t[1] in fill["placed"] or t[1] in held or t[1] in manual for t in fill["targets"]):
         if not fill.get("topped"):
             fill["topped"] = True
@@ -220,6 +228,39 @@ def kr_fill_missing(kis, state, session, place, out=print):
         state.d["kr_fill"] = None
     else:
         out("  못 산 종목은 다음 확인 때(15분 뒤) 다시 시도해요")
+
+
+def kr_substitute_blocked(kis, state, fill, held, manual, session, out=print, universe=None):
+    """목표 중 모의투자 매매불가 종목을 다음 순위(오늘 순위 계산 때 남겨 둔 reserve)로 바꿔요.
+    reserve 가 없으면(예전 버전에서 계산한 순위) 순위를 다시 계산해요."""
+    from datetime import date as _date
+    from . import contest
+    blocked = set(state.d.get("blocked", []))
+    if not any(t[1] in blocked and t[1] not in held for t in fill["targets"]):
+        return
+    cached = state.d.get("kr_ranked") or {}
+    reserve = [tuple(t) for t in cached.get("reserve", [])] if cached.get("session") == session else []
+    taken = {t[1] for t in fill["targets"]}
+    if not [r for r in reserve if r[1] not in blocked and r[1] not in taken and r[1] not in manual] and universe:
+        out("  매매불가 종목 대신 살 다음 순위를 찾으려고 순위를 다시 계산해요 (몇 분 걸려요)")
+        rest = []
+        p = contest.kr_params(state)
+        top, _ = contest.kr_targets(kis, universe, _date.fromisoformat(session), out, p,
+                                    exclude=set(manual) | blocked | taken, reserve=rest)
+        reserve = list(top) + rest
+        if cached.get("session") == session:
+            cached["reserve"] = [list(r) for r in reserve]
+    new = []
+    for t in [tuple(x) for x in fill["targets"]]:
+        if t[1] in blocked and t[1] not in held:
+            rep = next((r for r in reserve if r[1] not in blocked and r[1] not in taken and r[1] not in manual), None)
+            if rep:
+                out(f"  {t[2]}({t[1]}) 는 모의투자 매매불가라 다음 순위 {rep[2]}({rep[1]}) {rep[0] * 100:+.1f}% 를 대신 사요")
+                taken.add(rep[1])
+                new.append(rep)
+                continue
+        new.append(t)
+    fill["targets"] = [list(t) for t in new]
 
 
 def kr_top_up(kis, fill, bal, manual, per, session, place, out=print):
@@ -372,8 +413,12 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
             targets, risk_on = [tuple(t) for t in cached["targets"] if t[1] not in manual], cached["risk_on"]
             out("  (아까 계산한 순위를 그대로 써요)")
         else:
-            targets, risk_on = contest.kr_targets(kis, universe, today, out, p, exclude=manual)
-            state.d["kr_ranked"] = {"session": kr_session, "mode": mode, "targets": targets, "risk_on": risk_on}
+            reserve = []
+            targets, risk_on = contest.kr_targets(kis, universe, today, out, p,
+                                                  exclude=set(manual) | set(state.d.get("blocked", [])),
+                                                  reserve=reserve)
+            state.d["kr_ranked"] = {"session": kr_session, "mode": mode, "targets": targets, "risk_on": risk_on,
+                                    "reserve": reserve}
             state.save()
             time.sleep(2)  # 250종목 조회 직후라 계좌 조회 전에 잠깐 쉬어요
         if p.get("regime_ema"):
@@ -402,7 +447,7 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
         # 매수는 매도가 끝난 뒤 주문가능금액을 보고 1% 높은 지정가로. 못 산 건 같은 날 다음 확인 때 다시 시도해요.
         state.d["kr_fill"] = {"session": kr_session, "targets": [list(t) for t in targets], "placed": [],
                               "top_k": p["top_k"], "scale": scale}
-        kr_fill_missing(kis, state, kr_session, place, out)
+        kr_fill_missing(kis, state, kr_session, place, out, universe)
         if regained:
             kr_regime_top_up(kis, state, targets, manual, p, kr_session, place, out)
         d = state.d
@@ -433,7 +478,7 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
                                       "top_k": p["top_k"]}
         fill = state.d.get("kr_fill")
         if fill and fill.get("session") == kr_session:
-            kr_fill_missing(kis, state, kr_session, place, out)
+            kr_fill_missing(kis, state, kr_session, place, out, universe)
         state.save()
 
     us_session = market_session("us", now_utc)

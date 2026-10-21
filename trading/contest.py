@@ -206,8 +206,9 @@ def market_risk_on(index_values, n):
     return True if e is None else index_values[-1] > e
 
 
-def kr_targets(kis, universe, today, out=print, p=None, exclude=()):
-    """반환: (목표 [(점수, 코드, 이름)], 시장이 좋은 날인지). exclude(수동 보유 종목)는 후보에서 빼요."""
+def kr_targets(kis, universe, today, out=print, p=None, exclude=(), reserve=None):
+    """반환: (목표 [(점수, 코드, 이름)], 시장이 좋은 날인지). exclude(수동 보유·매매불가 종목)는 후보에서 빼요.
+    reserve(리스트)를 주면 목표 다음 순위 5종목을 넣어 둬요 (목표 종목을 못 살 때 대신 사려고)."""
     p = p or KR
     scored, series = [], {}
     t = today.strftime("%Y%m%d")
@@ -233,6 +234,8 @@ def kr_targets(kis, universe, today, out=print, p=None, exclude=()):
         out(f"    60일선 위 종목 비율 {b * 100:.0f}% (기준 {p['regime_breadth'] * 100:.0f}%)")
         risk_on = risk_on and b >= p["regime_breadth"]
     keep = p["top_k"] if risk_on else p["risk_off_top"]
+    if reserve is not None:
+        reserve.extend(scored[keep:keep + 5])
     return scored[:keep], risk_on
 
 

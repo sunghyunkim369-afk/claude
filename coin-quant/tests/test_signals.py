@@ -110,3 +110,29 @@ def test_swing_sim_no_lookahead():
     full = swing_sim(e, x, c, target=0.1, stop=0.05, max_days=10)
     cut = swing_sim(e.iloc[:120], x.iloc[:120], c.iloc[:120], target=0.1, stop=0.05, max_days=10)
     pd.testing.assert_frame_equal(full.iloc[:120], cut)
+
+
+def test_limit_entry_sleeve():
+    from coinquant.research.limit_entry import sleeve
+    pos = np.array([0, 1, 1, 1, 0, 0], float)
+    o = np.array([100, 100, 99, 104, 110, 110], float)
+    h = np.array([100, 101, 102, 112, 112, 110], float)
+    l_ = np.array([100, 99, 97, 103, 108, 110], float)
+    c = np.array([100, 100, 101, 110, 110, 110], float)
+    # 1일째 종가 100 신호 → −2% 지정가 98: 2일째 저가 97 이 닿음 → 98 에 체결 (시가 99 보다 낮은 지정가)
+    r, at = sleeve(pos, o, h, l_, c, method="limit", disc=0.02, fee=0.0, slip=0.0)
+    assert at[0][1] is True or at[0][1] == True  # noqa: E712
+    assert r[2] == pytest.approx(101 / 98 - 1)
+    # −5% 지정가 95: 저가 97 이라 안 닿음 → 포기 (한 번만 시도면 이후에도 안 삼)
+    r, at = sleeve(pos, o, h, l_, c, method="limit", disc=0.05, fee=0.0, slip=0.0)
+    assert len(at) == 1 and not at[0][1] and np.allclose(r, 0)
+    # 놓친 거래를 시장가로 샀다면: 2일째 시가 99 매수 → 4일째 신호 꺼짐 → 5일째 시가 110 매도
+    assert at[0][2] == pytest.approx(110 / 99 - 1)
+
+
+def test_upbit_tick_rounding():
+    from coinquant.data.upbit import round_down_tick
+    assert round_down_tick(123_456_789) == 123_456_000
+    assert round_down_tick(3_456.7) == 3_455
+    assert round_down_tick(512.34) == 512
+    assert round_down_tick(0.123456) == 0.123

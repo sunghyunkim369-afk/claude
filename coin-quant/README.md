@@ -17,6 +17,7 @@
 | 숏(무기한 선물) 검증 | ✅ [`docs/short-study-2026-10-21.md`](docs/short-study-2026-10-21.md) — 2020~24년 추세 숏은 모두 손실, 현물 롱에 숏을 더하면 수익이 더 크게 줄어 **숏은 공식에 넣지 않는 걸 권함** (바이비트 대신 바이낸스 선물 데이터, 바이비트 수수료) |
 | 공식 확정 | ✅ 2026-10-21 '스윙(중기 중심)' 확정 (`config.toml [formula]`) |
 | 최종 검증 | ✅ 2026-10-21 1번째 열람 [`docs/final-check-2026-10-21.md`](docs/final-check-2026-10-21.md) — 2025-01~2026-10: 총수익 +5.6%, MDD −20% (BTC 보유 −11%, −53%). 손실 방어는 확인, 수익은 개발 구간보다 훨씬 작음 |
+| 지정가 매수 검증 | ✅ [`docs/limit-entry-2026-10-21.md`](docs/limit-entry-2026-10-21.md) — '안 닿으면 포기'는 코어에서 손해(강한 추세를 놓침), '신호 유지 시 매일 다시 지정가'는 시장가와 같거나 조금 나음 → 기본값: 코어 −1%·기타 −3% 지정가 매수, 매도는 시장가 (`config.toml [trading]`) |
 | 단기 스윙 검증 | ✅ [`docs/short-swing-2026-10-21.md`](docs/short-swing-2026-10-21.md) — 며칠짜리 추세는 못 먹음, 단독 운용은 이득 없음, 확정 공식 70% + 단기 추세 30%가 가장 근거 있음(모의로 먼저 확인 권함) |
 | 리포트·내 판단·주문·예약 실행 | ✅ 동작 (공식이 임시라 추천도 임시) |
 
@@ -40,6 +41,7 @@ python -m coinquant candidates          완성 공식 후보 비교 + 파라미�
 python -m coinquant cycle               비트코인 4년 주기 검증
 python -m coinquant short-study         숏(무기한 선물) 검증, 현물 롱 + 선물 숏 합산
 python -m coinquant short-swing         단기 스윙(며칠~2주) 검증
+python -m coinquant limit-entry         지정가 매수(안 닿으면 포기 / 매일 다시) 검증 + 중기 의미(부트스트랩)
 python -m coinquant report [--no-news]  매일 리포트 (HTML/MD)
 python -m coinquant daily               update + report (예약 실행이 부르는 명령)
 python -m coinquant judge lock BTC "이유"          보유 고정 (공식이 안 팖)

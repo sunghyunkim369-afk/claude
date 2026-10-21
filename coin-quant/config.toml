@@ -65,3 +65,10 @@ stage = 1
 auto_order = false
 paper = true            # true면 모의 주문 (실제 거래소로 보내지 않음)
 max_order_krw = 100000  # 2단계 소액 시험: 주문 1건 최대 금액
+# 매수 체결 방식 (docs/limit-entry-2026-10-21.md 검증 결과)
+#  "limit": 판단 날 종가 × (1 − 할인율)에 지정가. 안 닿으면 그날은 보내고, 신호가 켜져 있으면 다음 날 같은 방식으로 다시 겁니다.
+#  "market": 다음 날 시장가
+buy_order = "limit"
+limit_discount_core = 0.01    # 코어 −1% (매일 다시 걸 때 시장가와 같거나 조금 나았음)
+limit_discount_other = 0.03   # 기타(알트) −3% (한 번만 걸어도 시장가보다 나았음)
+# 매도는 항상 시장가 (손절이 늦어지면 손실이 커짐)

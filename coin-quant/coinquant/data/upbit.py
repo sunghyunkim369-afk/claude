@@ -130,6 +130,24 @@ def auth_header(access: str, secret: str, params: dict | None = None) -> dict:
     return {"Authorization": f"Bearer {_jwt(payload, secret)}"}
 
 
+def tick_size(price: float) -> float:
+    """업비트 KRW 마켓 지정가 호가 단위 (보수적으로 큰 쪽).
+
+    업비트는 호가 단위를 바꾼 적이 있어서, 옛 규칙·새 규칙 어느 쪽에서도 유효하도록 '둘의 배수'가 되는 큰 단위를 씁니다.
+    (매수 지정가는 아래로 내림하므로 가격이 아주 조금 더 낮아질 뿐입니다.) 주문이 '호가 단위' 오류로 거절되면 이 표를 확인하세요.
+    """
+    for lo, t in ((1_000_000, 1000), (500_000, 500), (100_000, 100), (10_000, 50), (1_000, 5), (100, 1),
+                  (10, 0.1), (1, 0.01), (0.1, 0.001), (0.01, 0.0001)):
+        if price >= lo:
+            return t
+    return 0.00001
+
+
+def round_down_tick(price: float) -> float:
+    t = tick_size(price)
+    return round(int(price / t) * t, 8)
+
+
 class UpbitPrivate:
     """잔고 조회·주문. 키는 .env 에서만 읽습니다."""
 
@@ -156,5 +174,25 @@ class UpbitPrivate:
             raise ValueError(side)
         h = auth_header(self.access, self.secret, params)
         r = _session.post(BASE + "/orders", json=params, headers=h, timeout=30)
+        r.raise_for_status()
+        return r.json()
+
+    def limit_order(self, market: str, side: str, price: float, volume: float) -> dict:
+        """지정가 주문 (취소할 때까지 유효)."""
+        p = round_down_tick(price)
+        params = {"market": market, "side": side, "ord_type": "limit", "price": f"{p:f}".rstrip("0").rstrip("."),
+                  "volume": f"{volume:.8f}"}
+        h = auth_header(self.access, self.secret, params)
+        r = _session.post(BASE + "/orders", json=params, headers=h, timeout=30)
+        r.raise_for_status()
+        return r.json()
+
+    def get_order(self, uuid_: str) -> dict:
+        q = {"uuid": uuid_}
+        return _get("/order", q, headers=auth_header(self.access, self.secret, q))
+
+    def cancel(self, uuid_: str) -> dict:
+        q = {"uuid": uuid_}
+        r = _session.delete(BASE + "/order", params=q, headers=auth_header(self.access, self.secret, q), timeout=30)
         r.raise_for_status()
         return r.json()

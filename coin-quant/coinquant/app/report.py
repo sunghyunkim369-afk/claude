@@ -306,10 +306,18 @@ def build(cfg: dict | None = None, with_news: bool = True, rebalance_now: bool =
             why.append(f"30일 {_pct(ind.ret(F.c, 30).loc[d, a])}, 200일선 대비 {_pct(F.c.loc[d, a] / F.sma(200).loc[d, a] - 1)}")
         if a in active:
             why.append(f"내 판단: {ACTIONS[active[a]['action']]}")
+        tcfg = cfg["trading"]
+        limit_px = None
+        if action == "매수" and tcfg.get("buy_order", "market") == "limit" and not np.isnan(px_krw.get(a, np.nan)):
+            disc = tcfg["limit_discount_core"] if a in core else tcfg["limit_discount_other"]
+            limit_px = float(px_krw[a] * (1 - disc))
+            why.append(f"주문: 지정가 {_money(limit_px)} (어제 종가 −{disc:.0%}, 안 닿으면 오늘은 넘기고 신호가 유지되면 내일 다시)")
+        elif action == "매도":
+            why.append("주문: 시장가 매도")
         rows.append([a, group, action, _p(cw), _p(fw), _p(tw), " · ".join(why),
                      f"{h.get('n', 0)}회 / {_p(h.get('win'), 0)} / {_pct(h.get('mean'))} / {_pct(h.get('worst'))}" if h else "-"])
         if action != "보유" and is_reb:
-            orders.append({"asset": a, "side": "bid" if delta > 0 else "ask", "weight_delta": float(delta),
+            orders.append({"asset": a, "side": "bid" if delta > 0 else "ask", "weight_delta": float(delta), "limit_price": limit_px,
                            "krw": float(abs(delta) * total_krw), "target_weight": float(tw), "full_exit": bool(tw == 0)})
     cash_w = 1 - final_w.sum()
     doc.table(["코인", "그룹", "추천", "지금 비중", "공식 목표", "최종 목표(내 판단 반영)", "근거", "과거(개발 구간): 거래수/승률/평균/최악"], rows)

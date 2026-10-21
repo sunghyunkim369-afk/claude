@@ -34,7 +34,8 @@ DEFAULTS: dict = {
         "random_placebo_draws": 200,
     },
     "report": {"output_dir": "reports", "format": "html", "news_max_items": 5},
-    "trading": {"stage": 1, "auto_order": False, "paper": True, "max_order_krw": 100000},
+    "trading": {"stage": 1, "auto_order": False, "paper": True, "max_order_krw": 100000, "buy_order": "limit",
+                "limit_discount_core": 0.01, "limit_discount_other": 0.03},
 }
 
 

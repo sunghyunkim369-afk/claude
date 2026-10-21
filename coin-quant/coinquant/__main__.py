@@ -7,6 +7,7 @@
   python -m coinquant trend-study         스윙 매매 검증 (며칠·몇 주·몇 달 추세 포착률) → docs/trend-study-날짜.md
   python -m coinquant short-study         숏(무기한 선물) 검증 → docs/short-study-날짜.md
   python -m coinquant short-swing         단기 스윙(며칠~2주) 검증 → docs/short-swing-날짜.md
+  python -m coinquant limit-entry         지정가 매수(안 닿으면 포기) 검증 → docs/limit-entry-날짜.md
   python -m coinquant report [--no-news]  매일 리포트 → reports/daily-날짜.html
   python -m coinquant daily               update + report (예약 실행용)
   python -m coinquant judge ...           내 판단 넣기/빼기 (judge -h)
@@ -68,6 +69,11 @@ def cmd_short_study(a, cfg):
 def cmd_short_swing(a, cfg):
     from .research import short_swing
     short_swing.main(cfg)
+
+
+def cmd_limit_entry(a, cfg):
+    from .research import limit_entry
+    limit_entry.main(cfg)
 
 
 def cmd_report(a, cfg):
@@ -170,6 +176,8 @@ def main(argv=None):
     s.set_defaults(fn=cmd_short_study)
     s = sub.add_parser("short-swing", help="단기 스윙(며칠~2주) 검증")
     s.set_defaults(fn=cmd_short_swing)
+    s = sub.add_parser("limit-entry", help="지정가 매수(안 닿으면 포기) 검증 + 중기 의미")
+    s.set_defaults(fn=cmd_limit_entry)
     s = sub.add_parser("report")
     s.add_argument("--no-news", action="store_true")
     s.add_argument("--rebalance-now", action="store_true", help="리밸런스 날이 아니어도 오늘 목표대로 주문 목록 만들기 (처음 시작할 때)")

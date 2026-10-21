@@ -86,3 +86,9 @@ def test_metrics_basic():
     assert s["MDD"] == pytest.approx(-0.5, abs=1e-9)
     assert s["총수익"] == pytest.approx(0.0, abs=1e-9)
     assert 0 <= s["월승률"] <= 1
+
+
+def test_monthly_no_stub_when_start_is_month_end():
+    eq = pd.Series(np.linspace(1, 2, 62), index=pd.date_range("2024-12-31", periods=62))
+    m = metrics.monthly(eq)
+    assert m.index[0].month == 1 and (m != 0).all()

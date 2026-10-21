@@ -31,6 +31,7 @@ def monthly(eq: pd.Series) -> pd.Series:
     m = eq.resample("ME").last()
     first = eq.iloc[:1]
     m = pd.concat([first, m])
+    m = m[~m.index.duplicated(keep="first")]      # 시작일이 월말이면 '하루짜리 첫 달(0%)'이 생기지 않게
     return m.pct_change().dropna()
 
 

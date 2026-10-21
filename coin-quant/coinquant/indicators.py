@@ -101,3 +101,11 @@ def regression_r2(close: pd.DataFrame, n: int) -> pd.DataFrame:
     _, _, resid = regression_slope(close, n)
     var_y = y.rolling(n, min_periods=n).var(ddof=0)
     return (1 - resid ** 2 / var_y.replace(0, np.nan)).clip(0, 1)
+
+
+def rsi(close: pd.DataFrame, n: int = 14) -> pd.DataFrame:
+    """와일더 RSI (0~100)."""
+    d = close.diff()
+    up = d.clip(lower=0).ewm(alpha=1 / n, adjust=False, min_periods=n).mean()
+    dn = (-d.clip(upper=0)).ewm(alpha=1 / n, adjust=False, min_periods=n).mean()
+    return 100 - 100 / (1 + up / dn.replace(0, np.nan))

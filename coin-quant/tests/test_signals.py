@@ -84,3 +84,29 @@ def test_judgments_layer(tmp_path):
     assert final["ETH"] / final["XRP"] == pytest.approx(0.5 / 0.3)
     with pytest.raises(ValueError):
         j.add("lock", "ETH", "  ")                 # 이유 필수
+
+
+def test_swing_sim_rules():
+    from coinquant.research.short_swing import swing_sim
+    idx = pd.date_range("2021-01-01", periods=10)
+    c = pd.DataFrame({"A": [100, 100, 105, 111, 111, 100, 94, 94, 94, 94]}, index=idx, dtype=float)
+    e = pd.DataFrame({"A": [False, True] + [False] * 8}, index=idx)
+    x = pd.DataFrame(False, index=idx, columns=["A"])
+    p = swing_sim(e, x, c, target=0.10)               # 100에 진입 → 111(+11%)에서 목표가 청산
+    assert list(p["A"]) == [0, 1, 1, 0, 0, 0, 0, 0, 0, 0]
+    p = swing_sim(e, x, c, stop=0.05, max_days=20)    # 손절만: 94(−6%)에서 청산
+    assert p["A"].iloc[5] == 1 and p["A"].iloc[6] == 0
+    p = swing_sim(e, x, c, max_days=3)                # 최대 3일
+    assert p["A"].sum() == 3
+
+
+def test_swing_sim_no_lookahead():
+    from coinquant.research.short_swing import swing_sim
+    rng = np.random.default_rng(5)
+    idx = pd.date_range("2021-01-01", periods=200)
+    c = pd.DataFrame(np.exp(np.cumsum(rng.normal(0, 0.03, (200, 2)), axis=0)), index=idx, columns=["A", "B"])
+    e = c > c.rolling(5).mean()
+    x = c < c.rolling(3).mean()
+    full = swing_sim(e, x, c, target=0.1, stop=0.05, max_days=10)
+    cut = swing_sim(e.iloc[:120], x.iloc[:120], c.iloc[:120], target=0.1, stop=0.05, max_days=10)
+    pd.testing.assert_frame_equal(full.iloc[:120], cut)

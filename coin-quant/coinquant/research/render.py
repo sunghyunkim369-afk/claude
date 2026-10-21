@@ -39,7 +39,7 @@ def render_md(ctx, timing, sel, reg, crash, wf, cad, era_curves, secs) -> str:
     dev_end = ctx.lock.dev_end().date()
     n_trials = len(ctx.trials.rows)
     elig = ctx.elig["mcap"]
-    yearly = elig.loc["2018":].resample("YE").apply(lambda x: x.any().sum()) if len(elig) else None
+    yearly = {y: int(elig.loc[str(y)].any().sum()) for y in range(2018, ctx.lock.dev_end().year + 1)} if len(elig) else None
     ever = elig.columns[elig.any()]
     delisted_ever = meta.loc[[a for a in ever if a in meta.index], "delisted"].sum()
     out = []
@@ -60,7 +60,7 @@ def render_md(ctx, timing, sel, reg, crash, wf, cad, era_curves, secs) -> str:
       f"상장 {cfg['universe']['min_history_days']}일 미만 코인 제외 (200일 지표가 계산되도록).")
     if yearly is not None:
         w("- **기타 그룹 크기**: 연도별로 한 번이라도 들어온 코인 수 " +
-          ", ".join(f"{d.year}년 {int(v)}개" for d, v in yearly.items()) +
+          ", ".join(f"{y}년 {v}개" for y, v in yearly.items()) +
           ". 2018년 상반기는 시가총액 데이터·200일 이력이 있는 코인이 적어서 기타 그룹이 작습니다(6월 6개 → 9월 24개).")
     w("- **시가총액 순위의 한계**: Coin Metrics 무료 데이터에 있는 코인만 순위에 들어갑니다. 2018년 당시 상위였지만 여기 없는 코인(예: NANO, STEEM 등)은 빠졌을 수 있어서, "
       "'거래대금 순위' 버전(바이낸스 전체 페어 기준)으로도 같이 시험했습니다.")
@@ -91,6 +91,8 @@ def render_md(ctx, timing, sel, reg, crash, wf, cad, era_curves, secs) -> str:
     # 2. 선택
     w("## 2. 기타 그룹: 상위 30개 중 K개 고르기 (주 1회 리밸런스)\n")
     w("위약 비교: '상위30 전체 균등', '무작위 K개(여러 번)', '고변동성 상위'. 무작위 백분위가 90% 이상이어야 '고르는 규칙이 운보다 낫다'고 볼 만합니다.\n")
+    w("주의: 'BTC대비 30일 상대강도 상위'는 같은 날 모든 코인을 BTC로 나누는 것이라 '30일 수익률 상위'와 순위가 똑같습니다(사실상 같은 시험). "
+      "타이밍 신호(1절)에서는 '켜짐/꺼짐' 기준이 달라서 결과가 다릅니다.\n")
     s = sel.copy()
     s["시대(수익/MDD)"] = s.apply(lambda r: f"{int(r['수익우위시대'])}/{int(r['MDD우위시대'])} ({int(r['시대수'])})"
                                  if not pd.isna(r.get("시대수")) else "-", axis=1)
@@ -135,7 +137,12 @@ def render_md(ctx, timing, sel, reg, crash, wf, cad, era_curves, secs) -> str:
     # 6. 리밸런스
     w("## 6. 리밸런스 주기 (비용 포함)\n")
     w("1절에서 샤프 상위 2개 신호(전체 기간 기준으로 고른 것이라 낙관적)와 '계속 보유'를 매일/3일/7일로 비교.\n")
-    w(_md(cad, ["대상", "신호", "리밸런스(일)", "연복리(CAGR)", "MDD", "샤프", "월하위10%", "연회전율", "누적비용(초기자본대비)", "거래수"]))
+    cad = cad.copy()
+    c = ctx.cfg["costs"]
+    rate = cad["대상"].map(lambda u: c["fee"] + (c["slippage_other"] if u.startswith("기타") else c["slippage_core"]))
+    cad["연간 비용 부담(추정)"] = cad["연회전율"] * rate
+    w("연간 비용 부담(추정) = 연회전율(1년에 평가금의 몇 배를 사고팔았나) × 매매 1회 비용률. 평가금 대비 1년에 비용으로 나간 비율입니다.\n")
+    w(_md(cad, ["대상", "신호", "리밸런스(일)", "연복리(CAGR)", "MDD", "샤프", "월하위10%", "연회전율", "연간 비용 부담(추정)", "거래수"]))
     w("")
     # 7. 시대별
     w("## 7. 시대·사건별 성과\n")

@@ -47,6 +47,8 @@ class Ctx:
             return self.alive[[u]]
         if u == "코어3 균등":
             return self.alive[self.core]
+        if u == "BTC·ETH 균등":   # SOL 을 코어로 고른 것 자체가 사후 선택이라 비교용
+            return self.alive[[c for c in self.core if c in ("BTC", "ETH")]]
         if u == "기타 상위30 균등":
             return self.elig["mcap"].reindex(columns=self.cols, fill_value=False)
         if u == "기타 상위30 균등(거래대금 순위)":
@@ -84,7 +86,7 @@ def _start(ctx: Ctx, mem: pd.DataFrame) -> pd.Timestamp:
 
 # ---------------------------------------------------------------- 1. 타이밍 신호
 
-TIMING_UNIVERSES = ["BTC", "ETH", "SOL", "코어3 균등", "기타 상위30 균등"]
+TIMING_UNIVERSES = ["BTC", "ETH", "SOL", "코어3 균등", "BTC·ETH 균등", "기타 상위30 균등"]
 
 
 def timing_tests(ctx: Ctx, n_random: int = 40) -> tuple[pd.DataFrame, dict]:
@@ -195,7 +197,7 @@ def selection_tests(ctx: Ctx, ks=(5, 10), rebalance=7) -> tuple[pd.DataFrame, pd
 def regime_tests(ctx: Ctx) -> pd.DataFrame:
     regs = sg.regime_filters(ctx.p, ctx.funding)
     rows = []
-    for u in ("BTC", "코어3 균등", "기타 상위30 균등"):
+    for u in ("BTC", "코어3 균등", "BTC·ETH 균등", "기타 상위30 균등"):
         mem = ctx.members(u)
         on_all = _on_all(ctx)[list(mem.columns)]
         st = _start(ctx, mem)
@@ -339,7 +341,7 @@ PCT = {"총수익", "연복리(CAGR)", "MDD", "월평균", "월중앙값", "월�
        "평균투자비중", "CAGR차(vs 보유)", "MDD차(vs 보유)", "CAGR(폐지=0원)", "CAGR(하루 늦게 체결)",
        "무작위 타이밍 대비 샤프 백분위", "무작위 대비 CAGR 백분위", "무작위 대비 샤프 백분위", "CAGR차(vs 전체균등)",
        "CAGR차(vs 필터없음)", "MDD차(vs 필터없음)", "무작위 하위10% CAGR", "무작위 상위10% CAGR", "평균", "중앙값",
-       "하위10%", "최악", "보유보다 나음 비율", "수익", "누적비용(초기자본대비)", "보유", "바로 매도", "반등 기다려 매도"}
+       "하위10%", "최악", "보유보다 나음 비율", "수익", "누적비용(초기자본대비)", "연간 비용 부담(추정)", "CAGR(코어=BTC·ETH만)", "MDD(코어=BTC·ETH만)", "BTC 수익", "BTC MDD", "보유 수익", "보유 MDD", "보유", "바로 매도", "반등 기다려 매도"}
 NUM = {"샤프", "샤프차(vs 보유)", "학습 샤프", "연회전율", "최고 연환산 샤프", "중앙값 샤프"}
 
 
@@ -390,7 +392,7 @@ def main(cfg: dict | None = None, quick: bool = False, log=print) -> Path:
     ev.to_csv(out_dir / "crash_events.csv", index=False)
     crash = crash_table(ev)
     log("5) 워크포워드")
-    wf = {u: walkforward(ctx, u, curves) for u in ("코어3 균등", "기타 상위30 균등")}
+    wf = {u: walkforward(ctx, u, curves) for u in ("코어3 균등", "BTC·ETH 균등", "기타 상위30 균등")}
     log("6) 리밸런스 주기")
     picks = {}
     for u in ("코어3 균등", "기타 상위30 균등"):
@@ -399,16 +401,34 @@ def main(cfg: dict | None = None, quick: bool = False, log=print) -> Path:
     cad = cadence_tests(ctx, picks)
     cad.to_csv(out_dir / "cadence.csv", index=False)
     era_curves = {}
-    for u in ("BTC", "코어3 균등", "기타 상위30 균등"):
+    for u in ("BTC", "코어3 균등", "BTC·ETH 균등", "기타 상위30 균등"):
         era_curves[u] = {"보유": curves[(u, "보유")]}
         for n in picks.get(u, []) or list(timing[timing["대상"] == u].sort_values("샤프", ascending=False)["신호"].head(2)):
             if (u, n) in curves:
                 era_curves[u][n] = curves[(u, n)]
 
+    import pickle
+    with open(out_dir / "results.pkl", "wb") as f:   # 표만 다시 만들 때: rerender()
+        pickle.dump({"timing": timing, "sel": sel, "reg": reg, "crash": crash, "wf": wf, "cad": cad,
+                     "era_curves": era_curves, "secs": time.time() - t0, "trials": ctx.trials.rows}, f)
     md = render(ctx, timing, sel, reg, crash, wf, cad, era_curves, time.time() - t0)
     path = config_mod.ROOT / "docs" / f"validation-{pd.Timestamp.now(tz='Asia/Seoul').date()}.md"
     path.write_text(md, encoding="utf-8")
     log(f"완료: {path} ({time.time() - t0:.0f}초)")
+    return path
+
+
+def rerender(cfg: dict | None = None) -> Path:
+    """저장된 결과로 문서만 다시 만들기."""
+    import pickle
+    cfg = cfg or config_mod.load()
+    cache = config_mod.cache_dir(cfg)
+    r = pickle.load(open(config_mod.ROOT / "reports" / "research" / "results.pkl", "rb"))
+    ctx = Ctx(cfg, cache)
+    ctx.trials.rows = r["trials"]
+    md = render(ctx, r["timing"], r["sel"], r["reg"], r["crash"], r["wf"], r["cad"], r["era_curves"], r["secs"])
+    path = config_mod.ROOT / "docs" / f"validation-{pd.Timestamp.now(tz='Asia/Seoul').date()}.md"
+    path.write_text(md, encoding="utf-8")
     return path
 
 

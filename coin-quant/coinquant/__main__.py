@@ -2,6 +2,8 @@
 
   python -m coinquant update              데이터 갱신 (바이낸스·Coin Metrics·환율·업비트) + 가격 패널
   python -m coinquant validate [--quick]  지표 검증 (최종 검증 구간 제외) → docs/validation-날짜.md
+  python -m coinquant candidates          완성 공식 후보 비교 (개발 구간)
+  python -m coinquant cycle               비트코인 4년 주기(반감기 사이클) 검증 → docs/cycle-analysis-날짜.md
   python -m coinquant report [--no-news]  매일 리포트 → reports/daily-날짜.html
   python -m coinquant daily               update + report (예약 실행용)
   python -m coinquant judge ...           내 판단 넣기/빼기 (judge -h)
@@ -37,6 +39,17 @@ def cmd_update(a, cfg):
 def cmd_validate(a, cfg):
     from .research import indicator_validation
     indicator_validation.main(cfg, quick=a.quick)
+
+
+def cmd_candidates(a, cfg):
+    from .research import candidates
+    candidates.main(cfg)
+    candidates.sensitivity(cfg)
+
+
+def cmd_cycle(a, cfg):
+    from .research import cycle
+    cycle.write(cfg)
 
 
 def cmd_report(a, cfg):
@@ -129,6 +142,10 @@ def main(argv=None):
     s = sub.add_parser("validate")
     s.add_argument("--quick", action="store_true", help="무작위 위약 횟수를 줄여 빨리")
     s.set_defaults(fn=cmd_validate)
+    s = sub.add_parser("candidates", help="완성 공식 후보 비교 (개발 구간)")
+    s.set_defaults(fn=cmd_candidates)
+    s = sub.add_parser("cycle", help="비트코인 4년 주기 검증")
+    s.set_defaults(fn=cmd_cycle)
     s = sub.add_parser("report")
     s.add_argument("--no-news", action="store_true")
     s.add_argument("--rebalance-now", action="store_true", help="리밸런스 날이 아니어도 오늘 목표대로 주문 목록 만들기 (처음 시작할 때)")

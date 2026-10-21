@@ -174,6 +174,18 @@ def build(cfg: dict | None = None, with_news: bool = True, rebalance_now: bool =
         dom = ind.btc_dominance(panel.mcap)
         if not np.isnan(dom.get(d, np.nan)):
             rows.append(["BTC 도미넌스 (순위 대상 코인 기준) / 30일 변화", f"{_p(dom.loc[d])} / {_pct(dom.loc[d] - dom.shift(30).loc[d], 2)}p"])
+    try:  # 4년 주기 위치 (참고 정보, 매매 규칙 아님 — docs/cycle-analysis 참고)
+        from ..research import cycle
+        bs = cycle.btc_series(cache).loc[:d]
+        h = cycle.HALVINGS[-1]
+        day = (d - h).days
+        seg = bs.loc[h:]
+        pk_d = seg.idxmax()
+        low_after = bs.loc[pk_d:].min()
+        rows.append(["4년 주기 위치 (참고)", f"반감기({h.date()}) 후 {day}일 · 사이클 고점 {pk_d.date()} 대비 {_pct(bs.iloc[-1] / seg.max() - 1)}"
+                     f" · 고점 후 최저 ${low_after:,.0f} (이 아래로 내려가면 과거 주기 패턴과 어긋남)"])
+    except Exception:
+        pass
     doc.table(["항목", "값"], rows)
 
     e20, e50, e200 = F.ema(20).loc[d], F.ema(50).loc[d], F.ema(200).loc[d]

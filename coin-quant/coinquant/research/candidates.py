@@ -32,10 +32,16 @@ CANDIDATES = {
                                                  "regime_filter": "없음"},
     "5. 느린 추세: 코어 EMA 20>50 · 기타 돈치안55": {"core_signal": "EMA 20>50", "others_signal": "돈치안55 돌파(20일 저가 청산)",
                                             "others_select": "균등", "regime_filter": "없음"},
+    "6. 스윙(다중 기간): 코어 3단 분할+장기 하락이면 단기 몫만 · 기타 중기+장기 하락이면 중단 · 기타는 BTC 200일선 위일 때만": {
+        "core_signal": "추세:3단 분할 + 장기 하락이면 단기 몫만", "others_signal": "추세:중기 보유 + 장기 하락이면 중단",
+        "others_select": "균등", "regime_filter": "BTC 200일선 위", "regime_applies_to": ["others"]},
+    "7. 스윙(중기 중심): 코어·기타 모두 중기 보유+장기 하락이면 중단 · 기타는 BTC 200일선 위일 때만": {
+        "core_signal": "추세:중기 보유 + 장기 하락이면 중단", "others_signal": "추세:중기 보유 + 장기 하락이면 중단",
+        "others_select": "균등", "regime_filter": "BTC 200일선 위", "regime_applies_to": ["others"]},
 }
 
 
-def run_formula(panel: Panel, cfg: dict, fm: dict, funding, delist_mode="last", exec_lag=0, core=None):
+def run_formula(panel: Panel, cfg: dict, fm: dict, funding, delist_mode="last", exec_lag=0, core=None, rebalance=None):
     c = copy.deepcopy(cfg)
     c["formula"] = {**strategy.DEFAULT_FORMULA, **fm}
     if core is not None:
@@ -45,7 +51,7 @@ def run_formula(panel: Panel, cfg: dict, fm: dict, funding, delist_mode="last", 
     costs = engine.Costs(cc["fee"], cc["slippage_core"], cc["slippage_other"], tuple(info["core"]))
     cols = list(W.columns[(W != 0).any()])
     migrated = frozenset(panel.meta.index[panel.meta["migrated_to"].notna()])
-    rules = engine.Rules(rebalance_days=pf["rebalance_days"], max_weight=pf["max_weight_per_coin"],
+    rules = engine.Rules(rebalance_days=rebalance or pf["rebalance_days"], max_weight=pf["max_weight_per_coin"],
                          max_total=pf["max_total_invest"], max_orders=pf["max_orders_per_day"],
                          min_trade=pf["min_trade_weight"], delist_mode=delist_mode, exec_lag=exec_lag, always_last=migrated)
     return engine.run(W[cols], panel.open[cols], panel.close[cols], costs, rules, panel.tradable[cols], start=START)
@@ -66,6 +72,8 @@ def main(cfg: dict | None = None, log=print) -> Path:
         s["CAGR(하루 늦게 체결)"] = metrics.cagr(run_formula(panel, cfg, fm, funding, exec_lag=1).equity)
         s["CAGR(코어=BTC·ETH만)"] = metrics.cagr(run_formula(panel, cfg, fm, funding, core=["BTC", "ETH"]).equity)
         s["MDD(코어=BTC·ETH만)"] = metrics.max_drawdown(run_formula(panel, cfg, fm, funding, core=["BTC", "ETH"]).equity)
+        daily = run_formula(panel, cfg, fm, funding, rebalance=1).equity
+        s["CAGR(매일 판단)"], s["MDD(매일 판단)"] = metrics.cagr(daily), metrics.max_drawdown(daily)
         s["후보"] = name
         rows.append(s)
         eras[name] = res.equity
@@ -79,7 +87,7 @@ def main(cfg: dict | None = None, log=print) -> Path:
            "**주의: 후보는 1~8절 결과를 보고 고른 것이라 이 숫자는 낙관적입니다(같은 데이터로 고르고 같은 데이터로 평가).** "
            "'코어=BTC·ETH만' 열은 SOL을 코어로 고른 사후 선택 효과를 뺀 결과입니다.\n",
            to_md(df, ["후보", "연복리(CAGR)", "MDD", "샤프", "월중앙값", "월하위10%", "월승률", "초과CAGR(vs BTC)", "BTC대비 월승률",
-                      "평균투자비중", "연회전율", "CAGR(폐지=0원)", "CAGR(하루 늦게 체결)", "CAGR(코어=BTC·ETH만)", "MDD(코어=BTC·ETH만)"]), ""]
+                      "평균투자비중", "연회전율", "CAGR(폐지=0원)", "CAGR(하루 늦게 체결)", "CAGR(코어=BTC·ETH만)", "MDD(코어=BTC·ETH만)", "CAGR(매일 판단)", "MDD(매일 판단)"]), ""]
     for name, eq in eras.items():
         et = V.era_table(eq, {"BTC": btc})
         out += [f"### {name} — 시대별\n", to_md(et, ["시대", "수익", "MDD", "BTC 수익", "BTC MDD"]), ""]

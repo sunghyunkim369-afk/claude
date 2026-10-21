@@ -129,7 +129,7 @@ def regime_filters(p: Panel, funding: pd.Series | None = None) -> dict[str, pd.S
 
 def weights_single(on: pd.DataFrame, asset: str, alive: pd.DataFrame) -> pd.DataFrame:
     w = pd.DataFrame(0.0, index=on.index, columns=[asset])
-    w[asset] = (on[asset] & alive[asset]).astype(float)
+    w[asset] = on[asset].astype(float).fillna(0.0).where(alive[asset], 0.0)
     return w
 
 
@@ -137,7 +137,8 @@ def weights_slots(on: pd.DataFrame, members: pd.DataFrame) -> pd.DataFrame:
     """대상 코인마다 같은 몫(1/N). 신호가 꺼진 몫은 현금."""
     members = members.reindex(columns=on.columns, fill_value=False)
     n = members.sum(axis=1).replace(0, np.nan)
-    return (members & on).astype(float).div(n, axis=0).fillna(0.0)
+    # on 은 True/False 또는 0~1 보유 비율(추세 3단 분할 등)
+    return on.astype(float).fillna(0.0).where(members, 0.0).div(n, axis=0).fillna(0.0)
 
 
 def weights_topk(score: pd.DataFrame, members: pd.DataFrame, k: int) -> pd.DataFrame:

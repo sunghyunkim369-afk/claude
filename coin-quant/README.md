@@ -11,8 +11,10 @@
 |---|---|
 | 데이터 수집 | ✅ 바이낸스 공개 데이터(상장폐지 포함) · Coin Metrics 시가총액 · 환율 · 펀딩비 · 업비트(내 PC에서) |
 | 백테스트 엔진 | ✅ 종가 판단 → 다음 봉 시가 체결, 수수료·슬리피지, 상장폐지 2가지 처리, 비중·주문 수 한도 |
-| 지표 검증 | ✅ 1차 결과 [`docs/validation-2026-10-21.md`](docs/validation-2026-10-21.md) |
-| 공식 확정 | ⏳ **같이 정할 차례** — `config.toml` 의 `[formula]` 는 아직 "임시" |
+| 지표 검증 | ✅ [`docs/validation-2026-10-21.md`](docs/validation-2026-10-21.md) (지표별·워크포워드·위약·DSR) |
+| 스윙(추세) 검증 | ✅ [`docs/trend-study-2026-10-21.md`](docs/trend-study-2026-10-21.md) (며칠·몇 주·몇 달 추세 포착률) |
+| 4년 주기 검증 | ✅ [`docs/cycle-analysis-2026-10-21.md`](docs/cycle-analysis-2026-10-21.md) |
+| 공식 확정 | ⏳ **같이 정할 차례** — `config.toml [formula]` 에 후보 7번 '스윙(중기 중심)'을 **임시 제안**으로 넣어 둠 (`python -m coinquant candidates` 로 후보 비교) |
 | 최종 검증 구간 | 🔒 2025-01-01 ~ 현재는 잠금. 공식 확정 후 `final-check` 로 한 번만 엶 |
 | 리포트·내 판단·주문·예약 실행 | ✅ 동작 (공식이 임시라 추천도 임시) |
 
@@ -31,6 +33,9 @@ macOS·리눅스는 `python3 -m venv .venv && .venv/bin/pip install -r requireme
 ```
 python -m coinquant update              데이터 갱신 + 가격 패널
 python -m coinquant validate [--quick]  지표 검증 → docs/validation-날짜.md (최종 검증 구간 제외)
+python -m coinquant trend-study         스윙 매매 검증 (기간별 추세 포착률, 추세 조합별 이후 수익)
+python -m coinquant candidates          완성 공식 후보 비교 + 파라미터 민감도
+python -m coinquant cycle               비트코인 4년 주기 검증
 python -m coinquant report [--no-news]  매일 리포트 (HTML/MD)
 python -m coinquant daily               update + report (예약 실행이 부르는 명령)
 python -m coinquant judge lock BTC "이유"          보유 고정 (공식이 안 팖)

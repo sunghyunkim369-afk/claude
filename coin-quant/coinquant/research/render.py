@@ -80,6 +80,12 @@ def render_md(ctx, timing, sel, reg, crash, wf, cad, era_curves, secs) -> str:
     t["시대(수익/MDD)"] = t.apply(lambda r: f"{int(r['수익우위시대'])}/{int(r['MDD우위시대'])} ({int(r['시대수'])})"
                                  if not pd.isna(r.get("시대수")) else "-", axis=1)
     t["판정"] = t.apply(lambda r: verdict(r) if r["신호"] != "(신호 없음: 계속 보유)" else "기준", axis=1)
+    n_pass = int((t["판정"].str.startswith("**후보**")).sum())
+    n_all = int((t["신호"] != "(신호 없음: 계속 보유)").sum())
+    w(f"**결과를 보고 알게 된 점: 이 규칙은 너무 느슨했습니다 ({n_all}개 중 {n_pass}개 통과).** 코인은 하락장이 워낙 깊어서(−77%~−92%) "
+      "추세 필터를 걸기만 해도 대부분 MDD가 줄어듭니다. 그래서 '추세 필터가 손실을 줄인다'는 건 넓게 확인됐지만, "
+      "이 규칙으로 신호끼리 우열을 가릴 수는 없습니다. 규칙을 결과에 맞춰 바꾸지 않고 그대로 두었고, 우열은 5절 워크포워드·8절 보정·"
+      "파라미터 민감도로 판단합니다.\n")
     for u in t["대상"].unique():
         d = t[t["대상"] == u]
         extra = ["CAGR(폐지=0원)"] if u.startswith("기타") else ["CAGR(하루 늦게 체결)", "무작위 타이밍 대비 샤프 백분위"]

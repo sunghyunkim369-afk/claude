@@ -76,8 +76,7 @@ def _signal_history(panel: Panel, cfg: dict, signal: str, asset: str, dev_end: p
         return cache[key]
     p = panel.slice(None, dev_end)
     F = sg.Features(p, [asset])
-    on = (pd.DataFrame(True, index=p.close.index, columns=[asset]) if signal == "보유"
-          else sg.timing_signals(F)[signal]()[[asset]].fillna(False).astype(bool))
+    on = strategy._on(signal, F, [asset])
     w = sg.weights_single(on, asset, p.close[[asset]].notna())
     c = cfg["costs"]
     costs = engine.Costs(c["fee"], c["slippage_core"], c["slippage_other"], tuple(cfg["universe"]["core"]))
@@ -109,6 +108,49 @@ def _era_features(btc: pd.Series, end: pd.Timestamp) -> np.ndarray:
     sma = seg.rolling(200).mean()
     above = (seg > sma).tail(60).mean()
     return np.array([r90, vol, above])
+
+
+def _combo_stats() -> pd.DataFrame | None:
+    p = config_mod.ROOT / "reports" / "research" / "trend_combo_forward.csv"
+    return pd.read_csv(p) if p.exists() else None
+
+
+def _swing_plan(doc: Doc, cfg: dict, F, d, core, final_w, cur_w, info) -> None:
+    """코인마다: 기간별 추세 판정 + 근거 숫자 + 청산 기준 가격 + 과거 같은 조합의 이후 20일 성적."""
+    from ..strategy import multitrend
+    from ..trend import num
+    mt = multitrend(F)
+    combos = mt.combo()
+    stats = _combo_stats()
+    doc.h("3-1. 스윙 매매 계획 (기간별 추세와 근거)")
+    doc.p("판정: 기간마다 근거 3개(이동평균·채널 위치·회귀 추세선)를 −1/0/+1로 매겨 합이 +2 이상이면 상승, −2 이하면 하락. "
+          "매매 상태는 +2 이상에서 켜지고 0 이하가 돼야 꺼집니다. 근거 숫자는 모두 어제(UTC 00:00 마감) 종가 기준.", "muted")
+    assets = list(dict.fromkeys(core + [a for a in final_w.index if a in F.c.columns] + [a for a in cur_w.index if a in F.c.columns]))
+    for a in assets:
+        if a not in F.c.columns or np.isnan(F.c.at[d, a]):
+            continue
+        snap = mt.snapshot(d, a)
+        combo = combos.at[d, a]
+        tw, cw = final_w.get(a, 0.0), cur_w.get(a, 0.0)
+        act = "매수/늘리기" if tw - cw >= cfg["portfolio"]["min_trade_weight"] else (
+            "매도/줄이기" if cw - tw >= cfg["portfolio"]["min_trade_weight"] else ("보유 유지" if tw > 0 else "관망(안 삼)"))
+        doc.h(f"{a} — 추세 {combo or '판단 불가'} (단기/중기/장기) → {act}", 3)
+        doc.table(["기간", "판정(점수)", "매매 상태", "이동평균", "채널 위치", "회귀 추세선"],
+                  [[r["기간"], f"{r['판정']} ({int(r['점수']):+d})" if not pd.isna(r["점수"]) else r["판정"],
+                    r["보유 상태(히스테리시스)"], r["이동평균"], r["채널"], r["회귀"]] for r in snap])
+        c = snap[0]["종가"]
+        lv = [f"{r['기간'].split('(')[0]}: 채널 하단 40%선 {num(r['채널 하단 40%선'])} ({r['채널 하단 40%선'] / c - 1:+.1%}), "
+              f"느린 EMA {num(r['느린 EMA'])} ({r['느린 EMA'] / c - 1:+.1%})" for r in snap if not pd.isna(r["채널 하단 40%선"])]
+        items = [f"목표 비중 {_p(tw)} (지금 {_p(cw)}) — 공식 신호: {info['formula']['core_signal'] if a in core else info['formula']['others_signal']}",
+                 "약해지는 기준 가격(종가가 이 아래면 그 기간 근거가 −로 바뀜): " + " · ".join(lv)]
+        if stats is not None and combo:
+            grp = "코어" if a in core else "기타"
+            m = stats[(stats["그룹"] == grp) & (stats["조합(단기/중기/장기)"] == combo) & (stats["기간(일)"] == 20)]
+            if len(m):
+                r = m.iloc[0]
+                items.append(f"과거({grp} 코인, 2018-03~개발 구간 끝) 같은 조합 '{combo}' 이후 20일: 중앙값 {_pct(r['중앙값'])}, "
+                             f"하위10% {_pct(r['하위10%'])}, 오른 비율 {_p(r['오른 비율'], 0)}, 사례 {int(r['사례 수'])}건(서로 겹침 많음)")
+        doc.ul(items)
 
 
 def build(cfg: dict | None = None, with_news: bool = True, rebalance_now: bool = False,
@@ -277,6 +319,9 @@ def build(cfg: dict | None = None, with_news: bool = True, rebalance_now: bool =
         orders = []
     (udir / "orders-latest.json").write_text(json.dumps({"date": d.strftime("%Y-%m-%d"), "total_krw": total_krw,
                                                          "orders": orders}, ensure_ascii=False, indent=1), encoding="utf-8")
+
+    # ---------------- 3-1. 스윙 매매 계획 (기간별 추세와 근거)
+    _swing_plan(doc, cfg, F, d, core, final_w, cur_w, info)
 
     # ---------------- 4. 내 판단
     doc.h("4. 내 판단 반영 결과와 성과")

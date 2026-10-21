@@ -12,7 +12,7 @@ from .universe import Panel, core_assets, eligible_others
 
 DEFAULT_FORMULA = {
     "status": "임시",
-    "core_signal": "보유",          # timing_signals 이름 또는 "보유"
+    "core_signal": "보유",          # timing_signals 이름, "추세:<방식>"(trend.py), 또는 "보유"
     "others_signal": "보유",
     "others_select": "균등",        # selection_scores 이름 또는 "균등"
     "others_k": 10,
@@ -25,9 +25,21 @@ def formula(cfg: dict) -> dict:
     return {**DEFAULT_FORMULA, **cfg.get("formula", {})}
 
 
+def multitrend(F: sg.Features):
+    from .trend import MultiTrend
+    return F.get("multitrend", lambda: MultiTrend(F.c, F.h, F.l))
+
+
 def _on(name: str, F: sg.Features, cols: list[str]) -> pd.DataFrame:
+    """보유 여부(True/False) 또는 보유 비율(0~1, 추세 3단 분할 등)."""
     if name in ("보유", "", None):
         return pd.DataFrame(True, index=F.c.index, columns=cols)
+    if name.startswith("추세:"):
+        systems = multitrend(F).systems()
+        key = name[3:]
+        if key not in systems:
+            raise KeyError(f"모르는 추세 방식: {key}. 가능한 값: {', '.join('추세:' + k for k in systems)}")
+        return systems[key][cols].fillna(0.0)
     sigs = sg.timing_signals(F)
     if name not in sigs:
         raise KeyError(f"모르는 신호: {name}. 가능한 값: 보유, {', '.join(sigs)}")

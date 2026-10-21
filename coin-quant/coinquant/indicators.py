@@ -93,3 +93,11 @@ def relative_strength(close: pd.DataFrame, btc: pd.Series, n=30) -> pd.DataFrame
 def btc_dominance(mcap: pd.DataFrame, btc_col="BTC") -> pd.Series:
     total = mcap.sum(axis=1, min_count=1)
     return mcap[btc_col] / total
+
+
+def regression_r2(close: pd.DataFrame, n: int) -> pd.DataFrame:
+    """로그 가격 회귀선이 최근 n일 움직임을 얼마나 설명하는지 (0~1). 높을수록 '깔끔한 추세', 낮으면 들쭉날쭉."""
+    y = np.log(close)
+    _, _, resid = regression_slope(close, n)
+    var_y = y.rolling(n, min_periods=n).var(ddof=0)
+    return (1 - resid ** 2 / var_y.replace(0, np.nan)).clip(0, 1)

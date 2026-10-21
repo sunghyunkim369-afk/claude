@@ -31,7 +31,19 @@ max_weight_per_coin = 0.35
 max_orders_per_day = 10
 max_total_invest = 1.0      # 총 투자 한도 (1.0 = 평가금의 100%)
 min_trade_weight = 0.01     # 이보다 작은 비중 변화는 주문하지 않음 (잦은 매매 비용 방지)
-rebalance_days = 7          # 1 = 매일, 3 = 3일, 7 = 주 1회
+rebalance_days = 1          # 1 = 매일, 3 = 3일, 7 = 주 1회 (스윙은 매일 판단)
+
+[formula]
+# 공식 (검증 결과를 보고 같이 정함). status 가 "확정" 이 되기 전까지 리포트에 '임시'로 표시됩니다.
+# 신호 이름: python -m coinquant validate 결과의 신호 이름, "추세:<방식>"(coinquant/trend.py), 또는 "보유"
+# 지금 값 = docs 후보 7번 '스윙(중기 중심)' — 임시 제안. 근거: docs/trend-study-2026-10-21.md, docs/candidates-2026-10-21.md
+status = "임시"
+core_signal = "추세:중기 보유 + 장기 하락이면 중단"
+others_signal = "추세:중기 보유 + 장기 하락이면 중단"
+others_select = "균등"
+others_k = 10
+regime_filter = "BTC 200일선 위"
+regime_applies_to = ["others"]
 
 [validation]
 # 이 날짜 이후는 '최종 검증 구간' — 공식을 고른 뒤 딱 한 번만 엽니다.

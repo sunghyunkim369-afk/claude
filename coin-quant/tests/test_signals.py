@@ -157,3 +157,18 @@ def test_levels_no_lookahead_and_basic():
     assert (ok["res_lo"] > c.reindex(ok.index)).all()        # 위쪽 매물대는 현재가보다 위
     p = pivot_lines(h, l_, c, atr).dropna(subset=["sup"])
     assert (p["sup"] < c.reindex(p.index)).all()              # 아래쪽 지지선은 현재가보다 아래
+
+
+def test_exit_after_failed_recovery_no_lookahead():
+    from coinquant.research.levels_regime import exit_after_failed_recovery
+    idx = pd.date_range("2024-01-01", periods=12)
+    c = pd.DataFrame({"A": [100, 98, 97, 96, 95, 101, 100, 98, 101, 100, 100, 100.0],
+                      "B": [100, 98, 101, 100, 100, 100, 100, 100, 100, 100, 100, 100.0]}, index=idx)
+    lv = pd.DataFrame(100.0, index=idx, columns=c.columns)
+    x = exit_after_failed_recovery(c, lv.shift(1), 3)
+    # A: 2일째 이탈 → 3일 복귀 못 함 → 5일째부터 금지, 101 복귀(6일째)에 해제
+    assert x["A"].tolist()[:6] == [False, False, False, False, True, False]
+    assert not x["B"].any()  # 다음 날 바로 복귀 = 가짜 이탈
+    for t in range(3, 12):
+        part = exit_after_failed_recovery(c.iloc[:t], lv.shift(1).iloc[:t], 3)
+        assert part.equals(x.iloc[:t])

@@ -10,6 +10,7 @@
   python -m coinquant limit-entry         지정가 매수(안 닿으면 포기) 검증 → docs/limit-entry-날짜.md
   python -m coinquant breakout            돌파 검증 → docs/breakout-날짜.md
   python -m coinquant levels              매물대·수평 저항/지지선 검증 → docs/levels-날짜.md
+  python -m coinquant levels-regime       매물대·선 이론 ETF 승인 전후 비교 → docs/levels-regime-날짜.md
   python -m coinquant report [--no-news]  매일 리포트 → reports/daily-날짜.html
   python -m coinquant daily               update + report (예약 실행용)
   python -m coinquant judge ...           내 판단 넣기/빼기 (judge -h)
@@ -86,6 +87,11 @@ def cmd_breakout(a, cfg):
 def cmd_levels(a, cfg):
     from .research import levels_study
     levels_study.main(cfg)
+
+
+def cmd_levels_regime(a, cfg):
+    from .research import levels_regime
+    levels_regime.main(cfg)
 
 
 def cmd_report(a, cfg):
@@ -194,6 +200,8 @@ def main(argv=None):
     s.set_defaults(fn=cmd_breakout)
     s = sub.add_parser("levels", help="매물대·수평 저항/지지선 검증")
     s.set_defaults(fn=cmd_levels)
+    s = sub.add_parser("levels-regime", help="매물대·선 이론 ETF 승인 전후 비교")
+    s.set_defaults(fn=cmd_levels_regime)
     s = sub.add_parser("report")
     s.add_argument("--no-news", action="store_true")
     s.add_argument("--rebalance-now", action="store_true", help="리밸런스 날이 아니어도 오늘 목표대로 주문 목록 만들기 (처음 시작할 때)")

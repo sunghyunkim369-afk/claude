@@ -84,8 +84,8 @@ def variants(ctx: Ctx, L: dict, cols: list[str]) -> dict[str, pd.DataFrame]:
         "확정 공식 (중기 보유 + 장기 하락이면 중단)": base.astype(float),
         "1. + 바로 위 3% 안에 강한 저항선·매물대 있으면 진입 금지": swing_sim(base & ~near_res, ~base, c),
         "2. + 최근 10일 안에 강한 저항선·매물대를 돌파했어야 진입": swing_sim(base & recent_break, ~base, c),
-        "3. + 강한 지지선·지지 매물대 이탈하면 바로 매도": swing_sim(base, ~base | sup_break, c),
-        "4. 1번 + 3번": swing_sim(base & ~near_res, ~base | sup_break, c),
+        "3. + 강한 지지선·지지 매물대 이탈하면 바로 매도": swing_sim(base & ~sup_break, ~base | sup_break, c),
+        "4. 1번 + 3번": swing_sim(base & ~near_res & ~sup_break, ~base | sup_break, c),
     }
 
 

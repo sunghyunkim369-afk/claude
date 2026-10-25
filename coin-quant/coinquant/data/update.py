@@ -28,7 +28,7 @@ def update_all(cfg: dict, cache: Path, *, upbit_too: bool = True, cm_clone: Path
         log(f"   실패 {len(bad)}개 다시 시도")
         binance_public.update_cache(spot_dir, bad, workers=4, log=log)
     alive = [s for s in want if (spot_dir / f"{s}.csv").exists()
-             and pd.read_csv(spot_dir / f"{s}.csv", usecols=["date"])["date"].max() >= str(pd.Timestamp.now().date() - pd.Timedelta(days=5))]
+             and str(pd.read_csv(spot_dir / f"{s}.csv", usecols=["date"])["date"].dropna().max()).replace("nan", "") >= str(pd.Timestamp.now().date() - pd.Timedelta(days=5))]
     binance_public.rest_topup(spot_dir, alive, log=log)
 
     log("2) 펀딩비 (BTC, ETH, SOL 선물)")

@@ -72,3 +72,10 @@ buy_order = "limit"
 limit_discount_core = 0.01    # 코어 −1% (매일 다시 걸 때 시장가와 같거나 조금 나았음)
 limit_discount_other = 0.03   # 기타(알트) −3% (한 번만 걸어도 시장가보다 나았음)
 # 매도는 항상 시장가 (손절이 늦어지면 손실이 커짐)
+
+[alert]
+# 매수·매도 알림 (python -m coinquant alert, 매일 예약 실행에서 자동)
+# 상태(매수 가능 / 신규 진입 대기 / 관망)가 바뀐 날만 보냄. 매일 요약도 받으려면 daily_summary = true
+daily_summary = false
+telegram = true    # .env 에 TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID 를 넣어야 동작
+windows = true     # 윈도우 PC 알림

@@ -12,6 +12,7 @@
   python -m coinquant levels              매물대·수평 저항/지지선 검증 → docs/levels-날짜.md
   python -m coinquant levels-regime       매물대·선 이론 ETF 승인 전후 비교 → docs/levels-regime-날짜.md
   python -m coinquant extended            확정 공식 2018년 이전까지 검증 → docs/extended-날짜.md
+  python -m coinquant alert [--test]      매수·매도 알림 (텔레그램·윈도우 알림, daily 가 자동으로 부름)
   python -m coinquant report [--no-news]  매일 리포트 → reports/daily-날짜.html
   python -m coinquant daily               update + report (예약 실행용)
   python -m coinquant judge ...           내 판단 넣기/빼기 (judge -h)
@@ -106,10 +107,19 @@ def cmd_report(a, cfg):
     print(f"추천 주문 {len(orders)}건 → `python -m coinquant trade` 로 확인 후 실행 (stage 2 일 때)")
 
 
+def cmd_alert(a, cfg):
+    from .app import alert
+    alert.main(cfg, test=getattr(a, "test", False), with_news=not getattr(a, "no_news", False))
+
+
 def cmd_daily(a, cfg):
-    a.cm_clone, a.no_upbit, a.no_news = None, False, False
+    a.cm_clone, a.no_upbit, a.no_news, a.test = None, False, False, False
     cmd_update(a, cfg)
     cmd_report(a, cfg)
+    try:
+        cmd_alert(a, cfg)
+    except Exception as e:  # 알림이 실패해도 리포트는 이미 만들어짐
+        print(f"알림 실패: {type(e).__name__}: {e}")
 
 
 def cmd_judge(a, cfg):
@@ -208,6 +218,10 @@ def main(argv=None):
     s.set_defaults(fn=cmd_levels)
     s = sub.add_parser("levels-regime", help="매물대·선 이론 ETF 승인 전후 비교")
     s.set_defaults(fn=cmd_levels_regime)
+    s = sub.add_parser("alert", help="매수·매도 알림 (상태가 바뀐 날만, --test 는 무조건 보냄)")
+    s.add_argument("--test", action="store_true")
+    s.add_argument("--no-news", action="store_true")
+    s.set_defaults(fn=cmd_alert)
     s = sub.add_parser("extended", help="확정 공식 2018년 이전까지 검증 + 확률 높을 때만 사기")
     s.set_defaults(fn=cmd_extended)
     s = sub.add_parser("report")

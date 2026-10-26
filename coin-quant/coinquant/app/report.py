@@ -88,6 +88,20 @@ def _signal_history(panel: Panel, cfg: dict, signal: str, asset: str, dev_end: p
     return out
 
 
+def _mid_score(F, d, a) -> int:
+    from ..strategy import multitrend
+    v = multitrend(F).h["중기"].score.at[d, a]
+    return int(v) if not pd.isna(v) else 0
+
+
+def new_entry_ok(F, d, a) -> bool:
+    """새로 사는 건 공식이 실제로 진입하는 자리(중기 점수 +2 이상)일 때만. +1 은 '갖고 있으면 보유'일 뿐
+    (docs/extended-2026-10-26.md: 보유 중 & 중기 +1 이하에서 새로 산 60일 뒤 오른 비율이 세 구간 모두 평균보다 낮았음)."""
+    if a not in F.c.columns:
+        return True
+    return _mid_score(F, d, a) >= 2
+
+
 def _events(within_days: int, today: pd.Timestamp) -> list[dict]:
     p = config_mod.ROOT / "events.toml"
     if not p.exists():
@@ -132,7 +146,9 @@ def _swing_plan(doc: Doc, cfg: dict, F, d, core, final_w, cur_w, info) -> None:
         snap = mt.snapshot(d, a)
         combo = combos.at[d, a]
         tw, cw = final_w.get(a, 0.0), cur_w.get(a, 0.0)
-        act = "매수/늘리기" if tw - cw >= cfg["portfolio"]["min_trade_weight"] else (
+        min_tr = cfg["portfolio"]["min_trade_weight"]
+        act = ("신규 진입 대기 (중기 +2 이상이면 매수)" if tw - cw >= min_tr and cw < min_tr and not new_entry_ok(F, d, a) else
+               "매수/늘리기") if tw - cw >= min_tr else (
             "매도/줄이기" if cw - tw >= cfg["portfolio"]["min_trade_weight"] else ("보유 유지" if tw > 0 else "관망(안 삼)"))
         doc.h(f"{a} — 추세 {combo or '판단 불가'} (단기/중기/장기) → {act}", 3)
         doc.table(["기간", "판정(점수)", "매매 상태", "이동평균", "채널 위치", "회귀 추세선"],
@@ -313,6 +329,9 @@ def build(cfg: dict | None = None, with_news: bool = True, rebalance_now: bool =
         action = "보유" if abs(delta) < min_tr and not (tw == 0 and cw > 0) else ("매수" if delta > 0 else "매도")
         if tw == 0 and cw == 0:
             continue
+        wait_entry = action == "매수" and cw < min_tr and not new_entry_ok(F, d, a)
+        if wait_entry:
+            action = "신규 진입 대기"
         group = "코어" if a in core else "기타"
         sig_name = fm["core_signal"] if a in core else fm["others_signal"]
         on = (info["core_on"] if a in core else info["others_on"])
@@ -325,6 +344,8 @@ def build(cfg: dict | None = None, with_news: bool = True, rebalance_now: bool =
             why.append(f"내 판단: {ACTIONS[active[a]['action']]}")
         tcfg = cfg["trading"]
         limit_px = None
+        if wait_entry:
+            why.append(f"공식은 중기 점수 +2 이상에서만 새로 삼 (지금 {_mid_score(F, d, a):+d}). 갖고 있으면 보유 유지, 없으면 기다림 — docs/extended")
         if action == "매수" and tcfg.get("buy_order", "market") == "limit" and not np.isnan(px_krw.get(a, np.nan)):
             disc = tcfg["limit_discount_core"] if a in core else tcfg["limit_discount_other"]
             limit_px = float(px_krw[a] * (1 - disc))
@@ -333,7 +354,7 @@ def build(cfg: dict | None = None, with_news: bool = True, rebalance_now: bool =
             why.append("주문: 시장가 매도")
         rows.append([a, group, action, _p(cw), _p(fw), _p(tw), " · ".join(why),
                      f"{h.get('n', 0)}회 / {_p(h.get('win'), 0)} / {_pct(h.get('mean'))} / {_pct(h.get('worst'))}" if h else "-"])
-        if action != "보유" and is_reb:
+        if action in ("매수", "매도") and is_reb:
             orders.append({"asset": a, "side": "bid" if delta > 0 else "ask", "weight_delta": float(delta), "limit_price": limit_px,
                            "krw": float(abs(delta) * total_krw), "target_weight": float(tw), "full_exit": bool(tw == 0)})
     cash_w = 1 - final_w.sum()

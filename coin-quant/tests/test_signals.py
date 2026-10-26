@@ -172,3 +172,21 @@ def test_exit_after_failed_recovery_no_lookahead():
     for t in range(3, 12):
         part = exit_after_failed_recovery(c.iloc[:t], lv.shift(1).iloc[:t], 3)
         assert part.equals(x.iloc[:t])
+
+
+def test_alert_status_and_change(tmp_path, monkeypatch):
+    from coinquant.app import alert
+    from coinquant.trend import MultiTrend
+    idx = pd.date_range("2023-01-01", periods=400)
+    up = pd.Series(np.exp(np.linspace(0, 1.0, 400)), index=idx)
+    c = pd.DataFrame({"UP": up, "DN": up.iloc[::-1].to_numpy()}, index=idx)
+    mt = MultiTrend(c, c, c)
+    mt.close = c
+    d = idx[-1]
+    assert alert.coin_status(mt, d, "UP")["status"] == "매수 가능"
+    assert alert.coin_status(mt, d, "DN")["status"] == "관망"
+    # 미래 데이터 없음: 앞부분만으로 계산한 상태 = 전체로 계산한 그날 상태
+    t = idx[300]
+    part = MultiTrend(c.loc[:t], c.loc[:t], c.loc[:t])
+    part.close = c.loc[:t]
+    assert alert.coin_status(part, t, "UP") == alert.coin_status(mt, t, "UP")

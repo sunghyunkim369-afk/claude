@@ -481,7 +481,8 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
         state.d["kr_fill"] = {"session": kr_session, "targets": [list(t) for t in targets], "placed": [],
                               "top_k": p["top_k"], "scale": scale}
         kr_fill_missing(kis, state, kr_session, place, out, universe)
-        if regained:
+        if regained or state.d.pop("kr_topup_once", False):
+            # 약세장이 끝났거나, 수동 보유를 팔아 공식 몫이 커졌으면 들고 있는 목표 종목도 1/top_k 까지 채워요 (한 번)
             kr_regime_top_up(kis, state, targets, manual, p, kr_session, place, out)
         d = state.d
         out(f"  대회 조건 진행(주문 접수 기준): 매매금액 {d['amount'] / 1e8:.2f}억/5억, 매매일 {len(d['days'])}/5일, "

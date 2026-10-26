@@ -693,6 +693,23 @@ class ContestModeTest(unittest.TestCase):
         sells = [(c["headers"]["tr_id"], c["body"]["PDNO"]) for c in t.calls if c["path"].endswith("order-cash")]
         self.assertEqual(sells, [("VTTC0011U", "000001")])   # −30% 종목만, 한 번만 (수동 안랩·−5% 종목은 그대로)
 
+    def test_after_manual_sell_next_rebalance_tops_up_held_targets_once(self):
+        strengths = {"000001": 0.012, "000002": 0.011, "000003": 0.010}
+        held = [{"pdno": c, "prdt_name": c, "hldg_qty": q, "pchs_avg_pric": "10000", "prpr": "10000"}
+                for c, q in (("000001", "2000"), ("000002", "2000"), ("000003", "700"))]
+        kis, t = client(self.market(strengths, held_kr=held))
+        state = self.contest.State(os.path.join(self.tmp.name, "u.json"))
+        state.d.update({"kr_equalized_top_k": 3, "kr_topup_once": True})
+        sc = lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1
+        with mock.patch.object(self.contest, "score", sc):
+            for day in (27, 29):
+                auto.run_contest_cycle(kis, {"us": {"watchlist": []}, "auto": {}}, state, auto_utc(2026, 10, day, 0, 30),
+                                       self.logs.append, lambda *_: None, [(c, c) for c in strengths])
+        buys = [(c["body"]["PDNO"], int(c["body"]["ORD_QTY"])) for c in t.calls if c["path"].endswith("order-cash")]
+        # 1억/3 = 33,333,333 까지: 2000주(2천만) → +1333주, 700주(7백만) → +2633주. 두 번째 리밸런스엔 안 채워요
+        self.assertEqual(buys, [("000001", 1333), ("000002", 1333), ("000003", 2633)])
+        self.assertNotIn("kr_topup_once", state.d)
+
     def test_crash_check(self):
         changes = {"A": "-8.5", "B": "-1.0", "C": "-0.5"}
         routes = self.market({})

@@ -306,6 +306,8 @@ def cmd_manual(kis, args, pct=None, ask=input, wait=None):
 
     if action == "remove":
         v = manual.pop(code, None)
+        if v:
+            state.d["kr_topup_once"] = True
         state.save()
         print(f"{(v or {}).get('name', code)}({code}) 등록을 풀었어요. 다음 리밸런스 때 목표 종목이 아니면 자동매매가 팔아요."
               if v else f"{code} 은(는) 등록돼 있지 않아요.")
@@ -351,7 +353,8 @@ def cmd_manual(kis, args, pct=None, ask=input, wait=None):
         print("자동매매가 이 종목을 팔지 않게 등록했어요. 팔 때: python -m trading manual sell " + code)
     else:
         manual.pop(code, None)
-        print("수동 보유 등록도 풀었어요.")
+        state.d["kr_topup_once"] = True
+        print("수동 보유 등록도 풀었어요. 다음 리밸런스 때 이 돈까지 공식 종목에 1/3 씩 맞춰 넣어요.")
     state.save()
     write_log({"event": "order_sent", "env": kis.env, "manual": True, "contest": True,
                "order": {"market": "kr", "side": action, "symbol": code, "qty": o["qty"]}, "result": res})

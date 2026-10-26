@@ -169,6 +169,8 @@ def maybe_switch_to_stable(state, total, threshold=SWITCH_TO_STABLE_AT, out=prin
 
 
 def kr_due(state, session):
+    if state.d.get("kr_force"):  # contest --now: 리밸런스 날이 아니어도 지금 한 번
+        return True
     last = state.d["kr_rebalances"][-1] if state.d["kr_rebalances"] else None
     return last is None or (last != session and business_days_between(last, session) >= kr_params(state)["rebalance_days"])
 

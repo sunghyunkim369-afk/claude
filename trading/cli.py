@@ -421,6 +421,7 @@ def main(argv=None):
     ap.add_argument("--once", action="store_true", help="contest 를 한 번만 돌고 끝내기 (작업 스케줄러용)")
     ap.add_argument("--reset", action="store_true", help="contest 진행 상태 지우기 (계좌를 초기화했을 때)")
     ap.add_argument("--mode", choices=["aggressive", "stable"], help="contest 국내 공식 바꾸기 (입상형/안정형)")
+    ap.add_argument("--now", action="store_true", help="contest: 리밸런스 날이 아니어도 지금 한 번 공식대로 맞추기")
     ap.add_argument("--weak", choices=["half", "off"], help="contest 입상형 약세장 대응 (half: 금액 절반, off: 안 함)")
     ap.add_argument("--us-mode", choices=["aggressive", "basic", "off"], help="contest 미국 공식 (aggressive: 고변동 입상형, off: 미국 쉬기)")
     args = ap.parse_args(argv)
@@ -465,8 +466,14 @@ def main(argv=None):
             print(f"미국 공식: {name}으로 바꿨어요.")
         return
     if args.command == "contest":
+        if args.now:
+            from . import contest
+            st = contest.State(os.path.join(HERE, ".cache", f"contest-{kis.env}.json"))
+            st.d["kr_force"] = True
+            st.save()
+            print("지금 리밸런스해요 (순위 계산 4~5분). 장중(09:05~15:20)에만 주문이 나가요.")
         try:
-            cmd_contest(kis, cfg, markets, once=args.once)
+            cmd_contest(kis, cfg, markets, once=args.once or args.now)
         except KisError as e:
             sys.exit(f"API 오류: {e}")
         except KeyboardInterrupt:

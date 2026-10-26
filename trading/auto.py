@@ -429,6 +429,10 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
             state.d["kr_crash_checked"] = kr_session
             kr_sell_crashed(kis, state, kr_session, place, now_utc.astimezone(KST).date(), out)
     if kr_session and contest.kr_due(state, kr_session):
+        if state.d.pop("kr_force", False):
+            out(f"[{stamp}] 지금 리밸런스 요청(--now): 리밸런스 날이 아니어도 공식대로 맞춰요")
+            if state.d.get("kr_rebalances") and state.d["kr_rebalances"][-1] == kr_session:
+                state.d["kr_rebalances"].pop()  # 같은 날 두 번 세지 않게
         today = now_utc.astimezone(KST).date()
         threshold = cfg.get("contest", {}).get("switch_to_stable_at", contest.SWITCH_TO_STABLE_AT)
         gain = contest.maybe_switch_to_stable(state, kis.kr_balance()["total"], threshold, out)

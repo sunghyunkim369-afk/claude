@@ -710,6 +710,22 @@ class ContestModeTest(unittest.TestCase):
         self.assertEqual(buys, [("000001", 1333), ("000002", 1333), ("000003", 2633)])
         self.assertNotIn("kr_topup_once", state.d)
 
+    def test_force_rebalance_now(self):
+        strengths = {"000001": 0.012, "000002": 0.011, "000003": 0.010}
+        kis, t = client(self.market(strengths))
+        state = self.contest.State(os.path.join(self.tmp.name, "n.json"))
+        state.d["kr_rebalances"] = ["2026-10-26"]
+        self.assertFalse(self.contest.kr_due(state, "2026-10-27"))
+        state.d["kr_force"] = True
+        self.assertTrue(self.contest.kr_due(state, "2026-10-27"))
+        sc = lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1
+        with mock.patch.object(self.contest, "score", sc):
+            auto.run_contest_cycle(kis, {"us": {"watchlist": []}, "auto": {}}, state, auto_utc(2026, 10, 27, 1, 0),
+                                   self.logs.append, lambda *_: None, [(c, c) for c in strengths])
+        self.assertEqual(len([c for c in t.calls if c["path"].endswith("order-cash")]), 3)
+        self.assertNotIn("kr_force", state.d)
+        self.assertEqual(state.d["kr_rebalances"], ["2026-10-26", "2026-10-27"])
+
     def test_crash_check(self):
         changes = {"A": "-8.5", "B": "-1.0", "C": "-0.5"}
         routes = self.market({})

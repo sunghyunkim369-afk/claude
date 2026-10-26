@@ -41,6 +41,7 @@ BanKIS 대학생 모의투자대회(~11/20)용이에요. `backtest/contest.py` �
 생존 편향을 뺀 검증에서 손실은 줄지만 +30% 확률과 수상 조건 충족률도 떨어져서 기본은 꺼 뒀어요.
 리밸런스 때 **안정형**(아래 표)으로 자동으로 바꿔요. 직접 바꾸기: `python -m trading contest --mode stable` (또는 `aggressive`).
 계좌를 초기화했다면 `python -m trading contest --reset` 으로 진행 상태를 지우세요.
+리밸런스 날이 아니어도 지금 바로 공식대로 맞추려면 `python -m trading contest --now` (장중에).
 
 미국 입상형(선택): `python -m trading contest --us-mode aggressive` 로 켜요 (`basic` 으로 되돌리기).
 레버리지 ETF(TQQQ·SOXL 등)·고변동 16종목 중 20거래일 수익률 1위 1종목에 거의 전부, 2거래일마다 교체.

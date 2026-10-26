@@ -20,6 +20,7 @@
 | 지정가 매수 검증 | ✅ [`docs/limit-entry-2026-10-21.md`](docs/limit-entry-2026-10-21.md) — '안 닿으면 포기'는 코어에서 손해(강한 추세를 놓침), '신호 유지 시 매일 다시 지정가'는 시장가와 같거나 조금 나음 → 기본값: 코어 −1%·기타 −3% 지정가 매수, 매도는 시장가 (`config.toml [trading]`) |
 | 돌파·매물대·저항/지지선 검증 | ✅ [`docs/breakout-2026-10-21.md`](docs/breakout-2026-10-21.md), [`docs/levels-2026-10-21.md`](docs/levels-2026-10-21.md) — 저항 근처·매물대 돌파 뒤가 싼 날보다 나았지만, '돌파 실패면 안 산다'·수평선 기준은 데이터가 지지하지 않음. 공식에 붙여도 개선 없음 → 리포트에 참고 정보로만 표시 |
 | 매물대·선 이론 ETF 전후 비교 | ✅ [`docs/levels-regime-2026-10-24.md`](docs/levels-regime-2026-10-24.md) — BTC·코어 지지선이 예전보다 덜 지켜짐(BTC 5일 버팀 71%→44%), 하지만 '속이고 결국 뚫는다'는 확인 안 됨, 변화는 2022년부터. 매매 변형 개선 없음 → 공식 그대로 |
+| 2018년 이전까지 확장 검증 | ✅ [`docs/extended-2026-10-26.md`](docs/extended-2026-10-26.md) — 2013~2017(안 본 구간): 보유와 비슷한 수익, MDD −70% vs −85%, 2014~15 약세 +48% vs −43%. '확률 높을 때만 사기'는 승률↑ 수익↓ → 채택 안 함. 중기 +1로 약해진 상태의 신규 매수는 확률 낮음 |
 | 단기 스윙 검증 | ✅ [`docs/short-swing-2026-10-21.md`](docs/short-swing-2026-10-21.md) — 며칠짜리 추세는 못 먹음, 단독 운용은 이득 없음, 확정 공식 70% + 단기 추세 30%가 가장 근거 있음(모의로 먼저 확인 권함) |
 | 리포트·내 판단·주문·예약 실행 | ✅ 동작 (공식이 임시라 추천도 임시) |
 
@@ -46,6 +47,7 @@ python -m coinquant short-swing         단기 스윙(며칠~2주) 검증
 python -m coinquant breakout            돌파 검증 (직전 고가)
 python -m coinquant levels              매물대·수평 저항/지지선 검증
 python -m coinquant levels-regime       매물대·선 이론 ETF 승인 전후 비교
+python -m coinquant extended            확정 공식 2018년 이전까지 검증 + 확률 높을 때만 사기
 python -m coinquant limit-entry         지정가 매수(안 닿으면 포기 / 매일 다시) 검증 + 중기 의미(부트스트랩)
 python -m coinquant report [--no-news]  매일 리포트 (HTML/MD)
 python -m coinquant daily               update + report (예약 실행이 부르는 명령)

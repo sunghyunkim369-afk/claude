@@ -109,11 +109,11 @@ def cmd_report(a, cfg):
 
 def cmd_alert(a, cfg):
     from .app import alert
-    alert.main(cfg, test=getattr(a, "test", False), with_news=not getattr(a, "no_news", False))
+    alert.main(cfg, test=getattr(a, "test", False), with_news=not getattr(a, "no_news", False), light=getattr(a, "light", False))
 
 
 def cmd_daily(a, cfg):
-    a.cm_clone, a.no_upbit, a.no_news, a.test = None, False, False, False
+    a.cm_clone, a.no_upbit, a.no_news, a.test, a.light = None, False, False, False, False
     cmd_update(a, cfg)
     cmd_report(a, cfg)
     try:
@@ -221,6 +221,7 @@ def main(argv=None):
     s = sub.add_parser("alert", help="매수·매도 알림 (상태가 바뀐 날만, --test 는 무조건 보냄)")
     s.add_argument("--test", action="store_true")
     s.add_argument("--no-news", action="store_true")
+    s.add_argument("--light", action="store_true", help="코어 3종만 받아서 실행 (GitHub Actions 용)")
     s.set_defaults(fn=cmd_alert)
     s = sub.add_parser("extended", help="확정 공식 2018년 이전까지 검증 + 확률 높을 때만 사기")
     s.set_defaults(fn=cmd_extended)

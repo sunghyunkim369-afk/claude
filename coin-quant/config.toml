@@ -75,7 +75,7 @@ limit_discount_other = 0.03   # 기타(알트) −3% (한 번만 걸어도 시�
 
 [alert]
 # 매수·매도 알림 (python -m coinquant alert, 매일 예약 실행에서 자동)
-# 상태(매수 가능 / 신규 진입 대기 / 관망)가 바뀐 날만 보냄. 매일 요약도 받으려면 daily_summary = true
-daily_summary = false
+# daily_summary = true: 매일 시황 + 신호를 보냄 (상태가 바뀐 날은 🔔 표시). false 면 상태가 바뀐 날만
+daily_summary = true
 telegram = true    # .env 에 TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID 를 넣어야 동작
 windows = true     # 윈도우 PC 알림

@@ -190,3 +190,19 @@ def test_alert_status_and_change(tmp_path, monkeypatch):
     part = MultiTrend(c.loc[:t], c.loc[:t], c.loc[:t])
     part.close = c.loc[:t]
     assert alert.coin_status(part, t, "UP") == alert.coin_status(mt, t, "UP")
+
+
+def test_stock_returns_no_lookahead():
+    from coinquant.stocks.validate import formula_position, strat_returns
+    rng = np.random.default_rng(1)
+    idx = pd.bdate_range("2010-01-01", periods=700)
+    c = pd.DataFrame({"A": 100 * np.exp(np.cumsum(rng.normal(0.0005, 0.02, 700)))}, index=idx)
+    o = c.shift(1).fillna(c)
+    pos, _ = formula_position(c, c, c)
+    s, _ = strat_returns(pos, o, c, 0.001)
+    t = 500
+    p2, _ = formula_position(c.iloc[:t], c.iloc[:t], c.iloc[:t])
+    s2, _ = strat_returns(p2, o.iloc[:t], c.iloc[:t], 0.001)
+    assert p2.equals(pos.iloc[:t])
+    # 마지막 날(다음 시가가 아직 없음)만 빼고 같아야 함
+    assert np.allclose(s2.iloc[:t - 1].fillna(0), s.iloc[:t - 1].fillna(0))

@@ -1,0 +1,4 @@
+# 주식 시황·신호용 추가 패키지 (python -m coinquant stocks-validate / stocks-brief)
+-r requirements.txt
+yfinance>=0.2.50
+finance-datareader>=0.9.90

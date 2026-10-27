@@ -12,6 +12,7 @@
   python -m coinquant levels              매물대·수평 저항/지지선 검증 → docs/levels-날짜.md
   python -m coinquant levels-regime       매물대·선 이론 ETF 승인 전후 비교 → docs/levels-regime-날짜.md
   python -m coinquant extended            확정 공식 2018년 이전까지 검증 → docs/extended-날짜.md
+  python -m coinquant stocks-validate     주식(지수·종목)에서 확정 공식 검증 → docs/stocks-validation-날짜.md
   python -m coinquant alert [--test]      매수·매도 알림 (텔레그램·윈도우 알림, daily 가 자동으로 부름)
   python -m coinquant report [--no-news]  매일 리포트 → reports/daily-날짜.html
   python -m coinquant daily               update + report (예약 실행용)
@@ -99,6 +100,11 @@ def cmd_levels_regime(a, cfg):
 def cmd_extended(a, cfg):
     from .research import extended
     extended.main(cfg)
+
+
+def cmd_stocks_validate(a, cfg):
+    from .stocks import validate
+    validate.main(cfg)
 
 
 def cmd_report(a, cfg):
@@ -223,6 +229,8 @@ def main(argv=None):
     s.add_argument("--no-news", action="store_true")
     s.add_argument("--light", action="store_true", help="코어 3종만 받아서 실행 (GitHub Actions 용)")
     s.set_defaults(fn=cmd_alert)
+    s = sub.add_parser("stocks-validate", help="주식(지수·종목)에서 확정 공식 검증 (인터넷 필요: yfinance)")
+    s.set_defaults(fn=cmd_stocks_validate)
     s = sub.add_parser("extended", help="확정 공식 2018년 이전까지 검증 + 확률 높을 때만 사기")
     s.set_defaults(fn=cmd_extended)
     s = sub.add_parser("report")

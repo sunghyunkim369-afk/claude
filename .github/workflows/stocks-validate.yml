@@ -1,0 +1,53 @@
+name: 주식 공식 검증
+
+# 주식(지수·종목)에서 확정 공식을 검증하고 결과 문서를 아티팩트로 남김 (저장소에 쓰지 않음).
+# 이 작업 환경은 주식 시세 사이트가 막혀 있어 GitHub 서버에서 돌림. 2025-01-01 이후는 코드에서 잘라냄(최종 검증용 잠금).
+on:
+  push:
+    branches: [claude/sweet-bohr-g35f4h]
+    paths:
+      - .github/workflows/stocks-validate.yml
+      - coin-quant/coinquant/stocks/validate.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.server_url == 'https://github.com'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: coin-quant
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: coin-quant/requirements-stocks.txt
+      - run: pip install -r requirements-stocks.txt
+      - uses: actions/cache/restore@v4
+        with:
+          path: coin-quant/data_cache/stocks
+          key: stocks-data-${{ github.run_id }}
+          restore-keys: stocks-data-
+      - run: python -m coinquant stocks-validate
+        env:
+          PYTHONUTF8: "1"
+      - name: 결과 문서 출력
+        run: cat docs/stocks-validation-*.md
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: coin-quant/data_cache/stocks
+          key: stocks-data-${{ github.run_id }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-validation
+          path: |
+            coin-quant/docs/stocks-validation-*.md
+            coin-quant/reports/research/stocks_*.csv

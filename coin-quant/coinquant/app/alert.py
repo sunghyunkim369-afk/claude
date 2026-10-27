@@ -212,7 +212,7 @@ def build(cfg: dict | None = None, with_news: bool = True, log=print) -> dict:
 def send_telegram(text: str) -> str:
     tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN", ""), os.environ.get("TELEGRAM_CHAT_ID", "")
     if not tok or not chat:
-        return "텔레그램: .env 에 TELEGRAM_BOT_TOKEN·TELEGRAM_CHAT_ID 없음 (건너뜀)"
+        return "텔레그램: TELEGRAM_BOT_TOKEN·TELEGRAM_CHAT_ID 없음 (PC는 .env, GitHub 는 Settings → Secrets 에 넣기) → 건너뜀"
     import requests
     try:
         r = requests.post(f"https://api.telegram.org/bot{tok}/sendMessage",

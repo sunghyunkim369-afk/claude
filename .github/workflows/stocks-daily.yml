@@ -1,0 +1,85 @@
+name: 주식 오늘의 소식 (매일)
+
+# 평일 아침 07:40 KST: 시장 지표·주요 뉴스(해외·국내)·실적·경제지표 일정·나만의 매수 신호 → 페이지 + 텔레그램.
+# 페이지는 stock-briefing 브랜치의 daily/날짜.md 에 올림 (예약·수동 실행 때만). 코드 브랜치에 push 하면 시험 실행만(올리지 않음).
+# 필요: Settings → Secrets → Actions 에 TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID. 예약 실행은 이 파일이 기본 브랜치에 있어야 동작.
+on:
+  schedule:
+    - cron: "40 22 * * 0-4"   # UTC 일~목 22:40 = KST 월~금 07:40 (미국장 마감 뒤, 한국장 열기 전)
+  push:
+    branches: [claude/sweet-bohr-g35f4h]
+    paths:
+      - .github/workflows/stocks-daily.yml
+      - coin-quant/coinquant/stocks/brief.py
+      - coin-quant/coinquant/stocks/news.py
+      - coin-quant/coinquant/stocks/calendar.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stocks-daily
+  cancel-in-progress: false
+
+env:
+  CODE_REF: claude/sweet-bohr-g35f4h
+  PUBLISH_BRANCH: stock-briefing
+
+jobs:
+  brief:
+    if: github.server_url == 'https://github.com'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CODE_REF }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: coin-quant/requirements-stocks.txt
+      - run: pip install -r coin-quant/requirements-stocks.txt
+      - uses: actions/cache/restore@v4
+        with:
+          path: coin-quant/data_cache/stocks
+          key: stocks-brief-${{ github.run_id }}
+          restore-keys: |
+            stocks-brief-
+            stocks-data-
+      - name: 오늘의 소식 만들기
+        working-directory: coin-quant
+        run: python -m coinquant stocks-brief ${{ github.event_name == 'push' && '--no-send' || '' }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONUTF8: "1"
+      - name: 페이지 출력 (로그)
+        run: cat coin-quant/out/briefing/daily/*.md
+      - name: 페이지 올리기 (stock-briefing 브랜치)
+        if: github.event_name != 'push'
+        run: |
+          set -e
+          url="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          cd "$RUNNER_TEMP"
+          if git ls-remote --exit-code --heads "$url" "$PUBLISH_BRANCH" > /dev/null; then
+            git clone --depth 1 -b "$PUBLISH_BRANCH" "$url" pub
+          else
+            mkdir pub && cd pub && git init -b "$PUBLISH_BRANCH" && git remote add origin "$url" && cd ..
+          fi
+          mkdir -p pub/daily
+          cp "$GITHUB_WORKSPACE"/coin-quant/out/briefing/daily/*.md pub/daily/
+          cd pub
+          { echo "# 주식 오늘의 소식"; echo; echo "> 투자 판단을 돕는 정보일 뿐 투자 권유가 아닙니다. 원금 손실 가능성이 있습니다."; echo;
+            for f in $(ls daily | sort -r | head -200); do echo "- [${f%.md}](daily/$f)"; done; } > README.md
+          git config user.name "coin-quant bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "오늘의 소식 $(date -u +%Y-%m-%d)" || echo "바뀐 것 없음"
+          git push origin "$PUBLISH_BRANCH"
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: coin-quant/data_cache/stocks
+          key: stocks-brief-${{ github.run_id }}

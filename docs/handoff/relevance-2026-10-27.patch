@@ -1,0 +1,170 @@
+diff --git a/scripts/news/config.js b/scripts/news/config.js
+index edf061b..ff4d7b0 100644
+--- a/scripts/news/config.js
++++ b/scripts/news/config.js
+@@ -79,17 +79,17 @@ const OUTLETS = [
+ // kw: 기사 제목·요약에서 찾는 단어 · risk: 공급망 리스크로도 보여줄지
+ const TOPICS = [
+   { id: "tariff", label: "관세", kw: ["관세", "상호관세", "보복관세", "tariff", "duties", "section 232", "section 301", "adjusting imports"] },
+-  { id: "export_control", label: "수출통제", kw: ["수출통제", "수출 통제", "수출규제", "수출 규제", "수출제한", "엔티티 리스트", "엔티티리스트", "export control", "entity list"], risk: true },
++  { id: "export_control", label: "수출통제", kw: ["수출통제", "수출 통제", "수출규제", "수출 규제", "수출제한", "엔티티 리스트", "엔티티리스트", "export control", "entity list", "dual-use"], risk: true },
+   { id: "trade_remedy", label: "반덤핑·무역구제", kw: ["반덤핑", "상계관세", "세이프가드", "무역구제", "anti-dumping", "antidumping", "countervailing", "safeguard"] },
+   { id: "agreement", label: "FTA·통상협정", kw: ["FTA", "자유무역협정", "통상협정", "CEPA", "RCEP", "CPTPP", "IPEF", "통상장관", "통상교섭", "trade agreement", "trade deal"] },
+   { id: "sanctions", label: "경제제재", kw: ["제재", "sanction"], risk: true },
+-  { id: "shipping", label: "해운·물류", kw: ["해운", "운임", "컨테이너", "홍해", "수에즈", "파나마 운하", "물류대란", "항만", "freight", "shipping"], risk: true },
++  { id: "shipping", label: "해운·물류", kw: ["해운", "운임", "컨테이너", "홍해", "수에즈", "파나마 운하", "물류대란", "항만", "freight", "shipping", "spot rate", "surcharge"], risk: true },
+   { id: "supply_chain", label: "공급망·핵심광물", kw: ["공급망", "핵심광물", "희토류", "요소수", "supply chain", "critical mineral", "rare earth"], risk: true },
+   { id: "fx", label: "환율", kw: ["환율", "원·달러", "원/달러", "원달러", "exchange rate"] },
+   { id: "energy", label: "유가·원자재", kw: ["국제유가", "유가 상승", "유가 하락", "유가 급등", "원유", "브렌트유", "WTI", "LNG", "원자재", "oil price", "crude"], risk: true },
+   { id: "subsidy", label: "보조금·산업정책", kw: ["IRA", "인플레이션감축법", "칩스법", "반도체법", "반도체 보조금", "산업 보조금", "생산 보조금", "세액공제", "CHIPS Act", "subsid"] },
+   { id: "customs", label: "통관·원산지", kw: ["통관", "관세청", "원산지", "수입 검역", "수입검역", "검역 협상", "밀수", "customs"] },
+-  { id: "export_trend", label: "수출입 동향", kw: ["수출액", "수입액", "무역수지", "수출 증가", "수출 감소", "수출이", "수출입동향", "exports rose", "exports fell", "trade balance"] },
++  { id: "export_trend", label: "수출입 동향", kw: ["수출액", "수입액", "무역수지", "수출 증가", "수출 감소", "수출이", "수출입동향", "exports rose", "exports fell", "trade balance", "trade surplus", "export surge"] },
+ ];
+ 
+ // 무역 관련 기사인지 거르는 기본 단어 (RSS 피드는 TOPICS 단어가 하나라도 있어야 남겨요)
+@@ -131,11 +131,13 @@ const CORE_TRADE = ["관세", "수출", "수입", "무역", "통상", "제재",
+   "공급망", "핵심광물", "희토류", "운임", "해운", "환율", "유가", "원자재", "보조금", "IRA", "통관", "원산지", "tariff", "export", "import", "trade", "sanction"];
+ const PROMO = ["출시", "론칭", "런칭", "신제품", "선보", "선봬", "개최", "세미나", "박람회", "전시회", "이벤트", "할인", "프로모션",
+   "기념식", "시상식", "수상", "기부", "봉사", "채용", "설명회", "팝업", "체험단", "[게시판]", "[인사]", "[부고]"];
++// 무역 단어가 제목에 있어도 무조건 홍보·행사로 보는 말 (2026-10: "관세청 ○○ 공모전", "품목분류 경진대회", "FTA 10주년 설명·상담회"가 Top 10에 들어옴)
++const HARD_PROMO = ["공모전", "경진대회", "아이디어 공모", "참가자 모집", "서포터즈", "기자단", "교육생", "아카데미", "상담회", "장바구니", "헤드라인"];
+ // 주제 단어가 다른 뜻으로 쓰인 경우: 이 단어가 제목에 있으면 그 주제로 분류하지 않아요 (예: "마약 공급망")
+ const TOPIC_EXCLUDE = {
+   supply_chain: ["마약", "보이스피싱", "범죄 조직", "도박"],
+   sanctions: ["징계", "출장정지", "경고 처분", "축구", "야구", "선수"],
+-  shipping: ["택배 파업", "배달앱", "여행", "관광", "체육대회", "축제", "환승센터"],
++  shipping: ["택배 파업", "배달앱", "여행", "관광", "체육대회", "축제", "환승센터", "호텔", "숙박"],
+ };
+ // 뜻이 여러 개인 주제 단어 (2026-10 점수식 점검): "제재"는 공정위·금감원 제재금, "공급망"은 기업 ESG·금융·보안에도 쓰여요.
+ // 제목에 block 이 있으면 이 단어들은 그 주제 단어로 세지 않아요. 같은 주제의 다른 단어(핵심광물·희토류 등)는 그대로 세요.
+@@ -147,7 +149,7 @@ const TOPIC_CONTEXT = {
+   },
+   supply_chain: {
+     words: ["공급망", "supply chain"],
+-    block: /esg|공급망 ?금융|공급망 ?보안|sw 공급망|사이버|랜섬웨어|해킹|동반성장|교육|특징주|병원|의약품|영양|산업전|it 리스크/i,
++    block: /esg|공급망 ?금융|금융지원|금융그룹|산업금융|행장|공급망 ?보안|sw 공급망|사이버|랜섬웨어|해킹|동반성장|교육|특징주|병원|의약품|영양|산업전|it 리스크/i,
+   },
+ };
+ // 대표 기사 관련도 기준 (0~1). 이보다 낮으면 그 이슈의 대표 기사로 쓰지 않고 다음 후보를 봐요.
+@@ -172,9 +174,10 @@ const SCORE = {
+   mainSectorShare: 0.4,   // 이슈 기사 중 이 비율 이상이 한 섹터여야 "그 섹터 이슈"로 세어 섹터당 3개 제한에 넣어요 (2026-10)
+   mmrKeep: 3,             // 점수 상위 3개는 다양성 규칙과 상관없이 Top10에 넣어요 (2026-10)
+   newsCount: 20,          // 뉴스 피드에 싣는 기사 수
++  minBaseline: 50,        // 직전 4주 기사가 이보다 적으면 추세·노출도를 평소(0.5·50)로 둬요
+   sectorPrior: 8,         // 섹터 노출도 축소 강도: 기사 8건이면 평소 대비 차이의 절반만 반영
+   momentumPrior: 5,       // 이슈 추세 축소 강도: 기사 5건이면 평소 대비 차이의 절반만 반영 (2026-10 검토로 추가)
+   outletDecay: 0.5,       // 한 이슈에서 같은 언론사 k번째 기사는 무게 × 1/k^0.5 (속보·2보·종합 반복 보도 억제, 2026-10)
+ };
+ 
+-module.exports = { TOPIC_EXCLUDE, TOPIC_CONTEXT, CORE_TRADE, PROMO, LEAD_MIN_RELEVANCE, FEEDS, COUNTRIES, OUTLETS, TOPICS, TRADE_WORDS, SECTORS, TIGHTEN, EASE, KOREA_WORDS, SCORE };
++module.exports = { TOPIC_EXCLUDE, TOPIC_CONTEXT, CORE_TRADE, PROMO, HARD_PROMO, LEAD_MIN_RELEVANCE, FEEDS, COUNTRIES, OUTLETS, TOPICS, TRADE_WORDS, SECTORS, TIGHTEN, EASE, KOREA_WORDS, SCORE };
+diff --git a/scripts/news/lib.js b/scripts/news/lib.js
+index ade9c4c..c9a05ad 100644
+--- a/scripts/news/lib.js
++++ b/scripts/news/lib.js
+@@ -1,5 +1,5 @@
+ // 뉴스 파이프라인 공통 기능: RSS 읽기, 정리, 분류, 중복 묶기
+-const { OUTLETS, TOPICS, TRADE_WORDS, SECTORS, COUNTRIES, TIGHTEN, EASE, KOREA_WORDS, CORE_TRADE, PROMO, LEAD_MIN_RELEVANCE, TOPIC_EXCLUDE, TOPIC_CONTEXT } = require("./config");
++const { OUTLETS, TOPICS, TRADE_WORDS, SECTORS, COUNTRIES, TIGHTEN, EASE, KOREA_WORDS, CORE_TRADE, PROMO, HARD_PROMO, LEAD_MIN_RELEVANCE, TOPIC_EXCLUDE, TOPIC_CONTEXT } = require("./config");
+ 
+ const UA = "Mozilla/5.0 (compatible; TradeCompassBot/1.0; +https://tcmvp.eyefeet.com)";
+ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+@@ -104,7 +104,8 @@ function isTrade(text) { return TOPICS.some(t => has(text, t.kw)); }
+ 
+ // 지명·고유명사·다른 낱말 안에 우연히 들어간 단어는 지워요 (해운대 → "해운", 관세음 → "관세", 유통관리 → "통관")
+ // 영문 "trade secret(s)"(영업비밀)·"trade show"(전시회)는 무역이 아니에요 (2026-10: 영업비밀 소송 기사가 해운·물류 대표 기사로 나옴)
+-const FALSE_HITS = /해운대|관세음|유통관|trade secrets?|trade shows?/g;
++// "지원유세" 안의 "원유"도 지워요 (2026-10: 트럼프 유세 기사가 유가·원자재 대표 기사로 나옴)
++const FALSE_HITS = /해운대|관세음|유통관|지원유세|trade secrets?|trade shows?/g;
+ // 뜻이 여러 개인 주제 단어(config TOPIC_CONTEXT)는 제목에 다른 뜻을 나타내는 말이 있으면 그 주제 단어로 세지 않아요.
+ // 예) "보험광고 … 협회 제재금 부과" → "제재" 안 셈, "美, 이란 석유 거래 기업 제재" → 셈
+ //     "동아쏘시오, 협력사 대상 ESG 공급망 교육" → "공급망" 안 셈, "소부장 공급망 특정국 의존" → 셈
+@@ -178,7 +179,8 @@ function actionDirection(text, topic) {
+ // - 아무 주제 단어도 없으면: 수출·수입·무역·통상 단어가 있으면 "수출입 동향"으로, 없으면 버려요
+ //   (Google 뉴스 검색은 본문·비슷한 말로도 결과를 줘서 "세이프가드" 검색에 안전경영 기사가 섞여요)
+ // 게시판·인사·부고·사진 같은 단신은 무역 이슈가 아니라서 버려요
+-const SKIP_TITLE = /^\s*[\[【(]\s*(게시판|인사|부고|포토|사진|화보|운세|날씨|알림|모집|행사|표|그래픽)\s*[\]】)]/;
++// 증시 종목 기사([특징주]·[美특징주]·[중국 특징주])는 시장 반응이라 무역 이슈 기사로 쓰지 않아요 (2026-10 표본 점검)
++const SKIP_TITLE = /^\s*[\[【(]\s*(게시판|인사|부고|포토|사진|화보|운세|날씨|알림|모집|행사|표|그래픽|[^\]】)]{0,4}특징주)\s*[\]】)]/;
+ // 마약 단속은 관세청·세관 기사여도 무역 이슈가 아니라서 버려요 (2026-10: "마약 공급망 원천차단"이 통관 이슈 대표 기사로 나옴)
+ const NON_TRADE_TITLE = /마약/;
+ function finalize(item, hint) {
+@@ -195,6 +197,7 @@ function finalize(item, hint) {
+ // 예) "HD현대사이트솔루션, 국내 최대 18t급 전동지게차 출시" → true (해운·물류 이슈에서 빠져요)
+ function isPromo(title = "") {
+   const t = lower(title);
++  if (HARD_PROMO.some(w => t.includes(lower(w)))) return true;
+   if (!/[가-힣]/.test(title)) return EN_PROMO.test(title) && !EN_CORE.test(title) && !EN_GOV.test(title);
+   return PROMO.some(w => t.includes(lower(w))) && !CORE_TRADE.some(w => hit(t, w));
+ }
+diff --git a/scripts/news/publish.js b/scripts/news/publish.js
+index 920a912..681f9d6 100644
+--- a/scripts/news/publish.js
++++ b/scripts/news/publish.js
+@@ -67,8 +67,10 @@ function count(items, keyFn) {
+ // ── 추세(M): 무역 기사 전체에서 이 이슈가 차지하는 비중이 평소보다 얼마나 늘었나 ──
+ // Caldara et al.(2020) 무역정책 불확실성 지수처럼 "건수"가 아니라 "비중"을 써서
+ // 수집 출처가 늘거나 뉴스가 많은 주에 모든 이슈가 같이 올라가는 문제를 없애요.
++const EVENT_TITLE = /개최|간담회|협약|mou|설명회|상담회|포럼|세미나|공모|경진|아카데미|시상|교육|기념/i;
+ function momentum(nNow, totalNow, nBase, totalBase, kinds) {
+-  if (!totalBase) return 0.5;                                        // 비교할 과거가 없으면 중립
++  // 비교할 과거가 없거나 너무 적으면 중립 (2026-10: 서버 이전 직후 직전 4주가 비어 모든 이슈가 "급증"으로 보임)
++  if (totalBase < SCORE.minBaseline) return 0.5;
+   const a = SCORE.smoothing;
+   const shareNow = (nNow + a) / (totalNow + a * kinds);
+   const shareBase = (nBase + a) / (totalBase + a * kinds);
+@@ -193,7 +195,8 @@ async function main() {
+   const vMax = Math.max(...raw.map(r => r.V));
+ 
+   const cands = raw
+-    .filter(r => r.list.length >= SCORE.minReports || r.list.some(a => a.official && a.lang !== "en"))
++    // 정부 발표 1건 예외는 행사·협약·교육 같은 보도자료에는 주지 않아요 (2026-10: 공모전 보도자료가 1위)
++    .filter(r => r.list.length >= SCORE.minReports || r.list.some(a => a.official && a.lang !== "en" && !EVENT_TITLE.test(a.title)))
+     .map(r => {
+       // 점수 = 100 × (0.6·보도량 + 0.4·추세) × (0.6 + 0.4·한국 관련도)
+       const Vn = Math.log(1 + r.V) / Math.log(1 + vMax);
+diff --git a/tests/relevance-gold.test.js b/tests/relevance-gold.test.js
+new file mode 100644
+index 0000000..9665065
+--- /dev/null
++++ b/tests/relevance-gold.test.js
+@@ -0,0 +1,38 @@
++// 기사 적합성: 행사·홍보·종목 기사는 버리고, 시황·물류·통상 기사는 남겨요 (2026-10 정답 표본 점검에서 찾은 사례)
++const test = require("node:test");
++const assert = require("node:assert/strict");
++const { finalize } = require("../scripts/news/lib");
++const art = (title, extra = {}) => ({ title, desc: "", source: "연합뉴스", tier: 0.9, ...extra });
++const topicOf = (title, extra) => { const c = finalize(art(title, extra)); return c ? c.topic : null; };
++
++test("무역 단어가 있어도 공모전·경진대회·상담회·아카데미는 버려요", () => {
++  for (const t of ["관세평가분류원, 제27회 품목분류 경진대회 결과 발표", "관세청, 청년 세대와 함께하는 '제7회 탐지견 아카데미 개최'",
++    "코트라, 콜롬비아서 FTA 발효 10주년 기념 설명·상담회", "지방기업과 중국 유통망 연결…대구·청주서 소비재 수출상담회",
++    "관세청, 2026 관세행정 아이디어 공모전 개최", "울산항만공사, 폐현수막으로 장바구니 제작…상권 활성화 연계도", "[연합뉴스 이 시각 헤드라인] - 18:00"]) {
++    assert.equal(topicOf(t), null, t);
++  }
++});
++
++test("[특징주]·종목 기사는 버려요", () => {
++  for (const t of ["[특징주] 사우디-예멘 후티 충돌에 장 초반 해운주 강세", "[美특징주]제너럴밀스, 신규 CEO 지명 소식에도 하락", "[유럽 특징주] BMW CEO \"中 저가차 위협 크지만 관세는 반대\""]) {
++    assert.equal(topicOf(t), null, t);
++  }
++});
++
++test("'지원유세' 안의 '원유'는 유가가 아니에요", () => {
++  assert.notEqual(topicOf("보름여 남은 중간선거…트럼프, 주말에도 지원유세로 결집 호소"), "energy");
++});
++
++test("기업 금융지원·숙박의 공급망·컨테이너는 무역 이슈가 아니에요", () => {
++  assert.notEqual(topicOf("BNK금융그룹, 앵커기업 공급망 활성화 맞춤형 금융지원"), "supply_chain");
++  assert.notEqual(topicOf("\"새로운 숙박 모델\"…日 홋카이도서 컨테이너형 호텔 확산"), "shipping");
++});
++
++test("정책 간담회·운임·수출 급증 기사는 그대로 남아요", () => {
++  assert.equal(topicOf("산업부, 제조업계와 CPTPP 간담회…전기·전자분야 영향 점검"), "agreement");
++  assert.equal(topicOf("글로벌 해운 운임 2주 연속 하락…미주 상승에도 유럽·중동 약세"), "shipping");
++  assert.equal(topicOf("Ex-India spot rates and surcharges ease as peak comes to an end", { source: "The Loadstar", lang: "en" }), "shipping");
++  assert.equal(topicOf("Suez return a major threat to carrier efforts to halt transpac spot rate slide", { source: "The Loadstar", lang: "en" }), "shipping");
++  assert.equal(topicOf("China export surge sets up another record annual trade surplus", { source: "SCMP", lang: "en" }), "export_trend");
++  assert.equal(topicOf("China charges tech firm with smuggling restricted 'dual-use' optical lenses", { source: "SCMP", lang: "en" }), "export_control");
++});

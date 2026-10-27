@@ -224,6 +224,8 @@ def fmt(df: pd.DataFrame, pct: set) -> str:
             v = r[c]
             if isinstance(v, (bool, np.bool_)):
                 cells.append("예" if v else "아니오")
+            elif c in RATIO and isinstance(v, (float, np.floating)):
+                cells.append("-" if pd.isna(v) else f"{v * 100:.0f}%")
             elif c in pct and isinstance(v, (float, np.floating)):
                 cells.append("-" if pd.isna(v) else f"{v * 100:+.1f}%")
             elif isinstance(v, (float, np.floating)):
@@ -234,6 +236,7 @@ def fmt(df: pd.DataFrame, pct: set) -> str:
     return "\n".join(out)
 
 
+RATIO = {"투자 비중", "거래 승률", "무작위 타이밍 대비 샤프 백분위", "오른 비율", "지수보다 나은 비율", "비율"}
 PCT = {"공식 연복리", "공식 MDD", "보유 연복리", "보유 MDD", "투자 비중", "거래 승률", "거래 중앙값", "무작위 타이밍 대비 샤프 백분위",
        "공식 총수익", "보유 총수익", "중앙값", "하위10%", "오른 비율", "지수 대비 초과 중앙값", "지수보다 나은 비율", "비율"}
 
@@ -286,7 +289,8 @@ def render(it, ie, us, kr, D, secs) -> str:
          f"- 기간: 각 지수 시작 ~ {DEV_END}. 2025-01-01 이후는 잠가 두고 보지 않았습니다 (나중에 한 번만 여는 최종 검증용).",
          "- 공식·파라미터는 코인과 똑같이 (기간은 거래일 봉 수). 주식에 맞춰 바꾼 것 없음. 그날 종가 판단 → 다음 거래일 시가 체결.",
          "- 비용(매매마다): 미국 0.12%, 한국 0.215% (거래세 포함 왕복 0.43%). 환전 비용·세금(양도세 등)은 빠져 있음.",
-         "- 가격: yfinance 수정주가(배당·분할 반영). 지수는 배당 미포함 가격지수.",
+         "- 가격: yfinance 수정주가(배당·분할 반영). 지수는 배당 미포함 가격지수(보유 쪽이 연 2% 안팎 불리), "
+         "공식이 현금일 때 이자도 빠져 있음(공식 쪽이 불리).",
          "- ⚠ 종목 검증은 **지금 남아 있는 종목**(S&P500 현재 구성, 한국 시총 상위 200 현재)만이라 생존 편향이 있습니다. "
          "절대 수익은 부풀려졌고, 같은 종목의 '그냥 보유'와 비교하는 상대 비교로 보세요.",
          f"- 종목 데이터: 미국 {D['us']['close'].shape[1]}개, 한국 {D['kr']['close'].shape[1]}개, 2003~{DEV_END[:4]}. 계산 {secs / 60:.1f}분\n",

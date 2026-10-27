@@ -5,6 +5,7 @@
 매수 신호 규칙(코인과 같은 확정 공식, 주식 검증: docs/stocks-validation-*.md):
   중기 추세 상태 켜짐 & 장기 점수 −2 초과 & 중기 점수 +2 이상, 그리고 최근 5거래일 안에 새로 켜진 종목만 '새 신호'.
   순서는 거래대금(유동성) 순 — 예측력 순위가 아님.
+지수 신호(5-1)는 검증 근거가 있고, 종목 목록(5-2)은 검증에서 고르기 효과가 확인되지 않아 '관심 목록'으로만 표시.
 결과: out/briefing/daily/날짜.md, out/briefing/README.md(목차), 텔레그램 요약(.env/Secrets 의 TELEGRAM_*).
 """
 from __future__ import annotations
@@ -73,6 +74,48 @@ def market_table(M: dict) -> list[dict]:
     return rows
 
 
+# 지수 신호: 주식 검증(docs/stocks-validation-2026-10-27.md, ~2024)에서 지수에 공식을 쓴 결과 → 근거 등급
+INDEX_PLAN = {
+    "^IXIC": ("나스닥 종합", "QQQ · TIGER 미국나스닥100(133690)", "근거 있음",
+              "1972~2024 공식 연 8.9%·MDD −36% vs 보유 10.2%·−78%, 샤프 0.79 vs 0.58, 무작위 타이밍 200번보다 모두 나음"),
+    "^KS11": ("코스피", "KODEX 200(069500) · TIGER 200(102110)", "근거 있음",
+              "1997~2024 공식 연 5.1%·MDD −45% vs 보유 4.9%·−64%, 샤프 0.42 vs 0.31, 무작위 타이밍 상위 2.5%"),
+    "^GSPC": ("S&P 500", "SPY · TIGER 미국S&P500(360750)", "손실 방어만",
+              "1950~2024 공식 연 4.1%·MDD −36% vs 보유 8.1%·−57%, 샤프 0.49 vs 0.59 — 큰 하락은 줄였지만 수익은 절반"),
+    "^KQ11": ("코스닥", "KODEX 코스닥150(229200)", "근거 약함",
+              "1997~2024 공식 연 −0.9%·MDD −55% vs 보유 −1.0%·−74%, 무작위 타이밍과 비슷"),
+}
+
+
+def index_signals(M: dict) -> list[dict]:
+    c = M["close"]
+    keep = [t for t in INDEX_PLAN if t in c.columns]
+    if not keep:
+        return []
+    sub = c[keep].dropna(how="all")
+    h = M["high"][keep].reindex(sub.index)
+    l_ = M["low"][keep].reindex(sub.index)
+    pos, mt = formula_position(sub, h.where(h > 0).fillna(sub), l_.where(l_ > 0).fillna(sub))
+    out = []
+    for t in keep:
+        s = pos[t].dropna().astype(bool)
+        if not len(s):
+            continue
+        d = s.index[-1]
+        rev = s.to_numpy()[::-1]
+        run = int(len(rev) if rev.all() else np.argmin(rev)) if rev[0] else 0
+        offrun = int(len(rev) if (~rev).all() else np.argmin(~rev)) if not rev[0] else 0
+        msc = int(mt.h["중기"].score.at[d, t])
+        state = ("매수 가능" if s.iloc[-1] and msc >= 2 else "보유만 (신규 진입 대기)" if s.iloc[-1] else "관망 (현금)")
+        hi, lo = mt.h["중기"].chan_hi.at[d, t], mt.h["중기"].chan_lo.at[d, t]
+        name, etf, grade, stat = INDEX_PLAN[t]
+        out.append({"ticker": t, "name": name, "etf": etf, "grade": grade, "stat": stat, "date": d.date(), "state": state,
+                    "score": {k: int(mt.h[k].score.at[d, t]) for k in ("단기", "중기", "장기")},
+                    "on_days": run, "off_days": offrun, "chan60": lo + 0.6 * (hi - lo), "chan40": lo + 0.4 * (hi - lo),
+                    "close": sub.at[d, t]})
+    return out
+
+
 def signals(F: dict, uni: pd.DataFrame, mkt: str, news_titles: list[str]) -> tuple[list[dict], list[dict], dict]:
     c = F["close"]
     c = c.loc[:, c.notna().sum() > 260]
@@ -117,6 +160,10 @@ def signals(F: dict, uni: pd.DataFrame, mkt: str, news_titles: list[str]) -> tup
     return [card(a) for a in pick], [card(a) for a in of[:TOP_N]], summary
 
 
+def _ratio(v) -> str:
+    return "-" if v is None or (isinstance(v, float) and np.isnan(v)) else f"{v:.0%}"
+
+
 def _p(v, d=1):
     return "-" if v is None or (isinstance(v, float) and np.isnan(v)) else f"{v * 100:+.{d}f}%"
 
@@ -128,7 +175,7 @@ def _md_table(cols: list[str], rows: list[list]) -> list[str]:
 
 
 def render(today: pd.Timestamp, mk: list[dict], news: dict, news_err: list[str], earn: list[dict], econ: list[dict],
-           sig: dict, val_line: str) -> str:
+           sig: dict, val_line: str, idx_sig: list[dict] | None = None) -> str:
     o = [f"# {today:%Y년 %m월 %d일} ({WEEKDAY[today.weekday()]}) 오늘의 소식\n",
          "> ⚠️ 투자 판단을 돕는 정보일 뿐 투자 권유가 아닙니다. 과거 성과는 미래를 보장하지 않으며 원금 손실 가능성이 있습니다. "
          "뉴스 구분(공식 발표/보도/전망·추측)은 제목으로 자동 분류한 것이라 틀릴 수 있으니 원문을 확인하세요.\n"]
@@ -136,10 +183,11 @@ def render(today: pd.Timestamp, mk: list[dict], news: dict, news_err: list[str],
     line = " · ".join(f"{get[t]['지표']} {_p(get[t]['1일'])}" for t in ("^GSPC", "^IXIC", "^KS11", "^KQ11") if t in get)
     extra = " · ".join(f"{get[t]['지표']} {num(get[t]['종가'])}" for t in ("KRW=X", "^TNX", "^VIX") if t in get)
     o += ["## 📌 한눈에 보기\n", f"- 지수: {line}", f"- 금리·환율·변동성: {extra}"]
+    for x in idx_sig or []:
+        o.append(f"- {x['name']} 신호: **{x['state']}** ({x['grade']})")
     for mkt, s in sig.items():
         sm = s[2]
-        o.append(f"- {mkt} 새 매수 신호 {sm['n_fresh']}개 (매수 가능 상태 {sm['n_on']}개, 중기 추세 켜진 종목 {sm['n_trend']}/{sm['n_alive']}) · "
-                 f"신호 꺼짐(최근 3일) {len(s[1])}개 이상")
+        o.append(f"- {mkt} 추세 시작 종목 {sm['n_fresh']}개 (관심 목록) · 중기 추세 켜진 종목 {sm['n_trend']}/{sm['n_alive']}")
     o += ["", "## 1. 시장 지표\n"]
     o += _md_table(["묶음", "지표", "종가", "1일", "1주", "1달", "200일선 대비", "추세(단/중/장)", "중기 추세", "기준일"],
                    [[r["묶음"], r["지표"], num(r["종가"]), _p(r["1일"]), _p(r["1주"]), _p(r["1달"]), _p(r["200일선 대비"]),
@@ -175,17 +223,26 @@ def render(today: pd.Timestamp, mk: list[dict], news: dict, news_err: list[str],
     else:
         o.append("- 일정 없음 (또는 캘린더 접속 실패)\n")
     o += ["## 5. 🎯 나만의 매수 신호\n",
-          f"규칙: 중기 추세 켜짐 & 중기 점수 +2 이상 & 장기 점수 −2 초과, 그리고 **최근 {FRESH_DAYS}거래일 안에 새로 켜진** 종목. "
-          "다음 거래일에 사고, 중기 추세가 꺼지면(점수 0 이하) 팝니다. 순서는 거래대금 순(예측력 순위 아님).", "",
-          f"검증 요약: {val_line}", ""]
+          "### 5-1. 지수·대표 ETF (검증 근거가 있는 신호)\n",
+          "규칙(코인과 같은 확정 공식): 중기 추세가 켜져 있고 장기 점수가 −2 초과면 보유. **새로 사는 건 중기 점수 +2 이상일 때만**, "
+          "중기 점수가 0 이하로 떨어지면 다음 거래일에 팝니다.\n"]
+    o += _md_table(["지수", "상태", "추세(단/중/장)", "기간", "다시 켜지는/꺼지는 기준(채널 60%/40%선)", "살 때 (ETF)", "근거 등급", "과거 검증"],
+                   [[x["name"], f"**{x['state']}**", f"{x['score']['단기']:+d}/{x['score']['중기']:+d}/{x['score']['장기']:+d}",
+                     f"켜진 지 {x['on_days']}일" if x["on_days"] else f"꺼진 지 {x['off_days']}일",
+                     f"{num(x['chan60'])} / {num(x['chan40'])}", x["etf"], x["grade"], x["stat"]] for x in (idx_sig or [])])
+    o += ["", f"검증: {val_line}", "",
+          "### 5-2. 추세가 막 시작된 종목 (관심 목록)\n",
+          f"같은 공식으로 최근 {FRESH_DAYS}거래일 안에 '매수 가능'이 된 종목입니다. ⚠ **주식 검증에서 개별 종목 고르기 효과는 확인되지 않았습니다** "
+          "(신호가 켜진 뒤 20·60일 수익이 아무 날과 같았고, 무작위 타이밍보다 나은 종목이 미국 38%·한국 51%). "
+          "매수 근거가 아니라 '추세가 바뀐 종목' 목록으로 보고, 뉴스·실적을 직접 확인하세요. 순서는 거래대금 순.\n"]
     for mkt, (cards, offs, sm) in sig.items():
-        o.append(f"### {mkt} — 새 신호 {sm['n_fresh']}개 중 {len(cards)}개 (기준일 {sm['date']})\n")
+        o.append(f"#### {mkt} — {sm['n_fresh']}개 중 {len(cards)}개 (기준일 {sm['date']})\n")
         if not cards:
             o.append("- 새 신호 없음\n")
         for k in cards:
             sc = k["score"]
             h = k["hist"]
-            o.append(f"#### {k['name']} ({k['ticker']}){' 📰' if k['mention'] else ''}\n")
+            o.append(f"**{k['name']} ({k['ticker']}){' 📰' if k['mention'] else ''}**\n")
             o.append(f"- 종가 {num(k['close'])} · 1일 {_p(k['r1'])} · 20일 {_p(k['r20'])} · 켜진 지 {k['on_days']}거래일"
                      + (f" · {k['sector']}" if k["sector"] else ""))
             o.append(f"- 추세 점수 단기 {sc['단기']:+d} / 중기 {sc['중기']:+d} / 장기 {sc['장기']:+d}\n")
@@ -194,7 +251,7 @@ def render(today: pd.Timestamp, mk: list[dict], news: dict, news_err: list[str],
                             for r in k["snap"]])
             o.append("")
             o.append(f"- 꺼지는 쪽 기준: 종가가 채널 40%선 {num(k['exit_chan'])} 또는 느린 EMA {num(k['exit_ema'])} 아래로 가면 약해짐")
-            o.append(f"- 이 종목 과거 같은 신호(2003~2024, 비용 포함): {h['n']}회 · 승률 {f"{h['win']:.0%}" if not np.isnan(h['win']) else '-'} · "
+            o.append(f"- 이 종목 과거 같은 신호(2003~2024, 비용 포함): {h['n']}회 · 승률 {_ratio(h['win'])} · "
                      f"중앙값 {_p(h['median'])} · 최악 {_p(h['worst'])}")
             for nw in k.get("news", []):
                 o.append(f"- 관련 뉴스 [{nw['kind']}]: [{nw['title']}]({nw['link']}) — {nw['source']}")
@@ -209,7 +266,7 @@ def render(today: pd.Timestamp, mk: list[dict], news: dict, news_err: list[str],
     return "\n".join(o)
 
 
-def telegram_text(today, mk, news, sig, url: str) -> str:
+def telegram_text(today, mk, news, sig, url: str, idx_sig: list[dict] | None = None) -> str:
     get = {r["기호"]: r for r in mk}
     lines = [f"📰 {today:%m/%d}({WEEKDAY[today.weekday()]}) 주식 오늘의 소식"]
     lines.append(" · ".join(f"{get[t]['지표']} {_p(get[t]['1일'])}" for t in ("^GSPC", "^IXIC", "^KS11", "^KQ11") if t in get))
@@ -217,11 +274,11 @@ def telegram_text(today, mk, news, sig, url: str) -> str:
     for grp in ("해외", "국내"):
         for i in news.get(grp, [])[:3]:
             lines.append(f"• [{grp}·{i['kind']}] {i['title'][:70]}")
+    for x in idx_sig or []:
+        lines.append(f"🎯 {x['name']}: {x['state']} ({x['grade']}, 중기 {x['score']['중기']:+d})")
     for mkt, (cards, offs, sm) in sig.items():
         names = ", ".join(f"{k['name']}{'📰' if k['mention'] else ''}" for k in cards[:6]) or "없음"
-        lines.append(f"🎯 {mkt} 새 매수 신호 {sm['n_fresh']}개: {names}")
-        if offs:
-            lines.append(f"   꺼짐: {', '.join(k['name'] for k in offs[:5])}")
+        lines.append(f"👀 {mkt} 추세 시작 {sm['n_fresh']}개(관심 목록, 매수 근거 아님): {names}")
     if url:
         lines.append(f"전체 보기: {url}")
     lines.append("※ 투자 권유 아님. 원금 손실 가능.")
@@ -250,8 +307,9 @@ def main(cfg: dict | None = None, send: bool = True, log=print) -> Path:
     members = set(us_u["ticker"])
     earn = cal.earnings(ny, members) + cal.earnings(ny + pd.Timedelta(days=1), members)
     econ = cal.economic(ny) + cal.economic(ny + pd.Timedelta(days=1))
-    val_line = cfg.get("stocks", {}).get("validation_summary", "주식 검증 문서: docs/stocks-validation-*.md")
-    md = render(today, market_table(M), news, nerr, earn, econ, sig, val_line)
+    val_line = cfg.get("stocks", {}).get("validation_summary", "docs/stocks-validation-2026-10-27.md (2024년까지, 2025~ 잠금)")
+    isig = index_signals(M)
+    md = render(today, market_table(M), news, nerr, earn, econ, sig, val_line, isig)
     out = config_mod.ROOT / "out" / "briefing"
     (out / "daily").mkdir(parents=True, exist_ok=True)
     page = out / "daily" / f"{today:%Y-%m-%d}.md"
@@ -261,7 +319,7 @@ def main(cfg: dict | None = None, send: bool = True, log=print) -> Path:
                                    encoding="utf-8")
     repo = os.environ.get("GITHUB_REPOSITORY", "")
     url = f"https://github.com/{repo}/blob/stock-briefing/daily/{page.name}" if repo else ""
-    text = telegram_text(today, market_table(M), news, sig, url)
+    text = telegram_text(today, market_table(M), news, sig, url, isig)
     (out / "telegram.txt").write_text(text, encoding="utf-8")
     log(text)
     if send:

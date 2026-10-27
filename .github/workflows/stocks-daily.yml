@@ -55,6 +55,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           PYTHONUTF8: "1"
+          PYTHONUNBUFFERED: "1"
       - name: 페이지 출력 (로그)
         run: cat coin-quant/out/briefing/daily/*.md
       - name: 페이지 올리기 (stock-briefing 브랜치)

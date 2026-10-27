@@ -206,3 +206,19 @@ def test_stock_returns_no_lookahead():
     assert p2.equals(pos.iloc[:t])
     # 마지막 날(다음 시가가 아직 없음)만 빼고 같아야 함
     assert np.allclose(s2.iloc[:t - 1].fillna(0), s.iloc[:t - 1].fillna(0))
+
+
+def test_index_signals_mixed_calendars():
+    """한국·미국 지수가 한 표에 섞여 휴장일이 다를 때도(마지막 날 한쪽이 비어도) 신호를 계산해야 함."""
+    from coinquant.stocks.brief import index_signals, market_table
+    rng = np.random.default_rng(2)
+    idx = pd.bdate_range("2020-01-01", periods=900)
+    c = pd.DataFrame(100 * np.exp(np.cumsum(rng.normal(0.0004, 0.01, (900, 2)), 0)), index=idx, columns=["^KS11", "^GSPC"])
+    c.loc[idx[::7], "^KS11"] = np.nan      # 한국 휴장일
+    c.loc[idx[-1], "^GSPC"] = np.nan       # 미국은 아직 오늘 봉 없음
+    M = {"close": c, "high": c * 1.01, "low": c * 0.99, "open": c, "volume": c * 0 + 1}
+    sig = {x["ticker"]: x for x in index_signals(M)}
+    assert set(sig) == {"^KS11", "^GSPC"}
+    assert sig["^GSPC"]["date"] == idx[-2].date()
+    rows = {r["기호"]: r for r in market_table(M)}
+    assert rows["^GSPC"]["추세 점수(단/중/장)"] != "-"

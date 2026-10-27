@@ -48,28 +48,33 @@ def _ret(s: pd.Series, n: int) -> float:
     return s.iloc[-1] / s.iloc[-1 - n] - 1 if len(s) > n else np.nan
 
 
+def _single(M: dict, t: str):
+    """지표 하나를 자기 거래일 달력으로만 계산 (한국·미국 휴장일이 섞이면 이동평균이 틀어짐)."""
+    c = M["close"][[t]].dropna()
+    h = M["high"][[t]].reindex(c.index)
+    l_ = M["low"][[t]].reindex(c.index)
+    pos, mt = formula_position(c, h.where(h > 0).fillna(c), l_.where(l_ > 0).fillna(c))
+    return c[t], pos[t], mt
+
+
 def market_table(M: dict) -> list[dict]:
     c = M["close"]
     rows = []
-    trend = {}
-    keep = [t for t, _, _ in su.MARKET if t in c.columns]
-    sub = c[keep].dropna(how="all")
-    hl = {k: M[k][keep].reindex(sub.index) for k in ("high", "low")}
-    mt = MultiTrend(sub, hl["high"].where(hl["high"] > 0).fillna(sub), hl["low"].where(hl["low"] > 0).fillna(sub))
     for t, name, grp in su.MARKET:
         if t not in c.columns:
             continue
         s = c[t].dropna()
         if len(s) < 25:
             continue
+        _, _, mt = _single(M, t)
         d = s.index[-1]
-        sc = {k: mt.h[k].score[t].loc[:d].dropna() for k in ("단기", "중기", "장기")}
-        st = mt.h["중기"].state[t].loc[:d]
+        sc = {k: mt.h[k].score[t].dropna() for k in ("단기", "중기", "장기")}
+        st = mt.h["중기"].state[t]
         lab = (f"{int(sc['단기'].iloc[-1]):+d}/{int(sc['중기'].iloc[-1]):+d}/{int(sc['장기'].iloc[-1]):+d}"
                if all(len(v) for v in sc.values()) else "-")
-        trend[t] = bool(st.iloc[-1]) if len(st) else False
+        on = bool(st.iloc[-1]) if len(st) else False
         rows.append({"묶음": grp, "지표": name, "기호": t, "날짜": d.date(), "종가": s.iloc[-1], "1일": _ret(s, 1), "1주": _ret(s, 5),
-                     "1달": _ret(s, 21), "추세 점수(단/중/장)": lab, "중기 추세": "켜짐" if trend[t] else "꺼짐",
+                     "1달": _ret(s, 21), "추세 점수(단/중/장)": lab, "중기 추세": "켜짐" if on else "꺼짐",
                      "200일선 대비": s.iloc[-1] / s.rolling(200).mean().iloc[-1] - 1 if len(s) >= 200 else np.nan})
     return rows
 
@@ -88,20 +93,15 @@ INDEX_PLAN = {
 
 
 def index_signals(M: dict) -> list[dict]:
-    c = M["close"]
-    keep = [t for t in INDEX_PLAN if t in c.columns]
-    if not keep:
-        return []
-    sub = c[keep].dropna(how="all")
-    h = M["high"][keep].reindex(sub.index)
-    l_ = M["low"][keep].reindex(sub.index)
-    pos, mt = formula_position(sub, h.where(h > 0).fillna(sub), l_.where(l_ > 0).fillna(sub))
     out = []
-    for t in keep:
-        s = pos[t].dropna().astype(bool)
-        if not len(s):
+    for t in INDEX_PLAN:
+        if t not in M["close"].columns or M["close"][t].notna().sum() < 300:
             continue
+        cs, p_, mt = _single(M, t)
+        s = p_.astype(bool)
         d = s.index[-1]
+        if pd.isna(mt.h["중기"].score.at[d, t]):
+            continue
         rev = s.to_numpy()[::-1]
         run = int(len(rev) if rev.all() else np.argmin(rev)) if rev[0] else 0
         offrun = int(len(rev) if (~rev).all() else np.argmin(~rev)) if not rev[0] else 0
@@ -112,7 +112,7 @@ def index_signals(M: dict) -> list[dict]:
         out.append({"ticker": t, "name": name, "etf": etf, "grade": grade, "stat": stat, "date": d.date(), "state": state,
                     "score": {k: int(mt.h[k].score.at[d, t]) for k in ("단기", "중기", "장기")},
                     "on_days": run, "off_days": offrun, "chan60": lo + 0.6 * (hi - lo), "chan40": lo + 0.4 * (hi - lo),
-                    "close": sub.at[d, t]})
+                    "close": cs.at[d]})
     return out
 
 

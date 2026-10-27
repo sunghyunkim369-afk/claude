@@ -23,6 +23,8 @@
 | 2018년 이전까지 확장 검증 | ✅ [`docs/extended-2026-10-26.md`](docs/extended-2026-10-26.md) — 2013~2017(안 본 구간): 보유와 비슷한 수익, MDD −70% vs −85%, 2014~15 약세 +48% vs −43%. '확률 높을 때만 사기'는 승률↑ 수익↓ → 채택 안 함. 중기 +1로 약해진 상태의 신규 매수는 확률 낮음 |
 | 단기 스윙 검증 | ✅ [`docs/short-swing-2026-10-21.md`](docs/short-swing-2026-10-21.md) — 며칠짜리 추세는 못 먹음, 단독 운용은 이득 없음, 확정 공식 70% + 단기 추세 30%가 가장 근거 있음(모의로 먼저 확인 권함) |
 | 매일 시황·매수·매도 알림 | ✅ `python -m coinquant alert` — 매일 시황(등락·200일선·국면·변동성·펀딩비) + BTC·ETH·SOL 신호(매수 가능 / 신규 진입 대기 / 관망, 바뀐 날 🔔) + 일정·4년 주기·뉴스 체크리스트를 텔레그램·윈도우 알림으로. PC 예약 실행이 자동으로 부르고, PC 없이 GitHub Actions(`.github/workflows/coin-quant-daily.yml`)로도 매일 09:20 발송 |
+| 주식(국내·해외) 검증 | ✅ [`docs/stocks-validation-2026-10-27.md`](docs/stocks-validation-2026-10-27.md) — 같은 공식을 지수에 쓰면 큰 하락을 크게 줄이고(나스닥 MDD −36% vs −78%, 코스피 −45% vs −64%), 나스닥·코스피는 무작위 타이밍보다 나음. **개별 종목 고르기 효과는 없음**(신호 뒤 수익 = 아무 날). 2025~ 잠금 |
+| 주식 오늘의 소식 | ✅ `python -m coinquant stocks-brief` — 시장 지표·주요 뉴스(해외·국내)·실적·경제지표 일정·지수/ETF 매수 신호(근거 등급)·추세 시작 종목(관심 목록) → 페이지 + 텔레그램. GitHub Actions `stocks-daily.yml` 평일 07:40 KST |
 | 리포트·내 판단·주문·예약 실행 | ✅ 동작 (공식이 임시라 추천도 임시) |
 
 ## 설치 (Windows)
@@ -65,6 +67,8 @@ python -m coinquant judge list                     지금 유효한 판단
    (옵션 --until 2026-12-31 : 그날까지만)
 python -m coinquant trade [--auto]      추천 주문 실행 (stage 2 에서만, 주문마다 y/N)
 python -m coinquant final-check         확정한 공식으로 최종 검증 구간을 한 번 열기
+python -m coinquant stocks-validate     주식(지수·종목)에서 공식 검증 (인터넷 필요, GitHub Actions 에서 돌림)
+python -m coinquant stocks-brief [--no-send]  주식 오늘의 소식 페이지 + 텔레그램
 python -m coinquant check               보안 점검
 ```
 

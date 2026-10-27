@@ -37,6 +37,7 @@ jobs:
       - run: python -m coinquant stocks-validate
         env:
           PYTHONUTF8: "1"
+          PYTHONUNBUFFERED: "1"
       - name: 결과 문서 출력
         run: cat docs/stocks-validation-*.md
       - uses: actions/cache/save@v4

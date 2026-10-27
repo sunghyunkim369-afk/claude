@@ -271,22 +271,46 @@ def render(today: pd.Timestamp, mk: list[dict], news: dict, news_err: list[str],
 
 
 def telegram_text(today, mk, news, sig, url: str, idx_sig: list[dict] | None = None) -> str:
+    """텔레그램 요약 (HTML 서식). 전체 내용은 페이지 링크로."""
+    from html import escape as e
     get = {r["기호"]: r for r in mk}
-    lines = [f"📰 {today:%m/%d}({WEEKDAY[today.weekday()]}) 주식 오늘의 소식"]
-    lines.append(" · ".join(f"{get[t]['지표']} {_p(get[t]['1일'])}" for t in ("^GSPC", "^IXIC", "^KS11", "^KQ11") if t in get))
-    lines.append(" · ".join(f"{get[t]['지표']} {num(get[t]['종가'])}" for t in ("KRW=X", "^TNX", "^VIX") if t in get))
-    for grp in ("해외", "국내"):
-        for i in news.get(grp, [])[:3]:
-            lines.append(f"• [{grp}·{i['kind']}] {i['title'][:70]}")
-    for x in idx_sig or []:
-        lines.append(f"🎯 {x['name']}: {x['state']} ({x['grade']}, 중기 {x['score']['중기']:+d})")
+    ic = {"매수 가능": "🟢", "보유만 (신규 진입 대기)": "🟡", "관망 (현금)": "⚪"}
+
+    def idx(ts):
+        return " · ".join(f"{e(get[t]['지표'])} <b>{_p(get[t]['1일'])}</b>" for t in ts if t in get)
+
+    L = [f"<b>📈 주식 오늘의 소식</b>  {today:%m/%d}({WEEKDAY[today.weekday()]})", "", "<b>지수</b>",
+         f"🇺🇸 {idx(('^GSPC', '^IXIC'))}", f"🇰🇷 {idx(('^KS11', '^KQ11'))}"]
+    ex = []
+    if "KRW=X" in get:
+        ex.append(f"환율 {get['KRW=X']['종가']:,.0f}원")
+    if "^TNX" in get:
+        ex.append(f"미10년 {get['^TNX']['종가']:.2f}%")
+    if "^VIX" in get:
+        ex.append(f"VIX {get['^VIX']['종가']:.1f}")
+    if ex:
+        L.append(" · ".join(ex))
+    if idx_sig:
+        L += ["", "<b>🎯 지수 ETF 신호</b>"]
+        for x in idx_sig:
+            L.append(f"{ic.get(x['state'], '⚪')} <b>{e(x['name'])}</b> {e(x['state'])}  <i>{e(x['grade'])}</i>")
+    for grp, flag in (("해외", "🌎"), ("국내", "🇰🇷")):
+        items = news.get(grp, [])[:3]
+        if items:
+            L += ["", f"<b>{flag} {grp} 뉴스</b>"]
+            for i in items:
+                t = e(i["title"][:60] + ("…" if len(i["title"]) > 60 else ""))
+                L.append(f"• <a href=\"{e(i['link'], quote=True)}\">{t}</a> <i>{e(i['kind'])}</i>" if i.get("link") else f"• {t}")
+    L += ["", "<b>👀 추세 시작 종목</b>  <i>(관심 목록, 매수 근거 아님)</i>"]
     for mkt, (cards, offs, sm) in sig.items():
-        names = ", ".join(f"{k['name']}{'📰' if k['mention'] else ''}" for k in cards[:6]) or "없음"
-        lines.append(f"👀 {mkt} 추세 시작 {sm['n_fresh']}개(관심 목록, 매수 근거 아님): {names}")
+        flag = "🇺🇸" if mkt == "미국" else "🇰🇷"
+        names = ", ".join(e(str(k["name"])) + ("📰" if k["mention"] else "") for k in cards[:5]) or "없음"
+        more = f" 외 {sm['n_fresh'] - min(len(cards), 5)}개" if sm["n_fresh"] > 5 else ""
+        L.append(f"{flag} {names}{more}")
     if url:
-        lines.append(f"전체 보기: {url}")
-    lines.append("※ 투자 권유 아님. 원금 손실 가능.")
-    return "\n".join(lines)[:4000]
+        L += ["", f"📄 <a href=\"{e(url, quote=True)}\">전체 페이지 보기</a> (실적·경제지표·종목 근거)"]
+    L += ["", "<i>투자 권유 아님 · 원금 손실 가능</i>"]
+    return "\n".join(L)[:4000]
 
 
 def main(cfg: dict | None = None, send: bool = True, log=print) -> Path:
@@ -328,6 +352,6 @@ def main(cfg: dict | None = None, send: bool = True, log=print) -> Path:
     log(text)
     if send:
         from ..app.alert import send_telegram
-        log(send_telegram(text))
+        log(send_telegram(text, html_mode=True))
     log(f"완료: {page} ({time.time() - t0:.0f}초)")
     return page

@@ -11,8 +11,10 @@
 """
 from __future__ import annotations
 
+import html
 import json
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -61,9 +63,9 @@ def cycle_line(close_btc: pd.Series) -> tuple[str, bool]:
         gaps.append((b_ - p_).days)
     now_days = (s.index[-1] - pk).days
     broken = bool(s.iloc[-1] < low * 0.999) and low_d == s.index[-1]
-    txt = (f"고점 {pk.date()} 후 {now_days}일, 고점 대비 {s.iloc[-1] / s.loc[pk] - 1:+.0%} · 과거 고점→바닥 {min(gaps)}~{max(gaps)}일"
-           f" · 이번 최저 ${low:,.0f}({low_d.date()}, 고점 후 {(low_d - pk).days}일) — 이 아래로 마감하면 과거 패턴과 어긋남"
-           if gaps else f"고점 {pk.date()} 후 {now_days}일")
+    txt = (f"고점({pk:%y/%m/%d}) 후 {now_days}일 · 고점 대비 {s.iloc[-1] / s.loc[pk] - 1:+.0%} · 과거엔 고점 후 {min(gaps)}~{max(gaps)}일에 바닥\n"
+           f"이번 최저 ${low:,.0f}({low_d:%y/%m/%d}) 아래로 마감하면 과거 패턴과 어긋남"
+           if gaps else f"고점({pk:%y/%m/%d}) 후 {now_days}일")
     return txt, broken
 
 
@@ -97,36 +99,62 @@ def load_core(cache: Path, core: list[str]) -> tuple[pd.DataFrame, pd.DataFrame,
     return get("close"), get("high"), get("low")
 
 
+def krw_short(v: float) -> str:
+    """106,221,934 → '1억 622만원', 3,080,680 → '308만원', 133,787 → '13.4만원'."""
+    if v is None or np.isnan(v):
+        return ""
+    if v >= 1e8:
+        eok, man = divmod(int(round(v / 1e4)), 10000)
+        return f"{eok}억 {man:,}만원" if man else f"{eok}억원"
+    if v >= 1e6:
+        return f"{v / 1e4:,.0f}만원"
+    return f"{v / 1e4:,.1f}만원"
+
+
+def _pc(v: float) -> str:
+    return "-" if v is None or np.isnan(v) else f"{v:+.1%}"
+
+
 def market_lines(c: pd.DataFrame, cache: Path) -> list[str]:
-    """시황 요약: 코인별 등락·200일선, 국면, 변동성, 펀딩비, 원화 환산."""
+    """시황 요약 (텔레그램 HTML): 코인별 가격·등락·200일선, 국면, 변동성, 펀딩비, 환율."""
     from ..data.fx import load_usdkrw
     from ..data.update import load_funding
     d = c["BTC"].dropna().index[-1]
     fxs = load_usdkrw(cache / "fx_usdkrw.csv")
     rate = float(fxs.loc[:d].iloc[-1]) if fxs is not None and len(fxs.loc[:d]) else np.nan
-    out = ["📊 시황"]
+    out = ["<b>📊 시황</b>"]
     for a in c.columns:
         s = c[a].loc[:d].dropna()
         if len(s) < 31:
             continue
         r = lambda n: s.iloc[-1] / s.iloc[-1 - n] - 1  # noqa: E731
         sma = s.rolling(200).mean().iloc[-1]
-        krw = f" (약 {s.iloc[-1] * rate:,.0f}원)" if not np.isnan(rate) else ""
-        out.append(f"{a} ${num(s.iloc[-1])}{krw} · 1일 {r(1):+.1%} · 7일 {r(7):+.1%} · 30일 {r(30):+.1%} · 200일선 대비 {s.iloc[-1] / sma - 1:+.1%}")
+        krw = f" · {krw_short(s.iloc[-1] * rate)}" if not np.isnan(rate) else ""
+        out.append(f"<b>{a}</b> ${num(s.iloc[-1])}{krw}")
+        out.append(f"   1일 {_pc(r(1))} · 7일 {_pc(r(7))} · 30일 {_pc(r(30))} · 200일선 {_pc(s.iloc[-1] / sma - 1)}")
     b = c["BTC"].loc[:d].dropna()
     e50, e200 = b.ewm(span=50, adjust=False).mean().iloc[-1], b.ewm(span=200, adjust=False).mean().iloc[-1]
     above = b.iloc[-1] > b.rolling(200).mean().iloc[-1]
-    regime = "상승 국면" if above and e50 > e200 else ("회복 시도 (200일선 위, 중기 약함)" if above else "하락 국면 (BTC 200일선 아래)")
+    regime = "상승 국면" if above and e50 > e200 else ("회복 시도" if above else "하락 국면")
     vol = np.log(b).diff().tail(30).std() * np.sqrt(365)
-    line = f"국면: {regime} · BTC 30일 변동성(연) {vol:.0%}"
+    extra = [f"변동성 {vol:.0%}"]
     fu = load_funding(cache)
     if fu is not None and len(fu.loc[:d].dropna()):
         f7 = fu.loc[:d].dropna().tail(7).mean()
-        line += f" · 펀딩비 7일 평균 {f7 * 100:.4f}%/8h{' (과열)' if f7 > 0.0003 else ''}"
+        extra.append(f"펀딩비 {f7 * 100:.3f}%{' 과열' if f7 > 0.0003 else ''}")
     if not np.isnan(rate):
-        line += f" · 환율 {rate:,.1f}원 (김치 프리미엄 미반영)"
-    out.append(line)
+        extra.append(f"환율 {rate:,.0f}원")
+    out.append(f"국면: <b>{regime}</b> · " + " · ".join(extra))
     return out
+
+
+ICON = {"매수 가능": "🟢", "신규 진입 대기": "🟡", "관망": "⚪"}
+
+
+def to_plain(h: str) -> str:
+    """텔레그램 HTML → 일반 글 (파일·윈도우 알림용). 링크는 '제목 (주소)'."""
+    h = re.sub(r'<a href="([^"]+)">(.*?)</a>', r"\2 (\1)", h)
+    return html.unescape(re.sub(r"</?(b|i|u|code)>", "", h))
 
 
 def build(cfg: dict | None = None, with_news: bool = True, log=print) -> dict:
@@ -164,52 +192,59 @@ def build(cfg: dict | None = None, with_news: bool = True, log=print) -> dict:
         except Exception as e:
             news_err = [type(e).__name__]
 
-    lines = [f"[coin-quant] {d.date()} 일봉 기준 (KST 09:00 마감)"]
+    e = html.escape
+    close_kst = (d + pd.Timedelta(days=1)).strftime("%m/%d")
+    L = [f"<b>🪙 코인 시황</b>  {d:%m/%d} 일봉 ({close_kst} 09:00 마감)"]
     yday = pd.Timestamp.now(tz="UTC").normalize().tz_localize(None) - pd.Timedelta(days=1)
     if d < yday:
-        lines.append(f"⚠ 어제({yday.date()}) 일봉이 아직 안 올라와 {d.date()} 기준입니다")
+        L.append(f"⚠ 어제({yday:%m/%d}) 일봉이 아직 안 올라와 {d:%m/%d} 기준")
     if changes:
-        lines.append("🔔 바뀐 것: " + ", ".join(f"{a} {o or '처음'} → {n}" for a, (o, n) in changes.items()))
-    lines += market_lines(c, cache)
-    lines.append("🧭 공식 신호 (중기 +2 이상 = 매수 가능)")
+        L.append("🔔 <b>신호 바뀜</b>: " + ", ".join(f"{a} {e(o or '처음')} → <b>{e(n)}</b>" for a, (o, n) in changes.items()))
+    L += [""] + market_lines(c, cache)
     disc = cfg["trading"].get("limit_discount_core", 0.01)
+    L += ["", "<b>🧭 공식 신호</b>  (중기 +2 이상이면 매수)"]
     for a, v in st.items():
         sc = v["score"]
-        head = f"• {a} {v['status']} (단기 {sc['단기']:+d} / 중기 {sc['중기']:+d} / 장기 {sc['장기']:+d}) 종가 ${num(v['close'])}"
+        L.append(f"{ICON[v['status']]} <b>{a} {v['status']}</b>  단기 {sc['단기']:+d} · 중기 {sc['중기']:+d} · 장기 {sc['장기']:+d}")
         if v["status"] == "매수 가능":
-            tail = f" → 업비트 어제 종가 −{disc:.0%} 지정가 (안 닿으면 다음 날 다시). 꺼지는 쪽 기준: 종가 ${num(v['chan40'])}·${num(v['slow'])} 아래"
+            L.append(f"   ↳ 업비트 어제 종가 −{disc:.0%} 지정가 · 약해지는 선 ${num(v['chan40'])}")
         elif v["status"] == "신규 진입 대기":
-            tail = f" → 갖고 있으면 보유, 없으면 대기. 중기 +2 가까운 기준: 종가 ${num(v['chan60'])} 이상(채널 60%선)"
+            L.append(f"   ↳ 갖고 있으면 보유, 새로 사진 않음 · 매수 기준 ${num(v['chan60'])}↑")
         else:
-            tail = f" → 안 삼 (갖고 있으면 매도). 다시 켜지려면 중기 +2 필요 (채널 60%선 ${num(v['chan60'])} 등)"
-        lines.append(head + tail)
-    lines.append("— 개인 판단 체크리스트 (검증한 규칙 아님, 참고) —")
+            L.append(f"   ↳ 갖고 있으면 매도 · 다시 매수 기준 약 ${num(v['chan60'])}↑")
     buy_now = [a for a, v in st.items() if v["status"] == "매수 가능"]
-    near = [e for e in events if e["days"] <= EVENT_GUARD_DAYS]
-    for e in events:
-        lines.append(f"· 일정 D-{e['days']}: {e['name']} ({e['date']})")
+    near = [x for x in events if x["days"] <= EVENT_GUARD_DAYS]
+    L += ["", "<b>📋 참고</b>  <i>(검증한 규칙 아님)</i>"]
+    for x in events:
+        L.append(f"📅 D-{x['days']} {e(x['name'])}")
     if buy_now and near:
-        lines.append(f"  ↳ 매수 신호가 있지만 큰 일정이 {EVENT_GUARD_DAYS}일 안: 절반 먼저 / 일정 뒤 나머지 같은 방식 고려")
-    lines.append(f"· 4년 주기: {cyc}")
+        L.append(f"   ↳ 큰 일정이 {EVENT_GUARD_DAYS}일 안: 절반 먼저, 나머지는 일정 뒤 고려")
+    cy = cyc.split("\n")
+    L.append(f"🔄 4년 주기: {e(cy[0])}")
+    L += [f"   ↳ {e(x)}" for x in cy[1:]]
     if cyc_broken:
-        lines.append("  ↳ ⚠ BTC가 이번 주기 최저 아래로 마감: 과거 주기 패턴과 어긋남 — 새 매수는 신중히")
-    risky = [n for n in news if any(c in n.get("categories", []) for c in DANGER)]
-    for n in news[:3]:
-        lines.append(f"· 뉴스[{n.get('kind', '')[:2]}] {n['title'][:80]} {n.get('link', '')}")
-    for n in risky:
-        hit = [c for c in n.get("coins", []) if c in buy_now]
-        if hit:
-            lines.append(f"  ↳ ⚠ {','.join(hit)} 관련 위험 뉴스(해킹·사고·규제): 원문 확인 전엔 진입 보류 고려")
-    if with_news and not news:
-        lines.append("· 뉴스: 가져온 것 없음" + (f" (실패: {', '.join(news_err[:3])})" if news_err else ""))
-    lines.append("※ 투자 권유 아님. 원금 손실 가능. 최종 판단은 본인.")
-    text = "\n".join(lines)
+        L.append("   ↳ ⚠ 이번 주기 최저 아래로 마감 — 과거 패턴과 어긋남, 새 매수 신중히")
+    if news:
+        L += ["", "<b>📰 뉴스</b>"]
+        for n in news[:3]:
+            kind = n.get("kind", "")[:2]
+            title = e(n["title"][:70] + ("…" if len(n["title"]) > 70 else ""))
+            link = n.get("link", "")
+            L.append(f"• <a href=\"{e(link, quote=True)}\">{title}</a> <i>{e(kind)}</i>" if link else f"• {title} <i>{e(kind)}</i>")
+        for n in news:
+            hit = [x for x in n.get("coins", []) if x in buy_now]
+            if hit and any(cat in n.get("categories", []) for cat in DANGER):
+                L.append(f"   ↳ ⚠ {','.join(hit)} 위험 뉴스(해킹·사고·규제): 원문 확인 전엔 진입 보류 고려")
+    elif with_news:
+        L.append("📰 뉴스: 가져온 것 없음" + (f" ({e(', '.join(news_err[:3]))})" if news_err else ""))
+    L += ["", "<i>투자 권유 아님 · 원금 손실 가능 · 최종 판단은 본인</i>"]
+    h_ = "\n".join(L)
     pf.write_text(json.dumps({"date": str(d.date()), "status": {a: v["status"] for a, v in st.items()}},
                              ensure_ascii=False, indent=1), encoding="utf-8")
-    return {"text": text, "changes": changes, "status": st, "date": d}
+    return {"text": to_plain(h_), "html": h_, "changes": changes, "status": st, "date": d}
 
 
-def send_telegram(text: str) -> str:
+def send_telegram(text: str, html_mode: bool = False) -> str:
     # 붙여 넣을 때 섞인 공백·줄바꿈·따옴표 제거 (예: "bot123:ABC" 처럼 앞에 bot 을 붙인 경우도)
     tok = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip().strip('"\'')
     tok = tok[3:] if tok.lower().startswith("bot") and ":" in tok else tok
@@ -218,8 +253,14 @@ def send_telegram(text: str) -> str:
         return "텔레그램: TELEGRAM_BOT_TOKEN·TELEGRAM_CHAT_ID 없음 (PC는 .env, GitHub 는 Settings → Secrets 에 넣기) → 건너뜀"
     import requests
     try:
-        r = requests.post(f"https://api.telegram.org/bot{tok}/sendMessage",
-                          data={"chat_id": chat, "text": text, "disable_web_page_preview": "true"}, timeout=20)
+        data = {"chat_id": chat, "text": text, "disable_web_page_preview": "true"}
+        if html_mode:
+            data["parse_mode"] = "HTML"
+        r = requests.post(f"https://api.telegram.org/bot{tok}/sendMessage", data=data, timeout=20)
+        if not r.ok and html_mode and "parse" in r.text.lower():   # 서식 오류면 서식 없이 다시
+            data.pop("parse_mode")
+            data["text"] = to_plain(text)
+            r = requests.post(f"https://api.telegram.org/bot{tok}/sendMessage", data=data, timeout=20)
         if r.ok:
             return "텔레그램: 보냄"
         try:   # 텔레그램 오류 설명 (토큰은 들어 있지 않음)
@@ -268,7 +309,8 @@ def main(cfg: dict | None = None, test: bool = False, with_news: bool = True, li
         return res
     title = "coin-quant " + ("🔔 " + ", ".join(f"{a} {n}" for a, (_, n) in res["changes"].items()) if res["changes"] else "오늘 시황")
     if acfg["telegram"]:
-        log(send_telegram(title + "\n" + res["text"]))
+        log(send_telegram(res["html"], html_mode=True))
     if acfg["windows"]:
-        log(send_windows(title, " / ".join(l for l in res["text"].splitlines()[1:5])))
+        sig = [l for l in res["text"].splitlines() if l[:1] in ("🟢", "🟡", "⚪")]
+        log(send_windows(title, " / ".join(sig)))
     return res

@@ -210,14 +210,27 @@ def build(cfg: dict | None = None, with_news: bool = True, log=print) -> dict:
 
 
 def send_telegram(text: str) -> str:
-    tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN", ""), os.environ.get("TELEGRAM_CHAT_ID", "")
+    # 붙여 넣을 때 섞인 공백·줄바꿈·따옴표 제거 (예: "bot123:ABC" 처럼 앞에 bot 을 붙인 경우도)
+    tok = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip().strip('"\'')
+    tok = tok[3:] if tok.lower().startswith("bot") and ":" in tok else tok
+    chat = os.environ.get("TELEGRAM_CHAT_ID", "").strip().strip('"\'')
     if not tok or not chat:
         return "텔레그램: TELEGRAM_BOT_TOKEN·TELEGRAM_CHAT_ID 없음 (PC는 .env, GitHub 는 Settings → Secrets 에 넣기) → 건너뜀"
     import requests
     try:
         r = requests.post(f"https://api.telegram.org/bot{tok}/sendMessage",
                           data={"chat_id": chat, "text": text, "disable_web_page_preview": "true"}, timeout=20)
-        return "텔레그램: 보냄" if r.ok else f"텔레그램: 실패 (HTTP {r.status_code})"
+        if r.ok:
+            return "텔레그램: 보냄"
+        try:   # 텔레그램 오류 설명 (토큰은 들어 있지 않음)
+            why = r.json().get("description", "")
+        except Exception:
+            why = ""
+        hint = {"chat not found": " → chat id 가 틀렸거나, 내 봇에게 먼저 말을 걸지 않음",
+                "Unauthorized": " → 토큰이 틀림 (BotFather /mybots → API Token 확인)",
+                "bot was blocked by the user": " → 내가 봇을 차단함 (봇 화면에서 차단 해제)"}
+        tip = next((v for k, v in hint.items() if k.lower() in why.lower()), "")
+        return f"텔레그램: 실패 (HTTP {r.status_code}: {why}){tip}"
     except Exception as e:
         return f"텔레그램: 실패 ({type(e).__name__})"   # 토큰이 들어간 URL은 로그에 남기지 않음
 

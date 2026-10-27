@@ -215,11 +215,15 @@ def render(today: pd.Timestamp, mk: list[dict], news: dict, news_err: list[str],
     else:
         o.append("- 일정 없음 (또는 캘린더 접속 실패)\n")
     o.append("## 4. 경제지표 일정 (미국, 한국시간)\n")
+    key = [e for e in econ if e["key"]]
     if econ:
+        show = key or econ[:8]
         o += _md_table(["한국시간", "지표", "실제", "예상", "이전"],
-                       [[("**" if e["key"] else "") + e["time_kst"] + ("**" if e["key"] else ""), e["event"], e["actual"] or "-",
-                         e["consensus"] or "-", e["previous"] or "-"] for e in econ])
-        o.append("\n굵은 글씨 = 시장 영향이 큰 지표(CPI·고용·FOMC 등)\n")
+                       [[e["time_kst"], f"**{e['event']}**" if e["key"] else e["event"], e["actual"] or "-",
+                         e["consensus"] or "-", e["previous"] or "-"] for e in show])
+        rest = len(econ) - len(show)
+        o.append(f"\n{'시장 영향이 큰 지표(CPI·고용·FOMC·소비심리 등)만 표시. ' if key else ''}"
+                 f"{f'그 밖의 지표 {rest}개는 생략.' if rest > 0 else ''}\n")
     else:
         o.append("- 일정 없음 (또는 캘린더 접속 실패)\n")
     o += ["## 5. 🎯 나만의 매수 신호\n",

@@ -1,8 +1,11 @@
 """실적 발표·경제지표 일정 (나스닥 공개 캘린더). 접속이 막히면 빈 목록.
 
-시각: 실적은 '장 전/장 후', 경제지표는 미국 동부시간 → 한국시간으로 바꿔 표시.
+시각: 실적은 '장 전/장 후', 경제지표는 미국 동부시간(서머타임 반영) → 한국시간으로 바꿔 표시.
 """
 from __future__ import annotations
+
+import html
+import re
 
 import pandas as pd
 import requests
@@ -10,8 +13,10 @@ import requests
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36",
       "Accept": "application/json, text/plain, */*", "Origin": "https://www.nasdaq.com", "Referer": "https://www.nasdaq.com/"}
 TIME_KR = {"time-pre-market": "장 전 (한국 밤~새벽)", "time-after-hours": "장 후 (한국 새벽~아침)", "time-not-supplied": "시각 미정"}
-KEY_EVENTS = ("CPI", "PCE", "Nonfarm", "Unemployment", "GDP", "FOMC", "Fed", "Retail Sales", "ISM", "PPI", "Jobless",
-              "JOLTS", "Consumer Confidence", "Michigan", "Durable", "Housing Starts", "Beige", "Powell", "Interest Rate")
+# 시장 영향이 큰 지표 (이름에 이 말이 들어가면 굵게). 'Dallas Fed' 같은 지역 연은 지표·GDPNow 는 빼려고 정규식으로 좁힘
+KEY_RE = re.compile(r"(\bCPI\b|\bPCE\b|Nonfarm|Unemployment Rate|^GDP|\bGDP \(|Fed Interest Rate|FOMC|Fed Chair|Retail Sales|"
+                    r"ISM (Manufacturing|Non-Manufacturing|Services) PMI|\bPPI\b|Initial Jobless|JOLTS|CB Consumer Confidence|"
+                    r"Michigan Consumer Sentiment|Core Durable|Beige Book)", re.I)
 
 
 def _get(url: str) -> dict:
@@ -50,11 +55,13 @@ def economic(day: pd.Timestamp, countries=("United States",)) -> list[dict]:
             continue
         name = r.get("eventName", "")
         t = r.get("gmt", "")
-        try:
-            kst = (pd.Timestamp(f"{day:%Y-%m-%d} {t}") + pd.Timedelta(hours=9)).strftime("%m/%d %H:%M")   # GMT → KST
+        try:   # 칸 이름은 'gmt' 지만 실제 값은 미국 동부시간 (CB 소비자신뢰 10:00 = 발표 시각과 같음) → 서머타임 반영해 한국시간으로
+            kst = (pd.Timestamp(f"{day:%Y-%m-%d} {t}").tz_localize("America/New_York").tz_convert("Asia/Seoul")
+                   .strftime("%m/%d %H:%M"))
         except Exception:
             kst = t
-        out.append({"time_kst": kst, "country": r.get("country"), "event": name, "actual": r.get("actual", ""),
-                    "consensus": r.get("consensus", ""), "previous": r.get("previous", ""),
-                    "key": any(k.lower() in name.lower() for k in KEY_EVENTS)})
+        clean = lambda v: html.unescape(str(v or "")).replace("\xa0", " ").strip()  # noqa: E731
+        out.append({"time_kst": kst, "country": r.get("country"), "event": name, "actual": clean(r.get("actual")),
+                    "consensus": clean(r.get("consensus")), "previous": clean(r.get("previous")),
+                    "key": bool(KEY_RE.search(name))})
     return out

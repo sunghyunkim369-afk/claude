@@ -113,6 +113,8 @@ def stock_news(name: str, lang: str = "ko", n: int = 2) -> list[dict]:
         items = fetch(gnews(q, lang).replace("when:1d", "when:3d"), "Google 뉴스")
     except Exception:
         return []
+    junk = re.compile(r"(Stock Price, News|Stock Quote|Quote & History|Price and Forecast|주가 차트|시세 조회|stock price today)", re.I)
+    items = [i for i in items if not junk.search(i["title"])]
     for i in items:
         i["kind"] = kind(i["title"], i["source"])
     return items[:n]

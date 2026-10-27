@@ -24,11 +24,16 @@ def gnews(q: str, lang: str = "ko") -> str:
 
 FEEDS = {
     "국내": [("연합뉴스", "https://www.yna.co.kr/rss/economy.xml"), ("한국경제", "https://www.hankyung.com/feed/finance"),
-             ("매일경제", "https://www.mk.co.kr/rss/50200011/"), ("Google 뉴스", gnews("코스피 OR 코스닥 OR 증시 OR 반도체 OR 환율"))],
+             ("매일경제", "https://www.mk.co.kr/rss/50200011/"), ("Google 뉴스", gnews("코스피 OR 코스닥 OR 증시"))],
     "해외": [("CNBC", "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=20409666"),
              ("MarketWatch", "https://feeds.content.dowjones.io/public/rss/mw_topstories"),
              ("Google 뉴스", gnews("stock market OR Fed OR earnings OR Nasdaq OR S&P 500", "en"))],
 }
+# 큰 언론사 (Google 뉴스 출처 이름 기준) — 먼저 보여줌
+MAJOR = {"연합뉴스", "한국경제", "매일경제", "매일경제 마켓", "서울경제", "머니투데이", "이데일리", "조선비즈", "조선일보", "중앙일보", "동아일보",
+         "KBS 뉴스", "MBC 뉴스", "SBS 뉴스", "연합인포맥스", "뉴스1", "뉴시스", "헤럴드경제", "아시아경제", "파이낸셜뉴스",
+         "CNBC", "MarketWatch", "Reuters", "Bloomberg", "Bloomberg.com", "The Wall Street Journal", "WSJ", "Financial Times",
+         "Associated Press", "AP News", "Barron's", "Yahoo Finance", "CNN", "The New York Times", "Fox Business", "Investopedia"}
 OFFICIAL = re.compile(r"(공시|발표했다|확정|의결|Fed (says|holds|raises|cuts)|announces|reports (first|second|third|fourth)|SEC (charges|approves))", re.I)
 SPECUL = re.compile(r"(전망|가능성|관측|우려|예상|할 듯|설\b|루머|could|may|might|expected to|reportedly|rumor|sources say|eyes|weighs)", re.I)
 TOPICS = [("금리·연준", r"(금리|연준|FOMC|Fed|Powell|파월|Warsh|워시|rate|Treasury|국채)"),
@@ -100,9 +105,19 @@ def collect(hours: int = 24, per_group: int = 10, log=print) -> tuple[dict[str, 
             seen.add(k)
             i["kind"], i["topics"] = kind(i["title"], i["source"]), topics(i["title"])
             keep.append(i)
-        # 주제가 잡힌 기사 먼저, 같은 주제가 몰리지 않게
-        keep.sort(key=lambda i: (len(i["topics"]) == 0, ))
-        out[grp] = keep[:per_group]
+        # 큰 언론사·주제가 잡힌 기사 먼저 (시각 순서는 유지), 같은 주제·같은 출처는 3개까지
+        keep.sort(key=lambda i: -(2 * (i["source"] in MAJOR) + (len(i["topics"]) > 0)))
+        pick, n_topic, n_src = [], {}, {}
+        for i in keep:
+            t0 = i["topics"][0] if i["topics"] else ""
+            if (t0 and n_topic.get(t0, 0) >= 3) or n_src.get(i["source"], 0) >= 3:
+                continue
+            pick.append(i)
+            n_topic[t0] = n_topic.get(t0, 0) + 1
+            n_src[i["source"]] = n_src.get(i["source"], 0) + 1
+            if len(pick) >= per_group:
+                break
+        out[grp] = pick
     return out, errors
 
 

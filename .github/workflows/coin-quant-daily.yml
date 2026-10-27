@@ -12,6 +12,9 @@ on:
 permissions:
   contents: read
 
+env:
+  CODE_REF: claude/sweet-bohr-g35f4h   # coin-quant 코드가 있는 브랜치 (이 파일은 예약 실행 때문에 기본 브랜치에도 둠)
+
 concurrency:
   group: coin-quant-daily
   cancel-in-progress: false
@@ -26,6 +29,8 @@ jobs:
         working-directory: coin-quant
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CODE_REF }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

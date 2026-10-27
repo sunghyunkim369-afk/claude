@@ -13,6 +13,9 @@ on:
 permissions:
   contents: read
 
+env:
+  CODE_REF: claude/sweet-bohr-g35f4h
+
 jobs:
   validate:
     if: github.server_url == 'https://github.com'
@@ -23,6 +26,8 @@ jobs:
         working-directory: coin-quant
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'push' && github.sha || env.CODE_REF }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

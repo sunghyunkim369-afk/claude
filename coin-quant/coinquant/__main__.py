@@ -113,6 +113,11 @@ def cmd_stocks_brief(a, cfg):
     brief.main(cfg, send=not a.no_send)
 
 
+def cmd_rules_check(a, cfg):
+    from .research import rules_check
+    rules_check.main(cfg)
+
+
 def cmd_report(a, cfg):
     from .app import report
     path, orders = report.build(cfg, with_news=not a.no_news, rebalance_now=getattr(a, "rebalance_now", False))
@@ -240,6 +245,8 @@ def main(argv=None):
     s = sub.add_parser("stocks-brief", help="주식 오늘의 소식 페이지 + 텔레그램 (인터넷 필요)")
     s.add_argument("--no-send", action="store_true", help="텔레그램 보내지 않음")
     s.set_defaults(fn=cmd_stocks_brief)
+    s = sub.add_parser("rules-check", help="코인 체크리스트 규칙 검증 (FOMC 절반 매수, 4년 주기 필터, 주기 최저 이탈)")
+    s.set_defaults(fn=cmd_rules_check)
     s = sub.add_parser("extended", help="확정 공식 2018년 이전까지 검증 + 확률 높을 때만 사기")
     s.set_defaults(fn=cmd_extended)
     s = sub.add_parser("report")

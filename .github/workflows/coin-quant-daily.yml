@@ -50,7 +50,6 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}   # 선택: 뉴스 AI 요약
           PYTHONUTF8: "1"
       - name: 데이터·알림 상태 저장
         if: always()

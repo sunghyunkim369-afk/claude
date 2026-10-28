@@ -1,0 +1,1695 @@
+{
+ "note": "2026-10-27 수동 판정. 제목만 보고 판정(본문·요약 미사용). random=9/22~10/20 무작위 100건(seed 20261027), top10=latest.json 대표 기사. holdout=같은 기간 무작위 60건(seed 777001, 위 표본과 겹치지 않음), 규칙을 고친 뒤 판정",
+ "items": [
+  {
+   "set": "random",
+   "date": "2026-10-18",
+   "source": "연합뉴스",
+   "title": "트럼프, 대러제재 완화 만지작…\"美·세계에 좋은 결정 있을 것\"(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261018038300009",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-16",
+   "source": "gCaptain",
+   "title": "Ship-Fuel Crunch to Persist Despite More Oil, Vitol Says",
+   "link": "https://gcaptain.com/ship-fuel-crunch-to-persist-despite-more-oil-vitol-says/",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-06",
+   "source": "연합뉴스",
+   "title": "산업장관 \"알래스카 LNG 전략적 가치\"…사업 가능성 수위 조절(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261006104151003",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-29",
+   "source": "뉴스핌",
+   "title": "달러/원 환율 1350원대 진입…수출 네고·엔화 동조화에 하락 압력",
+   "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE85aVRqZ3MwN215QlU4cXZwMnQtb2psNWJscmViemVYZlpYNk5UYWFGUXk3bWZSUllqZ3F1Rm9xTXJUNzA3RWpCMjZLV2VZbjlsSk94Q1ZXX0p5UEV4?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-25",
+   "source": "KBS 뉴스",
+   "title": "​한·멕시코 “원유·핵심자원 공급망 협력채널 출범”…투자보장협정 개정",
+   "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE5ZT0R2ZE1odklNWS1mcmlOa2xYLW5HN1RjNnYzaFlhRmU5UUc3cUx0ZnlDLS1IWmVLb3c0emx4Vk40bm1JR1lRMGlLVjRfcVNqeTlWZllTd0oxUEU?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-30",
+   "source": "연합뉴스",
+   "title": "[일지] 한미 관세 합의부터 전략투자 프로젝트 발표까지",
+   "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFBIcV9oQ0hhUTVUaElWY2pCVXNzamJTOGtHR1dvSlVzcExwWG9PVjVWVHRhbGEwTElrVjZfOE54Y1E0b0JRTzFoUlhjdzFWaDlHVkpqR2FrbHlIcDNYWGFPVtIBYEFVX3lxTFBIcV9oQ0hhUTVUaElWY2pCVXNzamJTOGtHR1dvSlVzcExwWG9PVjVWVHRhbGEwTElrVjZfOE54Y1E0b0JRTzFoUlhjdzFWaDlHVkpqR2FrbHlIcDNYWGFPVg?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-05",
+   "source": "매일경제",
+   "title": "[단독] “美, 20억달러만 보증해주고...韓에 알래스카 LNG 500억달러 압박”",
+   "link": "https://www.mk.co.kr/news/economy/12168425",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-02",
+   "source": "매일경제",
+   "title": "원화 강세에 … 달러 대출 상환 나선 기업들",
+   "link": "https://www.mk.co.kr/news/economy/12167368",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": "기업 달러 대출 상환, 환율 영향은 간접"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-09",
+   "source": "연합뉴스",
+   "title": "국제유가, 美 멕시코만 원유 생산 차질 속 상승…WTI 0.39%↑",
+   "link": "https://www.yna.co.kr/view/AKR20261010005100072",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-25",
+   "source": "아시아경제",
+   "title": "Lee Directly Raises Korean Companies' Tariff Issues in Mexico Summit: \"FTA Not Ready on Mexico's Side\"",
+   "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1pMXljRlg4Qy15NFR4NzdSWDVYZUs0blZ1QXZ3bHBIN1l2akUxVFdTcVZjSWIyQTZDSWwzZFhMSUVpTFRBSkxmWl9ib1YtcmM3Ui1HaHRUVmRKQ0NMeU5RNG1EUGs?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-11",
+   "source": "매일경제",
+   "title": "“설탕 아껴 뿌려 먹었는데 화난다”…밀가루·전분당까지 모두 가격 담합",
+   "link": "https://www.mk.co.kr/news/economy/12172963",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": "국내 가격 담합"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-14",
+   "source": "연합뉴스",
+   "title": "[외환] 원/달러 환율 6.8원 내린 1,338.3원(15:30 기준가)",
+   "link": "https://www.yna.co.kr/view/AKR20261014136200002",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-08",
+   "source": "연합뉴스",
+   "title": "국제유가, 美 이란 공격 우려·중동 유조선 피격에 급등",
+   "link": "https://www.yna.co.kr/view/AKR20261009006300072",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-06",
+   "source": "뉴스핌",
+   "title": "교착 빠진 대미 무역 협상… 印 재무 \"양보 없는 정체기 진입\" 공식 인정",
+   "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTFBqcXg1bFNxZERhdHd0a3c0eHhUVk83Qi04SmZ5SmpxMFQxTDFUQjAxZTlKSjBycVFTelBmTW5jbkVJeXlQWmUxVDNOUy1kNDA0REF5U3dWOERKRTN1?oc=5",
+   "label": "fit",
+   "topicFix": "agreement",
+   "reason": "인도-미국 무역협상인데 수출입 동향으로 분류"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-06",
+   "source": "연합뉴스",
+   "title": "李대통령 \"CPTPP에 농수산업계 우려 매우 커…원점서 다시 대화\"",
+   "link": "https://www.yna.co.kr/view/AKR20261006149200001",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-29",
+   "source": "연합인포맥스",
+   "title": "李대통령, CPTPP 피해보전 주문…\"수출이익 일부 농수축산업 지원\" |",
+   "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE9TVnhIY2ZrMDBsRzlLUk9zSVN4MVRmX2o4UlE1Nk41dXVxMHFSSldzNUt1UnFJZ01EUGdvdV9ldXY4Z2Z4bXJEQ1U3Q2pubWE3QTctTjVHZk9qa2trdm1naVl5aVRYbUdSVzJ6Q2JLVXZONjU5?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-30",
+   "source": "뉴스1",
+   "title": "LS전선, 구미에 희토류 영구자석 생산거점 검토…1500억 출자",
+   "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTFBrZVRJT0tFcFZyeFluUXg4MXlIT1FlT0RKMlpzTVdxTnAyNndMTTJZZVlaU3FxWnVadjNGclI4TjdobXpmWnhjdkFIYUgtZjduVi15cGFnVXRvTGtQazFibmJGeFpzLU9LS2fSAWpBVV95cUxQa2VUSU9LRXBWcnhZblF4ODF5SE9RZU9ESjJac01XcU5wMjZ3TE0yWWVZWlNxcVp1WnYzRnJSOE43aG16Zlp4Y3ZBSGFILWY3blYteXBhZ1V0b0xrUGsxYm5iRnhacy1PS0tn?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-19",
+   "source": "연합뉴스",
+   "title": "日미쓰비시 중공업, 군함 수요 늘자 휴면 조선 시설 재가동",
+   "link": "https://www.yna.co.kr/view/AKR20261019089200073",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": "군함 수요·조선소 재가동, 수출통제 아님"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-12",
+   "source": "연합뉴스",
+   "title": "미국 AI 공급망·오픈웨이트 모델, 중국 의존 상당히 크다",
+   "link": "https://www.yna.co.kr/view/AKR20261012046900009",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-15",
+   "source": "연합뉴스",
+   "title": "[영상] 컨테이너 2천500개 물에 둥둥…호르무즈 해협서 화물선 침몰",
+   "link": "https://www.yna.co.kr/view/AKR20261015132100704",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-07",
+   "source": "연합뉴스",
+   "title": "호르무즈 건너면 7천만원…이란 공격에 유조선장 위험수당 급등",
+   "link": "https://www.yna.co.kr/view/AKR20261007079300009",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-24",
+   "source": "머니투데이",
+   "title": "레드카펫 깔고 한 시간 기다린 트럼프…관세휴전은 '2개월'",
+   "link": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFBiSE1RSmFGNzJqRGRPNk1CNXRYU25WNTVmSFNobkl0OERPOGxPMXhkQmlsdHZ4TTQzUjdCam9sdUsxR2JjbUoxcHdzdTVxSjN0ZHcxSm1rTEw5SHdmTWlZdGNwZmVQZGRO0gFuQVVfeXFMT05uTG1KQUNOTTVOSWM4MnprQi1lR2Jsb29DRXVoWVY5OVI4bFJLalQzS3l2OVFfN0NqV3ZGVFQ5VUFrYkp3UDJfc2JheU95RE5Sd21scHVCZDYxU19reXBQYkZRY1pTSjVrNU9nS1E?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-04",
+   "source": "한국경제",
+   "title": "알래스카 투자 압박하는 트럼프, 관세 인상하나",
+   "link": "https://www.hankyung.com/article/2026100427111",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-27",
+   "source": "디지털타임스",
+   "title": "한-아세안 FTA 개선 2차 협상 개시…디지털·핵심광물 협력 강화",
+   "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE5FWjVoZHhNQndvdFltMnVRcXh1M2U1TUVQTVRLREk0WjFYSUYzNlRpYVBmMzNpbzhQcTFPcW9YaUFvZXJGcWRwa0hPNTQyQQ?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-13",
+   "source": "매일경제",
+   "title": "전국 3개지역 교복 담합…대리점 10곳·과징금 1억",
+   "link": "https://www.mk.co.kr/news/economy/12174364",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": "교복 담합"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-12",
+   "source": "연합뉴스",
+   "title": "반도체 업고 이달초 수출 261억달러…2배로 뛰며 역대 최대(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261012028651002",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-22",
+   "source": "뉴시스",
+   "title": "시진핑 만나는 美 CEO들…\"中 개방 기대에도 현장은 쉽지 않아\"",
+   "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE9YdjExZVh0c0l5OHJnZWd1MURZVTVxbHFGa1FvTVJDaW9KZXFLZG44S2tVUVJ4Y0VTdWZGTXNkWUpmU3l0NmZSdVNDQlpjT2lpYU1EVEVTY2ctRnNvdlFpeExTV1Zpc29rckF5YS15bzF1VWpLTUR4WtIBeEFVX3lxTE9YdjExZVh0c0l5OHJnZWd1MURZVTVxbHFGa1FvTVJDaW9KZXFLZG44S2tVUVJ4Y0VTdWZGTXNkWUpmU3l0NmZSdVNDQlpjT2lpYU1EVEVTY2ctRnNvdlFpeExTV1Zpc29rckF5YS15bzF1VWpLTUR4Wg?oc=5",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": "미국 CEO 방중, 무역 단어 없음"
+  },
+  {
+   "set": "random",
+   "date": "2026-09-30",
+   "source": "Federal Register",
+   "title": "Welded Line Pipe From the Republic of Korea: Notice of Court Decision Not in Harmony With the Less-Than-Fair-Value Amended Final Determination; Notice of Amended Final Determination and Notice of Amen",
+   "link": "https://www.federalregister.gov/documents/2026/09/30/2026-19932/welded-line-pipe-from-the-republic-of-korea-notice-of-court-decision-not-in-harmony-with-the",
+   "label": "fit",
+   "topicFix": null,
+   "reason": "한국산 강관 반덤핑 법원 판결(Federal Register)인데 걸러짐"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-01",
+   "source": "뉴시스",
+   "title": "BNK금융그룹, 앵커기업 공급망 활성화 맞춤형 금융지원",
+   "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE1UNUhOeG81SFdoX0RrYWhESlNtTXQ0V01XWnp6Tnh3aGVuTXl2aERWWlZYbzd5a1g3MEJMYTBwMnBqbk9jbmh5Y3QtQ1lSbGtHWEE4OXBfLXB1ZDFTREZVTk41UHo4VVFvMVpaVnUyX09hMGxqY1pSRtIBeEFVX3lxTE1UNUhOeG81SFdoX0RrYWhESlNtTXQ0V01XWnp6Tnh3aGVuTXl2aERWWlZYbzd5a1g3MEJMYTBwMnBqbk9jbmh5Y3QtQ1lSbGtHWEE4OXBfLXB1ZDFTREZVTk41UHo4VVFvMVpaVnUyX09hMGxqY1pSRg?oc=5",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": "지방 금융그룹 기업 대출 상품"
+  },
+  {
+   "set": "random",
+   "date": "2026-09-29",
+   "source": "연합뉴스",
+   "title": "미국, 캐나다산 상품 수입금지 발효…주류·유청·오토바이 등",
+   "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1kYzVPNWpidmRfR2dVVGtSQV95R0wwOVNzR09QYzliV3JqLThiZ2NhN05vX2N0YUQzM21jNGVFUkZxWTdVVW03YlFvQUpQQ0w4MEZNTXZacWxXajJDTkxiTNIBYEFVX3lxTE1kYzVPNWpidmRfR2dVVGtSQV95R0wwOVNzR09QYzliV3JqLThiZ2NhN05vX2N0YUQzM21jNGVFUkZxWTdVVW03YlFvQUpQQ0w4MEZNTXZacWxXajJDTkxiTA?oc=5",
+   "label": "fit",
+   "topicFix": "tariff",
+   "reason": "미국의 캐나다산 수입금지 조치인데 수출입 동향으로 분류"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-08",
+   "source": "연합뉴스",
+   "title": "영국, 예루살렘 총영사관 '대표부'로 운영…직원 대부분 철수",
+   "link": "https://www.yna.co.kr/view/AKR20261008204800085",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": "영국 총영사관 운영 변경, 제재 아님"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-13",
+   "source": "매일경제",
+   "title": "[단독] 국산화 추진한다던 인천신항…크레인 전량 중국산",
+   "link": "https://www.mk.co.kr/news/economy/12174537",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": "항만 크레인 국산화, 공급망과 간접"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-02",
+   "source": "연합뉴스",
+   "title": "환율, 강달러에 1,366원 찍은 뒤 수출업체 매도에 1,340원대로",
+   "link": "https://www.yna.co.kr/view/AKR20261002130100002",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-01",
+   "source": "연합뉴스",
+   "title": "美, 이란 '돈줄 옥죄기' 강화…\"車·철도 기업 등 제재\"",
+   "link": "https://www.yna.co.kr/view/AKR20261002003500071",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-25",
+   "source": "아시아경제",
+   "title": "李, 멕시코에 韓기업 관세 애로 직접 제기…\"FTA는 멕시코가 준비 안돼\"",
+   "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFBZeXpUMmlLNWUyY0ZRWElzRGVYVXhWdXprMEl1X3liZVFxb3gtRjJfdU9DcGxuTFJacGluNXIxLUFVYlc0amxMa2dlRE03dndtbUhtOXh5VVQ5VUJ0VGcyTQ?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-12",
+   "source": "연합뉴스",
+   "title": "한진, 3분기 역대 최대 매출 8천898억원…\"글로벌·항만 호조\"",
+   "link": "https://www.yna.co.kr/view/AKR20261012148400030",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-02",
+   "source": "마켓인",
+   "title": "\"韓, 구조적인 대규모 무역흑자…환율 1250원까지 내려갈 것\"",
+   "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTFA5QTlrMlpFaUVRZ3RGcG5UbTRFd3pocnpKMnktT1lNZWpRd3AxN2F5ZkNEc1J5WDZfTTVCOGJRcjNCcjRFYmdsbW9idkx3ZXlROFNxX2Fjd1hFSXRmY29mYU0teUVVNzBWSXJCSFNSQU1lYVU?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-22",
+   "source": "서울신문",
+   "title": "미중 담판, AI ‘빅딜’ 관세 ‘노딜’ 촉각",
+   "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE5kU2h6Qmxta1kxdkhlajg4X2JiYk5jOXF4MmFuWkl2cThpd2M1SC1ocFZpMzc0OVpNYzJuWWZEZnlmYWIxRWN4Uk1wV3E5OVpUZE5wclR2SWV2eDE4bUkzZFZ3R1NxZGdScFd1RnppM1JuWnRGcGlZ?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-08",
+   "source": "The Loadstar",
+   "title": "High yields spark new container services on ‘bumpy’ India-Middle East trade",
+   "link": "https://theloadstar.com/high-yields-spark-new-container-services-on-bumpy-india-middle-east-trade/",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-30",
+   "source": "SCMP",
+   "title": "Beijing criticises push for EU to develop Section 301-style trade tool to counter China",
+   "link": "https://www.scmp.com/economy/china-economy/article/3369272/beijing-criticises-push-eu-develop-section-301-style-trade-tool-counter-china?utm_source=rss_feed",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-07",
+   "source": "gCaptain",
+   "title": "China Completes First Season of Regular Arctic Container Service",
+   "link": "https://gcaptain.com/china-completes-first-season-of-regular-arctic-container-service/",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-27",
+   "source": "동아비즈니스리뷰 | DBR",
+   "title": "Korea, Mexico to Expand Supply Chain, Resource, AI Ties",
+   "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTFAyWlIxUmQyN0ZaVmMteE1MTmJPdW9jNjZZRThNYjNGQVV4ckpfallhdDNXbEdvbVhrWmkydk9SRzltODhvRUNZWUJGNTJ5eUttLWZuSkVqQ0VkU0xIWnN1aVBB?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-13",
+   "source": "연합뉴스",
+   "title": "K-소비재 수출 10년간 4.2배↑…\"중소기업 성장 지원해야\"",
+   "link": "https://www.yna.co.kr/view/AKR20261013035300003",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-06",
+   "source": "뉴스1",
+   "title": "유럽발 강달러에도 달러·원 1340원대 등락…수출 네고 상단 제한",
+   "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE5QUmUzMEd3S3lTLVdfeURyckluSGpEUVdXQnprSE9xckYzX0J3NmxvM0VqZU9icGhiT1JkbUZ4MUVlYWk0emM3QTJMWHpZYVZVeHJLLWlxZlljWXVDek4tMNIBYEFVX3lxTE5QUmUzMEd3S3lTLVdfeURyckluSGpEUVdXQnprSE9xckYzX0J3NmxvM0VqZU9icGhiT1JkbUZ4MUVlYWk0emM3QTJMWHpZYVZVeHJLLWlxZlljWXVDek4tMA?oc=5",
+   "label": "fit",
+   "topicFix": "fx",
+   "reason": "환율 기사인데 수출입 동향으로 분류"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-02",
+   "source": "조선일보",
+   "title": "\"관세 폭탄 부메랑 우리가 맞았다\"… 트럼프 텃밭 중서부 표심 요동",
+   "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOVGxXbjhXTXZxb2lJNzdldDcxTUlLSnZPZHZqTzU2Y0lEeEpTZ3RVaFk1V0ZSclBSQWxLVTRqeEdrcHNpdjY3Y2tacV9TZlRfX3NjVzFTblZwMW95a20wUVg1cVpOd0tSR1pIOUE3MTI1ZG1HOGdtblpBUWNELU5BZm0xWVU?oc=5",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": "관세 정책의 미국 선거 영향(정치 기사)"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-04",
+   "source": "경향신문",
+   "title": "관세 근거 세 번 바뀌어도 자동차는 15%…10조원 부담, 부품사로 번지나",
+   "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE11Um56WC1aY2JEOXFBbVhsR0JiTjU5elFvc2pERVo4UzB4MkpqME02S0pGTklWa20ySFhPd2dTOVRKUHpUUktrQTBKM04wdGt1T05GLXp3UWZ0V3k3V0Vv0gFfQVVfeXFMTXVSbnpYLVpjYkQ5cUFtWGxHQmJONTl6UW9zakRFWjhTMHgySmowTTZLSkZOSVZrbTJIWE93Z1M5VEpQelRSS2tBMEozTjB0a3VPTkYtendRZnRXeTdXRW8?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-07",
+   "source": "연합뉴스",
+   "title": "[외환] 원/달러 환율 3.2원 내린 1,340.4원(15:30 기준가)",
+   "link": "https://www.yna.co.kr/view/AKR20261007144400002",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-08",
+   "source": "The Loadstar",
+   "title": "Customs updates add a ‘compliance burden’ to potentially volatile Q4 for shippers",
+   "link": "https://theloadstar.com/customs-updates-add-a-compliance-burden-to-potentially-volatile-q4-for-shippers/",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-08",
+   "source": "연합뉴스",
+   "title": "산업부, CPTPP 가입 관련 서비스·지식재산권 업계 의견 수렴",
+   "link": "https://www.yna.co.kr/view/AKR20261007182700003",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-25",
+   "source": "연합뉴스",
+   "title": "한-멕시코 세관당국 MOU…마약·K브랜드 위조 단속 협력 강화",
+   "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE1oSFJkU184dmRDNHVDakVLMU14ZFhOdGpzRlQycUlZVFN5QzRkemwtSjJ1N3FsMkRyeERTTVFqd3lyTExiX3I2bnVobTBaY1FoNWpXVEhwbmRuYVXSAWBBVV95cUxNR3pQM25HbTlrMkRUS0tQZ2NvUFVXcDBVNW9mZjBtb0VFOUJlNzEzc3BZTFdBWUVCQVM3WV9nY0s0OTRPMmxGM1JEUmhGNW5Ma3Z6TjNKN1JXT0JlM3pJOVc?oc=5",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": "세관 MOU, 마약 단어 때문에 걸러짐(위조품 단속은 통관 이슈)"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-04",
+   "source": "서울경제",
+   "title": "펫푸드 시장 2.5조로 커졌는데…정부는 ‘수입산 비중’ 파악 못해",
+   "link": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE5uc2VMWHlpMV9IMXVzUkxCdTFhTEpzQ3IyMkZwcWcwZFdKLWRGVFJzbkNDSTVpUDdEX3ZITVRPTXZwNlJxVFd1Y0h1cmNPb0RoRl9J0gFTQVVfeXFMTm5zZUxYeWkxX0gxdXNSTEJ1MWFMSnNDcjIyRnBxZzBkV0otZEZUUnNuQ0NJNWlQN0RfdkhNVE9NdnA2UnFUV3VjSHVyY09vRGhGX0k?oc=5",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": "펫푸드 수입 비중 통계 부재"
+  },
+  {
+   "set": "random",
+   "date": "2026-09-30",
+   "source": "연합뉴스",
+   "title": "\"美·日·유럽, 中철강 우회 수출 공동 감시체계 구축\"",
+   "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9ES2JHaktHejF3TG9kWlh3OThqNmtTdE5xcjMtX1JhSk04Uk15MWFlRFV3YXA1NE42N2NIeGVFYmVqaWhtWHl2UjJQLXhJOEVIV1NWQmE2eEpMM2R6RGZadtIBYEFVX3lxTE9ES2JHaktHejF3TG9kWlh3OThqNmtTdE5xcjMtX1JhSk04Uk15MWFlRFV3YXA1NE42N2NIeGVFYmVqaWhtWHl2UjJQLXhJOEVIV1NWQmE2eEpMM2R6RGZadg?oc=5",
+   "label": "fit",
+   "topicFix": "trade_remedy",
+   "reason": "중국 철강 우회수출 공동 감시인데 수출입 동향으로 분류"
+  },
+  {
+   "set": "random",
+   "date": "2026-09-30",
+   "source": "아시아경제",
+   "title": "반덤핑 신청 급증…올해 8개월 만에 지난해 기록 육박",
+   "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1rU1prODd3RHhMV2lGNnhJVWEyY01UQVhTYVRQU2JvU3RYR2VQVkROR0poOVNXZjJMTUZMQ3JrajNoT3ZJV2VmRUwzck5POU10Szk4cmRYbFdRamJ6SndqZQ?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-03",
+   "source": "Chosunbiz",
+   "title": "[정책 인사이트] ‘아시아·태평양 FTA’ 검토하는 정부… “효율성 있는 농어업 지원 방안 고민해야”",
+   "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxQdUJkQU5Kcm1lcTlEMUZpSTZBWUV3bVVnbVZnMldHd2VmY1VsR1VFUHV0UTJ3bjRrYmNKeEp2Wi1lN2hpLWhHMl9sbTlqY3JJbW0zVlg1U2c4dWloWVB1X1hkTlAtTFZIcTRDMkVSZHlPbmxXY200ejFBMS1xckNzVHByNl9OZ9IBmgFBVV95cUxON1NZRDVzQ2dJbGdiOHYzSFF1NzVpOGpFRnJpQ0tzSkNSWTdSM0FkdkxINUNLdkJMN2Fjb2JydXo2RG5MbUJTMlRWSENxaWRhSHVSMXNzN3BiZGJWMDVkLXBLV1Nzc1kySm9VdHJhZkVzc2ZCZ0ZwVFZyclBraDE0WnU2Njg2ZGVoRzRmbVBxWWtZTnM0RUFQNFF3?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-23",
+   "source": "뉴스핌",
+   "title": "다카이치, 젤렌스키와 첫 회담...\"우크라 지원·대러 제재 변함없다\"",
+   "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE5Uai04TDVuN3JSSDhXVGJTeG9HcjM5UERuY0ppT2VPRl9XNW5ILXFOQXllcElqNm5kQWc4VWhuMzVRVl9KX0t5dW1ITEJCU3JzYVVUWi03LWdSc1ZK?oc=5",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": "일-우크라 정상회담, 대러 제재 언급"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-02",
+   "source": "뉴시스",
+   "title": "통상본부장, G20서 통상현안·공급망 협력 논의…공정무역 강조",
+   "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTFBSaXFUNU5VSDRGRTlBRG5yVjVUR2VjUlBFbmM3dDhOeHZMZHBkZkRHeEZPdWVsQWROazhpeUV6eFRsRTVIY3ItbjVIYXdHSFBiMDdHdjFFV09NVnExVFpLUVVsckVhS3U3akFqZkdqMENDYnVJbzJiX9IBeEFVX3lxTFBSaXFUNU5VSDRGRTlBRG5yVjVUR2VjUlBFbmM3dDhOeHZMZHBkZkRHeEZPdWVsQWROazhpeUV6eFRsRTVIY3ItbjVIYXdHSFBiMDdHdjFFV09NVnExVFpLUVVsckVhS3U3akFqZkdqMENDYnVJbzJiXw?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-24",
+   "source": "KBS 뉴스",
+   "title": "한·멕시코 정상회담…투자보장협정 개정합의·공급망 협력 강화",
+   "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE5sTnlSR2xNYndfTGl6TUlZN0xMdzQycjVncjVFem85X29ZX2V4RTMzUW5QQTh3Wk5yLU1vWlZZbHBvN24xUFBIdjNpcURNVXI3STZvNUhmZTRhdVU?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-25",
+   "source": "서울경제TV",
+   "title": "추석 할인에 국제유가까지…국내 기름값 19주 연속 하락세",
+   "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1UTTRkM0lNVjhxa1BtcGQtUnV5bVAwRWRPRGd4RkRBWm1TZzVBOTZkY3NWT3J3bWdZT0hQWjRYdTR6X0xTaUhNZVVtaEI1NFRWOXVUbnJJdlNzV0U3ckJGLTM3TEE?oc=5",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": "국내 휘발유 가격"
+  },
+  {
+   "set": "random",
+   "date": "2026-09-28",
+   "source": "경향신문",
+   "title": "중국 상호관세 인하품목 공개···미 농산물, 중국 완구 포함",
+   "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5KbEg0UHRtMEdvaXBrR3pZT0ZDU1N1b2NQSDNPV0RueWQ4UWpJWGxhazItQ1l2Z1NDTzMtTEZYNmIwU3hsd2RNdTNDdnNRSFpnYWFxSWozX3RQUdIBX0FVX3lxTE1UeExyQkVoR1FBOUJGODhpS3prYVlWbzMySFpXWXNUSVZqM0dYV0hHV2JBNjcxeXVnd2ZzMVNmWDAteTVPaFFPU3phNUw4MkNPRG1LakJGVkc5bUU0UDBZ?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-07",
+   "source": "연합뉴스",
+   "title": "\"새로운 숙박 모델\"…日 홋카이도서 컨테이너형 호텔 확산",
+   "link": "https://www.yna.co.kr/view/AKR20261007148000009",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": "컨테이너형 호텔(숙박)"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-06",
+   "source": "YTN",
+   "title": "\"관세 2배로 올린다\" 협박한 트럼프에 부통령은 \"조율 남았다\" [자막뉴스]",
+   "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE9rYkE1QTAtOE0tOWRfblZSYzloVnF2dEFIUEJtc25HaldxV19teDNOWTQybU9uU2dYcUtFeFd0Wm9zY3VEbkRVQ3htVnYzcEdKSjhPQzJDcUtPb3lza1E?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-08",
+   "source": "연합뉴스",
+   "title": "[외환] 원/달러 환율 1.9원 내린 1,338.5원(15:30 기준가)",
+   "link": "https://www.yna.co.kr/view/AKR20261008141800002",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-13",
+   "source": "The Loadstar",
+   "title": "How AI will transform freight forwarding beyond the hype",
+   "link": "https://theloadstar.com/how-ai-will-transform-freight-forwarding-beyond-the-hype/",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": "물류 업계 AI 칼럼"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-09",
+   "source": "Nikkei Asia",
+   "title": "Tariffs targeting China's Temu, Shein shrink US small parcel deliveries",
+   "link": "https://asia.nikkei.com/economy/trade-war/trump-tariffs/tariffs-targeting-china-s-temu-shein-shrink-us-small-parcel-deliveries",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-01",
+   "source": "이데일리",
+   "title": "중동 원유수출 회복했는데 왜?…브렌트유 다시 100달러 돌파",
+   "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNTmlKQ0x0QnFra3BjMFB6RzRQSzNqWGNmNnFMbHR4NW9SUTJfQVVMSUNaZFBlVk5DWUZHOGJBOFZ4aHRwMGZBV19YSng5QUxrVHBwVzR0UnZGcmFvNmNEQ2M4a243ZjRMM19ZMmJqX2I4d29STGpVSjFHRS1pU0lVTA?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-22",
+   "source": "KBS 뉴스",
+   "title": "EU-필리핀 FTA 눈앞…“수개월 내 협상 마무리”",
+   "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTFBFZXZGU2Rkand5cGw1WnlQNjBnRGR1c0hyWHRIUFBxWGFCMkhlNjk4ZnpBajk1bWNUa3JISXlHMnJyYkotY1RJd1c0dEg1RklOT2FsU0NaZk5LNW8?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-14",
+   "source": "연합뉴스",
+   "title": "방글라데시, 중국 차관 도입해 항구 현대화 추진",
+   "link": "https://www.yna.co.kr/view/AKR20261014074900009",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-22",
+   "source": "연합인포맥스",
+   "title": "대신證 \"미중 정상회담 핵심은 관세…휴전 연장만 해도 증시영향 상당\"",
+   "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE1ld3BINk9VRDZyTGx6eXZxMzdFMG9FZXVPbHUyTWpHN21CaUtNWHJlUTNHTUNNYTZDUUw2NGV3QVJmWlBCb2ctTzh1SFdBcWJoWWRCZUIwQ0Rid2VmTWhuUGdObTJKMzY0elNtakJxNEg?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-16",
+   "source": "The Loadstar",
+   "title": "Ex-India spot rates and surcharges ease as peak comes to an end",
+   "link": "https://theloadstar.com/ex-india-spot-rates-and-surcharges-ease-as-peak-comes-to-an-end/",
+   "label": "fit",
+   "topicFix": null,
+   "reason": "인도발 해상 운임 하락인데 걸러짐"
+  },
+  {
+   "set": "random",
+   "date": "2026-09-26",
+   "source": "한국경제TV",
+   "title": "＂중국, 미국 대이란 경제제재 따르지 않겠다…이란에 입장 전달＂",
+   "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE1ibjd6ZFYzRldCZXlGa1h6ZGo3WkhzTEUyNW9JT09xd0Ezc1pZQlJRR3U1OG1nOFpPTHg1b21OTHhjcC0wTlFiSEhoM2VFcUlMLUo2MmhfQ21vaktYdFhNYk83eUV1dlBab2FpZi15ckxZSWJpNFhF?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-23",
+   "source": "Chosunbiz",
+   "title": "中 일조강철, 반덤핑 철강 관세 우회해 韓 침투… 업계는 “성능 우려” 주장",
+   "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOSFl2bmZnUXhiaWs5alluQ3FwU25nejJMYmVNbE01V3A1bjBOU1preHNUOUtpNUdmZl9ESGZmc2lpR3lidTI3YWc2by1JWVQ5X1FTbWlFajRyZENfczBnbW5zNlhkTGhtbkZ2SWNhdW1KWGI1dE5lR3NLVnVDVThOUUR6WHnSAZgBQVVfeXFMTVJkNmI0SUdhWTdvZ2lUMlFNWXBJcS16RnR2Q0l1LUxPemRYWTZzYkxnTWFMZ2RTTVZzaHRZaGpwUnhocXNka3JJOU9pOFlvTjZCVmtwSzg4ZklkWVdvM2NzSXhuNlZxVUtpV1BZQkl0dk1YcVJ4MFpTWk9od2NwV0Z6bjl0UlpmWWRqbjUwLVBBT3RIeVVLT0Q?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-02",
+   "source": "연합뉴스",
+   "title": "트럼프, 선거용 '알래스카 투자' 관철하려 韓에 관세카드 꺼낼까",
+   "link": "https://www.yna.co.kr/view/AKR20261003010300071",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-01",
+   "source": "연합뉴스",
+   "title": "경제6단체 \"대미 전략투자 뜻깊어…통상 불확실성 완화 기대\"",
+   "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFB2aXlIcUsxRWEtY1pMU2lubk0wZ3d2c1ZwWjc3MVk2TDgyWjBJazh1bElIYWxxVVN1dG9EeDljTlVIb25MalhLM0Z1aFh4N09Mc2ZCSXkyYXRiRnQzQjFWOdIBYEFVX3lxTFB2aXlIcUsxRWEtY1pMU2lubk0wZ3d2c1ZwWjc3MVk2TDgyWjBJazh1bElIYWxxVVN1dG9EeDljTlVIb25MalhLM0Z1aFh4N09Mc2ZCSXkyYXRiRnQzQjFWOQ?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-02",
+   "source": "뉴스1",
+   "title": "글로벌 해운 운임 2주 연속 하락…미주 상승에도 유럽·중동 약세",
+   "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE5UcXpsaVhYZDBROWVyOW0yckpzSEt4SndEY1Rmb3hpenBiUXYxbTMxU3pxT1JOS2UwR3pWZ3M1ekNVVG8xa09nT2o4Qm9NaFlWSmJwb0E0WmluRXpBY1JNQjhXZTc3eXpuNkHSAWpBVV95cUxOVHF6bGlYWGQwUTllcjltMnJKc0hLeEp3RGNUZm94aXpwYlF2MW0zMVN6cU9STktlMEd6VmdzNXpDVVRvMWtPZ09qOEJvTWhZVkpicG9BNFppbkV6QWNSTUI4V2U3N3l6bjZB?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-19",
+   "source": "Federal Register",
+   "title": "Diamond Sawblades and Parts Thereof From the People's Republic of China: Notice of Covered Merchandise Referral and Initiation of Covered Merchandise Inquiry",
+   "link": "https://www.federalregister.gov/documents/2026/10/19/2026-21281/diamond-sawblades-and-parts-thereof-from-the-peoples-republic-of-china-notice-of-covered-merchandise",
+   "label": "fit",
+   "topicFix": "trade_remedy",
+   "reason": "중국산 다이아몬드 톱날 반덤핑 공고인데 통관으로 분류"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-05",
+   "source": "아시아경제",
+   "title": "코트라, 美 벨 텍스트론과 'K항공우주 소부장' 글로벌 공급망 진입 지원",
+   "link": "https://news.google.com/rss/articles/CBMiggFBVV95cUxPb3NQSmxCSUZqUVJUbi1uaE1LbmExYU9TM1o4VkJPZ1FQTWV5c180U2NwNEJDLW4wUWcyQ01aVUpHLU1TdzVteEJmcGpLNjFoU2oyMks5cFJrY3Fja1ZDWGVNNFBfWDg1Tk1maVE3djVCbTdJUUdubThhTFQtaklidHJn?oc=5",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": "코트라 기업 지원 사업"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-15",
+   "source": "연합뉴스",
+   "title": "농림축수산단체 \"CPTPP 반대 변함없다\"…5대 요구안 제시(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261015089951030",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-30",
+   "source": "이데일리",
+   "title": "[美특징주]제너럴밀스, 신규 CEO 지명 소식에도 하락",
+   "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxORTIzaXZHVGRmUnF6MWFURW1sRUZPWmVYRVd0cDd0N0w3dEZoOUMyY0FOOFRtMXBhXzBlWWtVekJNX0pibm5yNDNfSFppQl9sVzFybUNTZmJHZlk2WjZjWE9HbTNQWEIxYWZtNjZvWFV6c2NPN0N2eF9XbnNidlJHdw?oc=5",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": "미국 종목 주가"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-09",
+   "source": "연합뉴스",
+   "title": "中 \"EU와 하이브리드차 무역 관련 합의…희토류 수출허가 편의\"",
+   "link": "https://www.yna.co.kr/view/AKR20261009059800009",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-02",
+   "source": "한국경제",
+   "title": "LNG 겨울 가격 35달러 전망…유럽·아시아 LNG 확보전 격화",
+   "link": "https://www.hankyung.com/article/202610029098i",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-30",
+   "source": "Federal Register",
+   "title": "Utility Scale Wind Towers From the Republic of Korea: Preliminary Results and Rescission, in Part of Antidumping Duty Administrative Review; 2024-2025",
+   "link": "https://www.federalregister.gov/documents/2026/09/30/2026-20024/utility-scale-wind-towers-from-the-republic-of-korea-preliminary-results-and-rescission-in-part-of",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-13",
+   "source": "연합뉴스",
+   "title": "'자금세탁 방치' BofA에 1.6조원 벌금",
+   "link": "https://www.yna.co.kr/view/AKR20261014025100009",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": "은행 자금세탁 벌금, 경제제재 아님"
+  },
+  {
+   "set": "random",
+   "date": "2026-09-28",
+   "source": "조선비즈",
+   "title": "LG Uplus, IBCT help Korea manufacturers join Catena-X for EU supply chain data",
+   "link": "https://news.google.com/rss/articles/CBMiekFVX3lxTE9acnR4Rko1U2VuTmpsaXRDX28wZkl4ejZtbUhXT1AzWmVpNFZWQ0FqRklPbVhNSkxqb3ZRUmhiaWZRa1ZPYkZ4MlZMejhlRUJYall3dGpIZWJPMXMtbU04WVl0cm1UMldfU09Pb3R2YjFuYTBMN0lGTzdR0gGOAUFVX3lxTFBfeENOZmJHZzZWT1BubXJ4VGctOWNhbHV0S09OR0pHUEItbGpfUW4zcFF0WlI4YUVJZE5qVDEzRktpMkNSV2tYbk5zcGhfdEpLWE90cnJSRzl4ekRIV2dGLWJCQUF0Q2VIR19zaFZ1VUNCcnAwaHE1elZJd2pUczhsN0lkcm9idjk0MXJyTlE?oc=5",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": "EU 공급망 데이터 플랫폼 참여(기업 소식)"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-02",
+   "source": "매일경제",
+   "title": "The government asked the U.S. side to comply with the 15% tariff agreement between South Korea and t..",
+   "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE1FUWZ5dGt3X0E5Vk1RSGpDdzVxNV9TbzdfQjFjXzVubEhyWHFnWUhhcDV3TjByNE9sMmoyOEZNMWo4OXFxWXVoVVpwcEJtenZEOEE?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-27",
+   "source": "헤럴드경제",
+   "title": "S. Korea moves to deepen economic ties with Mexico, eyes trade deal",
+   "link": "https://news.google.com/rss/articles/CBMiV0FVX3lxTE9qeEhJSEFWVXlVMFBObWRXNWphXzBraFY3X1ZsbXZLUktMZjR2UmRJQWVhckdHcUI3Z1pZOHA3Ym9Gcm1CeGtUc1BSb2QtQ2pOTkFXQzlGOA?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-17",
+   "source": "연합뉴스",
+   "title": "이달 환율 2년1개월만에 최저…원/엔 19년만에 가장 낮아",
+   "link": "https://www.yna.co.kr/view/AKR20261017023400002",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-02",
+   "source": "연합뉴스",
+   "title": "유가에 소형차로 눈돌리는 美소비자…엘란트라 판매 18%↑",
+   "link": "https://www.yna.co.kr/view/AKR20261002046400009",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": "유가와 미국 소형차 판매"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-08",
+   "source": "gCaptain",
+   "title": "UK Sanctions 12 More ‘Shadow-Fleet’ Tankers as Russia’s Arctic Traffic Grows",
+   "link": "https://gcaptain.com/uk-sanctions-12-more-shadow-fleet-tankers-as-russias-arctic-traffic-grows/",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-01",
+   "source": "뉴스1",
+   "title": "철강업계, 대미투자 1호 사업 확정 환영…\"현지 공급망 구축 기대\"",
+   "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1QRmNrZktmUkpYMGpTZ1lTd3pTZXBmeW5adHgxdGFkN0JpOWhnQkRFaGNobjJJNHVqYk9kWVJPWk1ISm5mTHFyRjVSemlpMmU4LVBNVWw1UnZwUWY4YWU0Qi0xUElFbndaTGfSAWpBVV95cUxNUEZja2ZLZlJKWDBqU2dZU3d6U2VwZnluWnR4MXRhZDdCaTloZ0JERWhjaG4ySTR1amJPZFlST1pNSEpuZkxxckY1UnppaTJlOC1QTVVsNVJ2cFFmOGFlNEItMVBJRW53Wkxn?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-05",
+   "source": "머니투데이",
+   "title": "美 재무부 \"'이란 거래' 외국 금융기관, 사전 통보 없이 제재 부과\"",
+   "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTFBMSmlrNDhnYlA4UFBNVU5jMGNza0daR3lwRDhoc2p3NjB6QUZWazVkUFdxdk5LT1ZoZWlhSDJvU0ZxRzVwUTkxQklXNzNvNURMdHpEeEVhMUZNZm5LUGdyY3Q3djdHSjR2TnNJN1V30gFuQVVfeXFMUExKaWs0OGdiUDhQUE1VTmMwY3NrR1pHeXBEOGhzanc2MHpBRlZrNWRQV3F2TktPVmhlaWFIMm9TRnFHNXBROTFCSVc3M281REx0ekR4RWExRk1mbktQZ3JjdDd2N0dKNHZOc0k3VXc?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-01",
+   "source": "매일경제",
+   "title": "한미 전략투자 첫 공식 발표…텍사스 발전·미국 원전·알래스카 LNG 추진",
+   "link": "https://www.mk.co.kr/news/economy/12165590",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-09",
+   "source": "gCaptain",
+   "title": "Ethanol Could Offer Shipping Another Path to Lower Emissions",
+   "link": "https://gcaptain.com/ethanol-could-offer-shipping-another-path-to-lower-emissions/",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": "해운 탈탄소 연료 기술"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-11",
+   "source": "Nikkei Asia",
+   "title": "Former iPhone display plant in Japan to start new life in chip supply chain",
+   "link": "https://asia.nikkei.com/spotlight/supply-chain/former-iphone-display-plant-in-japan-to-start-new-life-in-chip-supply-chain",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": "일본 공장 반도체 전환"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-08",
+   "source": "연합뉴스",
+   "title": "[연합뉴스 이 시각 헤드라인] - 18:00",
+   "link": "https://www.yna.co.kr/view/AKR20261008178500011",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": "헤드라인 모음 기사"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-04",
+   "source": "한겨레",
+   "title": "트럼프 “미국에 공장 안 지으면 300% 관세”…밀리는 공화 텃밭 선거지원",
+   "link": "https://news.google.com/rss/articles/CBMiggFBVV95cUxOQ1k2Y1FDQTRHUjBSLWdtMlZEaFFncmJJUGVyTUozY29PN19iQzhQR3dXUUtac3FSZ1NaU0RJdGx0OWFVWWFUSEhCR1lXN2hTYXFHLW1HTjEzMVYxLS13OC1ENmlxNkNhVGJQT09CMUpha3cza0h2bkxldFZmWVM5WlBn?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-09-28",
+   "source": "마켓인",
+   "title": "스위스 국민 70% “중립 강화 반대”…나토 협력·대러 제재 길 열어둔다",
+   "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE5jSTl2NGhGLTctZmI5dkxZYVJvSWZMRTZ6WjZuLWhLS2J4ZE9HU21GRFNYTkVlaldQX3NDNGs2RmgzTlBHTV83Yks4cU12elhOZ0pPMmRSTEs0eTlsVHB1RVRBWlV0c0xCa0hJdXRkQmhWRDg?oc=5",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": "스위스 중립 여론조사"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-19",
+   "source": "연합뉴스",
+   "title": "원/달러 환율 2년만에 또 최저…위안화 환율도 1년만에 최저(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261019137151002",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-01",
+   "source": "뉴스1",
+   "title": "韓 수출 첫 8000억달러 돌파…9월 수출 1209억 달러 '역대 최고'",
+   "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBOSzlLcGstMGhoeWlnR2hFb1NjTXIyNC1wVGVDcWczbGNleHY2RTY0ZHpyV2kzR1BSbUJHaDRIY0VoZXRXWkxWSnZTZG44Z2ZLWGZfZG5DRGhBdGNGUkJz0gFkQVVfeXFMUDR4YmoxQ1kteG9OWlBjeHVDNUJFUXd0NENmeUZXbkYxZXBqcE5IeDJSc0lZT3U1MHhCdHRzZU85Qi1uUFVyV3RmY1ZYeWxaS0NGT0xkOXRqZ0g1RHlYdWc1TGdJWQ?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "random",
+   "date": "2026-10-14",
+   "source": "SCMP",
+   "title": "China export surge sets up another record annual trade surplus",
+   "link": "https://www.scmp.com/plus/economy/economic-indicators/article/3370873/china-export-surge-sets-another-record-annual-trade-surplus?utm_source=rss_feed",
+   "label": "fit",
+   "topicFix": null,
+   "reason": "중국 수출 급증·무역흑자인데 걸러짐(영문 키워드 부족)"
+  },
+  {
+   "set": "random",
+   "date": "2026-10-09",
+   "source": "SCMP",
+   "title": "China charges tech firm with smuggling restricted ‘dual-use’ optical lenses out of country",
+   "link": "https://www.scmp.com/economy/china-economy/article/3370318/china-charges-tech-firm-smuggling-restricted-dual-use-optical-lenses-out-country?utm_source=rss_feed",
+   "label": "fit",
+   "topicFix": "export_control",
+   "reason": "이중용도 광학렌즈 밀수 기소인데 걸러짐"
+  },
+  {
+   "set": "top10",
+   "date": "2026-10-11",
+   "source": "연합뉴스",
+   "title": "보험광고 규정위반 4년반에 4.7만건…협회 제재금 부과 10건뿐",
+   "link": "https://www.yna.co.kr/view/AKR20261009026700002",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": "보험광고 협회 제재금"
+  },
+  {
+   "set": "top10",
+   "date": "2026-10-11",
+   "source": "연합뉴스",
+   "title": "코트라 지원에 50여개사 미국 관세환급 신청…5천200만불 수령",
+   "link": "https://www.yna.co.kr/view/AKR20261011035400003",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "top10",
+   "date": "2026-10-11",
+   "source": "SCMP",
+   "title": "Could Thai durian export duty mean higher prices, higher quality in China?",
+   "link": "https://www.scmp.com/economy/global-economy/article/3370355/could-thai-durian-export-duty-mean-higher-prices-higher-quality-china?utm_source=rss_feed",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "top10",
+   "date": "2026-10-10",
+   "source": "연합뉴스",
+   "title": "노벨평화상 필라이, ICC 제재한 미국 규탄",
+   "link": "https://www.yna.co.kr/view/AKR20261011007100009",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": "ICC 제재 규탄 성명(국제 정치)"
+  },
+  {
+   "set": "top10",
+   "date": "2026-10-09",
+   "source": "The Loadstar",
+   "title": "Freightmate admits using Flexport docs as AI trade secrets case settles",
+   "link": "https://theloadstar.com/freightmate-admits-using-flexport-docs-as-ai-trade-secrets-case-settles/",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": "영업비밀 소송, 회사 이름 Freightmate 의 freight 로 해운 분류"
+  },
+  {
+   "set": "top10",
+   "date": "2026-10-09",
+   "source": "연합뉴스",
+   "title": "[외환] 원/달러 환율 4.3원 오른 1,342.8원(15:30 기준가)",
+   "link": "https://www.yna.co.kr/view/AKR20261009043000002",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "top10",
+   "date": "2026-10-08",
+   "source": "연합뉴스",
+   "title": "李대통령, CPTPP 연내 신청않도록 지시…\"농어민과 충분히 대화\"",
+   "link": "https://www.yna.co.kr/view/AKR20261008162100001",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "top10",
+   "date": "2026-10-08",
+   "source": "연합뉴스",
+   "title": "[바이오스냅] 동아쏘시오그룹, 협력사 대상 ESG 공급망 교육",
+   "link": "https://www.yna.co.kr/view/AKR20261008072500017",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": "ESG 교육"
+  },
+  {
+   "set": "top10",
+   "date": "2026-10-06",
+   "source": "한경매거진&북",
+   "title": "두산에너빌리티, 美 스페이스XAI 공급망 진입…380MW 가스터빈 공급",
+   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE9acHF1cmlLM1BHdDdZQ3JXOTBKX3llQ2s0TFVDZm1nZ2htdGk2eDRGT1Z2M01YdEFMbFVjOGRvdnV2TUZaSGRJeV91T1ZDWVpyOVlpV1prekxsM0NyQTN2VW10VXppQ0U?oc=5",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": "기업 공급 계약"
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-16",
+   "source": "연합뉴스",
+   "title": "국제선 유류할증료 3개월 연속 상승…뉴욕 왕복 9만1천원↑",
+   "link": "https://www.yna.co.kr/view/AKR20261016068000003",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-04",
+   "source": "디지털타임스",
+   "title": "\"D램 이어 장비까지 중국산\"…CXMT, 삼성·SK 추격에 ‘공급망 내재화’",
+   "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTFA0NVlaNjlSMTZkc0JGSmZiV0xfZmZCS1Bjb0xtY1pkUmNVcVd2UnA2UUNReDhTWHFpWUdhaFFYVXNVRkFmTmtPeXFfYW1UUQ?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-02",
+   "source": "Yonhap News Agency",
+   "title": "(LEAD) Trump threatens to 'charge' S. Korea 'more' if it rejects Alaska LNG project",
+   "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE1yaHJlU2Q0ZHozRFNNVWQ3aFJJLTh5R1N2VkdYUVNnTERtV2ZEM1BVQkZoNEdCNXloTFJxRmJ2YWxTbklEX0EzWkZjU0lzRFlUWUh5a0gtZEpTQQ?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-23",
+   "source": "YTN",
+   "title": "[울산] 한-스웨덴, 해상풍력 공급망 구축 업무협약",
+   "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE1tN3NVYjV6elRwdFFUT21ybWl0OHl5TG5fV09mZ2IxRGdOZjBuZVU5T2lVTmdzUFpab2VQNE1vX3kyREdibjROV0NOYXE2aDNiWU9MSkUyTndkX1plQmc?oc=5",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-04",
+   "source": "서울신문",
+   "title": "트럼프 “알래스카 LNG 합의 안 하면 2배 청구”…관세 무기 삼아 노골적 압박",
+   "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE1aZjRvaU90ZHFLeXgtMlhUc3J6eTloQzVhZlpHQmM1UlZ3cmhGRjdEa1JYRXhGNHJvMEg1dHVpc1pYTlN6ZjRZOG1xTlEySDRIQnByY3Bkakh5NUlteEN5WGhFLWNYRlBkWnRTcDZOczdXQklvdUdz?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-04",
+   "source": "한국경제",
+   "title": "'K기판 르네상스'…역대 최대 수출액 노린다",
+   "link": "https://www.hankyung.com/article/2026100426341",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-13",
+   "source": "연합뉴스",
+   "title": "북극항로 시범운항 귀환 환영식…李대통령, 선원들에 꽃목걸이(종합)",
+   "link": "https://www.yna.co.kr/view/AKR20261012101551051",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-25",
+   "source": "WTO",
+   "title": "Panel to review EU carbon border adjustment mechanism and emissions trading scheme",
+   "link": "https://www.wto.org/english/news_e/news26_e/dsb_25sep26_496_e.htm",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-01",
+   "source": "연합뉴스",
+   "title": "영국, 러시아→한국 LNG 수입 제재 면제",
+   "link": "https://www.yna.co.kr/view/AKR20261001199100082",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-30",
+   "source": "한국경제",
+   "title": "호르무즈 원유수출 80% 회복…궁지 몰린 이란 '확전' 변수",
+   "link": "https://www.hankyung.com/article/202609303758i",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-30",
+   "source": "동아일보",
+   "title": "LS에코, 2년8개월 만에 희토류 직접 생산…방산용 사마륨부터",
+   "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE02LWtYODMzdzhEWEw1bEVpam1rbjFBMTdxeTJPWHc5aW0wWWxuUGsyUW9ORWJKYXBGVHFic3JIclVvUkk1SEdNQ25pN09VOHZIRkxzMERBM3hpazhrc3N3T3VnbWVxU2lHNG5kYjVUbkdnbFlOTGfSAWZBVV95cUxNemVpNnZJS0V6dEhYT1llNHFjMjdHc0dITnZoRDRZS3hibFdBTHFhQWYyVVZWclc1bUFnTTV5Q3VfWUVOcEo0azNSdXJ3N0xNVklLZU5xSEY5a0puR0FnNzVDbktwaGc?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-23",
+   "source": "서울신문",
+   "title": "“관세 압박 낮춰 美 진출 확대” vs “재정 리스크·외환시장 부담”",
+   "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE1yVnRtZnJnYlNSUnJYZmR1SmFocm9PT2VGd3J6WWlGY0E1SXZrcVJmbEFGSVd4cmI2M0tuQ3llYmw2Nk84Mi1WX3RkeWpJRGpBRXpXaGpMQXVfNWdKR21zdTA5MEowbjJaUmltZzlaUQ?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-11",
+   "source": "매일경제",
+   "title": "4대 신항만 장비 38%가 '메이드 인 차이나'",
+   "link": "https://www.mk.co.kr/news/economy/12173100",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-30",
+   "source": "한국경제",
+   "title": "트럼프 \"호르무즈 원유 수송 역대 최다…이란전 곧 승리\"",
+   "link": "https://www.hankyung.com/article/2026100160387",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-03",
+   "source": "아시아경제",
+   "title": "\"관세 10% 할인되나요\"…대만 해안에 나타난 '트럼프 바위'",
+   "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE5pZDNnTDd6eEQwUjBkQTJtUERGV1lpZTRoSTE3OXF1Q2Q4Ym85b2VDcjgwMWoyR0JyMTI0QWtubVJxMDdnRkFacnJnRDVFM1Juc1lwTjFGX3lWSlFURkx5Qw?oc=5",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-04",
+   "source": "서울Eye",
+   "title": "李 “핵심광물·공급망 협력 강화”… 한·몽골 ‘황금시대’ 연다",
+   "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxOUXVRdGUtM01IQ05xXzdtVlc1SmlZOVJEbENmZmthUjZMMUNRNlBMeXlCVWJnZkpya3JmX090Z3VicWJWUHRsWVpubVpGV05ic0owUHAtcHUxZTlTNEpOQTNhSmRndFVHTDNwX3hQU3ZUNGN3TUY5N3oyYTlOOHN3Q1h0Tks0Vkl5VEZ1NHpnNTNaVVNwcmstWUo2MFdPUUM5MVE?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-19",
+   "source": "The Loadstar",
+   "title": "New EU parcel charges add pressure for rethink on cross-border fulfilment",
+   "link": "https://theloadstar.com/new-eu-parcel-charges-add-pressure-for-rethink-on-cross-border-fulfilment/",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-14",
+   "source": "연합뉴스",
+   "title": "중국 9월 수출 36.3% 급증…수입은 31.0% 늘어",
+   "link": "https://www.yna.co.kr/view/AKR20261014092900089",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-05",
+   "source": "Financial Times",
+   "title": "Trinity Industries Statement on Antidumping and Countervailing Duty Petition Filed Against Railway Tank Car Imports from Mexico – Company Announcement - FT.com",
+   "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNWk9xbEF4SFA0Y1Fvc1EwcFdSekR6U09fRXAyeGVoamlJTE4yNUlYYlhUZ3VWRVJtb3EzN19DQmJ4dG5mSUJoT0ttbU1PVjlKMHR6NFZ5RnphSEQxNjNsYlhxLXV6RUhwdFpWdVFicUcxOERxQU9xOVh2VWhLdVh1bGpxLXRZQThjMnk5Q3JndDFfVlU0Njdab1pDWFVmeXZUVFNTaTR3?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-17",
+   "source": "연합뉴스",
+   "title": "젤렌스키, 트럼프 대러제재 유예에 \"푸틴만 돕는 오판\"",
+   "link": "https://www.yna.co.kr/view/AKR20261018004300009",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-14",
+   "source": "Nikkei Asia",
+   "title": "Coal prices up 40% this year on LNG replacement demand, supply uncertainty",
+   "link": "https://asia.nikkei.com/business/energy/coal-prices-up-40-this-year-on-lng-replacement-demand-supply-uncertainty",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-02",
+   "source": "연합뉴스",
+   "title": "로이터 \"알래스카 LNG 사업비, 멕시코만 연안의 두배\"",
+   "link": "https://www.yna.co.kr/view/AKR20261002052400009",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-08",
+   "source": "European Commission",
+   "title": "Commission selects 46 new Strategic Projects to bolster the EU's supply of critical raw materials",
+   "link": "https://ec.europa.eu/commission/presscorner/detail/en/ip_26_2113",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-06",
+   "source": "연합뉴스",
+   "title": "美 8월 무역적자 작년 3월 이후 최대…수입은 사상 최대",
+   "link": "https://www.yna.co.kr/view/AKR20261006201700072",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-03",
+   "source": "연합뉴스",
+   "title": "트럼프 압박까지…대미투자, 알래스카 LNG 암초에 산 넘어 산",
+   "link": "https://www.yna.co.kr/view/AKR20260923183200003",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-30",
+   "source": "뉴스핌",
+   "title": "中 저가 공습에 반덤핑 급증…8개월 만에 11건 신청",
+   "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE9QUkFQZEJ3Q3NhMGh0MGUycVAySzFEeFhpaVFKS0NZam1MaThtSjVLcjdBdlRWcG90NTBpa3dRUGFQa0FRMW9la2IxZXQ1S2NfUTVpb3ZfdzRKa0hL?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-29",
+   "source": "연합뉴스",
+   "title": "하나증권 \"LX인터내셔널, 3분기 실적 기대치 상회 전망\"",
+   "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE5qR25uUEdZdGx5SkVlMlpZMl9YcUZfRzZYYVFsUWpmTGIxbUhmbWFvOTFnVXZodzhLdHJNUjM4MVA2VThTaUFPM09Jd2pPVHVHelQyLURKaWtRWFo4S2o2MtIBYEFVX3lxTE5qR25uUEdZdGx5SkVlMlpZMl9YcUZfRzZYYVFsUWpmTGIxbUhmbWFvOTFnVXZodzhLdHJNUjM4MVA2VThTaUFPM09Jd2pPVHVHelQyLURKaWtRWFo4S2o2Mg?oc=5",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-29",
+   "source": "뉴스핌",
+   "title": "[중국 특징주] 中 프로판 가격 10년 만에 최고치…석유화학업계 원가 부담 확대",
+   "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1sTG1KVWlsenE5QzVGUjFwQnlIZmNsWUJTUGVtSXpjVm91VHFvTmEwTzJxWmNyWmZVekdGcks0THJEazMzMXo2YThfaDlaMUE1UjFmRVlfNXJVVWpQ?oc=5",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-06",
+   "source": "The Loadstar",
+   "title": "Suez return a major threat to carrier efforts to halt transpac spot rate slide",
+   "link": "https://theloadstar.com/suez-return-a-major-threat-to-carrier-efforts-to-halt-transpac-spot-rate-slide/",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-13",
+   "source": "연합뉴스",
+   "title": "북극항로 시범운항 귀환 환영 행사…50일 만에 부산-유럽 왕복",
+   "link": "https://www.yna.co.kr/view/AKR20261012101500051",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-27",
+   "source": "정책브리핑",
+   "title": "(참고자료) DOTP 반덤핑 관련 「민·관 대책회의」 개최",
+   "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE5ERE5udkxUQnJ6dXZ4Z2FWbENXOWtWUDJxNFp4TmNUOWFrdjNDbzNXZnowWF9lMkhkaFpySnhSdEVueWlHLXpYNXN5LS04cG1OTEVPNjBlaDh0Z1VudDhhTndUdzBKOGlLNEExS1dZcXhBUTZ0?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-30",
+   "source": "연합뉴스",
+   "title": "[속보] 美상무 \"韓, 알래스카 LNG 프로젝트에 500억불 이상 투자\"",
+   "link": "https://www.yna.co.kr/view/AKR20261001007200071",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-19",
+   "source": "gCaptain",
+   "title": "Northern Sea Route Transits Surpass 2025 Total as Arctic Shipping Gains Momentum",
+   "link": "https://gcaptain.com/northern-sea-route-transits-surpass-2025-total-as-arctic-shipping-gains-momentum/",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-24",
+   "source": "정책브리핑",
+   "title": "한·중·일 정상, 3국 FTA 연내 개시 합의",
+   "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE1Hc0pRWUZUMDZJSHhtUVRkMV9sRlotQmxkNDhfM3B1TGd5eFBuUWpoWm1IVTB6Z0hFYmFxdl9MMW1Nc3BlTTZYVm5SUVotSlJuRTdkdTFYaHBhQ200UmtmZ21DX2FYOFVhYXRVXw?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-20",
+   "source": "연합뉴스",
+   "title": "HD현대, HMM 초대형 친환경 컨테이너선 8척 수주…1.9조원 규모",
+   "link": "https://www.yna.co.kr/view/AKR20261020082300003",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-05",
+   "source": "gCaptain",
+   "title": "Shadow Fleet Traffic on Northern Sea Route Surges as Arctic Safety Concerns Grow",
+   "link": "https://gcaptain.com/shadow-fleet-traffic-on-northern-sea-route-surges-as-arctic-safety-concerns-grow/",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-25",
+   "source": "서울경제",
+   "title": "靑 “한·멕 FTA, ‘USMCA’ 변수에 ‘속도조절’”…투자·산업협력부터 제도화",
+   "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE5Md2NwN3JTdFpDMVgzZmwwd3FucVdGMmFUOFJQLV9HRFR3TFpzaEZ6WWdLdHNfX3dfNV9HWXBqUG96eE5qWXBac0JZS19MaVBBWWfSAVNBVV95cUxOUnhlWUdoSFN0eVEyTFdJdER0RTdtZjJJSy0tRmp2VG1wMmh2VTN3MEt0eTdDUjFab09uNUtUUjVmMFdoRDM0SzRMWlhuak1ZWi04MA?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-19",
+   "source": "연합뉴스",
+   "title": "울산항만공사, 폐현수막으로 장바구니 제작…상권 활성화 연계도",
+   "link": "https://www.yna.co.kr/view/AKR20261019166500057",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-02",
+   "source": "뉴시스",
+   "title": "2000억弗 대미투자 첫 발…약속 지켜도 美 '301조 관세' 변수",
+   "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9lcENES0w4aXFRVEJ0OHBNWFdYY0NLejRjZExtdDRsLTJ6NU5wNjk2bmFvcjNkSEVjS2haaVdVbFpJR3FVR2JJLWRDS3M3Y2o4SHAtalc3MjhRbTNXT0RtQtIBeEFVX3lxTE9BSVJTZTRrZEZ1S0YwUDgtMUFuMDdGUm9EUkp2LWtrbndQYWsyVnhaUUlMalA1dkl3TGtfOHl6N0ZiR2x6VzFmbmhOa0tyV3loN0hEUHB6TGNMRGJBTEpDUHBzR0JHdElJWWt1dEVISERtWVhtZnR0Tg?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-30",
+   "source": "Seoul Economic Daily",
+   "title": "LS Cable Invests 161.6 Billion Won in Rare Earth Magnet Supply Chain",
+   "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNUm9EeGZmMmV3SF9ta2JHWXpIRmNMT1lOT29vV0FabEVqbVRPVTdnN0xVekRhN0hlV0ltb0V3SGNuTHNlbU12OWZad0hOTWh2WEwyMVowR0lEN0J5VkF3NUtkNG9pb1F2aGVETGlTbGpyUXRuVGFWbFJWUjA1ZjBzY3NYNnd3SHVwelZLRkFuU2Z0bGhQaDZ1dTFPTWk?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-22",
+   "source": "Seoul Economic Daily",
+   "title": "U.S. Firms Say Supply Chain Turmoil Now Exceeds Pandemic Era",
+   "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxOc2lMdWphekNXYkhTWWpPdlBZRUdwS3J1bzQwcEVKdW95U3AybEJZUUphUmtKMkhVaWYyNXhzLXQ1X3E1UDg3WjIyLUpCZU82M2RlMWIxUXZ0OWNiUmd1ajA4aDlaMVNWZXdFQ0VVV3B6Ti1McXhXcjdEMnhtVW5lVmJOdFhPRE9TVHBnZl85M3FwSmVSSkpJTXFTOGFrZjlCTW5rMmhiUzNDZw?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-12",
+   "source": "연합뉴스",
+   "title": "프랑스 정부 지원 공항그룹, 러·이란 제재 항공사 지원 논란",
+   "link": "https://www.yna.co.kr/view/AKR20261012132700009",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-27",
+   "source": "전자신문",
+   "title": "제조업 체감경기 두 분기 연속 반등…10곳 중 6곳은 “이익 목표 못 채워”",
+   "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE9vZEZwdU44eXNzcDFBYnJ1UUhONTRPUzFMdnRnaDNsYzF3ZVQyVks5ZEsyWEhXb180MEhkcG8wdDRta2lwVkpWMlZLZXNOUQ?oc=5",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-07",
+   "source": "연합뉴스",
+   "title": "한투증권 \"원/달러 환율, 1,330원대 복귀해도 추가 하락 압력\"",
+   "link": "https://www.yna.co.kr/view/AKR20261008030700008",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-26",
+   "source": "연합뉴스",
+   "title": "[한일 미래路] SK재팬 대표 \"日기업도 한일협력 열의 높아…신뢰가 경쟁력\"",
+   "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTFAxQjkzd0M1SlFUa1F5VlI5Z0swOE9GVmxvbUVUSzd6MWtRaXozYWYwZHNTc3IyUUlpVnQ3R0w1bUxBclFfVzhoaUpEN0pXRlh2ZEotckFIeGZ0RTTSAWBBVV95cUxOZGdTZGlldzVHMy14dWVZRnA4TXdtSVk3N0IwbUxlTkZvTU13ODhaUDBjT1Q5bHh5Q3pnNzg4YlROQnJJRTZtdS1QamVGUkhieFo0dDJKQVpvZXFYVDhqUjI?oc=5",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-16",
+   "source": "Nikkei Asia",
+   "title": "Asian countries should consider sanctions on the Houthis",
+   "link": "https://asia.nikkei.com/opinion/asian-countries-should-consider-sanctions-on-the-houthis",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-01",
+   "source": "뉴스핌",
+   "title": "[中 거인의 공급망] ②전원으로 연결고리 '태가주식' 없으면 '화웨이'도 없다",
+   "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1oamEyMkU2UTlPRHdGZG05MUVNRzBxcVJzSmNqcmxGeTR0dUt2X2xhbHZZWlUwWXF2XzJ1NWVwNW5NQ09xRjBWR01SajZkU2Z3eGJJTnlSS2hQZ3py?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-28",
+   "source": "MBC 뉴스",
+   "title": "중국, 미국산 석탄 관세 인하에 포함‥품목 90%는 최혜국 세율로",
+   "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE43aEdHcExlcHBJU3BnYy1wd2dPRE80M1dWQnNZQWE4QWxiLU9RU3BVbE5NakFsRVlNWHdjSUNuY0NEamxDTFhEZGs0LS1MYWNxcEhaeFdqMTJRRWhxU015TWJUOElXSXduMFlpWUhSdDBaY0Vp0gF0QVVfeXFMUHBZaUFIb0FUSTZHS2RGRVJCMzIyVXBObTFzQjZ3WkVFOVU2SnhOMm1BaENtWDVJTGtteVFuYXk0N2Y0eWgtZmJaZmVFYWplNW4xS1QxUjBMOGo5bFo5aUxESVdFT2pxNGpwYnRKbWtyLVp3VG8?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-30",
+   "source": "한국경제",
+   "title": "[속보] 트럼프 \"한국, 관세인하 위해 비용 지불…美, 막대한 수익 창출\"",
+   "link": "https://www.hankyung.com/article/202610016053i",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-01",
+   "source": "연합뉴스",
+   "title": "미국 고금리 장기화 우려에…환율 1,350원대 후반으로 상승",
+   "link": "https://www.yna.co.kr/view/AKR20261001150700002",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-17",
+   "source": "연합뉴스",
+   "title": "개인 달러예금 4년10개월만에 최대…'빚투' 수요도 꿈틀",
+   "link": "https://www.yna.co.kr/view/AKR20261017044300002",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-01",
+   "source": "이데일리",
+   "title": "강달러·유가 급등에도 네고 물량…환율 1350원대 등락[외환브리핑]",
+   "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPMGROWmhXRFk0aFdrVGhJMFI3V2w5M2FCNlljc0J2OWVzOGZYRTBQS2RCNjc2eUUzdTBqdjN3X1BzYWJQQ2ppWFg4YlJTaTJndldySFNoQ1ZOR1JHeG5lalJoOG5pQWJUNHdtd0tWdlhBTTREY0ZkUjVSZ3l4ZS0zdA?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-30",
+   "source": "연합뉴스",
+   "title": "美금리 상승도 누른 수출업체 달러 매도…환율 1,350원대 초반",
+   "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE81b2VGenlJVlRONzJoYTlpVFl0ZkFjbUZtaWpyNUxLUkpDUVNBVGh1Y3VDb215NTNCYXlqMk5DN2lWZVBxVFFPcUpDNnhON2F0MUNBLVUxNEpSNWPSAWBBVV95cUxPWkpPaTI5dFVRSTAzcjU5dy1jWktHdVlfeTkzWlZNSlc0dkxTZl92c0ZCRTlQc0JYbk5XVnFQQ3hVS1pGak8tbDFCOTRGMWY1WFdUX2lNM0IzMTRTVmJvMzc?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-05",
+   "source": "이데일리",
+   "title": "1250원 vs 1400원…엇갈리는 원달러 환율 전망",
+   "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOMkZWR2x6eXJrcG9hck5DY2VXZ04xTWFJbXM3bHNkZlhLdGpIMUMxTUI1cGNQUlplaHBFTWFFUDhIeVpuTVRnNEVHWFJKNTNCb1o5X3JZUDh5Q2xkT0ZMUV9FVGFWTVBXclQ4UHlpblFsRzBDZnFZQ3hMcUowcUlRaQ?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-09-28",
+   "source": "마켓인",
+   "title": "美中, 600억달러 관세 낮춘다…희토류 등 핵심갈등은 그대로",
+   "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTFBVb05TeFRtbmVleUNxbEpoNmhKckZxXy1RSUtUYmtpQ1FMYVlqUHVQZ1ZpZEMyY2Z5WmZnX0l5dEQyaDF3TWp1UUxYUnBodmNxUEZ0dG5wOU9SLTY2MHl2U0c3MURfbnlLY1c0NjljbkxaTU0?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-02",
+   "source": "이데일리",
+   "title": "\"환율 1250원까지 하락\"…반도체가 몰고 온 무역흑자 시대",
+   "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNUWJTbHdxMm85WXp2WWstdWxUdG1sa1hlbUNBSnloTDJXWktVUHRIMkE5cGk1R3VHTVkzQk5jbGRVQmpjS0N3RWM3OU9jbzV5cUhpRWJuclNjOWl4SWE3NVhmeldVUkRzRHZEN2I2dEpFWktSMDF6ckZPcDVoVDlsRA?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-18",
+   "source": "연합뉴스",
+   "title": "수은 행장, 국제금융공사 총재와 글로벌 공급망 협력 논의",
+   "link": "https://www.yna.co.kr/view/AKR20261018012100002",
+   "label": "unsure",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-05",
+   "source": "이데일리",
+   "title": "英, 결국 中전기차 관세 올린다…EU 압박에 '백기'",
+   "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNZDVRZHZGOHRLRnYtYUhiWVBudE1tMzNDQUVYSlpMMFFJODd3OU1fZXZVVzYwamdDc2VBWjBOSFU5dER0ZGF5eGlUSXpxNEpzSDVPNDhzamxFblZ4N1drTUxlbkFYMTNWZ0I5MDlBVUwyUGpWQmN1TWdacjF1cUxsWg?oc=5",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-19",
+   "source": "연합뉴스",
+   "title": "국감서 인천신항 하역장비 중국산 도입 '질타'",
+   "link": "https://www.yna.co.kr/view/AKR20261019091300065",
+   "label": "fit",
+   "topicFix": null,
+   "reason": ""
+  },
+  {
+   "set": "holdout",
+   "date": "2026-10-07",
+   "source": "연합뉴스",
+   "title": "트럼프, 또 노벨평화상 타령…\"관세로 많은 전쟁 막았다\"",
+   "link": "https://www.yna.co.kr/view/AKR20261008004500071",
+   "label": "unfit",
+   "topicFix": null,
+   "reason": ""
+  }
+ ]
+}

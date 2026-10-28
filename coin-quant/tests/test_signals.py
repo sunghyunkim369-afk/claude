@@ -222,3 +222,11 @@ def test_index_signals_mixed_calendars():
     assert sig["^GSPC"]["date"] == idx[-2].date()
     rows = {r["기호"]: r for r in market_table(M)}
     assert rows["^GSPC"]["추세 점수(단/중/장)"] != "-"
+
+
+def test_ai_summary_off_without_key_and_html(monkeypatch):
+    from coinquant.app import ai
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    assert ai.summarize({"x": [{"title": "t"}]}, "요약") is None
+    h = ai.to_html("머리말\n- **연준**: 금리 <동결> & 발표\n- 둘째 줄")
+    assert h == "• <b>연준</b>: 금리 &lt;동결&gt; &amp; 발표\n• 둘째 줄"

@@ -174,14 +174,56 @@ def _md_table(cols: list[str], rows: list[list]) -> list[str]:
     return out
 
 
+def todo_items(idx_sig: list[dict] | None, econ: list[dict], earn: list[dict]) -> list[tuple[str, str]]:
+    """'오늘 할 일' 줄 목록 [(아이콘, 굵게 쓸 부분과 설명이 섞인 HTML)] — 텔레그램·페이지 공용."""
+    from html import escape as e
+    xs = idx_sig or []
+    buy = [x for x in xs if x["state"] == "매수 가능"]
+    hold = [x for x in xs if x["state"].startswith("보유만")]
+    off = [x for x in xs if x["state"].startswith("관망")]
+    out = []
+    for x in buy:
+        etf = next((t for t in x["etf"].split(" · ") if "(" in t), x["etf"])   # 국내 상장 ETF 먼저
+        out.append(("🟢", f"<b>매수: {e(x['name'])} → {e(etf)}</b> ({e(x['grade'])})"))
+    if not buy:
+        out.append(("•", "<b>새로 살 지수 ETF: 없음</b>"))
+    if hold:
+        out.append(("🟡", f"<b>보유만: {'·'.join(e(x['name']) for x in hold)}</b> (갖고 있으면 유지, 새로 사지 않음)"))
+    if off:
+        out.append(("⚪", f"<b>갖고 있으면 매도: {'·'.join(e(x['name']) for x in off)} ETF</b>"))
+    gaps = {x["name"]: (x["chan60"] / x["close"] - 1, x["chan60"]) for x in xs if x["state"] != "매수 가능" and x["close"] > 0}
+    if gaps:
+        n_ = min(gaps, key=lambda k: abs(gaps[k][0]))
+        out.append(("🎯", f"다음 신호 가장 가까운 것: <b>{e(n_)} {num(gaps[n_][1])}↑</b> (지금보다 {gaps[n_][0]:+.1%}, 대략)"))
+    key = list({(x["event"], x["time_kst"]): x for x in econ if x["key"]}.values())
+    earn = list({x["symbol"]: x for x in earn}.values())
+    if key:
+        out.append(("⚠️", "주요 지표: " + ", ".join(f"<b>{e(x['event'])}</b> {e(x['time_kst'])}" for x in key[:4])))
+    if earn:
+        out.append(("💼", "실적 발표: <b>" + "·".join(e(x["symbol"]) for x in earn[:6]) + "</b>" + (" 등" if len(earn) > 6 else "")))
+    return out
+
+
+def _md(h: str) -> str:
+    """텔레그램 HTML → 마크다운 (페이지용)."""
+    import html as _h
+    import re as _re
+    h = _re.sub(r'<a href="([^"]+)">(.*?)</a>', r"[\2](\1)", h)
+    h = _re.sub(r"</?b>", "**", h)
+    h = _re.sub(r"</?i>", "_", h)
+    return _h.unescape(h)
+
+
 def render(today: pd.Timestamp, mk: list[dict], news: dict, news_err: list[str], earn: list[dict], econ: list[dict],
-           sig: dict, val_line: str, idx_sig: list[dict] | None = None) -> str:
+           sig: dict, val_line: str, idx_sig: list[dict] | None = None, ai_sum: str | None = None,
+           osun: list[dict] | None = None) -> str:
     o = [f"# {today:%Y년 %m월 %d일} ({WEEKDAY[today.weekday()]}) 오늘의 소식\n",
          "> ⚠️ 투자 판단을 돕는 정보일 뿐 투자 권유가 아닙니다. 과거 성과는 미래를 보장하지 않으며 원금 손실 가능성이 있습니다. "
          "뉴스 구분(공식 발표/보도/전망·추측)은 제목으로 자동 분류한 것이라 틀릴 수 있으니 원문을 확인하세요.\n"]
     get = {r["기호"]: r for r in mk}
     line = " · ".join(f"{get[t]['지표']} {_p(get[t]['1일'])}" for t in ("^GSPC", "^IXIC", "^KS11", "^KQ11") if t in get)
     extra = " · ".join(f"{get[t]['지표']} {num(get[t]['종가'])}" for t in ("KRW=X", "^TNX", "^VIX") if t in get)
+    o += ["## ✅ 오늘 할 일\n"] + [f"- {ic} {_md(t)}" for ic, t in todo_items(idx_sig, econ, earn)] + [""]
     o += ["## 📌 한눈에 보기\n", f"- 지수: {line}", f"- 금리·환율·변동성: {extra}"]
     for x in idx_sig or []:
         o.append(f"- {x['name']} 신호: **{x['state']}** ({x['grade']})")
@@ -193,6 +235,12 @@ def render(today: pd.Timestamp, mk: list[dict], news: dict, news_err: list[str],
                    [[r["묶음"], r["지표"], num(r["종가"]), _p(r["1일"]), _p(r["1주"]), _p(r["1달"]), _p(r["200일선 대비"]),
                      r["추세 점수(단/중/장)"], r["중기 추세"], r["날짜"]] for r in mk])
     o += ["", "추세 점수: 기간마다 이동평균·채널 위치·회귀 추세선 근거를 −1/0/+1로 매겨 합한 값(−3~+3). 중기 추세는 +2 이상에서 켜지고 0 이하에서 꺼짐.\n"]
+    if ai_sum:
+        o += ["## 🗞 오늘의 핵심 (AI 요약)\n", "_아래 뉴스 제목만 보고 AI가 정리한 것입니다. 원문을 확인하세요._\n"]
+        o += [f"- {_md(x[2:])}" for x in ai_sum.splitlines()] + [""]
+    if osun:
+        o += ["## 🎥 오선의 미국 증시 라이브 — 최신 영상\n"]
+        o += [f"- [{x['title']}]({x['link']})" for x in osun] + [""]
     o.append("## 2. 주요 뉴스\n")
     for grp in ("해외", "국내"):
         o.append(f"### {grp}\n")
@@ -270,8 +318,10 @@ def render(today: pd.Timestamp, mk: list[dict], news: dict, news_err: list[str],
     return "\n".join(o)
 
 
-def telegram_text(today, mk, news, sig, url: str, idx_sig: list[dict] | None = None) -> str:
-    """텔레그램 요약 (HTML 서식). 전체 내용은 페이지 링크로."""
+def telegram_text(today, mk, news, sig, url: str, idx_sig: list[dict] | None = None, econ: list[dict] | None = None,
+                  earn: list[dict] | None = None, ai_sum: str | None = None, osun: list[dict] | None = None,
+                  osun_sum: str | None = None) -> str:
+    """텔레그램 (HTML 서식). 맨 위 '오늘 할 일'만 보고 결정할 수 있게, 자세한 건 페이지 링크로."""
     from html import escape as e
     get = {r["기호"]: r for r in mk}
     ic = {"매수 가능": "🟢", "보유만 (신규 진입 대기)": "🟡", "관망 (현금)": "⚪"}
@@ -279,11 +329,12 @@ def telegram_text(today, mk, news, sig, url: str, idx_sig: list[dict] | None = N
     def idx(ts):
         return " · ".join(f"{e(get[t]['지표'])} <b>{_p(get[t]['1일'])}</b>" for t in ts if t in get)
 
-    L = [f"<b>📈 주식 오늘의 소식</b>  {today:%m/%d}({WEEKDAY[today.weekday()]})", "", "<b>지수</b>",
-         f"🇺🇸 {idx(('^GSPC', '^IXIC'))}", f"🇰🇷 {idx(('^KS11', '^KQ11'))}"]
+    L = [f"<b>📈 주식 · {today:%m/%d}({WEEKDAY[today.weekday()]})</b>", "", "<b>✅ 오늘 할 일</b>"]
+    L += [f"{i} {t}" for i, t in todo_items(idx_sig, econ or [], earn or [])]
+    L += ["", "<b>📊 지수</b>", f"🇺🇸 {idx(('^GSPC', '^IXIC'))}", f"🇰🇷 {idx(('^KS11', '^KQ11'))}"]
     ex = []
     if "KRW=X" in get:
-        ex.append(f"환율 {get['KRW=X']['종가']:,.0f}원")
+        ex.append(f"환율 <b>{get['KRW=X']['종가']:,.0f}원</b>")
     if "^TNX" in get:
         ex.append(f"미10년 {get['^TNX']['종가']:.2f}%")
     if "^VIX" in get:
@@ -291,24 +342,33 @@ def telegram_text(today, mk, news, sig, url: str, idx_sig: list[dict] | None = N
     if ex:
         L.append(" · ".join(ex))
     if idx_sig:
-        L += ["", "<b>🎯 지수 ETF 신호</b>"]
+        L += ["", "<b>🎯 지수 ETF 신호</b>  <i>검증: 나스닥·코스피만 근거 있음</i>"]
         for x in idx_sig:
-            L.append(f"{ic.get(x['state'], '⚪')} <b>{e(x['name'])}</b> {e(x['state'])}  <i>{e(x['grade'])}</i>")
-    for grp, flag in (("해외", "🌎"), ("국내", "🇰🇷")):
-        items = news.get(grp, [])[:3]
-        if items:
-            L += ["", f"<b>{flag} {grp} 뉴스</b>"]
-            for i in items:
-                t = e(i["title"][:60] + ("…" if len(i["title"]) > 60 else ""))
-                L.append(f"• <a href=\"{e(i['link'], quote=True)}\">{t}</a> <i>{e(i['kind'])}</i>" if i.get("link") else f"• {t}")
-    L += ["", "<b>👀 추세 시작 종목</b>  <i>(관심 목록, 매수 근거 아님)</i>"]
+            sc = x["score"]
+            L.append(f"{ic.get(x['state'], '⚪')} <b>{e(x['name'])}</b> {e(x['state'])}  중기 <b>{sc['중기']:+d}</b>  <i>{e(x['grade'])}</i>")
+    if ai_sum:
+        L += ["", "<b>🗞 오늘의 핵심</b>  <i>AI 요약 · 원문 확인 권장</i>", ai_sum]
+    else:
+        for grp, flag in (("해외", "🌎"), ("국내", "🇰🇷")):
+            items = news.get(grp, [])[:3]
+            if items:
+                L += ["", f"<b>{flag} {grp} 뉴스</b>"]
+                for i in items:
+                    t = e(i["title"][:60] + ("…" if len(i["title"]) > 60 else ""))
+                    L.append(f"• <a href=\"{e(i['link'], quote=True)}\">{t}</a> <i>{e(i['kind'])}</i>" if i.get("link") else f"• {t}")
+    if osun:
+        L += ["", "<b>🎥 오선 라이브</b>"]
+        L += [f"• <a href=\"{e(x['link'], quote=True)}\">{e(x['title'][:60])}</a>" for x in osun]
+        if osun_sum:
+            L.append(osun_sum)
+    L += ["", "<b>👀 추세 시작 종목</b>  <i>관심 목록 · 매수 근거 아님</i>"]
     for mkt, (cards, offs, sm) in sig.items():
         flag = "🇺🇸" if mkt == "미국" else "🇰🇷"
         names = ", ".join(e(str(k["name"])) + ("📰" if k["mention"] else "") for k in cards[:5]) or "없음"
         more = f" 외 {sm['n_fresh'] - min(len(cards), 5)}개" if sm["n_fresh"] > 5 else ""
         L.append(f"{flag} {names}{more}")
     if url:
-        L += ["", f"📄 <a href=\"{e(url, quote=True)}\">전체 페이지 보기</a> (실적·경제지표·종목 근거)"]
+        L += ["", f"📄 <a href=\"{e(url, quote=True)}\"><b>전체 페이지</b></a> — 뉴스 전체·실적·경제지표·종목별 근거"]
     L += ["", "<i>투자 권유 아님 · 원금 손실 가능</i>"]
     return "\n".join(L)[:4000]
 
@@ -337,7 +397,17 @@ def main(cfg: dict | None = None, send: bool = True, log=print) -> Path:
     econ = cal.economic(ny) + cal.economic(ny + pd.Timedelta(days=1))
     val_line = cfg.get("stocks", {}).get("validation_summary", "docs/stocks-validation-2026-10-27.md (2024년까지, 2025~ 잠금)")
     isig = index_signals(M)
-    md = render(today, market_table(M), news, nerr, earn, econ, sig, val_line, isig)
+    osun = sn.youtube_latest()
+    log(f"  오선 라이브 최신 영상 {len(osun)}개")
+    from ..app import ai
+    ai_sum = ai.summarize({"해외 증시 뉴스": news.get("해외", []), "국내 증시 뉴스": news.get("국내", [])},
+                          "아래 해외·국내 증시 뉴스 제목으로 오늘 투자자가 알아야 할 핵심을 최대 5줄로 정리하세요. "
+                          "영어 제목은 한국어로 옮기고, 각 줄은 '- **주제**: 내용' 형식으로 쓰세요.", cfg, log=log)
+    osun_sum = ai.summarize({"오선의 미국 증시 라이브 영상 (제목·설명)": osun},
+                            "아래 유튜브 영상의 제목과 설명만 보고 무엇을 다뤘는지 최대 2줄로 정리하세요. "
+                            "설명에 없는 내용은 추측하지 마세요.", cfg, log=log) if osun else None
+    log(f"  AI 요약: {'있음' if ai_sum else '없음 (ANTHROPIC_API_KEY 없음 또는 실패)'}")
+    md = render(today, market_table(M), news, nerr, earn, econ, sig, val_line, isig, ai_sum, osun)
     out = config_mod.ROOT / "out" / "briefing"
     (out / "daily").mkdir(parents=True, exist_ok=True)
     page = out / "daily" / f"{today:%Y-%m-%d}.md"
@@ -347,7 +417,7 @@ def main(cfg: dict | None = None, send: bool = True, log=print) -> Path:
                                    encoding="utf-8")
     repo = os.environ.get("GITHUB_REPOSITORY", "")
     url = f"https://github.com/{repo}/blob/stock-briefing/daily/{page.name}" if repo else ""
-    text = telegram_text(today, market_table(M), news, sig, url, isig)
+    text = telegram_text(today, market_table(M), news, sig, url, isig, econ, earn, ai_sum, osun, osun_sum)
     (out / "telegram.txt").write_text(text, encoding="utf-8")
     log(text)
     if send:

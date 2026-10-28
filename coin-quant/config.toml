@@ -79,3 +79,9 @@ limit_discount_other = 0.03   # 기타(알트) −3% (한 번만 걸어도 시�
 daily_summary = true
 telegram = true    # .env 에 TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID 를 넣어야 동작
 windows = true     # 윈도우 PC 알림
+
+[ai]
+# 뉴스 AI 요약 (선택) — ANTHROPIC_API_KEY 가 .env(PC) 또는 GitHub Secrets 에 있을 때만 동작, 없으면 기사 제목만 보여 줌.
+# 비용 대략: 하루 3번 호출(코인 1 + 주식 2) × 약 $0.03 = 한 달 $2~3. 더 싸게: model = "claude-haiku-5-5" (한 달 몇 센트, 요약 품질은 낮을 수 있음)
+model = "claude-opus-5-5"
+effort = "low"

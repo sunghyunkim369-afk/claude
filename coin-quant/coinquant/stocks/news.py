@@ -133,3 +133,28 @@ def stock_news(name: str, lang: str = "ko", n: int = 2) -> list[dict]:
     for i in items:
         i["kind"] = kind(i["title"], i["source"])
     return items[:n]
+
+
+OSUN_CHANNEL = "UC_JJ_NhRqPKcIOj5Ko3W_3w"   # 오선의 미국 증시 라이브 (youtube.com/@futuresnow)
+
+
+def youtube_latest(channel_id: str = OSUN_CHANNEL, hours: int = 30, n: int = 3) -> list[dict]:
+    """유튜브 채널 공개 RSS 의 최근 영상 제목·링크·설명 (자막·영상 내용은 가져오지 않음)."""
+    ns = {"a": "http://www.w3.org/2005/Atom", "m": "http://search.yahoo.com/mrss/"}
+    try:
+        r = requests.get(f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}", headers=UA, timeout=20)
+        r.raise_for_status()
+        root = ET.fromstring(r.content)
+    except Exception:
+        return []
+    now = pd.Timestamp.now(tz="UTC").tz_localize(None)
+    out = []
+    for e in root.findall("a:entry", ns):
+        t = pd.Timestamp(e.findtext("a:published", "", ns)).tz_convert("UTC").tz_localize(None)
+        if now - t > pd.Timedelta(hours=hours):
+            continue
+        link = e.find("a:link", ns)
+        out.append({"title": (e.findtext("a:title", "", ns) or "").strip(), "link": link.get("href") if link is not None else "",
+                    "time": t, "source": "오선 라이브", "kind": "영상",
+                    "desc": (e.findtext("m:group/m:description", "", ns) or "").strip()})
+    return out[:n]

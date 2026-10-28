@@ -5,7 +5,7 @@
   · 신규 진입 대기: 공식 보유 상태지만 중기 +1 (갖고 있으면 보유, 없으면 기다림)
   · 관망: 공식 신호 꺼짐 (갖고 있으면 매도)
 매일 시황(코인별 등락·200일선·국면·변동성·펀딩비) + 상태가 바뀐 날은 🔔 표시 (config [alert] daily_summary). 함께 붙이는 참고 정보:
-  큰 일정(events.toml), 4년 주기 위치, 오늘의 뉴스(위험 키워드) → '개인 판단 체크리스트' (검증한 규칙이 아님).
+  큰 일정(events.toml), 4년 주기 위치, 뉴스 → '참고 정보' (매매 규칙으로 검증해 보니 공식을 이기지 못함, docs/rules-check).
 --light: 코어 3종만 받아서 실행 (PC 없이 GitHub Actions 에서 매일 보내기, .github/workflows/coin-quant-daily.yml).
 보내는 곳: 텔레그램(.env 의 TELEGRAM_BOT_TOKEN·TELEGRAM_CHAT_ID), 윈도우 알림, reports/alert-날짜.txt (항상).
 """
@@ -26,7 +26,6 @@ from ..trend import MultiTrend, num
 
 STATE_FILE = "alert_state.json"
 DANGER = ("해킹", "거래소 사고·상장폐지", "규제")
-EVENT_GUARD_DAYS = 2
 
 
 def coin_status(mt: MultiTrend, d: pd.Timestamp, a: str) -> dict:
@@ -193,37 +192,64 @@ def build(cfg: dict | None = None, with_news: bool = True, log=print) -> dict:
             news_err = [type(e).__name__]
 
     e = html.escape
-    close_kst = (d + pd.Timedelta(days=1)).strftime("%m/%d")
-    L = [f"<b>🪙 코인 시황</b>  {d:%m/%d} 일봉 ({close_kst} 09:00 마감)"]
+    today_kst = pd.Timestamp.now(tz="Asia/Seoul")
+    L = [f"<b>🪙 코인 · {today_kst:%m/%d}({'월화수목금토일'[today_kst.weekday()]})</b>  <i>{d:%m/%d} 일봉 기준</i>"]
     yday = pd.Timestamp.now(tz="UTC").normalize().tz_localize(None) - pd.Timedelta(days=1)
     if d < yday:
         L.append(f"⚠ 어제({yday:%m/%d}) 일봉이 아직 안 올라와 {d:%m/%d} 기준")
     if changes:
         L.append("🔔 <b>신호 바뀜</b>: " + ", ".join(f"{a} {e(o or '처음')} → <b>{e(n)}</b>" for a, (o, n) in changes.items()))
-    L += [""] + market_lines(c, cache)
+
+    # ✅ 오늘 할 일 — 이 칸만 보고 결정할 수 있게
     disc = cfg["trading"].get("limit_discount_core", 0.01)
-    L += ["", "<b>🧭 공식 신호</b>  (중기 +2 이상이면 매수)"]
+    buy = [a for a, v in st.items() if v["status"] == "매수 가능"]
+    hold = [a for a, v in st.items() if v["status"] == "신규 진입 대기"]
+    sell = [a for a, v in st.items() if v["status"] == "관망"]
+    L += ["", "<b>✅ 오늘 할 일</b>"]
+    if buy:
+        L.append(f"🟢 <b>매수: {'·'.join(buy)}</b> — 업비트 어제 종가 −{disc:.0%} 지정가 (안 닿으면 내일 다시)")
+    else:
+        L.append("• <b>새로 살 것: 없음</b>")
+    if hold:
+        L.append(f"🟡 <b>보유만: {'·'.join(hold)}</b> (갖고 있으면 유지, 새로 사지 않음)")
+    if sell:
+        L.append(f"⚪ <b>갖고 있으면 매도: {'·'.join(sell)}</b>")
+    gaps = {a: v["chan60"] / v["close"] - 1 for a, v in st.items() if v["status"] != "매수 가능" and v["close"] > 0}
+    if gaps:
+        a = min(gaps, key=lambda k: abs(gaps[k]))
+        L.append(f"🎯 다음 매수 신호 가장 가까운 것: <b>{a} ${num(st[a]['chan60'])}↑</b> (지금보다 {gaps[a]:+.1%}, 대략)")
+    for x in events:
+        if x["days"] <= 1:
+            when = f" (발표 {e(x['kst'])} 한국시간)" if x.get("kst") else ""
+            L.append(f"⚠️ {'오늘' if x['days'] == 0 else '내일'} <b>{e(x['name'])}</b>{when} — 변동 클 수 있음")
+
+    L += [""] + market_lines(c, cache)
+    L += ["", "<b>🧭 공식 신호</b>  <i>중기 +2 이상 매수 · 0 이하 매도</i>"]
     for a, v in st.items():
         sc = v["score"]
-        L.append(f"{ICON[v['status']]} <b>{a} {v['status']}</b>  단기 {sc['단기']:+d} · 중기 {sc['중기']:+d} · 장기 {sc['장기']:+d}")
+        L.append(f"{ICON[v['status']]} <b>{a} {v['status']}</b>  단기 {sc['단기']:+d} · 중기 <b>{sc['중기']:+d}</b> · 장기 {sc['장기']:+d}")
         if v["status"] == "매수 가능":
-            L.append(f"   ↳ 업비트 어제 종가 −{disc:.0%} 지정가 · 약해지는 선 ${num(v['chan40'])}")
+            L.append(f"   ↳ 약해지는 선 ${num(v['chan40'])} 아래로 마감하면 주의")
         elif v["status"] == "신규 진입 대기":
-            L.append(f"   ↳ 갖고 있으면 보유, 새로 사진 않음 · 매수 기준 ${num(v['chan60'])}↑")
+            L.append(f"   ↳ 매수 기준 약 ${num(v['chan60'])}↑")
         else:
-            L.append(f"   ↳ 갖고 있으면 매도 · 다시 매수 기준 약 ${num(v['chan60'])}↑")
-    buy_now = [a for a, v in st.items() if v["status"] == "매수 가능"]
-    near = [x for x in events if x["days"] <= EVENT_GUARD_DAYS]
-    L += ["", "<b>📋 참고</b>  <i>(검증한 규칙 아님)</i>"]
+            L.append(f"   ↳ 다시 매수 기준 약 ${num(v['chan60'])}↑")
+
+    L += ["", "<b>📋 참고 정보</b>  <i>매매 규칙 아님 — 검증해 보니 공식을 이기지 못함 (docs/rules-check)</i>"]
     for x in events:
         L.append(f"📅 D-{x['days']} {e(x['name'])}")
-    if buy_now and near:
-        L.append(f"   ↳ 큰 일정이 {EVENT_GUARD_DAYS}일 안: 절반 먼저, 나머지는 일정 뒤 고려")
     cy = cyc.split("\n")
     L.append(f"🔄 4년 주기: {e(cy[0])}")
     L += [f"   ↳ {e(x)}" for x in cy[1:]]
     if cyc_broken:
-        L.append("   ↳ ⚠ 이번 주기 최저 아래로 마감 — 과거 패턴과 어긋남, 새 매수 신중히")
+        L.append("   ↳ ⚠ 이번 주기 최저 아래로 마감 — 과거엔 이후 2~4달 수익이 평소보다 약했음 (공식 매수는 막지 않음)")
+    ai_news = None
+    if news:
+        from . import ai
+        ai_news = ai.summarize({"코인 뉴스": news[:15]}, "아래 코인 뉴스 제목들에서 오늘 코인 시장에 중요한 흐름을 최대 3줄로 정리하세요.",
+                               cfg, log=log)
+    if ai_news:
+        L += ["", "<b>🗞 뉴스 핵심</b>  <i>AI 요약 · 원문 확인 권장</i>", ai_news]
     if news:
         L += ["", "<b>📰 뉴스</b>"]
         for n in news[:3]:
@@ -232,9 +258,9 @@ def build(cfg: dict | None = None, with_news: bool = True, log=print) -> dict:
             link = n.get("link", "")
             L.append(f"• <a href=\"{e(link, quote=True)}\">{title}</a> <i>{e(kind)}</i>" if link else f"• {title} <i>{e(kind)}</i>")
         for n in news:
-            hit = [x for x in n.get("coins", []) if x in buy_now]
+            hit = [x for x in n.get("coins", []) if x in buy]
             if hit and any(cat in n.get("categories", []) for cat in DANGER):
-                L.append(f"   ↳ ⚠ {','.join(hit)} 위험 뉴스(해킹·사고·규제): 원문 확인 전엔 진입 보류 고려")
+                L.append(f"   ↳ ⚠ {','.join(hit)} 위험 뉴스(해킹·사고·규제): 원문을 확인하세요 (이 규칙은 검증 불가)")
     elif with_news:
         L.append("📰 뉴스: 가져온 것 없음" + (f" ({e(', '.join(news_err[:3]))})" if news_err else ""))
     L += ["", "<i>투자 권유 아님 · 원금 손실 가능 · 최종 판단은 본인</i>"]

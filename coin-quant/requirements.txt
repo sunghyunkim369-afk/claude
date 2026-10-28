@@ -3,3 +3,4 @@ numpy>=1.26
 requests>=2.31
 python-dotenv>=1.0
 pytest>=8.0
+anthropic          # 뉴스 AI 요약 (선택, ANTHROPIC_API_KEY 있을 때만 사용)

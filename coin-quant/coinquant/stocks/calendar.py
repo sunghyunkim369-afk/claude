@@ -44,8 +44,11 @@ def earnings(day: pd.Timestamp, members: set[str] | None = None) -> list[dict]:
 
 
 def economic(day: pd.Timestamp, countries=("United States",)) -> list[dict]:
+    """미국 동부 날짜 day 의 경제지표. 나스닥 캘린더는 date=D 로 물으면 D-1 일 발표분을 돌려줌
+    (2026-10-28 06:35 ET 에 date=10/28 로 받은 내구재·CB 소비자신뢰가 이미 실제값을 담고 있었고(10/27 발표),
+    10/28 FOMC 는 date=10/29 에 나옴) → 하루 뒤 날짜로 물어서 day 일정을 얻음."""
     try:
-        js = _get(f"https://api.nasdaq.com/api/calendar/economicevents?date={day:%Y-%m-%d}")
+        js = _get(f"https://api.nasdaq.com/api/calendar/economicevents?date={day + pd.Timedelta(days=1):%Y-%m-%d}")
     except Exception:
         return []
     rows = (js.get("data") or {}).get("rows") or []

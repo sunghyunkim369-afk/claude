@@ -25,6 +25,8 @@
 | 매일 시황·매수·매도 알림 | ✅ `python -m coinquant alert` — 매일 시황(등락·200일선·국면·변동성·펀딩비) + BTC·ETH·SOL 신호(매수 가능 / 신규 진입 대기 / 관망, 바뀐 날 🔔) + 일정·4년 주기·뉴스 체크리스트를 텔레그램·윈도우 알림으로. PC 예약 실행이 자동으로 부르고, PC 없이 GitHub Actions(`.github/workflows/coin-quant-daily.yml`)로도 매일 09:20 발송 |
 | 주식(국내·해외) 검증 | ✅ [`docs/stocks-validation-2026-10-27.md`](docs/stocks-validation-2026-10-27.md) — 같은 공식을 지수에 쓰면 큰 하락을 크게 줄이고(나스닥 MDD −36% vs −78%, 코스피 −45% vs −64%), 나스닥·코스피는 무작위 타이밍보다 나음. **개별 종목 고르기 효과는 없음**(신호 뒤 수익 = 아무 날). 2025~ 잠금 |
 | 주식 오늘의 소식 | ✅ `python -m coinquant stocks-brief` — 시장 지표·주요 뉴스(해외·국내)·실적·경제지표 일정·지수/ETF 매수 신호(근거 등급)·추세 시작 종목(관심 목록) → 페이지 + 텔레그램. GitHub Actions `stocks-daily.yml` 평일 07:40 KST |
+| 체크리스트 규칙 검증 | ✅ [`docs/rules-check-2026-10-28.md`](docs/rules-check-2026-10-28.md) — FOMC 앞 '절반 먼저'(11년에 2번 해당, 조금 손해), 4년 주기 달력 필터(표본 안에선 좋아 보이나 안 본 창에선 손해), 주기 최저 이탈 경고(이후 수익 약하지만 공식 매수를 막으면 손해) → 모두 매매 규칙에서 빼고 참고 정보로만. 위험 뉴스 보류는 검증 불가 |
+| 매일 메시지 구성 | 맨 위 '✅ 오늘 할 일'(매수 / 보유만 / 갖고 있으면 매도, 다음 신호까지 거리, 오늘 일정·실적) → 시황 → 신호 → 참고 정보 → 뉴스. `ANTHROPIC_API_KEY`(선택)가 있으면 뉴스를 한국어 '오늘의 핵심'으로 AI 요약, 주식 메시지에 오선 라이브 최신 영상 |
 | 리포트·내 판단·주문·예약 실행 | ✅ 동작 (공식이 임시라 추천도 임시) |
 
 ## 설치 (Windows)
@@ -69,6 +71,7 @@ python -m coinquant trade [--auto]      추천 주문 실행 (stage 2 에서만,
 python -m coinquant final-check         확정한 공식으로 최종 검증 구간을 한 번 열기
 python -m coinquant stocks-validate     주식(지수·종목)에서 공식 검증 (인터넷 필요, GitHub Actions 에서 돌림)
 python -m coinquant stocks-brief [--no-send]  주식 오늘의 소식 페이지 + 텔레그램
+python -m coinquant rules-check         코인 체크리스트 규칙 검증 (FOMC·4년 주기·주기 최저)
 python -m coinquant check               보안 점검
 ```
 

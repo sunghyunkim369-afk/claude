@@ -224,6 +224,12 @@ def build(cfg: dict | None = None, with_news: bool = True, log=print) -> dict:
     except Exception as ex:
         sm_todo, sm_lines = [], [f"⚡ 단기 모드: 계산 실패 ({type(ex).__name__})"]
     L += sm_todo
+    from .breakout_mode import lines as bo_lines
+    try:
+        bo_todo, bo_lines_ = bo_lines(cfg, log=log)
+    except Exception as ex:
+        bo_todo, bo_lines_ = [], [f"⚡ 4시간 돌파: 계산 실패 ({type(ex).__name__})"]
+    L += bo_todo
     for x in events:
         if x["days"] <= 1:
             when = f" (발표 {e(x['kst'])} 한국시간)" if x.get("kst") else ""
@@ -248,6 +254,8 @@ def build(cfg: dict | None = None, with_news: bool = True, log=print) -> dict:
         else:
             L.append(f"   ↳ 다시 매수 기준 약 ${num(v['chan60'])}↑")
 
+    if bo_lines_:
+        L += [""] + bo_lines_
     if sm_lines:
         L += [""] + sm_lines
     L += ["", "<b>📋 참고 정보</b>  <i>매매 규칙 아님 — 검증해 보니 공식을 이기지 못함 (docs/rules-check)</i>"]

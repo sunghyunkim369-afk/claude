@@ -288,13 +288,14 @@ def update_um_cache(out_dir: Path, symbols: list[str], workers: int = 24, log=pr
     return res
 
 
-def fetch_um_klines(symbol: str, interval: str = "1h", since_month: str | None = None, workers: int = 8) -> pd.DataFrame:
-    """무기한 선물 분·시간봉 (시각 그대로, UTC). 테이커 매수량 포함 (주문 흐름 지표용)."""
-    mkeys = [k for k in list_prefix(f"data/futures/um/monthly/klines/{symbol}/{interval}/") if k.endswith(".zip")]
+def fetch_um_klines(symbol: str, interval: str = "1h", since_month: str | None = None, workers: int = 8,
+                    market: str = "futures/um") -> pd.DataFrame:
+    """무기한 선물(market='spot' 이면 현물) 분·시간봉 (시각 그대로, UTC). 테이커 매수량 포함 (주문 흐름 지표용)."""
+    mkeys = [k for k in list_prefix(f"data/{market}/monthly/klines/{symbol}/{interval}/") if k.endswith(".zip")]
     months = sorted(re.search(r"-(\d{4}-\d{2})\.zip$", k).group(1) for k in mkeys)
     last_month = months[-1] if months else None
     keys = [k for k in mkeys if not since_month or re.search(r"-(\d{4}-\d{2})\.zip$", k).group(1) >= since_month]
-    keys += [k for k in list_prefix(f"data/futures/um/daily/klines/{symbol}/{interval}/") if k.endswith(".zip")
+    keys += [k for k in list_prefix(f"data/{market}/daily/klines/{symbol}/{interval}/") if k.endswith(".zip")
              and (not last_month or re.search(r"-(\d{4}-\d{2})-\d{2}\.zip$", k).group(1) > last_month)]
 
     def job(k):

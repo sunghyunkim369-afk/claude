@@ -94,3 +94,12 @@ enabled = true
 paper = true
 sleeve = 0.30
 start = "2026-10-29"
+
+[breakout_mode]
+# 4시간봉 거래량 돌파 (롱만, 매일 09:00 KST 봉에서만 판단) — 근거: docs/breakout4h-2026-10-29.md
+# 신호가 올 때만 메시지 맨 위 '오늘 할 일'에 매수·매도·손절가를 띄움. 주문은 직접 (자동 주문 없음).
+# sleeve: 이 방식에 쓰는 자금 비율 (코인당 sleeve/3). paper = true 면 '모의'로 표시.
+enabled = true
+paper = false
+sleeve = 0.30
+start = "2026-10-29"

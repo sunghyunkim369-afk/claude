@@ -97,8 +97,12 @@ def load_universe(cache: Path, log=print) -> tuple[dict, pd.DataFrame, list[str]
         first = B["close"].loc[rows].iloc[: 6 * 3]          # 그 달 첫 3일 안에 선물 데이터가 있는 것만
         ok = [s for s in syms if s in first.columns and first[s].notna().any()][:N_TOP]
         member.loc[rows, ok] = True
-    last = B["close"].iloc[-6 * 7:]
-    alive = [s for s in B["close"].columns if last[s].notna().any()]
+    alive = []   # 지금도 거래되는 코인: 바이낸스 현물 일봉이 최근 10일 안에 있음 (선물 1시간봉은 상위였던 달만 받아서 못 씀)
+    cut = pd.Timestamp.now().normalize() - pd.Timedelta(days=10)
+    for s in B["close"].columns:
+        f = cache / "binance" / "spot_1d" / f"{s[4:] if s.startswith('1000') and not (cache / 'binance' / 'spot_1d' / f'{s}.csv').exists() else s}.csv"
+        if f.exists() and pd.read_csv(f, usecols=["date"])["date"].iloc[-1] >= str(cut.date()):
+            alive.append(s)
     log(f"  유니버스: 1시간봉 있는 코인 {len(h1)}개, 상위 {N_TOP}에 한 번이라도 든 코인 {int(member.any().sum())}개, 지금 살아있는 것 {len(alive)}개")
     return B, member, alive
 

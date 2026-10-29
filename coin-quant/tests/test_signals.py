@@ -246,3 +246,17 @@ def test_short_mode_paper_no_lookahead_and_costs():
     close2 = close.copy()
     close2.iloc[-1] = 500
     assert abs(paper(close2.iloc[:5], state.iloc[:5], idx[0])["ret"] - paper(close.iloc[:5], state.iloc[:5], idx[0])["ret"]) < 1e-12
+
+
+def test_breakout_once_daily_only_decides_at_kst9_bar():
+    import numpy as np
+    from coinquant.research import breakout4h as b4
+    idx = pd.date_range("2026-01-01", periods=60, freq="4h")
+    c = pd.DataFrame({"BTC": np.r_[np.full(40, 100.0), np.full(20, 130.0)]}, index=idx)
+    v = pd.DataFrame({"BTC": np.r_[np.full(40, 1.0), np.full(20, 5.0)]}, index=idx)
+    B = {"open": c, "high": c, "low": c, "close": c, "volume": v}
+    S = b4.signals(B)
+    R, P, T = b4.run_variant(B, S, {"daily": True}, {"BTC": 0.0}, funding=False)
+    # 돌파는 40번째 봉(04:00)에 났지만 판단은 UTC 20:00 시작 봉에서만 → 그 봉 전엔 포지션 없음
+    first = P["BTC"].to_numpy().nonzero()[0]
+    assert len(first) == 0 or idx[first[0]].hour == b4.KST9

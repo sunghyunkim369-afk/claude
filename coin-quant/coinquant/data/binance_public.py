@@ -286,3 +286,28 @@ def update_um_cache(out_dir: Path, symbols: list[str], workers: int = 24, log=pr
             if i % 25 == 0 or i == len(symbols):
                 log(f"  선물 {i}/{len(symbols)}")
     return res
+
+
+def fetch_um_klines(symbol: str, interval: str = "1h", since_month: str | None = None, workers: int = 8) -> pd.DataFrame:
+    """무기한 선물 분·시간봉 (시각 그대로, UTC). 테이커 매수량 포함 (주문 흐름 지표용)."""
+    mkeys = [k for k in list_prefix(f"data/futures/um/monthly/klines/{symbol}/{interval}/") if k.endswith(".zip")]
+    months = sorted(re.search(r"-(\d{4}-\d{2})\.zip$", k).group(1) for k in mkeys)
+    last_month = months[-1] if months else None
+    keys = [k for k in mkeys if not since_month or re.search(r"-(\d{4}-\d{2})\.zip$", k).group(1) >= since_month]
+    keys += [k for k in list_prefix(f"data/futures/um/daily/klines/{symbol}/{interval}/") if k.endswith(".zip")
+             and (not last_month or re.search(r"-(\d{4}-\d{2})-\d{2}\.zip$", k).group(1) > last_month)]
+
+    def job(k):
+        r = _get("/" + k)
+        return _read_zip(r.content) if r is not None else None
+
+    with ThreadPoolExecutor(workers) as ex:
+        frames = [f for f in ex.map(job, keys) if f is not None]
+    if not frames:
+        return pd.DataFrame()
+    df = pd.concat(frames, ignore_index=True)
+    t = pd.to_numeric(df["open_time"])
+    out = pd.DataFrame({"time": pd.to_datetime(t.where(t < 1e14, t // 1000), unit="ms")})
+    for col in ("open", "high", "low", "close", "volume", "quote_volume", "taker_buy_quote"):
+        out[col] = df[col].astype(float)
+    return out.drop_duplicates("time").sort_values("time").reset_index(drop=True)

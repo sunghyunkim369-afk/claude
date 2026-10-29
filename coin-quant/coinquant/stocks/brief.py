@@ -85,7 +85,7 @@ INDEX_PLAN = {
               "1972~2024 공식 연 8.9%·MDD −36% vs 보유 10.2%·−78%, 샤프 0.79 vs 0.58, 무작위 타이밍 200번보다 모두 나음"),
     "^KS11": ("코스피", "KODEX 200(069500) · TIGER 200(102110)", "근거 있음",
               "1997~2024 공식 연 5.1%·MDD −45% vs 보유 4.9%·−64%, 샤프 0.42 vs 0.31, 무작위 타이밍 상위 2.5%"),
-    "^GSPC": ("S&P 500", "SPY · TIGER 미국S&P500(360750)", "손실 방어만",
+    "^GSPC": ("S&P 500", "SPY · TIGER 미국S&P500(360750)", "하락 방어용",
               "1950~2024 공식 연 4.1%·MDD −36% vs 보유 8.1%·−57%, 샤프 0.49 vs 0.59 — 큰 하락은 줄였지만 수익은 절반"),
     "^KQ11": ("코스닥", "KODEX 코스닥150(229200)", "근거 약함",
               "1997~2024 공식 연 −0.9%·MDD −55% vs 보유 −1.0%·−74%, 무작위 타이밍과 비슷"),
@@ -178,15 +178,21 @@ def todo_items(idx_sig: list[dict] | None, econ: list[dict], earn: list[dict]) -
     """'오늘 할 일' 줄 목록 [(아이콘, 굵게 쓸 부분과 설명이 섞인 HTML)] — 텔레그램·페이지 공용."""
     from html import escape as e
     xs = idx_sig or []
-    buy = [x for x in xs if x["state"] == "매수 가능"]
+    on = [x for x in xs if x["state"] == "매수 가능"]
+    buy = [x for x in on if x["grade"] == "근거 있음"]          # 공식이 보유보다 나았던 지수만 '매수'
+    weak = [x for x in on if x["grade"] != "근거 있음"]
     hold = [x for x in xs if x["state"].startswith("보유만")]
     off = [x for x in xs if x["state"].startswith("관망")]
     out = []
     for x in buy:
         etf = next((t for t in x["etf"].split(" · ") if "(" in t), x["etf"])   # 국내 상장 ETF 먼저
-        out.append(("🟢", f"<b>매수: {e(x['name'])} → {e(etf)}</b> ({e(x['grade'])})"))
+        out.append(("🟢", f"<b>매수: {e(x['name'])} → {e(etf)}</b> (근거 있음)"))
     if not buy:
         out.append(("•", "<b>새로 살 지수 ETF: 없음</b>"))
+    for x in weak:
+        why = ("이 공식은 S&P에서 큰 하락은 줄였지만 수익은 그냥 보유의 절반 — 오래 들고 갈 거면 그냥 보유가 나음"
+               if x["grade"] == "하락 방어용" else "공식 효과가 무작위와 비슷 — 참고만")
+        out.append(("🔵", f"참고: {e(x['name'])} 신호 켜짐 <i>({e(why)})</i>"))
     if hold:
         out.append(("🟡", f"<b>보유만: {'·'.join(e(x['name']) for x in hold)}</b> (갖고 있으면 유지, 새로 사지 않음)"))
     if off:

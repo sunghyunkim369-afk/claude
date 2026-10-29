@@ -8,6 +8,7 @@
 | `hs-code-finder/` | HS코드 찾기 · 코드 좁히기 질문 · 관세/FTA 계산 |
 | `shared/` | 페이지 공통 스크립트 (브라우저 에러 수집기, AI 호출 도우미) |
 | `api/` | 서버 함수 (eyefeet `vercel` 런타임에서 실행) |
+| `transcribe/` | 녹음 전사 Colab 노트북(Whisper large-v3) · 전사문 요약 페이지 |
 
 ## 배포
 

@@ -1,0 +1,304 @@
+<title>받아쓰기 요약</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* 한 줄 기둥: 위에 두 단계 안내, 가운데 전사문 입력, 아래 요약 결과. 타임스탬프는 고정폭 글꼴로 */
+:root {
+  --bg: #f3f5f4;
+  --surface: #ffffff;
+  --ink: #17211f;
+  --muted: #5b6965;
+  --line: #d8dfdc;
+  --accent: #1d6b5c;
+  --accent-ink: #ffffff;
+  --accent-soft: #e1efea;
+  --warn: #9a5b00;
+  --warn-soft: #fbf0dc;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111715; --surface: #18201e; --ink: #e5ece9; --muted: #9aa8a3; --line: #2c3835;
+    --accent: #5fbfa8; --accent-ink: #0b1311; --accent-soft: #1d3530; --warn: #f0b75a; --warn-soft: #33281a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111715; --surface: #18201e; --ink: #e5ece9; --muted: #9aa8a3; --line: #2c3835;
+  --accent: #5fbfa8; --accent-ink: #0b1311; --accent-soft: #1d3530; --warn: #f0b75a; --warn-soft: #33281a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 15px/1.65 var(--font-body);
+  word-break: keep-all; overflow-wrap: anywhere;
+}
+.wrap {
+  max-width: 760px; margin: 0 auto;
+  padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 20px;
+}
+h1 { margin: 0; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
+.lede { margin: 4px 0 0; color: var(--muted); max-width: 60ch; }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.step {
+  display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: start;
+  padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+}
+.step b { grid-row: span 2; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+  font: 600 0.8rem var(--font-mono); background: var(--accent-soft); color: var(--accent); }
+.step strong { font-weight: 600; }
+.step span { color: var(--muted); font-size: 0.9rem; }
+.step a { color: var(--accent); font-weight: 600; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 14px; min-width: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.row.spread { justify-content: space-between; }
+label.file, button {
+  font: 600 0.95rem var(--font-body); border-radius: 8px; padding: 10px 16px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+label.file:focus-within, button:focus-visible, textarea:focus-visible, .seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+label.file input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); min-width: 120px; }
+button:disabled { opacity: 0.5; cursor: default; }
+textarea {
+  width: 100%; min-height: 220px; resize: vertical; padding: 12px 14px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+  font: 0.92rem/1.7 var(--font-body);
+}
+.meta { color: var(--muted); font: 0.82rem var(--font-mono); font-variant-numeric: tabular-nums; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg label { position: relative; }
+.seg input { position: absolute; opacity: 0; }
+.seg span { display: block; padding: 8px 14px; font-weight: 500; cursor: pointer; color: var(--muted); }
+.seg input:checked + span { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.notice { padding: 10px 14px; border-radius: 8px; background: var(--warn-soft); color: var(--warn); font-size: 0.9rem; }
+.tag { font: 600 0.72rem var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+.result { min-width: 0; }
+.result h3 { margin: 18px 0 6px; font-size: 1.05rem; font-weight: 700; color: var(--accent); }
+.result h4 { margin: 12px 0 4px; font-size: 0.98rem; font-weight: 600; }
+.result h3:first-child { margin-top: 0; }
+.result p { margin: 0 0 8px; }
+.result ul { margin: 0 0 8px; padding-left: 1.2em; display: grid; gap: 4px; }
+.result code { font: 0.8rem var(--font-mono); color: var(--muted); background: var(--bg); padding: 1px 5px; border-radius: 4px; white-space: nowrap; }
+.result.example { opacity: 0.8; }
+.cursor::after { content: "▍"; color: var(--accent); animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .cursor::after { animation: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>받아쓰기 요약</h1>
+    <p class="lede">녹음 전사문을 넣으면 Claude가 핵심·결정·할 일로 정리해요. 무료로 쓰는 내 Claude 계정에서 돌아가요.</p>
+  </header>
+
+  <section class="steps" aria-label="사용 순서">
+    <div class="step"><b>1</b><strong>전사문 만들기</strong>
+      <span><a id="colab-link" href="https://colab.research.google.com/github/sunghyunkim369-afk/claude/blob/claude/elegant-heisenberg-s2a9ar/transcribe/transcribe_ko.ipynb" target="_blank" rel="noopener">Colab 전사 노트북</a> 열고 녹음 파일 올리기 (무료 GPU, Whisper large-v3)</span></div>
+    <div class="step"><b>2</b><strong>여기서 요약</strong>
+      <span>받은 <code>_전사.txt</code>를 올리거나 글을 붙여 넣고 요약하기</span></div>
+  </section>
+
+  <section class="panel" aria-label="전사문 입력">
+    <div class="row spread">
+      <label class="file" for="file">전사문 파일 열기<input id="file" type="file" accept=".txt,.srt,.md,text/plain"></label>
+      <span class="meta" id="count">0자</span>
+    </div>
+    <textarea id="text" placeholder="여기에 전사문을 붙여 넣어도 돼요.&#10;[00:00] 안녕하세요, 오늘 회의 시작하겠습니다..."></textarea>
+    <div class="row spread">
+      <div class="seg" role="radiogroup" aria-label="요약 길이">
+        <label><input type="radio" name="len" id="len-short" value="short" checked><span>짧게</span></label>
+        <label><input type="radio" name="len" id="len-long" value="long"><span>자세히</span></label>
+      </div>
+      <div class="row">
+        <button id="stop" type="button" hidden>멈추기</button>
+        <button id="go" type="button" class="primary">요약하기</button>
+      </div>
+    </div>
+    <p class="notice" id="notice" hidden></p>
+  </section>
+
+  <section class="panel" aria-label="요약 결과">
+    <div class="row spread">
+      <span class="tag" id="result-tag">예시</span>
+      <button id="copy" type="button">복사</button>
+    </div>
+    <div class="result example" id="result"></div>
+  </section>
+</div>
+
+<script>
+const EXAMPLE = `## 한 줄 요약
+- 다음 달 박람회 참가를 확정하고, 부스 예산은 300만 원 안에서 맞추기로 함
+
+## 핵심 내용
+- 작년 박람회 상담 건수가 기대보다 적었던 원인은 부스 위치 [03:12]
+- 올해는 입구 쪽 자리를 먼저 신청하기로 함 [07:45]
+
+## 결정된 것
+- 참가 확정, 예산 상한 300만 원
+
+## 할 일
+- 김 대리 · 부스 신청서 제출 · 금요일까지
+
+## 확인이 필요한 부분
+- "삼백"인지 "삼천"인지 인식이 흐림 [11:02]`;
+
+const $ = (id) => document.getElementById(id);
+const text = $("text"), result = $("result"), notice = $("notice");
+const go = $("go"), stop = $("stop"), copy = $("copy"), tag = $("result-tag");
+let lastMarkdown = EXAMPLE, controller = null, sample = null;
+
+function inline(parent, line) {
+  // **굵게** 와 [12:34] 시각만 꾸미고 나머지는 글자 그대로 넣어요
+  const parts = line.split(/(\*\*[^*]+\*\*|\[\d{1,2}:\d{2}(?::\d{2})?\])/);
+  for (const part of parts) {
+    if (!part) continue;
+    if (/^\*\*[^*]+\*\*$/.test(part)) { const b = document.createElement("strong"); b.textContent = part.slice(2, -2); parent.append(b); }
+    else if (/^\[\d/.test(part)) { const c = document.createElement("code"); c.textContent = part.slice(1, -1); parent.append(" ", c); }
+    else parent.append(part);
+  }
+}
+
+function render(md, streaming) {
+  result.replaceChildren();
+  let list = null;
+  for (const raw of md.split("\n")) {
+    const line = raw.trim();
+    if (!line) { list = null; continue; }
+    const h = line.match(/^(#{2,3})\s+(.*)$/);
+    if (h) {
+      list = null;
+      const el = document.createElement(h[1].length === 2 ? "h3" : "h4");
+      inline(el, h[2]); result.append(el); continue;
+    }
+    const li = line.match(/^[-*•]\s+(.*)$/);
+    if (li) {
+      if (!list) { list = document.createElement("ul"); result.append(list); }
+      const el = document.createElement("li"); inline(el, li[1]); list.append(el); continue;
+    }
+    list = null;
+    const p = document.createElement("p"); inline(p, line); result.append(p);
+  }
+  const last = result.lastElementChild;
+  const tail = last && last.tagName === "UL" ? last.lastElementChild : last;
+  if (streaming) (tail || result).classList.add("cursor");
+}
+
+function updateCount() {
+  const n = text.value.length;
+  const bytes = new TextEncoder().encode(text.value).length;
+  $("count").textContent = `${n.toLocaleString()}자` + (bytes > 240000 ? " · 너무 길어요" : "");
+}
+
+function say(msg) { notice.textContent = msg; notice.hidden = !msg; }
+
+function buildPrompt(transcript, mode) {
+  const length = mode === "long"
+    ? "자세히: 핵심 내용은 주제별로 묶어 ### 소제목 아래 충분히 적어."
+    : "짧게: 핵심 내용은 가장 중요한 3~5개만.";
+  return `아래는 회의·통화·강의 같은 녹음을 음성 인식으로 받아 적은 전사문이야. 인식 오류로 틀린 단어가 섞여 있을 수 있어. 문맥상 분명한 오류는 바로잡아 쓰고, 전사문에 없는 내용은 절대 지어내지 마.
+
+다음 형식의 마크다운으로, 한국어 개조식(~함, ~하기로 함)으로 정리해 줘. 형식 밖의 인사말이나 설명은 쓰지 마.
+
+## 한 줄 요약
+## 핵심 내용
+## 결정된 것
+## 할 일
+(형식: - 누가 · 무엇을 · 언제까지. 모르는 부분은 빼.)
+## 확인이 필요한 부분
+(인식이 이상해서 뜻이 불확실한 곳, 숫자·이름처럼 녹음을 다시 들어봐야 할 곳)
+
+규칙:
+- 전사문에 [mm:ss] 같은 시각 표시가 있으면 각 항목 끝에 근거가 되는 시각을 [mm:ss]로 붙여.
+- 해당 내용이 없는 섹션은 "- 없음"으로 써.
+- ${length}
+
+<전사문>
+${transcript}
+</전사문>`;
+}
+
+function busy(on) {
+  go.disabled = on; stop.hidden = !on; text.readOnly = on;
+  go.textContent = on ? "요약하는 중..." : "요약하기";
+}
+
+async function summarize() {
+  const transcript = text.value.trim();
+  if (transcript.length < 20) { say("요약할 전사문을 먼저 넣어 주세요."); text.focus(); return; }
+  if (new TextEncoder().encode(transcript).length > 240000) { say("전사문이 너무 길어요 (약 8만 자까지). 앞뒤로 나눠서 두 번 요약해 주세요."); return; }
+  if (!sample) { say("이 화면에서는 Claude를 부를 수 없어요. claude.ai에 로그인한 상태로 이 페이지를 열어 주세요."); return; }
+  say("");
+  const mode = document.querySelector('input[name="len"]:checked').value;
+  controller = new AbortController();
+  busy(true);
+  tag.textContent = "요약"; result.classList.remove("example");
+  render("", true);
+  try {
+    const { text: out, truncated } = await sample(buildPrompt(transcript, mode), {
+      signal: controller.signal,
+      cache: false,
+      onText: ({ text: t }) => render(t, true),
+    });
+    lastMarkdown = out; render(out, false);
+    if (truncated) say("요약이 길이 제한에 걸려 중간에 끊겼어요. '짧게'로 다시 해 보세요.");
+    try { localStorage.setItem("last-summary", out); } catch (e) {}
+  } catch (e) {
+    const partial = e && e.text;
+    if (partial && e.code !== "refused") { lastMarkdown = partial; render(partial, false); }
+    else if (e && e.code !== "cancelled") render("", false);
+    const msg = {
+      cancelled: "멈췄어요.",
+      rate_limited: "Claude 사용량이 잠시 꽉 찼어요. 조금 뒤에 다시 눌러 주세요.",
+      session_expired: "claude.ai 로그인이 풀렸어요. 다시 로그인한 뒤 눌러 주세요.",
+      not_granted: "이 페이지가 Claude를 쓰도록 허용되지 않았어요. 페이지 메뉴의 권한에서 허용해 주세요.",
+      sampling_disabled: "이 계정에서는 페이지 안에서 Claude를 쓸 수 없어요.",
+      prompt_too_large: "전사문이 너무 길어요. 나눠서 요약해 주세요.",
+      refused: "Claude가 이 내용은 정리하지 않겠다고 했어요.",
+    }[e && e.code] || "연결이 끊겼어요. 다시 눌러 주세요.";
+    say(msg);
+  } finally {
+    busy(false); controller = null;
+  }
+}
+
+$("file").addEventListener("change", async (ev) => {
+  const f = ev.target.files && ev.target.files[0];
+  if (!f) return;
+  try { text.value = await f.text(); updateCount(); say(""); }
+  catch (e) { say("파일을 못 읽었어요. 텍스트(.txt) 파일인지 확인해 주세요."); }
+  ev.target.value = "";
+});
+text.addEventListener("input", updateCount);
+go.addEventListener("click", summarize);
+stop.addEventListener("click", () => controller && controller.abort());
+copy.addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(lastMarkdown); copy.textContent = "복사됨"; }
+  catch (e) {
+    const range = document.createRange(); range.selectNodeContents(result);
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
+    copy.textContent = "선택됨 · 길게 눌러 복사";
+  }
+  setTimeout(() => (copy.textContent = "복사"), 2000);
+});
+
+try {
+  const saved = localStorage.getItem("last-summary");
+  if (saved) { lastMarkdown = saved; tag.textContent = "지난 요약"; result.classList.remove("example"); }
+} catch (e) {}
+render(lastMarkdown, false);
+updateCount();
+
+if (window.claude && window.claude.use) {
+  window.claude.use("sample").then((s) => { sample = s; }).catch(() => {});
+}
+</script>

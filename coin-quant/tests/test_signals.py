@@ -230,3 +230,19 @@ def test_ai_summary_off_without_key_and_html(monkeypatch):
     assert ai.summarize({"x": [{"title": "t"}]}, "요약") is None
     h = ai.to_html("머리말\n- **연준**: 금리 <동결> & 발표\n- 둘째 줄")
     assert h == "• <b>연준</b>: 금리 &lt;동결&gt; &amp; 발표\n• 둘째 줄"
+
+
+def test_short_mode_paper_no_lookahead_and_costs():
+    from coinquant.app.short_mode import COST, paper
+    idx = pd.date_range("2026-01-01", periods=6)
+    close = pd.DataFrame({"BTC": [100, 110, 121, 121, 100, 100.0]}, index=idx)
+    state = pd.DataFrame({"BTC": [True, True, False, False, True, True]}, index=idx)
+    p = paper(close, state, idx[0])
+    # 1/1 종가 매수 → 1/2·1/3 상승분 먹고 1/3 종가 매도, 1/5 종가 재매수 (그날 하락은 안 먹음)
+    exp = (1 - COST) * 1.1 * (1.1 - COST) * (1 - COST) - 1
+    assert abs(p["ret"] - exp) < 1e-9
+    assert p["trades"] == 3 and "BTC" in p["open"] and p["open"]["BTC"]["date"] == idx[4]
+    # 미래 가격이 바뀌어도 그 전 성적은 같아야 함
+    close2 = close.copy()
+    close2.iloc[-1] = 500
+    assert abs(paper(close2.iloc[:5], state.iloc[:5], idx[0])["ret"] - paper(close.iloc[:5], state.iloc[:5], idx[0])["ret"]) < 1e-12

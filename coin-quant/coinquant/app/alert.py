@@ -218,6 +218,12 @@ def build(cfg: dict | None = None, with_news: bool = True, log=print) -> dict:
     if gaps:
         a = min(gaps, key=lambda k: abs(gaps[k]))
         L.append(f"🎯 다음 매수 신호 가장 가까운 것: <b>{a} ${num(st[a]['chan60'])}↑</b> (지금보다 {gaps[a]:+.1%}, 대략)")
+    from .short_mode import lines as short_lines
+    try:
+        sm_todo, sm_lines = short_lines(mt, d, cfg)
+    except Exception as ex:
+        sm_todo, sm_lines = [], [f"⚡ 단기 모드: 계산 실패 ({type(ex).__name__})"]
+    L += sm_todo
     for x in events:
         if x["days"] <= 1:
             when = f" (발표 {e(x['kst'])} 한국시간)" if x.get("kst") else ""
@@ -242,6 +248,8 @@ def build(cfg: dict | None = None, with_news: bool = True, log=print) -> dict:
         else:
             L.append(f"   ↳ 다시 매수 기준 약 ${num(v['chan60'])}↑")
 
+    if sm_lines:
+        L += [""] + sm_lines
     L += ["", "<b>📋 참고 정보</b>  <i>매매 규칙 아님 — 검증해 보니 공식을 이기지 못함 (docs/rules-check)</i>"]
     for x in events:
         L.append(f"📅 D-{x['days']} {e(x['name'])}")

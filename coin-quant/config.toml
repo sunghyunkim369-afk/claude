@@ -85,3 +85,12 @@ windows = true     # 윈도우 PC 알림
 # 비용 대략: 하루 3번 호출(코인 1 + 주식 2) × 약 $0.03 = 한 달 $2~3. 더 싸게: model = "claude-haiku-5-5" (한 달 몇 센트, 요약 품질은 낮을 수 있음)
 model = "claude-opus-5-5"
 effort = "low"
+
+[short_mode]
+# 단기 모드: 단기 점수 +2 이상 켜기 / 0 이하 끄기, 코어 3개 균등, 자금의 sleeve 만 (근거: docs/short-swing-2026-10-21.md)
+# 깨끗한 검증 구간이 남아 있지 않아 start 부터 모의 성적을 쌓음. paper = true 면 메시지에 기록만, 주문 없음.
+# 2~3개월 모의 성적이 확정 공식만보다 나쁘지 않을 때만 paper = false 로 바꾸는 걸 권함 (실제 주문은 여전히 확인 y/N).
+enabled = true
+paper = true
+sleeve = 0.30
+start = "2026-10-29"

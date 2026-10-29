@@ -223,6 +223,13 @@ def build(cfg: dict | None = None, with_news: bool = True, log=print) -> dict:
             when = f" (발표 {e(x['kst'])} 한국시간)" if x.get("kst") else ""
             L.append(f"⚠️ {'오늘' if x['days'] == 0 else '내일'} <b>{e(x['name'])}</b>{when} — 변동 클 수 있음")
 
+    try:   # 어젯밤 미국 주요 지표·금리 결정 결과
+        from ..stocks.news import results_block
+        rb = results_block()
+    except Exception:
+        rb = []
+    if rb:
+        L += [""] + rb
     L += [""] + market_lines(c, cache)
     L += ["", "<b>🧭 공식 신호</b>  <i>중기 +2 이상 매수 · 0 이하 매도</i>"]
     for a, v in st.items():
@@ -325,6 +332,16 @@ def main(cfg: dict | None = None, test: bool = False, with_news: bool = True, li
     acfg = {"daily_summary": False, "telegram": True, "windows": True, **cfg.get("alert", {})}
     if light:
         light_update(config_mod.cache_dir(cfg), list(cfg["universe"]["core"]), log=log)
+    from .report import user_dir
+    sent_file = user_dir() / "alert_sent.json"
+    today = str(pd.Timestamp.now(tz="Asia/Seoul").date())
+    if os.environ.get("CQ_SCHEDULED") == "1":
+        try:
+            if json.loads(sent_file.read_text(encoding="utf-8")).get("date") == today:
+                log(f"오늘({today}) 이미 보냄 → 예약 재시도 건너뜀")
+                return {}
+        except Exception:
+            pass
     res = build(cfg, with_news=with_news, log=log)
     out = config_mod.ROOT / "reports"
     out.mkdir(exist_ok=True)
@@ -335,7 +352,10 @@ def main(cfg: dict | None = None, test: bool = False, with_news: bool = True, li
         return res
     title = "coin-quant " + ("🔔 " + ", ".join(f"{a} {n}" for a, (_, n) in res["changes"].items()) if res["changes"] else "오늘 시황")
     if acfg["telegram"]:
-        log(send_telegram(res["html"], html_mode=True))
+        msg = send_telegram(res["html"], html_mode=True)
+        log(msg)
+        if msg.endswith("보냄"):
+            sent_file.write_text(json.dumps({"date": today}), encoding="utf-8")
     if acfg["windows"]:
         sig = [l for l in res["text"].splitlines() if l[:1] in ("🟢", "🟡", "⚪")]
         log(send_windows(title, " / ".join(sig)))

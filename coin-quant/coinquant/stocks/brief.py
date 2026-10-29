@@ -195,10 +195,11 @@ def todo_items(idx_sig: list[dict] | None, econ: list[dict], earn: list[dict]) -
     if gaps:
         n_ = min(gaps, key=lambda k: abs(gaps[k][0]))
         out.append(("🎯", f"다음 신호 가장 가까운 것: <b>{e(n_)} {num(gaps[n_][1])}↑</b> (지금보다 {gaps[n_][0]:+.1%}, 대략)"))
-    key = list({(x["event"], x["time_kst"]): x for x in econ if x["key"]}.values())
+    key = list({(x["event"], x["time_kst"]): x for x in econ if x["key"] and not x["actual"]}.values())   # 아직 발표 전
     earn = list({x["symbol"]: x for x in earn}.values())
     if key:
-        out.append(("⚠️", "주요 지표: " + ", ".join(f"<b>{e(x['event'])}</b> {e(x['time_kst'])}" for x in key[:4])))
+        from .calendar import ko_name
+        out.append(("⚠️", "오늘 밤 주요 지표: " + ", ".join(f"<b>{e(ko_name(x['event']))}</b> {e(x['time_kst'])}" for x in key[:4])))
     if earn:
         out.append(("💼", "실적 발표: <b>" + "·".join(e(x["symbol"]) for x in earn[:6]) + "</b>" + (" 등" if len(earn) > 6 else "")))
     return out
@@ -216,7 +217,7 @@ def _md(h: str) -> str:
 
 def render(today: pd.Timestamp, mk: list[dict], news: dict, news_err: list[str], earn: list[dict], econ: list[dict],
            sig: dict, val_line: str, idx_sig: list[dict] | None = None, ai_sum: str | None = None,
-           osun: list[dict] | None = None) -> str:
+           osun: list[dict] | None = None, results: list[str] | None = None) -> str:
     o = [f"# {today:%Y년 %m월 %d일} ({WEEKDAY[today.weekday()]}) 오늘의 소식\n",
          "> ⚠️ 투자 판단을 돕는 정보일 뿐 투자 권유가 아닙니다. 과거 성과는 미래를 보장하지 않으며 원금 손실 가능성이 있습니다. "
          "뉴스 구분(공식 발표/보도/전망·추측)은 제목으로 자동 분류한 것이라 틀릴 수 있으니 원문을 확인하세요.\n"]
@@ -224,6 +225,8 @@ def render(today: pd.Timestamp, mk: list[dict], news: dict, news_err: list[str],
     line = " · ".join(f"{get[t]['지표']} {_p(get[t]['1일'])}" for t in ("^GSPC", "^IXIC", "^KS11", "^KQ11") if t in get)
     extra = " · ".join(f"{get[t]['지표']} {num(get[t]['종가'])}" for t in ("KRW=X", "^TNX", "^VIX") if t in get)
     o += ["## ✅ 오늘 할 일\n"] + [f"- {ic} {_md(t)}" for ic, t in todo_items(idx_sig, econ, earn)] + [""]
+    if results:
+        o += ["## 📢 어젯밤 발표 결과\n"] + [f"- {_md(x)}" for x in results[1:]] + [""]
     o += ["## 📌 한눈에 보기\n", f"- 지수: {line}", f"- 금리·환율·변동성: {extra}"]
     for x in idx_sig or []:
         o.append(f"- {x['name']} 신호: **{x['state']}** ({x['grade']})")
@@ -320,7 +323,7 @@ def render(today: pd.Timestamp, mk: list[dict], news: dict, news_err: list[str],
 
 def telegram_text(today, mk, news, sig, url: str, idx_sig: list[dict] | None = None, econ: list[dict] | None = None,
                   earn: list[dict] | None = None, ai_sum: str | None = None, osun: list[dict] | None = None,
-                  osun_sum: str | None = None) -> str:
+                  osun_sum: str | None = None, results: list[str] | None = None) -> str:
     """텔레그램 (HTML 서식). 맨 위 '오늘 할 일'만 보고 결정할 수 있게, 자세한 건 페이지 링크로."""
     from html import escape as e
     get = {r["기호"]: r for r in mk}
@@ -331,6 +334,8 @@ def telegram_text(today, mk, news, sig, url: str, idx_sig: list[dict] | None = N
 
     L = [f"<b>📈 주식 · {today:%m/%d}({WEEKDAY[today.weekday()]})</b>", "", "<b>✅ 오늘 할 일</b>"]
     L += [f"{i} {t}" for i, t in todo_items(idx_sig, econ or [], earn or [])]
+    if results:
+        L += [""] + results
     L += ["", "<b>📊 지수</b>", f"🇺🇸 {idx(('^GSPC', '^IXIC'))}", f"🇰🇷 {idx(('^KS11', '^KQ11'))}"]
     ex = []
     if "KRW=X" in get:
@@ -378,6 +383,12 @@ def main(cfg: dict | None = None, send: bool = True, log=print) -> Path:
     cache = config_mod.cache_dir(cfg) / "stocks"
     t0 = time.time()
     today = pd.Timestamp.now(tz=KST).tz_localize(None).normalize()
+    sent_file = cache / "brief_sent.json"
+    if os.environ.get("CQ_SCHEDULED") == "1" and sent_file.exists():
+        import json
+        if json.loads(sent_file.read_text(encoding="utf-8")).get("date") == str(today.date()):
+            log(f"오늘({today.date()}) 이미 보냄 → 예약 재시도 건너뜀")
+            return None
     mkt_tk = list(dict.fromkeys([t for t, _, _ in su.MARKET]))
     M = sd.update(cache, "brief_mkt", mkt_tk, start="2018-01-01", log=log)
     us_u = su.us_universe()
@@ -407,7 +418,8 @@ def main(cfg: dict | None = None, send: bool = True, log=print) -> Path:
                             "아래 유튜브 영상의 제목과 설명만 보고 무엇을 다뤘는지 최대 2줄로 정리하세요. "
                             "설명에 없는 내용은 추측하지 마세요.", cfg, log=log) if osun else None
     log(f"  AI 요약: {'있음' if ai_sum else '없음 (ANTHROPIC_API_KEY 없음 또는 실패)'}")
-    md = render(today, market_table(M), news, nerr, earn, econ, sig, val_line, isig, ai_sum, osun)
+    results = sn.results_block()
+    md = render(today, market_table(M), news, nerr, earn, econ, sig, val_line, isig, ai_sum, osun, results)
     out = config_mod.ROOT / "out" / "briefing"
     (out / "daily").mkdir(parents=True, exist_ok=True)
     page = out / "daily" / f"{today:%Y-%m-%d}.md"
@@ -417,11 +429,16 @@ def main(cfg: dict | None = None, send: bool = True, log=print) -> Path:
                                    encoding="utf-8")
     repo = os.environ.get("GITHUB_REPOSITORY", "")
     url = f"https://github.com/{repo}/blob/stock-briefing/daily/{page.name}" if repo else ""
-    text = telegram_text(today, market_table(M), news, sig, url, isig, econ, earn, ai_sum, osun, osun_sum)
+    text = telegram_text(today, market_table(M), news, sig, url, isig, econ, earn, ai_sum, osun, osun_sum, results)
     (out / "telegram.txt").write_text(text, encoding="utf-8")
     log(text)
     if send:
         from ..app.alert import send_telegram
-        log(send_telegram(text, html_mode=True))
+        msg = send_telegram(text, html_mode=True)
+        log(msg)
+        if msg.endswith("보냄"):
+            import json
+            cache.mkdir(parents=True, exist_ok=True)
+            sent_file.write_text(json.dumps({"date": str(today.date())}), encoding="utf-8")
     log(f"완료: {page} ({time.time() - t0:.0f}초)")
     return page

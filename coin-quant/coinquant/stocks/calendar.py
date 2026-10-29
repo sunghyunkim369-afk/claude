@@ -59,12 +59,89 @@ def economic(day: pd.Timestamp, countries=("United States",)) -> list[dict]:
         name = r.get("eventName", "")
         t = r.get("gmt", "")
         try:   # 칸 이름은 'gmt' 지만 실제 값은 미국 동부시간 (CB 소비자신뢰 10:00 = 발표 시각과 같음) → 서머타임 반영해 한국시간으로
-            kst = (pd.Timestamp(f"{day:%Y-%m-%d} {t}").tz_localize("America/New_York").tz_convert("Asia/Seoul")
-                   .strftime("%m/%d %H:%M"))
+            ts = pd.Timestamp(f"{day:%Y-%m-%d} {t}").tz_localize("America/New_York").tz_convert("Asia/Seoul")
+            kst = ts.strftime("%m/%d %H:%M")
         except Exception:
-            kst = t
+            ts, kst = pd.NaT, t
         clean = lambda v: html.unescape(str(v or "")).replace("\xa0", " ").strip()  # noqa: E731
-        out.append({"time_kst": kst, "country": r.get("country"), "event": name, "actual": clean(r.get("actual")),
+        out.append({"time_kst": kst, "ts": ts, "country": r.get("country"), "event": name, "actual": clean(r.get("actual")),
                     "consensus": clean(r.get("consensus")), "previous": clean(r.get("previous")),
                     "key": bool(KEY_RE.search(name))})
+    return out
+
+
+# 주요 지표 한국어 이름 (앞에서부터 처음 맞는 것)
+KO_NAMES = [("Fed Interest Rate Decision", "美 기준금리"), ("Core PCE", "근원 PCE 물가"), ("PCE", "PCE 물가"),
+            ("Core CPI", "근원 소비자물가(CPI)"), ("CPI", "소비자물가(CPI)"), ("Core PPI", "근원 생산자물가(PPI)"), ("PPI", "생산자물가(PPI)"),
+            ("Nonfarm", "비농업 고용"), ("Unemployment Rate", "실업률"), ("Initial Jobless", "신규 실업수당 청구"),
+            ("JOLTS", "구인건수(JOLTS)"), ("GDP", "GDP 성장률"), ("Retail Sales", "소매판매"),
+            ("ISM Manufacturing", "ISM 제조업 지수"), ("ISM Non-Manufacturing", "ISM 서비스업 지수"), ("ISM Services", "ISM 서비스업 지수"),
+            ("CB Consumer Confidence", "CB 소비자신뢰"), ("Michigan", "미시간 소비심리"), ("Core Durable", "근원 내구재 주문"),
+            ("Beige Book", "베이지북"), ("FOMC Press Conference", "FOMC 기자회견"), ("FOMC Statement", "FOMC 성명"),
+            ("Fed Chair", "연준 의장 발언")]
+
+
+def ko_name(name: str) -> str:
+    for k, v in KO_NAMES:
+        if k.lower() in name.lower():
+            return v
+    return name
+
+
+def _num(v: str) -> float | None:
+    m = re.match(r"^\(?(-?[\d.,]+)\)?\s*([%KMBT]?)", (v or "").replace(",", ""))
+    if not m:
+        return None
+    try:
+        x = float(m.group(1))
+    except ValueError:
+        return None
+    return -x if (v or "").strip().startswith("(") else x
+
+
+def verdict(e: dict) -> str:
+    """금리 결정은 이전과 비교(인상/인하/동결), 나머지는 예상과 비교."""
+    a, c, p = _num(e["actual"]), _num(e["consensus"]), _num(e["previous"])
+    if a is None:
+        return ""
+    if "Interest Rate Decision" in e["event"]:
+        if p is None:
+            return ""
+        return "동결" if abs(a - p) < 1e-9 else ("인상" if a > p else "인하")
+    if c is None:
+        return ""
+    if abs(a - c) < 1e-9:
+        return "예상과 같음"
+    return "예상보다 높음" if a > c else "예상보다 낮음"
+
+
+def recent_results(hours: int = 30, now: pd.Timestamp | None = None) -> list[dict]:
+    """최근 hours 시간 안에 발표된 주요 지표 결과 (실제값이 나온 것만)."""
+    now = now or pd.Timestamp.now(tz="Asia/Seoul")
+    ny = pd.Timestamp.now(tz="America/New_York").tz_localize(None).normalize()
+    rows = economic(ny) + economic(ny - pd.Timedelta(days=1))
+    out, seen = [], set()
+    for e in rows:
+        if not e["key"] or not e["actual"] or pd.isna(e["ts"]) or (e["event"], e["time_kst"]) in seen:
+            continue
+        if not (now - pd.Timedelta(hours=hours) <= e["ts"] <= now):
+            continue
+        seen.add((e["event"], e["time_kst"]))
+        out.append({**e, "ko": ko_name(e["event"]), "verdict": verdict(e)})
+    # 금리 결정을 맨 위로
+    return sorted(out, key=lambda e: ("Interest Rate Decision" not in e["event"], e["ts"]))
+
+
+def result_lines(results: list[dict]) -> list[str]:
+    """텔레그램 HTML 줄."""
+    from html import escape as esc
+    out = []
+    for e in results:
+        v = e["verdict"]
+        if "Interest Rate Decision" in e["event"]:
+            out.append(f"🏦 <b>{esc(e['ko'])}: {esc(v or e['actual'])}</b> {esc(e['actual'])}"
+                       + (f" (예상 {esc(e['consensus'])}, 이전 {esc(e['previous'])})" if e["consensus"] else "") + f" — {esc(e['time_kst'])}")
+        else:
+            out.append(f"• {esc(e['ko'])} <b>{esc(e['actual'])}</b>" + (f" (예상 {esc(e['consensus'])})" if e["consensus"] else "")
+                       + (f" → <b>{esc(v)}</b>" if v else "") + f"  <i>{esc(e['time_kst'])}</i>")
     return out

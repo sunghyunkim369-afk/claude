@@ -158,3 +158,43 @@ def youtube_latest(channel_id: str = OSUN_CHANNEL, hours: int = 30, n: int = 3) 
                     "time": t, "source": "오선 라이브", "kind": "영상",
                     "desc": (e.findtext("m:group/m:description", "", ns) or "").strip()})
     return out[:n]
+
+
+def fed_headlines(n: int = 2) -> list[dict]:
+    """금리 결정 관련 최근 기사 (Google 뉴스, 하루 안, 큰 언론사 먼저)."""
+    items = []
+    for q, lang in (("FOMC 금리 결정", "ko"), ("Fed rate decision", "en")):
+        try:
+            items += fetch(gnews(q, lang), "Google 뉴스")
+        except Exception:
+            pass
+    now = pd.Timestamp.now(tz="UTC").tz_localize(None)
+    items = [i for i in items if pd.isna(i["time"]) or now - i["time"] <= pd.Timedelta(hours=30)]
+    items.sort(key=lambda i: (i["source"] not in MAJOR, -(i["time"].value if pd.notna(i["time"]) else 0)))
+    seen, out = set(), []
+    for i in items:
+        k = _norm(i["title"])
+        if k in seen:
+            continue
+        seen.add(k)
+        i["kind"] = kind(i["title"], i["source"])
+        out.append(i)
+    return out[:n]
+
+
+def results_block(hours: int = 30) -> list[str]:
+    """'📢 어젯밤 발표 결과' 텔레그램 HTML 줄 (주요 지표 실제값 + 금리 결정이면 관련 기사). 없으면 []."""
+    from html import escape as esc
+    from . import calendar as cal
+    try:
+        res = cal.recent_results(hours)
+    except Exception:
+        return []
+    if not res:
+        return []
+    lines = ["<b>📢 어젯밤 발표 결과</b>"] + cal.result_lines(res)
+    if any("Interest Rate Decision" in r["event"] for r in res):
+        for i in fed_headlines():
+            t = esc(i["title"][:60] + ("…" if len(i["title"]) > 60 else ""))
+            lines.append(f"📰 <a href=\"{esc(i['link'], quote=True)}\">{t}</a> <i>{esc(i['source'])}</i>")
+    return lines

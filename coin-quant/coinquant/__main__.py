@@ -124,6 +124,11 @@ def cmd_breakout4h(a, cfg):
     breakout4h.run(cfg)
 
 
+def cmd_stocks_bias(a, cfg):
+    from .stocks import bias_check
+    bias_check.main(cfg)
+
+
 def cmd_rules_check(a, cfg):
     from .research import rules_check
     rules_check.main(cfg)
@@ -260,6 +265,8 @@ def main(argv=None):
     s.set_defaults(fn=cmd_futures_lab)
     s = sub.add_parser("breakout4h", help="4시간봉 거래량 돌파(롱만): 생존 편향(그때 상위 20, 상폐 포함)·하루 한 번 판단 검증")
     s.set_defaults(fn=cmd_breakout4h)
+    s = sub.add_parser("stocks-bias", help="주식 지수 공식 편향 점검: 세계 지수·배당·현금 이자·세금·시작 시점·환율·지연 (인터넷 필요)")
+    s.set_defaults(fn=cmd_stocks_bias)
     s = sub.add_parser("rules-check", help="코인 체크리스트 규칙 검증 (FOMC 절반 매수, 4년 주기 필터, 주기 최저 이탈)")
     s.set_defaults(fn=cmd_rules_check)
     s = sub.add_parser("extended", help="확정 공식 2018년 이전까지 검증 + 확률 높을 때만 사기")

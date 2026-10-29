@@ -256,23 +256,38 @@ def specs(B: dict, tf: str, D: dict) -> list[Spec]:
 
 # ---------------------------------------------------------------- 체결 시뮬레이션
 
-def sim(o, h, l_, c, fund, el, es, xl, xs, stop=None, trail=None, max_bars=None, cost=COST, delay=0):
-    """한 코인. 반환: (봉별 순수익, 포지션 배열, 거래 목록[(진입i, 청산i, 방향, 수익, 최대 역행)])."""
+def sim(o, h, l_, c, fund, el, es, xl, xs, stop=None, trail=None, max_bars=None, cost=COST, delay=0,
+        check=None, stop_close=False):
+    """한 코인. 반환: (봉별 순수익, 포지션 배열, 거래 목록[(진입i, 청산i, 방향, 수익, 최대 역행)]).
+    check: 이 봉에서만 판단(진입·신호 청산). stop_close: 손절을 예약 주문 대신 판단하는 봉의 종가로만 확인."""
+    if check is None:
+        check = np.ones(len(c), bool)
     if delay:
-        el, es, xl, xs = (np.concatenate([np.zeros(delay, bool), x[:-delay]]) for x in (el, es, xl, xs))
+        el, es, xl, xs, check = (np.concatenate([np.zeros(delay, bool), x[:-delay]]) for x in (el, es, xl, xs, check))
     n = len(c)
     r = np.zeros(n)
     P = np.zeros(n)
     trades = []
     pos, ent_px, ent_i, stp, ext = 0, 0.0, 0, np.nan, 0.0
     for t in range(1, n):
-        if np.isnan(c[t]) or np.isnan(c[t - 1]):
+        if np.isnan(c[t]):
+            if pos != 0 and not np.isnan(c[t - 1]):   # 데이터가 끊김(상장폐지 등) → 마지막 가격에 정리
+                r[t - 1] -= cost
+                trades.append((ent_i, t - 1, pos, pos * (c[t - 1] / ent_px - 1) - 2 * cost, abs(ext)))
+                P[t - 1] = 0
+                pos = 0
+            continue
+        if np.isnan(c[t - 1]):
             continue
         stopped = False
         if pos != 0:
             ext = min(ext, l_[t] / ent_px - 1) if pos > 0 else max(ext, h[t] / ent_px - 1)
-            if not np.isnan(stp) and ((pos > 0 and l_[t] <= stp) or (pos < 0 and h[t] >= stp)):
-                px = min(o[t], stp) if pos > 0 else max(o[t], stp)
+            if stop_close:
+                hit = check[t] and not np.isnan(stp) and ((pos > 0 and c[t] <= stp) or (pos < 0 and c[t] >= stp))
+            else:
+                hit = not np.isnan(stp) and ((pos > 0 and l_[t] <= stp) or (pos < 0 and h[t] >= stp))
+            if hit:
+                px = c[t] if stop_close else (min(o[t], stp) if pos > 0 else max(o[t], stp))
                 r[t] = pos * (px / c[t - 1] - 1) - cost - pos * fund[t]
                 trades.append((ent_i, t, pos, pos * (px / ent_px - 1) - 2 * cost, abs(ext)))
                 pos, stopped = 0, True
@@ -281,12 +296,12 @@ def sim(o, h, l_, c, fund, el, es, xl, xs, stop=None, trail=None, max_bars=None,
                 if trail is not None and not np.isnan(trail[t]):
                     stp = max(stp if not np.isnan(stp) else -np.inf, c[t] - trail[t]) if pos > 0 else \
                         min(stp if not np.isnan(stp) else np.inf, c[t] + trail[t])
-                out = (pos > 0 and xl[t]) or (pos < 0 and xs[t]) or (max_bars is not None and t - ent_i >= max_bars)
+                out = check[t] and ((pos > 0 and xl[t]) or (pos < 0 and xs[t]) or (max_bars is not None and t - ent_i >= max_bars))
                 if out:
                     r[t] -= cost
                     trades.append((ent_i, t, pos, pos * (c[t] / ent_px - 1) - 2 * cost, abs(ext)))
                     pos = 0
-        if pos == 0 and not stopped:
+        if pos == 0 and not stopped and check[t]:
             side = 1 if el[t] else (-1 if es[t] else 0)
             if side:
                 pos, ent_px, ent_i, ext = side, c[t], t, 0.0

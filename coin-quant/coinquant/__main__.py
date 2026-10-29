@@ -119,6 +119,11 @@ def cmd_futures_lab(a, cfg):
     futures_lab.run(cfg)
 
 
+def cmd_breakout4h(a, cfg):
+    from .research import breakout4h
+    breakout4h.run(cfg)
+
+
 def cmd_rules_check(a, cfg):
     from .research import rules_check
     rules_check.main(cfg)
@@ -253,6 +258,8 @@ def main(argv=None):
     s.set_defaults(fn=cmd_stocks_brief)
     s = sub.add_parser("futures-lab", help="선물 단기 검증: 유명 트레이더·교과서 방식과 파생 지표 (롱·숏, 펀딩비, 레버리지)")
     s.set_defaults(fn=cmd_futures_lab)
+    s = sub.add_parser("breakout4h", help="4시간봉 거래량 돌파(롱만): 생존 편향(그때 상위 20, 상폐 포함)·하루 한 번 판단 검증")
+    s.set_defaults(fn=cmd_breakout4h)
     s = sub.add_parser("rules-check", help="코인 체크리스트 규칙 검증 (FOMC 절반 매수, 4년 주기 필터, 주기 최저 이탈)")
     s.set_defaults(fn=cmd_rules_check)
     s = sub.add_parser("extended", help="확정 공식 2018년 이전까지 검증 + 확률 높을 때만 사기")

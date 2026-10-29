@@ -470,8 +470,10 @@ def main(argv=None):
             from . import contest
             st = contest.State(os.path.join(HERE, ".cache", f"contest-{kis.env}.json"))
             st.d["kr_force"] = True
+            st.d["kr_topup_once"] = True  # 노는 현금이 있으면 목표 종목을 지금 평가금액 기준 1/3 까지 채워요
             st.save()
-            print("지금 리밸런스해요 (순위 계산 4~5분). 장중(09:05~15:20)에만 주문이 나가요.")
+            print("지금 리밸런스해요 (순위 계산 4~5분). 장중(09:05~15:20)에만 주문이 나가요.\n"
+                  "목표 종목 중 1/3 보다 적은 종목은 남는 현금으로 채워요.")
         try:
             cmd_contest(kis, cfg, markets, once=args.once or args.now)
         except KisError as e:

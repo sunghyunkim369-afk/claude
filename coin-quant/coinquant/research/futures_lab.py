@@ -22,6 +22,7 @@
 """
 from __future__ import annotations
 
+import copy
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -55,8 +56,24 @@ def load_1h(cache: Path, log=print) -> dict[str, pd.DataFrame]:
         if not p.exists():
             log(f"  {s} 1시간봉 받는 중")
             bp.fetch_um_klines(s, "1h").to_csv(p, index=False)
-        out[a] = pd.read_csv(p, parse_dates=["time"]).set_index("time")
+        df = pd.read_csv(p, parse_dates=["time"]).set_index("time")
+        out[a] = clean_wicks(df)
     return out
+
+
+WICK = 0.25   # 1시간 안에 몸통보다 25% 넘게 튄 꼬리 = 이상 체결로 보고 몸통까지 자름
+
+
+def clean_wicks(df: pd.DataFrame) -> pd.DataFrame:
+    """바이낸스 선물엔 순간 이상 체결이 몇 번 있음 (예: BTC 2021-07-26 01시 고가 48,168 (시가 36,736), ETH 2020-03-13 고가 323 (시가 96)).
+    '마지막 체결가' 기준 손절이면 실제로 걸렸겠지만, 표시 가격(mark price) 기준 손절이면 안 걸림 → 표시 가격 기준으로 계산."""
+    df = df.copy()
+    top, bot = df[["open", "close"]].max(axis=1), df[["open", "close"]].min(axis=1)
+    hi_bad, lo_bad = df["high"] > top * (1 + WICK), df["low"] < bot * (1 - WICK)
+    df.loc[hi_bad, "high"] = top[hi_bad]
+    df.loc[lo_bad, "low"] = bot[lo_bad]
+    df.attrs["wicks_cut"] = int(hi_bad.sum() + lo_bad.sum())
+    return df
 
 
 def bars(h1: dict[str, pd.DataFrame], tf: str) -> dict[str, pd.DataFrame]:
@@ -360,7 +377,7 @@ def larry_williams(h1: dict[str, pd.DataFrame], D: dict, cache: Path, k=0.5, ma_
 # ---------------------------------------------------------------- 성적
 
 def perf(r: pd.Series, bpy: int) -> dict:
-    r = r.dropna()
+    r = r.dropna().clip(lower=-1.0)   # 1배에선 한 봉에 몫 전부를 넘게 잃을 수 없음
     if len(r) < 10:
         return {"cagr": np.nan, "mdd": np.nan, "sharpe": np.nan}
     eq = (1 + r).cumprod()
@@ -473,6 +490,8 @@ def run(cfg: dict | None = None, log=print) -> Path:
         B["funding"] = funding_bars(cache, B["close"].index, tf)
         TB[tf] = B
     D = TB["1d"]
+    wicks = {a: h1[a].attrs.get("wicks_cut", 0) for a in h1}
+    log(f"  이상 꼬리 자름: {wicks}")
     log(f"  데이터: 1시간봉 {min(len(x) for x in h1.values()):,}~{max(len(x) for x in h1.values()):,}개, "
         f"{D['close'].index[0]:%Y-%m-%d} ~ {D['close'].index[-1]:%Y-%m-%d}")
     results: list[Result] = []
@@ -480,6 +499,11 @@ def run(cfg: dict | None = None, log=print) -> Path:
         B = TB[tf]
         for sp in specs(B, tf, D):
             results.append(run_spec(sp, B))
+            # 사후 변형: 같은 방식에서 숏을 빼고 롱만 (모든 방식에 똑같이 적용 — 골라 쓰지 않으려고)
+            lo = copy.copy(sp)
+            lo.name, lo.es = sp.name + " · 롱만", sp.es & False
+            lo.kind = sp.kind + "(롱만)"
+            results.append(run_spec(lo, B))
             log(f"  {tf} {sp.name} ({time.time() - t0:.0f}초)")
     # 래리 윌리엄스 3종 (일봉, 1시간봉으로 체결 시각 찾음)
     LW = [("래리 윌리엄스 변동성 돌파 k=0.5 (롱·숏)", {}), ("래리 윌리엄스 k=0.5 + 5일선 필터 (롱·숏)", {"ma_filter": True}),
@@ -601,12 +625,12 @@ def run(cfg: dict | None = None, log=print) -> Path:
         combo.append((f"확정 공식 70% + {res.name} [{res.tf}] 30%", perf(mix[Dc.index <= DEV_END], 365),
                       perf(mix[Dc.index >= HOLD_START], 365), corr))
 
-    path = render(rows, hold_rows, lev_rows, combo, passed, dsr, best, TB, time.time() - t0)
+    path = render(rows, hold_rows, lev_rows, combo, passed, dsr, best, TB, time.time() - t0, wicks)
     log(f"  → {path} ({time.time() - t0:.0f}초)")
     return path
 
 
-def render(rows, hold_rows, lev_rows, combo, passed, dsr, best, TB, secs) -> Path:
+def render(rows, hold_rows, lev_rows, combo, passed, dsr, best, TB, secs, wicks=None) -> Path:
     today = pd.Timestamp.now(tz="Asia/Seoul").date()
     D = TB["1d"]["close"]
     L = [f"# 선물 단기 검증 — 유명 방식·지표 {len(rows)}개 ({today})", "",
@@ -620,6 +644,10 @@ def render(rows, hold_rows, lev_rows, combo, passed, dsr, best, TB, secs) -> Pat
          "손절은 봉 안에서 닿으면 그 가격(갭이면 시가).",
          "- 통과 기준(미리 정함, 3개 균등·개발 구간): ① 비용 2배에도 연복리 > 0 ② 무작위 타이밍보다 샤프 상위 10% "
          "③ 한 봉 늦어도 연복리 > 0·절반 이상 ④ 코인 3개 중 2개 이상 연복리 > 0 ⑤ 선물 롱 계속 보유보다 샤프 높음.",
+         f"- 이상 체결 꼬리(1시간 안에 몸통보다 {WICK:.0%} 넘게 튄 것) {sum((wicks or {}).values())}개는 몸통까지 자름 "
+         f"({', '.join(f'{a} {n}' for a, n in (wicks or {}).items())}). 손절을 '표시 가격(mark price)' 기준으로 건다고 가정한 것.",
+         "- '· 롱만'은 같은 방식에서 숏만 뺀 사후 변형입니다(처음 정한 목록에 없었음). 골라 쓰지 않으려고 모든 방식에 똑같이 적용했고 "
+         "같은 기준으로 판정합니다. 시험 개수가 두 배가 되므로 아래 Deflated Sharpe 도 전체 개수로 계산합니다.",
          f"- 계산 {secs / 60:.1f}분.", "",
          "## 1. 개발 구간 결과 (3개 균등)", "",
          "| 방식 | 봉 | 출처 | 연복리 | MDD | 샤프 | 비용 2배 | 한 봉 늦게 | 무작위 대비 | +코인 수 | 연 거래(코인당) | 승률 | 평균 이익 | 평균 손실 | 손익비 | 보유(중앙) | 롱 손익합 | 숏 손익합 | 투자 비중 | 펀딩(연) | 기준 ①②③④⑤ |",

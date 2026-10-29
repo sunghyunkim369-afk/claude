@@ -211,7 +211,7 @@ def kr_fill_missing(kis, state, session, place, out=print, universe=None):
     for _ in range(3):  # 매매불가로 바꾼 종목도 같은 번에 사 보려고 몇 번 돌아요
         kr_substitute_blocked(kis, state, fill, held, manual, session, out, universe)
         todo = [t for t in fill["targets"] if t[1] not in held and t[1] not in fill["placed"] and t[1] not in manual
-                and t[1] not in state.d.get("blocked", [])]
+                and t[1] not in state.d.get("blocked", []) and not bought_today(state, session, t[1])]
         if not todo:
             break
         for sc, code, name in todo:
@@ -221,7 +221,8 @@ def kr_fill_missing(kis, state, session, place, out=print, universe=None):
                 fill.setdefault("spent", {})[code] = o["qty"] * o["price"]
         if not any(t[1] in state.d.get("blocked", []) for t in fill["targets"]):
             break
-    if all(t[1] in fill["placed"] or t[1] in held or t[1] in manual for t in fill["targets"]):
+    if all(t[1] in fill["placed"] or t[1] in held or t[1] in manual or bought_today(state, session, t[1])
+           for t in fill["targets"]):
         if not fill.get("topped"):
             fill["topped"] = True
             kr_top_up(kis, fill, bal, manual, per, session, place, out)
@@ -306,12 +307,18 @@ def kr_fill_short(kis, state, bal, manual, p, session, place, out=print):
         h = bal["holdings"].get(code)
         if not h or code in manual:
             continue
-        cost = h["qty"] * h["avg_price"]
+        cost = max(h["qty"] * h["avg_price"], bought_today(state, session, code))
         if cost < per * 0.9:
             out(f"  {name}({code}) 산 금액 {cost:,.0f}원이 몫 {per:,.0f}원보다 적어서 마저 사요")
             o = contest.kr_buy_order(kis, code, name, per - cost, "모자란 비중 채우기", out)
             if o:
                 place(o, session)
+
+
+def bought_today(state, session, code):
+    """오늘 이 프로그램이 낸 매수 주문 금액 (체결 대기 중인 것 포함)."""
+    b = state.d.get("kr_bought_today") or {}
+    return b.get("codes", {}).get(code, 0.0) if b.get("session") == session else 0.0
 
 
 def kr_regime_top_up(kis, state, targets, manual, p, session, place, out=print):
@@ -323,7 +330,7 @@ def kr_regime_top_up(kis, state, targets, manual, p, session, place, out=print):
         h = bal["holdings"].get(code)
         if not h or code in manual:
             continue
-        value = h["qty"] * h["price"]
+        value = max(h["qty"] * h["price"], bought_today(state, session, code))
         if value < per * 0.9:
             out(f"  {name}({code}) 약세장이 끝나서 1/{p['top_k']} 까지 다시 채워요")
             o = contest.kr_buy_order(kis, code, name, per - value, "약세장 끝, 비중 다시 채우기", out)
@@ -407,6 +414,13 @@ def run_contest_cycle(kis, cfg, state, now_utc, log, out=print, universe=None):
                 return False
             amount = qty * (price or o["price"])
             state.record(o["market"], o["symbol"], amount, session)
+            if o["market"] == "kr" and o["side"] == "buy":
+                # 오늘 낸 매수 금액 (체결 전이라 잔고에 아직 없어도 '이미 산 것'으로 셈 → 같은 종목 겹쳐 사기 방지)
+                b = state.d.get("kr_bought_today") or {}
+                if b.get("session") != session:
+                    b = {"session": session, "codes": {}}
+                b["codes"][o["symbol"]] = b["codes"].get(o["symbol"], 0.0) + qty * (o.get("limit_price") or o["price"])
+                state.d["kr_bought_today"] = b
             if o["market"] == "us":
                 contest.us_record(state, o["symbol"], session)
             log({"event": "order_sent", "env": kis.env, "contest": True,

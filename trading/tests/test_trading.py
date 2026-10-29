@@ -614,6 +614,7 @@ class ContestModeTest(unittest.TestCase):
         buys = [(c["body"]["PDNO"], int(c["body"]["ORD_QTY"])) for c in t.calls if c["path"].endswith("order-cash")]
         self.assertEqual(buys, [("000001", 1666), ("000002", 1666), ("000003", 1666)])
         kis2, t2 = client(self.market({**rising, **falling}))
+        os.remove(os.path.join(self.tmp.name, "state.json"))                 # 새 계좌로
         with mock.patch.object(self.contest, "score", sc):
             self.cycle(kis2, auto_utc(2026, 10, 21, 0, 30), universe)        # 기본(끔): 1/3 씩 그대로
         self.assertEqual([int(c["body"]["ORD_QTY"]) for c in t2.calls if c["path"].endswith("order-cash")][0], 3333)  # 3종목, 1/3 의 절반씩
@@ -725,6 +726,19 @@ class ContestModeTest(unittest.TestCase):
         self.assertEqual(len([c for c in t.calls if c["path"].endswith("order-cash")]), 3)
         self.assertNotIn("kr_force", state.d)
         self.assertEqual(state.d["kr_rebalances"], ["2026-10-26", "2026-10-27"])
+
+    def test_no_double_buy_while_first_order_not_filled(self):
+        strengths = {"000001": 0.012, "000002": 0.011, "000003": 0.010}
+        kis, t = client(self.market(strengths))       # 잔고가 계속 비어 있음 = 주문이 아직 체결 안 됨
+        state = self.contest.State(os.path.join(self.tmp.name, "d.json"))
+        sc = lambda closes, lb, rm: closes[-1] / closes[-1 - lb] - 1
+        with mock.patch.object(self.contest, "score", sc):
+            for minute in (30, 45, 59):
+                auto.run_contest_cycle(kis, {"us": {"watchlist": []}, "auto": {}}, state, auto_utc(2026, 10, 29, 0, minute),
+                                       self.logs.append, lambda *_: None, [(c, c) for c in strengths])
+        buys = [c["body"]["PDNO"] for c in t.calls if c["path"].endswith("order-cash")]
+        self.assertEqual(sorted(buys), ["000001", "000002", "000003"])   # 종목마다 한 번만
+        self.assertAlmostEqual(auto.bought_today(state, "2026-10-29", "000001"), 3333 * 10100)
 
     def test_crash_check(self):
         changes = {"A": "-8.5", "B": "-1.0", "C": "-0.5"}

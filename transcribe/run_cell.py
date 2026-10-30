@@ -7,18 +7,22 @@ KEYWORDS = ""  #@param {type:"string"}
 CLEAN_AUDIO = True  #@param {type:"boolean"}
 #@markdown **문단 나누기**: 이 초 이상 말이 끊기면 새 문단
 PARAGRAPH_GAP = 2.0  #@param {type:"number"}
+#@markdown **구글 드라이브 '전사문' 폴더에도 저장**: 폰 화면이 꺼져 연결이 끊겨도 결과가 남고, 요약 페이지에서 바로 골라 쓸 수 있어요
+SAVE_TO_DRIVE = True  #@param {type:"boolean"}
 
 import ctypes
 import datetime
 import glob
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
 
 SUMMARY_PAGE = "https://claude.ai/artifact/KWUbqdVfGP4Mwnnz7ryzgG"
 WORK_DIR = "/content/transcribe"
+DRIVE_DIR = "/content/drive/MyDrive/전사문"
 
 # 유튜브 자막에서 배운 Whisper 단골 헛소리. 녹음에 없는데 조용한 구간에서 튀어나와요.
 HALLUCINATIONS = [
@@ -158,6 +162,18 @@ def transcribe(model, wav, keywords):
     return raw, info.duration
 
 
+def mount_drive():
+    from google.colab import drive
+    print("구글 드라이브 연결: 뜨는 창에서 계정을 고르고 '허용'을 눌러 주세요.")
+    try:
+        drive.mount("/content/drive")
+        os.makedirs(DRIVE_DIR, exist_ok=True)
+        return DRIVE_DIR
+    except Exception as e:
+        print(f"드라이브에 연결하지 못했어요 ({e}). 내려받기로만 저장할게요.\n")
+        return None
+
+
 def main():
     from google.colab import files
 
@@ -166,6 +182,8 @@ def main():
     if not gpu:
         print("⚠️ GPU가 꺼져 있어요. 위 메뉴 [런타임 → 런타임 유형 변경 → T4 GPU]를 고르고 다시 ▶ 누르면 10배 이상 빨라요.")
         print("   지금은 CPU로 해요 (1시간 녹음이면 1시간 넘게 걸릴 수 있어요).\n")
+
+    drive_dir = mount_drive() if SAVE_TO_DRIVE else None
 
     try:
         import faster_whisper  # noqa: F401
@@ -204,10 +222,17 @@ def main():
         for p in paras:
             print(f"[{fmt_time(p['start'], hours=duration >= 3600)}] {p['text']}\n")
         print("─" * 40)
-        files.download(txt_path)
-        files.download(srt_path)
+        if drive_dir:
+            for path in (txt_path, srt_path):
+                shutil.copy(path, drive_dir)
+            print(f"  드라이브 저장: 내 드라이브/전사문/{os.path.basename(txt_path)}")
+        try:
+            files.download(txt_path)
+            files.download(srt_path)
+        except Exception:
+            print("  내려받기 창을 못 띄웠어요. 위 글을 복사하거나 드라이브에서 열어 주세요.")
 
-    print("\n✅ 끝. 전사문(_전사.txt)이 내려받아졌어요.")
+    print("\n✅ 끝. 전사문(_전사.txt)을 내려받았어요." + (" 구글 드라이브 '전사문' 폴더에도 있어요." if drive_dir else ""))
     print(f"요약이 필요하면 이 페이지에 전사문 파일을 올리세요: {SUMMARY_PAGE}")
 
 

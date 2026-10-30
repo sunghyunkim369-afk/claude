@@ -89,6 +89,11 @@ textarea {
 .result ul { margin: 0 0 8px; padding-left: 1.2em; display: grid; gap: 4px; }
 .result code { font: 0.8rem var(--font-mono); color: var(--muted); background: var(--bg); padding: 1px 5px; border-radius: 4px; white-space: nowrap; }
 .result.example { opacity: 0.8; }
+.howto { gap: 0; }
+.howto summary { cursor: pointer; font-weight: 600; }
+.howto summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.howto ol { margin: 12px 0 0; padding-left: 1.3em; display: grid; gap: 6px; }
+.howto code, .step code { font: 0.82rem var(--font-mono); background: var(--bg); padding: 1px 5px; border-radius: 4px; }
 .cursor::after { content: "▍"; color: var(--accent); animation: blink 1s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .cursor::after { animation: none; } }
@@ -102,9 +107,9 @@ textarea {
 
   <section class="steps" aria-label="사용 순서">
     <div class="step"><b>1</b><strong>전사문 만들기</strong>
-      <span><a id="colab-link" href="https://colab.research.google.com/github/sunghyunkim369-afk/claude/blob/claude/elegant-heisenberg-s2a9ar/transcribe/transcribe_ko.ipynb" target="_blank" rel="noopener">Colab 전사 노트북</a> 열고 녹음 파일 올리기 (무료 GPU, Whisper large-v3)</span></div>
+      <span><a id="colab-link" href="https://colab.research.google.com/github/sunghyunkim369-afk/claude/blob/claude/elegant-heisenberg-s2a9ar/transcribe/transcribe_ko.ipynb" target="_blank" rel="noopener">Colab 전사 노트북</a> 열고 ▶ 눌러 녹음 파일 올리기. 결과는 구글 드라이브 <code>전사문</code> 폴더에 저장돼요</span></div>
     <div class="step"><b>2</b><strong>여기서 요약</strong>
-      <span>받은 <code>_전사.txt</code>를 올리거나 글을 붙여 넣고 요약하기</span></div>
+      <span>아래 <strong>전사문 파일 열기 → 찾아보기 → Google Drive → 전사문</strong>에서 <code>_전사.txt</code> 고르고 요약하기</span></div>
   </section>
 
   <section class="panel" aria-label="전사문 입력">
@@ -133,6 +138,17 @@ textarea {
     </div>
     <div class="result example" id="result"></div>
   </section>
+
+  <details class="panel howto" id="howto">
+    <summary>아이폰 홈 화면에 아이콘 만들기</summary>
+    <ol>
+      <li>이 페이지를 <strong>사파리</strong>에서 열어요. Claude 앱 안에서 열렸다면 오른쪽 위 메뉴에서 <strong>브라우저로 열기</strong>를 누르세요.</li>
+      <li>아래쪽 <strong>공유 버튼(□↑)</strong> → <strong>홈 화면에 추가</strong> → 이름을 <code>받아쓰기</code>로 바꾸고 <strong>추가</strong>.</li>
+      <li>이제 아이콘 하나로 끝나요. 전사는 위 <strong>1번 링크</strong>, 요약은 이 화면에서.</li>
+      <li>Colab도 따로 아이콘으로 두고 싶으면, 1번 링크를 연 화면에서 같은 방법으로 추가하세요.</li>
+      <li>구글 드라이브의 전사문을 고르려면 <strong>Google Drive 앱</strong>이 깔려 있어야 파일 선택 창에 드라이브가 보여요.</li>
+    </ol>
+  </details>
 </div>
 
 <script>

@@ -65,6 +65,7 @@ jobs:
           rm -f trading/.env
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          touch trade/last_run.txt
           git add trade/state trade/last_run.txt journal
           git diff --cached --quiet && { echo "바뀐 것 없음"; exit 0; }
           git commit -m "모의투자 실행 결과 ($(awk 'NR==1{print $1}' trade/request.txt)) [skip ci]"

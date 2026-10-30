@@ -1,0 +1,72 @@
+name: Trade (모의투자 대회)
+
+# 노트북 없이 GitHub 에서 대회 프로그램을 한 번 돌려요.
+# 실행 방법: trade/request.txt 첫 단어를 바꿔서 이 브랜치에 올리면 돌아요 (Claude 에게 "리밸런스" 라고 하면 Claude 가 올려요).
+#   now     = 지금 리밸런스 (contest --now: 순위 다시 계산, 교체, 1/3 맞추기)
+#   once    = 예약 실행과 같음 (리밸런스 날이면 리밸런스, 아니면 급락 확인만)
+#   journal = 매매일지만
+# 필요한 설정 (한 번만): GitHub 저장소 → Settings → Secrets and variables → Actions → New repository secret
+#   KIS_APP_KEY, KIS_APP_SECRET, KIS_ACCOUNT (모의투자용 값. 대화창에는 절대 붙이지 마세요)
+# 진행 상태(수동 보유·매매불가 목록·리밸런스 날짜)는 trade/state/ 에, 결과는 trade/last_run.txt 와 journal/ 에 올려요.
+on:
+  push:
+    branches: [claude/awesome-edison-24zdn0]
+    paths: ["trade/request.txt"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: trade
+  cancel-in-progress: false
+
+jobs:
+  trade:
+    if: github.server_url == 'https://github.com'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 설정 (.env 는 이 실행 안에서만 만들고 올리지 않아요)
+        env:
+          KIS_APP_KEY: ${{ secrets.KIS_APP_KEY }}
+          KIS_APP_SECRET: ${{ secrets.KIS_APP_SECRET }}
+          KIS_ACCOUNT: ${{ secrets.KIS_ACCOUNT }}
+        run: |
+          if [ -z "$KIS_APP_KEY" ] || [ -z "$KIS_APP_SECRET" ] || [ -z "$KIS_ACCOUNT" ]; then
+            echo "::error::GitHub Secrets 에 KIS_APP_KEY, KIS_APP_SECRET, KIS_ACCOUNT 를 넣어 주세요"
+            exit 1
+          fi
+          umask 077
+          printf 'KIS_APP_KEY=%s\nKIS_APP_SECRET=%s\nKIS_ACCOUNT=%s\nKIS_ENV=demo\n' \
+            "$KIS_APP_KEY" "$KIS_APP_SECRET" "$KIS_ACCOUNT" > trading/.env
+          mkdir -p trading/.cache
+          if [ -f trade/state/contest-demo.json ]; then cp trade/state/contest-demo.json trading/.cache/; fi
+      - name: 실행
+        run: |
+          MODE=$(awk 'NR==1{print $1}' trade/request.txt)
+          echo "모드: $MODE ($(TZ=Asia/Seoul date '+%m-%d %H:%M') 한국시간)" | tee trade/last_run.txt
+          case "$MODE" in
+            now) python -m trading contest --now 2>&1 | tee -a trade/last_run.txt ;;
+            once) python -m trading contest --once 2>&1 | tee -a trade/last_run.txt ;;
+            *) echo "주문 없이 일지만 써요" | tee -a trade/last_run.txt ;;
+          esac
+          python -m trading journal 2>&1 | tee -a trade/last_run.txt
+      - name: 결과 올리기 (진행 상태·일지, 비밀값 없음)
+        if: always()
+        run: |
+          mkdir -p trade/state journal
+          if [ -f trading/.cache/contest-demo.json ]; then cp trading/.cache/contest-demo.json trade/state/; fi
+          if [ -d trading/journal ]; then cp trading/journal/*.md journal/ 2>/dev/null || true; fi
+          if [ -f trading/journal/history.jsonl ]; then cat trading/journal/history.jsonl >> journal/history.jsonl; fi
+          rm -f trading/.env
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add trade/state trade/last_run.txt journal
+          git diff --cached --quiet && { echo "바뀐 것 없음"; exit 0; }
+          git commit -m "모의투자 실행 결과 ($(awk 'NR==1{print $1}' trade/request.txt)) [skip ci]"
+          for i in 1 2 3; do git pull --rebase -q && git push && exit 0; sleep 5; done
+          exit 1

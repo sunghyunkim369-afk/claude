@@ -43,7 +43,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}   # 선택: 뉴스 AI 요약
           PYTHONUTF8: "1"
-          CQ_SCHEDULED: ${{ github.event_name == 'schedule' && '1' || '' }}   # 예약 실행이면 오늘 이미 보낸 경우 건너뜀
+          CQ_SCHEDULED: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '1' || '' }}   # 예약·외부 예약(cron-job.org) 실행은 오늘 이미 보냈으면 건너뜀
       - name: 데이터·알림 상태 저장
         if: always()
         uses: actions/cache/save@v4

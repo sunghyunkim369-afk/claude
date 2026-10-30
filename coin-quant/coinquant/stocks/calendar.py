@@ -71,7 +71,8 @@ def economic(day: pd.Timestamp, countries=("United States",)) -> list[dict]:
 
 
 # 주요 지표 한국어 이름 (앞에서부터 처음 맞는 것)
-KO_NAMES = [("Fed Interest Rate Decision", "美 기준금리"), ("Core PCE", "근원 PCE 물가"), ("PCE", "PCE 물가"),
+KO_NAMES = [("Fed Interest Rate Decision", "美 기준금리"), ("GDP Price Index", "GDP 물가지수"), ("GDP Sales", "GDP 최종판매"),
+            ("Core PCE Prices", "근원 PCE 물가(GDP 집계)"), ("PCE Prices", "PCE 물가(GDP 집계)"), ("Core PCE", "근원 PCE 물가"), ("PCE", "PCE 물가"),
             ("Core CPI", "근원 소비자물가(CPI)"), ("CPI", "소비자물가(CPI)"), ("Core PPI", "근원 생산자물가(PPI)"), ("PPI", "생산자물가(PPI)"),
             ("Nonfarm", "비농업 고용"), ("Unemployment Rate", "실업률"), ("Initial Jobless", "신규 실업수당 청구"),
             ("JOLTS", "구인건수(JOLTS)"), ("GDP", "GDP 성장률"), ("Retail Sales", "소매판매"),
@@ -81,11 +82,14 @@ KO_NAMES = [("Fed Interest Rate Decision", "美 기준금리"), ("Core PCE", "�
             ("Fed Chair", "연준 의장 발언")]
 
 
+PERIOD = [("(MoM)", "전월비"), ("(YoY)", "전년비"), ("(QoQ)", "전기비"), ("(Annualized)", "연율")]
+
+
 def ko_name(name: str) -> str:
-    for k, v in KO_NAMES:
-        if k.lower() in name.lower():
-            return v
-    return name
+    """한국어 이름 + 기간 (같은 지표의 전월비·전년비가 같은 이름으로 보이지 않게)."""
+    base = next((v for k, v in KO_NAMES if k.lower() in name.lower()), name)
+    per = [v for k, v in PERIOD if k.lower() in name.lower()]
+    return base + (f" ({'·'.join(per)})" if per and base != name else "")
 
 
 def _num(v: str) -> float | None:
@@ -136,8 +140,11 @@ def result_lines(results: list[dict]) -> list[str]:
     """텔레그램 HTML 줄."""
     from html import escape as esc
     out = []
+    dup = {k for k in (e["ko"] for e in results) if sum(1 for x in results if x["ko"] == k) > 1}
     for e in results:
         v = e["verdict"]
+        if e["ko"] in dup and e["ko"] != e["event"]:   # 한국어 이름이 겹치면 원래 이름을 붙임
+            e = {**e, "ko": f"{e['ko']} · {e['event']}"}
         if "Interest Rate Decision" in e["event"]:
             out.append(f"🏦 <b>{esc(e['ko'])}: {esc(v or e['actual'])}</b> {esc(e['actual'])}"
                        + (f" (예상 {esc(e['consensus'])}, 이전 {esc(e['previous'])})" if e["consensus"] else "") + f" — {esc(e['time_kst'])}")

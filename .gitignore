@@ -21,3 +21,6 @@ __pycache__/
 
 # 백테스트: 받은 주가 데이터 캐시는 저장소에 두지 않아요 (결과 results/ 는 올려요)
 backtest/data_cache/
+
+# 매매일지 (PC 에서 생기는 파일)
+trading/journal/

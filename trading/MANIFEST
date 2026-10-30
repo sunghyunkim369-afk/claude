@@ -4,6 +4,7 @@ __main__.py
 auto.py
 cli.py
 contest.py
+journal.py
 kis.py
 planner.py
 strategy.py

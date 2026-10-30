@@ -740,6 +740,46 @@ class ContestModeTest(unittest.TestCase):
         self.assertEqual(sorted(buys), ["000001", "000002", "000003"])   # 종목마다 한 번만
         self.assertAlmostEqual(auto.bought_today(state, "2026-10-29", "000001"), 3333 * 10100)
 
+    def test_journal_build_and_upload(self):
+        from trading import journal
+        held = [{"pdno": "053800", "prdt_name": "안랩", "hldg_qty": "312", "pchs_avg_pric": "102227", "prpr": "117100"}]
+        kis, _ = client(self.market({}, held_kr=held))
+        state = self.contest.State(os.path.join(self.tmp.name, "j.json"))
+        state.d.update({"start_total": 100_000_000, "manual": {}})
+        os.makedirs(os.path.join(self.tmp.name, "logs"), exist_ok=True)
+        with open(os.path.join(self.tmp.name, "logs", "2026-10-30.jsonl"), "w", encoding="utf-8") as f:
+            f.write(json.dumps({"time": "2026-10-30T09:15:00", "event": "order_sent",
+                                "order": {"market": "kr", "side": "buy", "symbol": "053800", "name": "안랩", "qty": 312,
+                                          "limit_price": 103000, "reason": "20일 수익률 +48.7%"}}, ensure_ascii=False) + "\n")
+        md, summary = journal.build(kis, state, self.tmp.name, datetime(2026, 10, 30, 15, 0))
+        self.assertIn("| 안랩(053800) | 312 | 102,227 | 117,100 |", md)
+        self.assertIn("| 09:15 | 매수 | 안랩(053800) | 312 | 103,000 | 접수 |", md)
+        self.assertEqual(summary["total"], 100_000_000)
+        self.assertNotIn("50123456", md)                      # 계좌번호는 안 써요
+        calls = []
+
+        class Resp:
+            def __init__(self, data):
+                self.data = data
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+            def read(self):
+                return json.dumps(self.data).encode()
+
+        def opener(req, timeout=0):
+            calls.append((req.get_method(), req.full_url))
+            if req.get_method() == "GET" and "/contents/" in req.full_url:
+                raise journal.urllib.error.HTTPError(req.full_url, 404, "nf", {}, None)
+            return Resp({})
+        journal.upload("journal/2026-10-30.md", md, "tok", "msg", opener=opener)
+        self.assertEqual(calls[-1][0], "PUT")
+        self.assertIn("/contents/journal/2026-10-30.md", calls[-1][1])
+
     def test_crash_check(self):
         changes = {"A": "-8.5", "B": "-1.0", "C": "-0.5"}
         routes = self.market({})

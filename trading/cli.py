@@ -14,6 +14,7 @@
   python3 -m trading manual keep 053800 [--pct 33]   가진 종목을 총평가의 33% 만 남기고(다음 리밸런스 때 넘는 만큼 매도) 수동 보유로
   python3 -m trading manual add|remove 005930   MTS 로 직접 산 종목 등록 / 해제 (해제하면 자동매매가 관리)
   python3 -m trading manual list       수동 보유 종목 보기
+  python3 -m trading journal         매매일지 쓰기 (+ GITHUB_TOKEN 이 있으면 GitHub journal/ 폴더에 올리기)
   python3 -m trading schedule          Windows 작업 스케줄러에 예약 (절전에서 깨워 평일 09:10·23:40 실행)
   python3 -m trading auto              자동매매 (장중에 정해진 간격으로 확인하고 바로 주문)
   python3 -m trading update            최신 프로그램 받기 (.env·config.json 은 그대로)
@@ -34,7 +35,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 UPDATE_BASE = "https://raw.githubusercontent.com/sunghyunkim369-afk/claude/claude/awesome-edison-24zdn0/trading/"
 # 사용자가 고치는 .env, config.json 은 덮어쓰지 않아요.
 # 받을 파일 목록은 저장소의 trading/MANIFEST 를 먼저 보고, 못 받으면 아래 목록을 써요.
-UPDATE_FILES = ["__init__.py", "__main__.py", "auto.py", "cli.py", "contest.py", "kis.py", "planner.py", "strategy.py",
+UPDATE_FILES = ["__init__.py", "__main__.py", "auto.py", "cli.py", "contest.py", "journal.py", "kis.py", "planner.py",
+                "strategy.py",
                 "universe_kr.csv", "start_contest.bat", "show_balance.bat", "schedule.py", "setup_schedule.bat",
                 "README.md", ".env.example", "MANIFEST", "tests/__init__.py", "tests/test_trading.py"]
 
@@ -411,8 +413,8 @@ def cmd_update(fetch=None):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="python3 -m trading", description="한국투자증권 매매 프로그램 (국내+미국)")
-    ap.add_argument("command", choices=["status", "plan", "trade", "auto", "contest", "order", "manual", "schedule",
-                                        "unschedule", "update"])
+    ap.add_argument("command", choices=["status", "plan", "trade", "auto", "contest", "order", "manual", "journal",
+                                        "schedule", "unschedule", "update"])
     ap.add_argument("args", nargs="*", help="order 일 때: buy|sell 종목 수량 (예: buy AAPL 1)")
     ap.add_argument("--market", choices=["kr", "us", "all"], default="all")
     ap.add_argument("--exchange", choices=["NASD", "NYSE", "AMEX"], help="미국 종목 거래소 (기본 NASD)")
@@ -480,6 +482,13 @@ def main(argv=None):
             sys.exit(f"API 오류: {e}")
         except KeyboardInterrupt:
             sys.exit("\n중단했어요.")
+        return
+    if args.command == "journal":
+        from . import contest, journal
+        st = contest.State(os.path.join(HERE, ".cache", f"contest-{kis.env}.json"))
+        journal.write(kis, st, HERE)
+        if not os.environ.get("GITHUB_TOKEN"):
+            print("GitHub 에 올리려면 .env 에 GITHUB_TOKEN 을 넣어 주세요 (journal.py 설명 참고).")
         return
     if args.command == "manual":
         if args.pct is not None and not 0 < args.pct <= 100:

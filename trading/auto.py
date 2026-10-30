@@ -598,6 +598,9 @@ def run_contest_once(kis, cfg, here, log, now=lambda: datetime.now(timezone.utc)
                     out("  2분 뒤 체결 확인하고 덜 산 종목을 채워요")
                     sleep(120)
                     n += run_contest_cycle(kis, cfg, state, now(), log, out, universe)
+                if market_session("kr", now()):
+                    from . import journal
+                    journal.write(kis, state, here, out)
                 out(f"[{now().astimezone(KST):%m-%d %H:%M}] 끝 (주문 {n}건)")
                 return n
             except Exception as e:
@@ -638,7 +641,13 @@ def run_forever(kis, cfg, here, log, orders_sent_today, now=lambda: datetime.now
             waiting_shown = False
             try:
                 if contest_mode:
-                    run_contest_cycle(kis, cfg, state, t, log, out, universe)
+                    n = run_contest_cycle(kis, cfg, state, t, log, out, universe)
+                    day = t.astimezone(KST).date().isoformat()
+                    if market_session("kr", t) and (n or state.d.get("journal_day") != day):
+                        from . import journal
+                        journal.write(kis, state, here, out)  # 주문을 냈거나 그날 처음일 때만
+                        state.d["journal_day"] = day
+                        state.save()
                 else:
                     run_cycle(kis, cfg, book, t, log, orders_sent_today, out)
             except Exception as e:  # 네트워크 오류 등으로 프로그램이 꺼지지 않게

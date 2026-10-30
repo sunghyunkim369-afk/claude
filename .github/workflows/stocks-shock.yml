@@ -1,0 +1,58 @@
+name: 대형주 급락 뒤 흐름
+
+# 대형주가 하루 −10% 넘게 빠진 뒤 흐름(실적 쇼크 사건 분석). 주식 시세 사이트가 막힌 곳이라 GitHub 서버에서 돌림.
+on:
+  push:
+    branches: [claude/sweet-bohr-g35f4h]
+    paths:
+      - .github/workflows/stocks-shock.yml
+      - coin-quant/coinquant/stocks/shock_study.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CODE_REF: claude/sweet-bohr-g35f4h
+
+jobs:
+  validate:
+    if: github.server_url == 'https://github.com'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: coin-quant
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'push' && github.sha || env.CODE_REF }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: coin-quant/requirements-stocks.txt
+      - run: pip install -r requirements-stocks.txt
+      - uses: actions/cache/restore@v4
+        with:
+          path: coin-quant/data_cache/stocks
+          key: stocks-data-${{ github.run_id }}
+          restore-keys: stocks-data-
+      - run: python -m coinquant stocks-shock
+        env:
+          PYTHONUTF8: "1"
+          PYTHONUNBUFFERED: "1"
+      - name: 결과 문서 출력
+        run: cat docs/stock-shock-*.md
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: coin-quant/data_cache/stocks
+          key: stocks-data-${{ github.run_id }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-shock
+          path: |
+            coin-quant/docs/stock-shock-*.md
+            coin-quant/reports/research/stocks_*.csv

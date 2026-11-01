@@ -140,6 +140,8 @@ def lines(cfg: dict, log=print) -> tuple[list[str], list[str]]:
     pp = res["paper"]
     if pp["n"]:
         L.append(f"📒 {pp['since']:%y/%m/%d}~ 기록: {pp['ret']:+.1%} (거래 {pp['n']}번, 비용 포함)")
+    else:
+        L.append(f"   ↳ 📒 {pp['since']:%m/%d}부터 기록 중: 아직 거래 0번 (신호가 한 번도 안 나옴)")
     if late > pd.Timedelta(hours=4) and res["buy"]:
         L.append(f"⚠ 메시지가 신호({res['d0'] + pd.Timedelta(hours=9):%H시} KST)보다 {late / pd.Timedelta(hours=1):.0f}시간 늦음 — 4시간 늦은 체결도 검증에선 성적이 비슷했음")
     return todo, L

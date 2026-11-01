@@ -86,6 +86,28 @@ def light_update(cache: Path, core: list[str], log=print) -> None:
         log(f"  환율 실패: {type(e).__name__}")
 
 
+def drawdown_lines(c: pd.Series) -> list[str]:
+    """BTC 고점 대비 위치 + 과거 같은 구간 1년 뒤 (참고만: 사이클 4번뿐이라 매매 규칙 아님)."""
+    c = c[~c.index.duplicated()].sort_index().loc["2012-01-01":].dropna()
+    if len(c) < 1500:
+        return []
+    dd = c / c.cummax() - 1
+    f365 = c.shift(-365) / c - 1
+    low = c[::-1].rolling(366, min_periods=366).min()[::-1] / c - 1        # 그 뒤 1년 안 최저
+    now = float(dd.iloc[-1])
+    bands = [(0.01, -0.2), (-0.2, -0.4), (-0.4, -0.6), (-0.6, -1.0)]
+    hi, lo = next(b for b in bands if b[1] < now <= b[0])
+    m = (dd <= hi) & (dd > lo) & f365.notna()
+    deep = (dd <= -0.6) & f365.notna()
+    ath = float(c.cummax().iloc[-1])
+    out = [f"📉 고점 대비 {now:+.0%}: 과거 이 구간에서 1년 뒤 오른 비율 {(f365[m] > 0).mean():.0%} "
+           f"(중앙 {f365[m].median():+.0%}, 최악 {f365[m].min():+.0%})"]
+    if deep.any():
+        out.append(f"   ↳ 장기 분할매수 참고선: 고점 대비 −60% ≈ ${num(ath * 0.4)} 아래 — 과거엔 1년 뒤 {(f365[deep] > 0).mean():.0%} 올랐지만 "
+                   f"그 사이 추가 하락 중앙 {low[deep].median():+.0%}·최악 {low[deep].min():+.0%} (사이클 4번뿐)")
+    return out
+
+
 def load_core(cache: Path, core: list[str]) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """바이낸스 일봉 CSV(BTCUSDT 등)에서 종가·고가·저가. 전체 패널 없이도 동작."""
     fr = {}
@@ -266,6 +288,10 @@ def build(cfg: dict | None = None, with_news: bool = True, log=print) -> dict:
     L += [f"   ↳ {e(x)}" for x in cy[1:]]
     if cyc_broken:
         L.append("   ↳ ⚠ 이번 주기 최저 아래로 마감 — 과거엔 이후 2~4달 수익이 평소보다 약했음 (공식 매수는 막지 않음)")
+    try:
+        L += [e(x) for x in drawdown_lines(btc_long)]
+    except Exception:
+        pass
     ai_news = None
     if news:
         from . import ai

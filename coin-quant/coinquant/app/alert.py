@@ -229,11 +229,18 @@ def build(cfg: dict | None = None, with_news: bool = True, log=print) -> dict:
     sell = [a for a, v in st.items() if v["status"] == "관망"]
     L += ["", "<b>✅ 오늘 할 일</b>"]
     if buy:
-        L.append(f"🟢 <b>매수: {'·'.join(buy)}</b> — 업비트 어제 종가 −{disc:.0%} 지정가 (안 닿으면 내일 다시)")
+        from ..data.fx import load_usdkrw
+        fxs = load_usdkrw(cache / "fx_usdkrw.csv")
+        rate = float(fxs.loc[:d].iloc[-1]) if fxs is not None and len(fxs.loc[:d]) else np.nan
+        px = " · ".join(f"{a} ${num(st[a]['close'] * (1 - disc))}" + (f" (≈{krw_short(st[a]['close'] * (1 - disc) * rate)})" if not np.isnan(rate) else "")
+                        for a in buy)
+        L.append(f"🟢 <b>매수: {'·'.join(buy)}</b> — 오르는 추세 안에서 조금 싸게: 어제 종가 −{disc:.0%} 지정가")
+        L.append(f"   ↳ {px} <i>(원화는 환율 환산 대략 · 업비트는 업비트 어제 종가에서 −{disc:.0%}로)</i>")
+        L.append("   ↳ 안 닿으면 오늘은 보내고, 신호가 켜져 있는 동안 매일 다시 걸기")
     else:
         L.append("• <b>새로 살 것: 없음</b>")
     if hold:
-        L.append(f"🟡 <b>보유만: {'·'.join(hold)}</b> (갖고 있으면 유지, 새로 사지 않음)")
+        L.append(f"🟡 <b>보유만: {'·'.join(hold)}</b> (갖고 있으면 유지, 새로 사지 않음 — 추세가 약해진 상태의 하락은 더 사지 않음)")
     if sell:
         L.append(f"⚪ <b>갖고 있으면 매도: {'·'.join(sell)}</b>")
     gaps = {a: v["chan60"] / v["close"] - 1 for a, v in st.items() if v["status"] != "매수 가능" and v["close"] > 0}

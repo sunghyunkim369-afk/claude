@@ -183,7 +183,7 @@ def todo_items(idx_sig: list[dict] | None, econ: list[dict], earn: list[dict]) -
     out = []
     # 지수 신호는 '매수 신호'가 아니라 추세 참고 (세계 지수 25개 중 23개에서 MDD 얕음, 수익은 보통 보유가 더 큼)
     if on:
-        out.append(("🛡", f"<b>지수 상승 추세: {'·'.join(e(x['name']) for x in on)}</b> — 들고 있어도 됨"))
+        out.append(("📈", f"<b>지수 상승 추세: {'·'.join(e(x['name']) for x in on)}</b> — 들고 있어도 됨"))
     if off:
         out.append(("⚠️", f"<b>지수 하락 추세: {'·'.join(e(x['name']) for x in off)}</b> — 큰 하락이 걱정되면 그 ETF 비중 줄이기 고려"))
     gaps = {x["name"]: (x["chan60"] / x["close"] - 1, x["chan60"]) for x in off if x["close"] > 0}

@@ -81,13 +81,13 @@ def market_table(M: dict) -> list[dict]:
 
 # 지수 신호: 주식 검증(docs/stocks-validation-2026-10-27.md, ~2024)에서 지수에 공식을 쓴 결과 → 근거 등급
 INDEX_PLAN = {   # 등급 근거: docs/stocks-validation-2026-10-27.md + 편향 점검 docs/stocks-bias-2026-10-29.md
-    "^IXIC": ("나스닥 종합", "QQQ · TIGER 미국나스닥100(133690)", "하락 방어용",
+    "^IXIC": ("나스닥 종합", "QQQ · TIGER 미국나스닥100(133690)", "",
               "가격 지수 1974~2024 공식 MDD −36% vs 보유 −78%, 샤프 0.81 vs 0.61 / 배당 포함 QQQ 2002~ 샤프 0.50 vs 0.65, 연 6.0% vs 12.8%"),
-    "^KS11": ("코스피", "KODEX 200(069500) · TIGER 200(102110)", "하락 방어용",
+    "^KS11": ("코스피", "KODEX 200(069500) · TIGER 200(102110)", "",
               "1999~2024 MDD −45% vs −56% / 10년 창 중 샤프가 보유보다 나은 건 25% / 배당 포함 KODEX 200 2010~ 샤프 0.28 vs 0.35"),
-    "^GSPC": ("S&P 500", "SPY · TIGER 미국S&P500(360750)", "하락 방어용",
+    "^GSPC": ("S&P 500", "SPY · TIGER 미국S&P500(360750)", "",
               "1930~2024 MDD −36% vs −76%, 연 4.2% vs 6.6% / 배당 포함 SPY 1996~ 샤프 0.52 vs 0.59, 연 5.3% vs 10.0%"),
-    "^KQ11": ("코스닥", "KODEX 코스닥150(229200)", "하락 방어용",
+    "^KQ11": ("코스닥", "KODEX 코스닥150(229200)", "",
               "2003~2024 MDD −54% vs −71%, 연 0.0% vs 1.7%, 10년 창 중 샤프가 보유보다 나은 건 0%"),
 }
 
@@ -106,7 +106,7 @@ def index_signals(M: dict) -> list[dict]:
         run = int(len(rev) if rev.all() else np.argmin(rev)) if rev[0] else 0
         offrun = int(len(rev) if (~rev).all() else np.argmin(~rev)) if not rev[0] else 0
         msc = int(mt.h["중기"].score.at[d, t])
-        state = ("매수 가능" if s.iloc[-1] and msc >= 2 else "보유만 (신규 진입 대기)" if s.iloc[-1] else "관망 (현금)")
+        state = ("상승 추세" if s.iloc[-1] and msc >= 2 else "상승 추세 (약해짐)" if s.iloc[-1] else "하락 추세")
         hi, lo = mt.h["중기"].chan_hi.at[d, t], mt.h["중기"].chan_lo.at[d, t]
         name, etf, grade, stat = INDEX_PLAN[t]
         out.append({"ticker": t, "name": name, "etf": etf, "grade": grade, "stat": stat, "date": d.date(), "state": state,
@@ -178,10 +178,10 @@ def todo_items(idx_sig: list[dict] | None, econ: list[dict], earn: list[dict]) -
     """'오늘 할 일' 줄 목록 [(아이콘, 굵게 쓸 부분과 설명이 섞인 HTML)] — 텔레그램·페이지 공용."""
     from html import escape as e
     xs = idx_sig or []
-    on = [x for x in xs if not x["state"].startswith("관망")]
-    off = [x for x in xs if x["state"].startswith("관망")]
+    on = [x for x in xs if not x["state"].startswith("하락")]
+    off = [x for x in xs if x["state"].startswith("하락")]
     out = []
-    # 지수 신호는 '매수 신호'가 아니라 '하락 방어 신호' (세계 지수 25개 중 23개에서 MDD 얕음, 수익은 보통 보유가 더 큼)
+    # 지수 신호는 '매수 신호'가 아니라 추세 참고 (세계 지수 25개 중 23개에서 MDD 얕음, 수익은 보통 보유가 더 큼)
     if on:
         out.append(("🛡", f"<b>지수 상승 추세: {'·'.join(e(x['name']) for x in on)}</b> — 들고 있어도 됨"))
     if off:
@@ -224,7 +224,7 @@ def render(today: pd.Timestamp, mk: list[dict], news: dict, news_err: list[str],
         o += ["## 📢 어젯밤 발표 결과\n"] + [f"- {_md(x)}" for x in results[1:]] + [""]
     o += ["## 📌 한눈에 보기\n", f"- 지수: {line}", f"- 금리·환율·변동성: {extra}"]
     for x in idx_sig or []:
-        o.append(f"- {x['name']} 신호: **{x['state']}** ({x['grade']})")
+        o.append(f"- {x['name']}: **{x['state']}**")
     for mkt, s in sig.items():
         sm = s[2]
         o.append(f"- {mkt} 추세 시작 종목 {sm['n_fresh']}개 (관심 목록) · 중기 추세 켜진 종목 {sm['n_trend']}/{sm['n_alive']}")
@@ -273,13 +273,13 @@ def render(today: pd.Timestamp, mk: list[dict], news: dict, news_err: list[str],
     else:
         o.append("- 일정 없음 (또는 캘린더 접속 실패)\n")
     o += ["## 5. 🎯 나만의 매수 신호\n",
-          "### 5-1. 지수·대표 ETF (검증 근거가 있는 신호)\n",
+          "### 5-1. 지수 추세 (오르는 중이면 들고 있고, 내리는 중이면 줄이는 참고)\n",
           "규칙(코인과 같은 확정 공식): 중기 추세가 켜져 있고 장기 점수가 −2 초과면 보유. **새로 사는 건 중기 점수 +2 이상일 때만**, "
           "중기 점수가 0 이하로 떨어지면 다음 거래일에 팝니다.\n"]
-    o += _md_table(["지수", "상태", "추세(단/중/장)", "기간", "다시 켜지는/꺼지는 기준(채널 60%/40%선)", "살 때 (ETF)", "근거 등급", "과거 검증"],
+    o += _md_table(["지수", "추세", "점수(단/중/장)", "기간", "상승/하락으로 바뀌는 기준(채널 60%/40%선)", "해당 ETF", "과거 검증 (공식 vs 그냥 보유)"],
                    [[x["name"], f"**{x['state']}**", f"{x['score']['단기']:+d}/{x['score']['중기']:+d}/{x['score']['장기']:+d}",
                      f"켜진 지 {x['on_days']}일" if x["on_days"] else f"꺼진 지 {x['off_days']}일",
-                     f"{num(x['chan60'])} / {num(x['chan40'])}", x["etf"], x["grade"], x["stat"]] for x in (idx_sig or [])])
+                     f"{num(x['chan60'])} / {num(x['chan40'])}", x["etf"], x["stat"]] for x in (idx_sig or [])])
     o += ["", f"검증: {val_line}", "",
           "### 5-2. 추세가 막 시작된 종목 (관심 목록)\n",
           f"같은 공식으로 최근 {FRESH_DAYS}거래일 안에 '매수 가능'이 된 종목입니다. ⚠ **주식 검증에서 개별 종목 고르기 효과는 확인되지 않았습니다** "
@@ -322,7 +322,7 @@ def telegram_text(today, mk, news, sig, url: str, idx_sig: list[dict] | None = N
     """텔레그램 (HTML 서식). 맨 위 '오늘 할 일'만 보고 결정할 수 있게, 자세한 건 페이지 링크로."""
     from html import escape as e
     get = {r["기호"]: r for r in mk}
-    ic = {"매수 가능": "🟢", "보유만 (신규 진입 대기)": "🟡", "관망 (현금)": "⚪"}
+    ic = {"상승 추세": "🟢", "상승 추세 (약해짐)": "🟡", "하락 추세": "⚪"}
 
     def idx(ts):
         return " · ".join(f"{e(get[t]['지표'])} <b>{_p(get[t]['1일'])}</b>" for t in ts if t in get)
@@ -342,10 +342,10 @@ def telegram_text(today, mk, news, sig, url: str, idx_sig: list[dict] | None = N
     if ex:
         L.append(" · ".join(ex))
     if idx_sig:
-        L += ["", "<b>🛡 지수 방어 신호</b>  <i>큰 하락 줄이기용 · 수익은 보통 그냥 보유가 더 큼 (docs/stocks-bias)</i>"]
+        L += ["", "<b>📈 지수 추세</b>  <i>내리는 중이면 줄이는 참고 · 오래 들고 갈 거면 그냥 보유가 수익이 더 큰 경우가 많음</i>"]
         for x in idx_sig:
             sc = x["score"]
-            L.append(f"{ic.get(x['state'], '⚪')} <b>{e(x['name'])}</b> {e(x['state'])}  중기 <b>{sc['중기']:+d}</b>  <i>{e(x['grade'])}</i>")
+            L.append(f"{ic.get(x['state'], '⚪')} <b>{e(x['name'])}</b> {e(x['state'])}  중기 <b>{sc['중기']:+d}</b>")
     if ai_sum:
         L += ["", "<b>🗞 오늘의 핵심</b>  <i>AI 요약 · 원문 확인 권장</i>", ai_sum]
     else:

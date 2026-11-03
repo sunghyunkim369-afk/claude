@@ -139,6 +139,11 @@ def cmd_risk_overlay(a, cfg):
     risk_overlay.main(cfg)
 
 
+def cmd_combo_study(a, cfg):
+    from .research import combo_study
+    combo_study.main(cfg)
+
+
 def cmd_rules_check(a, cfg):
     from .research import rules_check
     rules_check.main(cfg)
@@ -281,6 +286,8 @@ def main(argv=None):
     s.set_defaults(fn=cmd_stocks_shock)
     s = sub.add_parser("risk-overlay", help="기관식 개선 검증: 변동성 맞추기·여러 속도 추세 섞기")
     s.set_defaults(fn=cmd_risk_overlay)
+    s = sub.add_parser("combo-study", help="차트 + 가치·온체인(MVRV·거래소 유입·활성 주소) 합치기, 주봉, 큰 사건 때 공식")
+    s.set_defaults(fn=cmd_combo_study)
     s = sub.add_parser("rules-check", help="코인 체크리스트 규칙 검증 (FOMC 절반 매수, 4년 주기 필터, 주기 최저 이탈)")
     s.set_defaults(fn=cmd_rules_check)
     s = sub.add_parser("extended", help="확정 공식 2018년 이전까지 검증 + 확률 높을 때만 사기")

@@ -134,6 +134,11 @@ def cmd_stocks_shock(a, cfg):
     shock_study.main(cfg)
 
 
+def cmd_risk_overlay(a, cfg):
+    from .research import risk_overlay
+    risk_overlay.main(cfg)
+
+
 def cmd_rules_check(a, cfg):
     from .research import rules_check
     rules_check.main(cfg)
@@ -274,6 +279,8 @@ def main(argv=None):
     s.set_defaults(fn=cmd_stocks_bias)
     s = sub.add_parser("stocks-shock", help="대형주 하루 −10% 급락 뒤 흐름 (실적 쇼크 사건 분석, 인터넷 필요)")
     s.set_defaults(fn=cmd_stocks_shock)
+    s = sub.add_parser("risk-overlay", help="기관식 개선 검증: 변동성 맞추기·여러 속도 추세 섞기")
+    s.set_defaults(fn=cmd_risk_overlay)
     s = sub.add_parser("rules-check", help="코인 체크리스트 규칙 검증 (FOMC 절반 매수, 4년 주기 필터, 주기 최저 이탈)")
     s.set_defaults(fn=cmd_rules_check)
     s = sub.add_parser("extended", help="확정 공식 2018년 이전까지 검증 + 확률 높을 때만 사기")

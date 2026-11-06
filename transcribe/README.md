@@ -12,4 +12,4 @@
 
 노트북: https://colab.research.google.com/github/sunghyunkim369-afk/claude/blob/claude/elegant-heisenberg-s2a9ar/transcribe/transcribe_ko.ipynb
 
-정확도를 위해 하는 것: 한국어 고정, beam 5, 음성 구간만 인식(VAD), 앞 문장에 끌려가는 반복 막기, 작은 목소리 보정(ffmpeg), 자주 나오는 이름·용어 힌트, 조용한 구간의 Whisper 헛소리("시청해주셔서 감사합니다" 등)와 반복 줄 걸러내기.
+정확도를 위해 하는 것: 한국어 고정, beam 5, 음성 구간만 인식(VAD), 앞 문장에 끌려가는 반복 막기, 작은 목소리 보정(ffmpeg), 자주 나오는 이름·용어 힌트, 조용한 구간의 Whisper 헛소리("시청해주셔서 감사합니다" 등)와 반복 줄 걸러내기. "중요·치명적·반드시·시험에" 같은 말이 든 줄은 ⭐ 표시하고 파일 맨 위에 모아 보여 줘요.

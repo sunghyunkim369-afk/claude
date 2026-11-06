@@ -38,6 +38,11 @@ HALLUCINATIONS = [
 ]
 HALLUCINATION_RE = re.compile("|".join(HALLUCINATIONS), re.IGNORECASE)
 LOOP_RE = re.compile(r"(\S.{0,19}?)(?:\s*\1){3,}")
+# 말하는 사람이 강조할 때 쓰는 말. 이 말이 든 줄에 ⭐를 붙여요.
+EMPHASIS_RE = re.compile(
+    r"중요(?:합니다|해요|하다|한|하고|하죠|하거든)|핵심|치명적이|심각(?:합니다|해요|하다|한)|중대(?:한|하다|합니다)"
+    r"|반드시|꼭\s|시험에\s*(?:나|잘)|기억하세요|기억해|명심|주의(?:하세요|해야|하셔야|할)|조심|잊지\s*마|강조"
+)
 
 
 def fmt_time(sec, srt=False, hours=False):
@@ -89,19 +94,32 @@ def to_paragraphs(rows, gap):
     return paras
 
 
+def emphasized(rows):
+    """강조하는 말이 든 줄을 (시작 시각, 문장) 목록으로 돌려줘요."""
+    return [(start, text) for start, _, text in rows if EMPHASIS_RE.search(text)]
+
+
 def write_outputs(base, rows, duration, model_name):
     paras = to_paragraphs(rows, PARAGRAPH_GAP)
+    marks = emphasized(rows)
+    long = duration >= 3600
     txt_path = os.path.join(WORK_DIR, f"{base}_전사.txt")
     srt_path = os.path.join(WORK_DIR, f"{base}_자막.srt")
     today = datetime.date.today().isoformat()
     with open(txt_path, "w", encoding="utf-8") as f:
         f.write(f"파일: {base}\n길이: {fmt_time(duration)}\n모델: {model_name} · {today}\n\n")
+        if marks:
+            f.write(f"⭐ 중요하다고 말한 부분 ({len(marks)}곳, '중요·치명적·반드시·시험에' 같은 말로 자동으로 찾았어요)\n")
+            for start, text in marks:
+                f.write(f"  [{fmt_time(start, hours=long)}] {text}\n")
+            f.write("\n" + "─" * 30 + "\n\n")
         for p in paras:
-            f.write(f"[{fmt_time(p['start'], hours=duration >= 3600)}] {p['text']}\n\n")
+            star = "⭐ " if EMPHASIS_RE.search(p["text"]) else ""
+            f.write(f"{star}[{fmt_time(p['start'], hours=long)}] {p['text']}\n\n")
     with open(srt_path, "w", encoding="utf-8") as f:
         for i, (start, end, text) in enumerate(rows, 1):
             f.write(f"{i}\n{fmt_time(start, True)} --> {fmt_time(end, True)}\n{text}\n\n")
-    return txt_path, srt_path, paras
+    return txt_path, srt_path, paras, marks
 
 
 def has_gpu():
@@ -230,11 +248,16 @@ def main():
         words = split_keywords(KEYWORDS)
         raw, duration = transcribe(model, wav, words)
         rows = clean_segments(raw, words)
-        txt_path, srt_path, paras = write_outputs(base, rows, duration, MODEL)
-        print(f"  완료: {len(paras)}문단 · 걸러낸 헛소리/반복 {len(raw) - len(rows)}줄\n")
+        txt_path, srt_path, paras, marks = write_outputs(base, rows, duration, MODEL)
+        print(f"  완료: {len(paras)}문단 · 걸러낸 헛소리/반복 {len(raw) - len(rows)}줄 · ⭐ 강조 {len(marks)}곳\n")
+        if marks:
+            print("⭐ 중요하다고 말한 부분")
+            for start, text in marks:
+                print(f"  [{fmt_time(start, hours=duration >= 3600)}] {text}")
         print("─" * 40)
         for p in paras:
-            print(f"[{fmt_time(p['start'], hours=duration >= 3600)}] {p['text']}\n")
+            star = "⭐ " if EMPHASIS_RE.search(p["text"]) else ""
+            print(f"{star}[{fmt_time(p['start'], hours=duration >= 3600)}] {p['text']}\n")
         print("─" * 40)
         if drive_dir:
             for path in (txt_path, srt_path):

@@ -52,7 +52,11 @@ def fmt_time(sec, srt=False, hours=False):
     return f"{h}:{m:02d}:{s:02d}" if h or hours else f"{m:02d}:{s:02d}"
 
 
-def clean_segments(segments):
+def split_keywords(keywords):
+    return [w.strip() for w in re.split(r"[,，\n]", keywords) if w.strip()]
+
+
+def clean_segments(segments, words=()):
     """Whisper 헛소리·반복을 걸러 (start, end, text) 목록으로 돌려줘요."""
     out = []
     for seg in segments:
@@ -60,6 +64,10 @@ def clean_segments(segments):
         if not text:
             continue
         if len(text) < 40 and HALLUCINATION_RE.search(text):
+            continue
+        # 힌트 단어를 그대로 읊은 줄 (조용한 구간에서 힌트 목록이 튀어나옴)
+        hits = [w for w in words if w in text]
+        if len(hits) >= 3 and len(text) < 2 * sum(len(w) for w in hits):
             continue
         if out and len(text) >= 6 and text == out[-1][2]:
             continue
@@ -146,11 +154,8 @@ def load_model(gpu):
     return WhisperModel(MODEL, device="cpu", compute_type="int8"), "CPU"
 
 
-def transcribe(model, wav, keywords):
-    words = [w.strip() for w in re.split(r"[,，\n]", keywords) if w.strip()]
-    prompt = "다음은 한국어 대화를 받아 적은 글입니다. 문장 부호를 정확히 씁니다."
-    if words:
-        prompt += " 등장하는 말: " + ", ".join(words) + "."
+def transcribe(model, wav, words):
+    # initial_prompt는 쓰지 않아요: 힌트를 넣은 안내 문장을 녹음 첫머리에 그대로 적어 버리는 일이 있었어요.
     segments, info = model.transcribe(
         read_wav(wav),
         language="ko",
@@ -158,7 +163,6 @@ def transcribe(model, wav, keywords):
         vad_filter=True,
         vad_parameters={"min_silence_duration_ms": 500, "speech_pad_ms": 300},
         condition_on_previous_text=False,
-        initial_prompt=prompt,
         hotwords=", ".join(words) or None,
     )
     raw, next_mark, started = [], 0.05, time.time()
@@ -223,8 +227,9 @@ def main():
         except subprocess.CalledProcessError:
             print("  이 파일은 소리를 못 읽었어요. 녹음 파일이 맞는지 확인해 주세요.\n")
             continue
-        raw, duration = transcribe(model, wav, KEYWORDS)
-        rows = clean_segments(raw)
+        words = split_keywords(KEYWORDS)
+        raw, duration = transcribe(model, wav, words)
+        rows = clean_segments(raw, words)
         txt_path, srt_path, paras = write_outputs(base, rows, duration, MODEL)
         print(f"  완료: {len(paras)}문단 · 걸러낸 헛소리/반복 {len(raw) - len(rows)}줄\n")
         print("─" * 40)

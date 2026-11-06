@@ -174,6 +174,33 @@ def _md_table(cols: list[str], rows: list[list]) -> list[str]:
     return out
 
 
+DD_INDEX = {"^IXIC": "나스닥", "^GSPC": "S&P 500", "^KS11": "코스피", "^KQ11": "코스닥"}
+DD_BANDS = [(0.0, -0.10), (-0.10, -0.20), (-0.20, -0.30), (-0.30, -0.40), (-0.40, -1.0)]
+DD_LINES: list[str] = []
+
+
+def drawdown_lines(F: dict) -> list[str]:
+    """지수별 고점 대비 위치 + 과거 같은 구간에서 산 날의 1년 뒤 (docs/stocks-dip-2026-11-06.md). 텔레그램 HTML."""
+    from html import escape as e
+    out = []
+    for tk, nm in DD_INDEX.items():
+        if tk not in F["close"].columns:
+            continue
+        c = F["close"][tk].dropna()
+        c = c[c > 0]
+        if len(c) < 252 * 10:
+            continue
+        dd = c / c.cummax() - 1
+        f1 = (c.shift(-252) / c - 1)
+        now = float(dd.iloc[-1])
+        hi, lo = next(b for b in DD_BANDS if b[1] < now <= b[0] + 1e-9)
+        m = (dd <= hi) & (dd > lo) & f1.notna()
+        base = (f1.dropna() > 0).mean()
+        out.append(f"• {e(nm)} 고점 대비 <b>{now:+.0%}</b> — 과거 이 구간에서 산 날 1년 뒤 오른 비율 <b>{(f1[m] > 0).mean():.0%}</b> "
+                   f"(평소 {base:.0%}, 중앙 {f1[m].median():+.0%})")
+    return out
+
+
 def todo_items(idx_sig: list[dict] | None, econ: list[dict], earn: list[dict]) -> list[tuple[str, str]]:
     """'오늘 할 일' 줄 목록 [(아이콘, 굵게 쓸 부분과 설명이 섞인 HTML)] — 텔레그램·페이지 공용."""
     from html import escape as e
@@ -358,6 +385,8 @@ def telegram_text(today, mk, news, sig, url: str, idx_sig: list[dict] | None = N
         for x in idx_sig:
             sc = x["score"]
             L.append(f"{ic.get(x['state'], '⚪')} <b>{e(x['name'])}</b> {e(x['state'])}  중기 <b>{sc['중기']:+d}</b>")
+    if DD_LINES:
+        L += ["", "<b>📉 고점 대비 위치</b>  <i>참고 · 매수 신호 아님 · 처음 −20%에 닿은 날 산 경우 그 뒤 더 빠진 폭 중앙 −19%</i>"] + DD_LINES
     if ai_sum:
         L += ["", "<b>🗞 오늘의 핵심</b>  <i>AI 요약 · 원문 확인 권장</i>", ai_sum]
     else:
@@ -398,6 +427,11 @@ def main(cfg: dict | None = None, send: bool = True, log=print) -> Path:
             return None
     mkt_tk = list(dict.fromkeys([t for t, _, _ in su.MARKET]))
     M = sd.update(cache, "brief_mkt", mkt_tk, start="2018-01-01", log=log)
+    try:   # 고점 대비 위치 참고용 긴 기록 (1927~)
+        global DD_LINES
+        DD_LINES = drawdown_lines(sd.update(cache, "index_long", list(DD_INDEX), start="1927-01-01", log=log))
+    except Exception as ex:
+        log(f"  고점 대비 계산 실패: {type(ex).__name__}")
     us_u = su.us_universe()
     kr_u = su.kr_universe(200)
     US = complete_bars(sd.update(cache, "us", list(us_u["ticker"]), start="2000-01-01", log=log), "US")

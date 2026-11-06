@@ -127,6 +127,15 @@ def prepare_audio(src, dst):
     subprocess.run(cmd + [dst], check=True)
 
 
+def read_wav(path):
+    # faster-whisper의 파일 읽기(PyAV)가 최신 PyAV와 안 맞아서, 16kHz wav를 직접 읽어 넘겨요.
+    import wave
+    import numpy as np
+    with wave.open(path, "rb") as w:
+        pcm = w.readframes(w.getnframes())
+    return np.frombuffer(pcm, dtype=np.int16).astype(np.float32) / 32768.0
+
+
 def load_model(gpu):
     from faster_whisper import WhisperModel
     if gpu:
@@ -143,7 +152,7 @@ def transcribe(model, wav, keywords):
     if words:
         prompt += " 등장하는 말: " + ", ".join(words) + "."
     segments, info = model.transcribe(
-        wav,
+        read_wav(wav),
         language="ko",
         beam_size=5,
         vad_filter=True,

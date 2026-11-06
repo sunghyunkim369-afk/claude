@@ -1,8 +1,8 @@
 #@title ▶ 실행 — 녹음 파일 고르기 → 전사문 받기
 #@markdown **모델**: `large-v3` 가장 정확 · `large-v3-turbo` 2~3배 빠르고 약간 덜 정확
 MODEL = "large-v3"  #@param ["large-v3", "large-v3-turbo"]
-#@markdown **자주 나오는 이름·용어** (쉼표로 구분, 비워도 돼요). 예: `김성현, 트레이드컴퍼스, HS코드`
-KEYWORDS = ""  #@param {type:"string"}
+#@markdown **자주 나오는 이름·용어** (쉼표로 구분). 기본값은 관세·물류 강의용이에요. 다른 주제면 바꾸거나 지우세요
+KEYWORDS = "보세화물, 적재화물목록, 하우스B/L, B/L, AEO, 포워더, 관세청장, 법규수행도, 과태료, 매니페스트, 현대글로비스, 산식, 가중치"  #@param {type:"string"}
 #@markdown **음질 보정**: 작은 목소리 키우기, 웅웅거리는 저음 줄이기
 CLEAN_AUDIO = True  #@param {type:"boolean"}
 #@markdown **문단 나누기**: 이 초 이상 말이 끊기면 새 문단

@@ -219,7 +219,9 @@ ten per via vs just still also even ever much many most some such only own same 
 between under above below down up into onto upon been being did does doing done get gets got make makes made take takes took
 see sees seen say says said look looks know knows think thinks want wants need needs use uses used come comes came keep keeps
 here now next back way ways time times people world global us u.s america american could should would might must shall plan
-plans deal deals move moves amid ahead near nearly almost still yet""".split())
+plans deal deals move moves amid ahead near nearly almost still yet worst best since biggest largest latest lowest highest
+month months day days week weeks hour hours decade ever history session sessions straight streak consecutive late early
+morning afternoon tonight tomorrow yesterday open opens opening close closing level levels mark marks""".split())
 STOP_KO = set("""증시 코스피 코스닥 주가 상승 하락 시장 투자 오늘 마감 전망 종목 관련 기업 발표 급등 급락 강세 약세 국내 미국 투자자
 속보 이번 지난 올해 내년 하루 연속 최대 최고 최저 장중 개장 출발 기록 이후 우려 기대 가능성 영향 분석 의견 주식 증권 지수
 개월 이틀간 사흘간 종합 단독 오전 오후 최근 대비 이상 이하 만에 처음 사상 역대 붕괴 폭락 쇼크 추락 패닉 반등 급반등 회복 하락세 상승세

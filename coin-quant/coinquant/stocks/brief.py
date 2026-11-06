@@ -385,7 +385,8 @@ def telegram_text(today, mk, news, sig, url: str, idx_sig: list[dict] | None = N
             sc = x["score"]
             L.append(f"{ic.get(x['state'], '⚪')} <b>{e(x['name'])}</b> {e(x['state'])}  중기 <b>{sc['중기']:+d}</b>")
     if DD_LINES:
-        L += ["", "<b>📉 고점 대비 위치</b>  <i>참고 · 매수 신호 아님 · 처음 −20%에 닿은 날 산 경우 그 뒤 더 빠진 폭 중앙 −19%</i>"] + DD_LINES
+        L += ["", "<b>📉 고점 대비 위치</b>  <i>참고 · 들고 있는 사람에겐 '하락장에서 팔지 않을' 근거 · 현금을 쌓아 두고 하락을 기다리는 건 "
+              "나스닥에서 대부분 손해였음 (docs/nasdaq-dip)</i>"] + DD_LINES
     if ai_sum:
         L += ["", "<b>🗞 오늘의 핵심</b>  <i>AI 요약 · 원문 확인 권장</i>", ai_sum]
     else:

@@ -282,3 +282,34 @@ def test_big_issues_ignores_common_words():
     g = {"해외": [mk("Here are the tax rates for each income level", "MarketWatch"), mk("The best stocks for the holidays", "Motley Fool"),
                  mk("What the election means for your 401(k)", "CNBC"), mk("Is the market cheap for buyers?", "Barron's")]}
     assert sn.big_issues(g) == []
+
+
+def _mk_items(rows):
+    t = pd.Timestamp("2026-11-06")
+    return [{"title": a, "source": b, "time": t, "link": ""} for a, b in rows]
+
+
+def test_issue_engine_burst_beats_everyday_words_and_count_varies():
+    from coinquant.stocks import issues as si
+    # 평소(5일): 'fed' 는 매일 4곳, 'datacenter' 는 0곳
+    hist = {f"2026-11-0{d}": {"연준": 4, "rate": 4} for d in range(1, 6)}
+    today = _mk_items([("Fed officials talk rates", "Reuters"), ("Fed rate path debated", "CNBC"), ("Fed speakers today", "Bloomberg"),
+                       ("Fed watch: rates", "MarketWatch"),
+                       ("Data center stocks tumble after vote", "Reuters"), ("AI data-center shares fall", "CNBC"),
+                       ("데이터센터株 급락", "한국경제"), ("데이터센터 규제 우려", "매일경제")])
+    iss, counts = si.find_issues(today, hist, day="2026-11-06")
+    assert iss and iss[0]["label"].startswith("데이터센터")          # 평소 0 → 오늘 4곳: 급증
+    assert all(not x["label"].startswith("연준") for x in iss)        # 매일 4곳 나오던 말은 이슈 아님
+    assert counts["데이터센터"] == 4
+    quiet = _mk_items([("Fed officials talk rates", "Reuters"), ("Fed rate path debated", "CNBC"), ("Fed speakers", "Bloomberg")])
+    assert si.find_issues(quiet, hist, day="2026-11-06")[0] == []    # 조용한 날은 0개
+
+
+def test_issue_engine_market_move_raises_score():
+    from coinquant.stocks import issues as si
+    rows = [("Nvidia slides on export curbs", "Reuters"), ("Nvidia shares drop", "CNBC"), ("엔비디아 급락", "한국경제")]
+    ents = si.entities([("NVDA", "NVIDIA Corporation")])
+    calm, _ = si.find_issues(_mk_items(rows), {}, {"NVDA": (0.002, 0.1)}, ents, day="d")
+    shock, _ = si.find_issues(_mk_items(rows), {}, {"NVDA": (-0.09, -4.5)}, ents, day="d")
+    assert shock and shock[0]["score"] > (calm[0]["score"] if calm else 0)
+    assert any(code == "NVDA" for _, code, _, _ in shock[0]["impact"])

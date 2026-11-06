@@ -252,6 +252,17 @@ def _tokens(title: str) -> set[str]:
     return toks
 
 
+def coherent_terms(w: str, termsets: list[set]) -> bool:
+    """같은 이야기인지: 긴 고유한 말(블루웨이브·데이터센터 등)이거나, 그 기사들 40% 이상이 다른 단어 하나를 더 같이 씀."""
+    if (re.fullmatch(r"[가-힣]+", w) and len(w) >= 4) or (re.fullmatch(r"[a-z]+", w) and len(w) >= 8):
+        return True
+    co: dict[str, int] = {}
+    for ts in termsets:
+        for x in ts - {w}:
+            co[x] = co.get(x, 0) + 1
+    return bool(co) and max(co.values()) >= max(2, 0.4 * len(termsets))
+
+
 def big_issues(groups: dict[str, list[dict]] | None = None, n: int = 3, min_sources: int = 3) -> list[dict]:
     """같은 단어를 서로 다른 언론사 min_sources 곳 이상이 제목에 쓴 이야기 = 큰 이슈. [{"label","sources","item","count"}]"""
     groups = groups if groups is not None else LAST_RAW

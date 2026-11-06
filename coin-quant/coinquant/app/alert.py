@@ -271,10 +271,15 @@ def build(cfg: dict | None = None, with_news: bool = True, log=print) -> dict:
         rb = []
     if rb:
         L += [""] + rb
-    try:   # 주식·경제 뉴스에서 여러 언론사가 같이 다룬 큰 이슈 (코인에도 영향 줄 수 있는 것)
-        from ..stocks import news as sn
+    try:   # 주식·경제 뉴스의 큰 이슈 (평소 대비 급증 + 시장 움직임), 코인 메시지엔 최대 2개
+        from ..stocks import issues as si, news as sn
         sn.collect(log=lambda *a: None)
-        iss = sn.issue_lines(sn.big_issues(n=2), "🔥 시장 큰 이슈")
+        hp = cache / "news_terms.json"
+        mv = si.moves_from(c.rename(columns={"BTC": "BTC-USD"}))
+        found, counts = si.find_issues([i for g in sn.LAST_RAW.values() for i in g], si.load_hist(hp), mv,
+                                       day=str(pd.Timestamp.now(tz="Asia/Seoul").date()), max_n=2)
+        si.save_hist(hp, si.load_hist(hp), str(pd.Timestamp.now(tz="Asia/Seoul").date()), counts)
+        iss = si.issue_lines(found, "🔥 시장 큰 이슈")
     except Exception:
         iss = []
     if iss:

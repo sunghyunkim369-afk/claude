@@ -177,6 +177,7 @@ def _md_table(cols: list[str], rows: list[list]) -> list[str]:
 DD_INDEX = {"^IXIC": "나스닥", "^GSPC": "S&P 500", "^KS11": "코스피", "^KQ11": "코스닥"}
 DD_BANDS = [(0.0, -0.10), (-0.10, -0.20), (-0.20, -0.30), (-0.30, -0.40), (-0.40, -1.0)]
 DD_LINES: list[str] = []
+ISSUES: list[dict] = []
 
 
 def drawdown_lines(F: dict) -> list[str]:
@@ -249,12 +250,11 @@ def render(today: pd.Timestamp, mk: list[dict], news: dict, news_err: list[str],
     o += ["## ✅ 오늘 할 일\n"] + [f"- {ic} {_md(t)}" for ic, t in todo_items(idx_sig, econ, earn)] + [""]
     if results:
         o += ["## 📢 어젯밤 발표 결과\n"] + [f"- {_md(x)}" for x in results[1:]] + [""]
-    try:
-        iss = sn.issue_lines(sn.big_issues())
-    except Exception:
-        iss = []
+    from .issues import issue_lines
+    iss = issue_lines(ISSUES)
     if iss:
-        o += ["## 🔥 오늘의 큰 이슈\n", "_여러 언론사가 같이 다룬 이야기_\n"] + [f"- {_md(x[2:])}" for x in iss[1:]] + [""]
+        o += ["## 🔥 오늘의 큰 이슈\n", "_평소보다 많이 다뤄졌거나 시장이 크게 움직인 이야기_\n"] + \
+             [f"- {_md(x[2:])}" if x.startswith("• ") else f"  - {_md(x.strip())}" for x in iss[1:]] + [""]
     o += ["## 📌 한눈에 보기\n", f"- 지수: {line}", f"- 금리·환율·변동성: {extra}"]
     for x in idx_sig or []:
         o.append(f"- {x['name']}: **{x['state']}**")
@@ -364,10 +364,8 @@ def telegram_text(today, mk, news, sig, url: str, idx_sig: list[dict] | None = N
     L += [f"{i} {t}" for i, t in todo_items(idx_sig, econ or [], earn or [])]
     if results:
         L += [""] + results
-    try:   # 여러 언론사가 같이 다룬 이야기 (예: 데이터센터 주 급락)
-        iss = sn.issue_lines(sn.big_issues())
-    except Exception:
-        iss = []
+    from .issues import issue_lines
+    iss = issue_lines(ISSUES)
     if iss:
         L += [""] + iss
     L += ["", "<b>📊 지수</b>", f"🇺🇸 {idx(('^GSPC', '^IXIC'))}", f"🇰🇷 {idx(('^KS11', '^KQ11'))}"]
@@ -438,6 +436,18 @@ def main(cfg: dict | None = None, send: bool = True, log=print) -> Path:
     KR = complete_bars(sd.update(cache, "kr", list(kr_u["ticker"]), start="2000-01-01", log=log), "KR")
     log(f"  데이터 {time.time() - t0:.0f}초")
     news, nerr = sn.collect(log=log)
+    try:   # 오늘의 큰 이슈: 평소 대비 급증 + 시장 움직임 (docs 는 coinquant/stocks/issues.py 머리말)
+        from . import issues as si
+        global ISSUES
+        hist_path = cache / "news_terms.json"
+        ents = si.entities(list(zip(us_u["ticker"], us_u["name"])) + list(zip(kr_u["ticker"], kr_u["name"])))
+        moves = {**si.moves_from(US["close"]), **si.moves_from(KR["close"]), **si.moves_from(M["close"])}
+        items = [i for g in sn.LAST_RAW.values() for i in g]
+        ISSUES, counts = si.find_issues(items, si.load_hist(hist_path), moves, ents, day=str(today.date()))
+        si.save_hist(hist_path, si.load_hist(hist_path), str(today.date()), counts)
+        log(f"  큰 이슈 {len(ISSUES)}개 (기록 {len(si.load_hist(hist_path))}일)")
+    except Exception as ex:
+        log(f"  큰 이슈 계산 실패: {type(ex).__name__}: {ex}")
     titles = [i["title"] for g in news.values() for i in g]
     sig = {"미국": signals(US, us_u, "US", titles), "한국": signals(KR, kr_u, "KR", titles)}
     for mkt, (cards, _, _) in sig.items():

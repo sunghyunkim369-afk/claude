@@ -211,7 +211,7 @@ SYN = [(r"data[ -]?cent(er|re)s?", " datacenter "), (r"blue[ -]?wave", " 블루�
        (r"rate hikes?", " 금리인상 "), (r"금리 ?인상", " 금리인상 "), (r"shut ?down", " 셧다운 "), (r"stablecoins?", " 스테이블코인 "), (r"데이터 ?센터", " 데이터센터 "), (r"\bA\.?I\.?\b", " ai "),
        (r"interest rates?", " rate "), (r"tariffs?", " tariff "), (r"\bFed\b|Federal Reserve", " fed ")]
 STOP_EN = set("""stock stocks market markets share shares wall street today new says said after amid with from that this what
-will more than over into week year years price prices investor investors trading trade nasdaq dow close closes rise rises fall falls
+will more than over into week year years price prices investor investors trading trade close closes rise rises fall falls
 gain gains drop drops higher lower record earnings report reports quarter could may might its their they have has why how here
 about top best buy sell index futures rally slump slide slides jump jumps soar tumble tumbles sink sinks set sets day ahead
 first last big biggest high low points point percent amp news live update updates morning evening analyst analysts expected
@@ -228,11 +228,12 @@ STOP_KO = set("""증시 코스피 코스닥 주가 상승 하락 시장 투자 �
 속보 이번 지난 올해 내년 하루 연속 최대 최고 최저 장중 개장 출발 기록 이후 우려 기대 가능성 영향 분석 의견 주식 증권 지수
 개월 이틀간 사흘간 종합 단독 오전 오후 최근 대비 이상 이하 만에 처음 사상 역대 붕괴 폭락 쇼크 추락 패닉 반등 급반등 회복 하락세 상승세
 공방 마감시황 시황 뉴욕 서울 한국 정부 대통령 발언 계획 추진 예정 확대 축소 강화 완화 결정 검토 도입 시작 진행 결과 상황 문제 이유
-가운데 때문 위해 통해 대한 관련해 따르면 밝혀 밝혔다 있다 없다 했다 된다 한다 등 것 수 및""".split())
+가운데 때문 위해 통해 대한 관련해 따르면 밝혀 밝혔다 있다 없다 했다 된다 한다 등 것 수 및
+월요일 화요일 수요일 목요일 금요일 토요일 일요일 이번주 이번 주 지난주 다음주 겨우 간신히 일제히 대거 무더기""".split())
 KO_LABEL = {"datacenter": "데이터센터", "fed": "연준", "tariff": "관세", "rate": "금리", "ai": "AI", "oil": "유가", "china": "중국",
             "nvidia": "엔비디아", "apple": "애플", "tesla": "테슬라", "bitcoin": "비트코인", "inflation": "물가", "jobs": "고용",
             "election": "선거", "midterm": "중간선거", "midterms": "중간선거", "democrats": "민주당", "congress": "의회", "iran": "이란",
-            "chip": "반도체", "chips": "반도체", "semiconductor": "반도체", "treasury": "미 국채", "yields": "국채금리", "yield": "국채금리"}
+            "chip": "반도체", "chips": "반도체", "semiconductor": "반도체", "nasdaq": "나스닥", "dow": "다우", "kospi": "코스피", "treasury": "미 국채", "yields": "국채금리", "yield": "국채금리"}
 _KO_TAIL = re.compile(r"(으로|에서|에게|까지|부터|이며|이고|은|는|이|가|을|를|에|의|로|도|과|와|만)$")
 
 
@@ -248,7 +249,8 @@ def _tokens(title: str) -> set[str]:
         if w not in STOP_EN and len(w) >= 3:
             toks.add(KO_LABEL.get(w, w))          # 영어·한국어 같은 이야기를 한 단어로
     for w in re.findall(r"[가-힣]{2,}", t):
-        w = _KO_TAIL.sub("", w)
+        if len(w) >= 4:                     # 짧은 말은 조사 떼지 않음 (턱걸이 → 턱걸 같은 실수 방지)
+            w = _KO_TAIL.sub("", w)
         if len(w) >= 2 and w not in STOP_KO:
             toks.add(w)
     return toks

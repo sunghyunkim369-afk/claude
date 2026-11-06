@@ -273,3 +273,12 @@ def test_big_issues_groups_same_story_across_outlets_and_languages():
     iss = sn.big_issues(g)
     assert iss and iss[0]["label"].startswith("데이터센터") and iss[0]["sources"] == 3
     assert all("애플" not in x["label"] for x in iss)     # 한 곳만 다룬 이야기는 큰 이슈 아님
+
+
+def test_big_issues_ignores_common_words():
+    from coinquant.stocks import news as sn
+    t = pd.Timestamp("2026-11-06")
+    mk = lambda title, src: {"title": title, "source": src, "time": t, "link": ""}  # noqa: E731
+    g = {"해외": [mk("Here are the tax rates for each income level", "MarketWatch"), mk("The best stocks for the holidays", "Motley Fool"),
+                 mk("What the election means for your 401(k)", "CNBC"), mk("Is the market cheap for buyers?", "Barron's")]}
+    assert sn.big_issues(g) == []

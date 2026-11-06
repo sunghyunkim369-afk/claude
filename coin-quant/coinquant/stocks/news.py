@@ -206,16 +206,25 @@ def results_block(hours: int = 30) -> list[str]:
 
 
 # ---------------------------------------------------------------- 오늘의 큰 이슈: 여러 언론사가 같은 이야기를 한 것
-SYN = [(r"data[ -]?cent(er|re)s?", " datacenter "), (r"데이터 ?센터", " 데이터센터 "), (r"\bA\.?I\.?\b", " ai "),
+SYN = [(r"data[ -]?cent(er|re)s?", " datacenter "), (r"blue[ -]?wave", " 블루웨이브 "), (r"데이터 ?센터", " 데이터센터 "), (r"\bA\.?I\.?\b", " ai "),
        (r"interest rates?", " rate "), (r"tariffs?", " tariff "), (r"\bFed\b|Federal Reserve", " fed ")]
 STOP_EN = set("""stock stocks market markets share shares wall street today new says said after amid with from that this what
 will more than over into week year years price prices investor investors trading trade nasdaq dow close closes rise rises fall falls
 gain gains drop drops higher lower record earnings report reports quarter could may might its their they have has why how here
 about top best buy sell index futures rally slump slide slides jump jumps soar tumble tumbles sink sinks set sets day ahead
 first last big biggest high low points point percent amp news live update updates morning evening analyst analysts expected
-company companies inc corp group shares""".split())
+company companies inc corp group shares the and for are but not you your all any can its was were has had his her how why who
+whom when where which while than then them they these those this that there their our out off one two three four five six seven
+ten per via vs just still also even ever much many most some such only own same each other again against before during until
+between under above below down up into onto upon been being did does doing done get gets got make makes made take takes took
+see sees seen say says said look looks know knows think thinks want wants need needs use uses used come comes came keep keeps
+here now next back way ways time times people world global us u.s america american could should would might must shall plan
+plans deal deals move moves amid ahead near nearly almost still yet""".split())
 STOP_KO = set("""증시 코스피 코스닥 주가 상승 하락 시장 투자 오늘 마감 전망 종목 관련 기업 발표 급등 급락 강세 약세 국내 미국 투자자
-속보 이번 지난 올해 내년 하루 연속 최대 최고 최저 장중 개장 출발 기록 이후 우려 기대 가능성 영향 분석 의견 주식 증권 지수""".split())
+속보 이번 지난 올해 내년 하루 연속 최대 최고 최저 장중 개장 출발 기록 이후 우려 기대 가능성 영향 분석 의견 주식 증권 지수
+개월 이틀간 사흘간 종합 단독 오전 오후 최근 대비 이상 이하 만에 처음 사상 역대 붕괴 폭락 쇼크 추락 패닉 반등 급반등 회복 하락세 상승세
+공방 마감시황 시황 뉴욕 서울 한국 정부 대통령 발언 계획 추진 예정 확대 축소 강화 완화 결정 검토 도입 시작 진행 결과 상황 문제 이유
+가운데 때문 위해 통해 대한 관련해 따르면 밝혀 밝혔다 있다 없다 했다 된다 한다 등 것 수 및""".split())
 KO_LABEL = {"datacenter": "데이터센터", "fed": "연준", "tariff": "관세", "rate": "금리", "ai": "AI", "oil": "유가", "china": "중국",
             "nvidia": "엔비디아", "apple": "애플", "tesla": "테슬라", "bitcoin": "비트코인", "inflation": "물가", "jobs": "고용",
             "election": "선거", "midterm": "중간선거", "midterms": "중간선거", "democrats": "민주당", "congress": "의회", "iran": "이란",
@@ -255,10 +264,20 @@ def big_issues(groups: dict[str, list[dict]] | None = None, n: int = 3, min_sour
                 continue
             for w in i["_tok"]:
                 df.setdefault(w, set()).add(i.get("source", ""))
-        cand = [(len(v), sum(1 for s_ in v if s_ in MAJOR), w) for w, v in df.items() if len(v) >= min_sources]
-        if not cand:
+        def coherent(w):   # 같은 이야기인지: 긴 고유한 말(블루웨이브·데이터센터 등)이거나, 그 기사들 40% 이상이 다른 단어 하나를 더 같이 씀
+            if (re.fullmatch(r"[가-힣]+", w) and len(w) >= 4) or (re.fullmatch(r"[a-z]+", w) and len(w) >= 8):
+                return True
+            ix = [k for k, i in enumerate(items) if k not in used and w in i["_tok"]]
+            co: dict[str, int] = {}
+            for k in ix:
+                for x in items[k]["_tok"] - {w}:
+                    co[x] = co.get(x, 0) + 1
+            return bool(co) and max(co.values()) >= max(2, 0.4 * len(ix))
+        cand = sorted(((len(v), sum(1 for s_ in v if s_ in MAJOR), w) for w, v in df.items() if len(v) >= min_sources), reverse=True)
+        pick = next((c for c in cand if coherent(c[2])), None)
+        if pick is None:
             break
-        cnt, maj, w = max(cand)
+        cnt, maj, w = pick
         idx = [k for k, i in enumerate(items) if k not in used and w in i["_tok"]]
         best = sorted(idx, key=lambda k: (items[k].get("source") not in MAJOR,
                                           -(items[k]["time"].value if pd.notna(items[k].get("time")) else 0)))[0]

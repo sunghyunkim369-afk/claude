@@ -149,6 +149,11 @@ def cmd_stocks_dip(a, cfg):
     dip_study.main(cfg)
 
 
+def cmd_nasdaq_dip(a, cfg):
+    from .stocks import nasdaq_dip
+    nasdaq_dip.main(cfg)
+
+
 def cmd_rules_check(a, cfg):
     from .research import rules_check
     rules_check.main(cfg)
@@ -295,6 +300,8 @@ def main(argv=None):
     s.set_defaults(fn=cmd_combo_study)
     s = sub.add_parser("stocks-dip", help="지수가 고점 대비 빠졌을 때 사면 어땠나 (세계 지수 25개, 인터넷 필요)")
     s.set_defaults(fn=cmd_stocks_dip)
+    s = sub.add_parser("nasdaq-dip", help="나스닥 하락 매수 알고리즘 검토 (사다리·추세 확인·적립식, 인터넷 필요)")
+    s.set_defaults(fn=cmd_nasdaq_dip)
     s = sub.add_parser("rules-check", help="코인 체크리스트 규칙 검증 (FOMC 절반 매수, 4년 주기 필터, 주기 최저 이탈)")
     s.set_defaults(fn=cmd_rules_check)
     s = sub.add_parser("extended", help="확정 공식 2018년 이전까지 검증 + 확률 높을 때만 사기")

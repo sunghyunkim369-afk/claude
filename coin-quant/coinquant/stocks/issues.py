@@ -211,7 +211,8 @@ def merge_events(issues: list[dict]) -> list[dict]:
     order: list = []
     for x in issues:
         top = max(x["impact"], key=lambda m: abs(m[3]), default=None)
-        key = top[1] if top and abs(top[3]) >= 2.5 else id(x)
+        big = top and (abs(top[3]) >= 2 or (top[1] not in LEVEL and abs(top[2]) >= 0.03))   # 평소의 2배 이상 또는 하루 3% 이상
+        key = top[1] if big else id(x)
         if key not in groups:
             groups[key] = []
             order.append(key)

@@ -83,3 +83,54 @@ def summarize(sections: dict[str, list[dict]], instruction: str, cfg: dict | Non
     text = "".join(b.text for b in r.content if b.type == "text")
     h = to_html(text)
     return h or None
+
+
+ISSUE_SYSTEM = """당신은 한국 개인 투자자를 위한 시장 해설가입니다. 주어진 '이슈'마다 기사 제목들과 숫자(시장 움직임·과거 통계)만 근거로 씁니다.
+규칙:
+- 입력에 없는 사실·숫자·회사·날짜를 만들지 마세요. 확실하지 않으면 '~로 보도됨', '~일 수 있음'으로 낮추세요.
+- 사라·팔아라 같은 투자 권유는 하지 마세요.
+- 이슈마다 정확히 두 줄:
+  의미: (왜 시장에 중요한지, 어떤 연결고리로 영향이 가는지 한 문장, 60자 안팎)
+  생각할 거리: (투자자가 스스로 따져볼 질문 한 문장 — 반대 시나리오나 다음에 확인할 것)
+- 출력 형식: [번호] 다음 줄에 두 줄. 다른 말 쓰지 마세요."""
+
+
+def issue_insights(issues: list[dict], cfg: dict | None = None, log=print) -> None:
+    """issues 각각에 'ai' (HTML 줄 2개)를 채움. 키가 없거나 실패하면 그대로."""
+    client = _client()
+    if client is None or not issues:
+        return
+    acfg = {"model": "claude-opus-5-5", "effort": "low", **((cfg or {}).get("ai", {}))}
+    parts = []
+    for n, x in enumerate(issues, 1):
+        mv = ", ".join(f"{nm} {r:+.2%}" for nm, code, r, z in x.get("impact", []))
+        facts = " / ".join(re.sub(r"<[^>]+>", "", t) for t in x.get("insights", []))
+        titles = "\n".join(f"  - {t}" for t in x.get("titles", [])[:10])
+        parts.append(f"[{n}] 주제: {x['label']} (언론 {x['sources']}곳)\n시장: {mv or '없음'}\n데이터: {facts or '없음'}\n제목:\n{titles}")
+    try:
+        import anthropic
+        req = dict(model=acfg["model"], max_tokens=4000, system=ISSUE_SYSTEM, output_config={"effort": acfg["effort"]},
+                   messages=[{"role": "user", "content": "\n\n".join(parts)}])
+        try:
+            r = client.beta.messages.create(betas=["server-side-fallback-2026-07-01"], fallbacks="default", **req)
+        except TypeError:
+            r = client.beta.messages.create(betas=["server-side-fallback-2026-07-01"], extra_body={"fallbacks": "default"}, **req)
+    except Exception as e:
+        log(f"  이슈 해설 실패: {type(e).__name__}")
+        return
+    if getattr(r, "stop_reason", "") == "refusal":
+        return
+    text = "".join(b.text for b in r.content if b.type == "text")
+    chunks = re.findall(r"\[(\d+)\]\s*(.*?)(?=\n\[\d+\]|\Z)", text, re.S)
+    for num, body in chunks:
+        k = int(num) - 1
+        if not 0 <= k < len(issues):
+            continue
+        lines = []
+        for ln in body.strip().splitlines():
+            ln = ln.strip().lstrip("-• ").strip()
+            m = re.match(r"(의미|생각할 거리)\s*:\s*(.+)", ln)
+            if m:
+                lines.append(f"<b>{m.group(1)}</b>: {html.escape(m.group(2))}")
+        if lines:
+            issues[k]["ai"] = lines[:2]

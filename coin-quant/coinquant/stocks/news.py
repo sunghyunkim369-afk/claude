@@ -206,7 +206,9 @@ def results_block(hours: int = 30) -> list[str]:
 
 
 # ---------------------------------------------------------------- 오늘의 큰 이슈: 여러 언론사가 같은 이야기를 한 것
-SYN = [(r"data[ -]?cent(er|re)s?", " datacenter "), (r"blue[ -]?wave", " 블루웨이브 "), (r"데이터 ?센터", " 데이터센터 "), (r"\bA\.?I\.?\b", " ai "),
+SYN = [(r"data[ -]?cent(er|re)s?", " datacenter "), (r"blue[ -]?wave", " 블루웨이브 "), (r"circuit[ -]?breakers?", " 서킷브레이커 "),
+       (r"side[ -]?cars?", " 사이드카 "), (r"margin calls?", " 반대매매 "), (r"rate cuts?", " 금리인하 "), (r"금리 ?인하", " 금리인하 "),
+       (r"rate hikes?", " 금리인상 "), (r"금리 ?인상", " 금리인상 "), (r"shut ?down", " 셧다운 "), (r"stablecoins?", " 스테이블코인 "), (r"데이터 ?센터", " 데이터센터 "), (r"\bA\.?I\.?\b", " ai "),
        (r"interest rates?", " rate "), (r"tariffs?", " tariff "), (r"\bFed\b|Federal Reserve", " fed ")]
 STOP_EN = set("""stock stocks market markets share shares wall street today new says said after amid with from that this what
 will more than over into week year years price prices investor investors trading trade nasdaq dow close closes rise rises fall falls

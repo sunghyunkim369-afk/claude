@@ -178,6 +178,7 @@ DD_INDEX = {"^IXIC": "나스닥", "^GSPC": "S&P 500", "^KS11": "코스피", "^KQ
 DD_BANDS = [(0.0, -0.10), (-0.10, -0.20), (-0.20, -0.30), (-0.30, -0.40), (-0.40, -1.0)]
 DD_LINES: list[str] = []
 ISSUES: list[dict] = []
+INDEX_LONG: dict = {}
 
 
 def drawdown_lines(F: dict) -> list[str]:
@@ -426,8 +427,9 @@ def main(cfg: dict | None = None, send: bool = True, log=print) -> Path:
     mkt_tk = list(dict.fromkeys([t for t, _, _ in su.MARKET]))
     M = sd.update(cache, "brief_mkt", mkt_tk, start="2018-01-01", log=log)
     try:   # 고점 대비 위치 참고용 긴 기록 (1927~)
-        global DD_LINES
-        DD_LINES = drawdown_lines(sd.update(cache, "index_long", list(DD_INDEX), start="1927-01-01", log=log))
+        global DD_LINES, INDEX_LONG
+        INDEX_LONG = sd.update(cache, "index_long", list(DD_INDEX), start="1927-01-01", log=log)
+        DD_LINES = drawdown_lines(INDEX_LONG)
     except Exception as ex:
         log(f"  고점 대비 계산 실패: {type(ex).__name__}")
     us_u = su.us_universe()
@@ -443,7 +445,16 @@ def main(cfg: dict | None = None, send: bool = True, log=print) -> Path:
         ents = si.entities(list(zip(us_u["ticker"], us_u["name"])) + list(zip(kr_u["ticker"], kr_u["name"])))
         moves = {**si.moves_from(US["close"]), **si.moves_from(KR["close"]), **si.moves_from(M["close"])}
         items = [i for g in sn.LAST_RAW.values() for i in g]
-        ISSUES, counts = si.find_issues(items, si.load_hist(hist_path), moves, ents, day=str(today.date()))
+        closes = {**{t: US["close"][t] for t in US["close"].columns}, **{t: KR["close"][t] for t in KR["close"].columns},
+                  **{t: M["close"][t] for t in M["close"].columns}}
+        if INDEX_LONG:
+            closes.update({t: INDEX_LONG["close"][t] for t in INDEX_LONG["close"].columns})
+        context = {x["ticker"]: (f"{x['state']} {x['on_days']}일째" if x.get("on_days") else f"{x['state']} {x.get('off_days', 0)}일째")
+                   for x in index_signals(M)}
+        ISSUES, counts = si.find_issues(items, si.load_hist(hist_path), moves, ents, day=str(today.date()),
+                                        closes=closes, context=context)
+        from ..app import ai as _ai
+        _ai.issue_insights(ISSUES, cfg, log=log)
         si.save_hist(hist_path, si.load_hist(hist_path), str(today.date()), counts)
         log(f"  큰 이슈 {len(ISSUES)}개 (기록 {len(si.load_hist(hist_path))}일)")
     except Exception as ex:

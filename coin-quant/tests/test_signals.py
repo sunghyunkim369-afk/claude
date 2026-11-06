@@ -313,3 +313,17 @@ def test_issue_engine_market_move_raises_score():
     shock, _ = si.find_issues(_mk_items(rows), {}, {"NVDA": (-0.09, -4.5)}, ents, day="d")
     assert shock and shock[0]["score"] > (calm[0]["score"] if calm else 0)
     assert any(code == "NVDA" for _, code, _, _ in shock[0]["impact"])
+
+
+def test_issue_insights_use_history_and_divergence():
+    import numpy as np
+    from coinquant.stocks import issues as si
+    idx = pd.bdate_range("2010-01-01", periods=3000)
+    rng = np.random.default_rng(3)
+    s = pd.Series(100 * np.exp(np.cumsum(rng.normal(0, 0.01, len(idx)))), index=idx)
+    rows = [("코스피 서킷브레이커 발동", "연합뉴스"), ("코스피 서킷브레이커에 사이드카", "한국경제"), ("서킷브레이커 코스피 폭락", "매일경제")]
+    iss, _ = si.find_issues(_mk_items(rows), {}, {"^KS11": (-0.08, -6.0), "^GSPC": (0.003, 0.3)}, day="d", closes={"^KS11": s})
+    assert iss
+    text = " ".join(iss[0]["insights"])
+    assert "과거" in text and "20거래일 뒤" in text          # 과거 비슷한 급락 뒤 통계
+    assert "시장별 차이" in text                             # 코스피만 크게 움직임

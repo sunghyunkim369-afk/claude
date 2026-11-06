@@ -102,8 +102,10 @@ def save_hist(path: Path, hist: dict, day: str, counts: dict[str, int]) -> None:
 
 
 def find_issues(items: list[dict], hist: dict[str, dict[str, int]] | None = None, moves: dict | None = None,
-                ents: list | None = None, day: str | None = None, max_n: int = MAX_ISSUES) -> tuple[list[dict], dict[str, int]]:
-    """(이슈 목록, 오늘 말별 언론사 수). hist 에 오늘 날짜는 빼고 평소를 계산."""
+                ents: list | None = None, day: str | None = None, max_n: int = MAX_ISSUES,
+                closes: dict[str, pd.Series] | None = None, context: dict[str, str] | None = None) -> tuple[list[dict], dict[str, int]]:
+    """(이슈 목록, 오늘 말별 언론사 수). hist 에 오늘 날짜는 빼고 평소를 계산.
+    closes: {기호: 가격 기록} — 있으면 '과거 비슷한 움직임 뒤' 통계. context: {기호: '하락 추세 10일째' 같은 설명}."""
     hist = {d: v for d, v in (hist or {}).items() if d != day}
     moves, ents = moves or {}, ents or []
     seen, X = set(), []
@@ -178,10 +180,83 @@ def find_issues(items: list[dict], hist: dict[str, dict[str, int]] | None = None
         disp = lambda t: name_of.get(t[1:], t[1:]) if t.startswith("@") else t  # noqa: E731
         best = sorted(ix, key=lambda k: (X[k].get("source") not in MAJOR,
                                          -(X[k]["time"].value if pd.notna(X[k].get("time")) else 0)))[0]
-        out.append({"label": disp(w) + (f" · {disp(second)}" if second else ""), "sources": len(srcs), "burst": b if hist_ok else None,
-                    "impact": sorted(imp, key=lambda x: -abs(x[3]))[:3], "score": float(score), "item": X[best], "count": len(ix)})
+        iss = {"label": disp(w) + (f" · {disp(second)}" if second else ""), "sources": len(srcs), "burst": b if hist_ok else None,
+               "impact": sorted(imp, key=lambda x: -abs(x[3]))[:3], "score": float(score), "item": X[best], "count": len(ix),
+               "titles": [X[k]["title"] for k in ix][:12]}
+        iss["insights"] = insights(iss, imp, moves, closes or {}, context or {})
+        out.append(iss)
     out.sort(key=lambda x: -x["score"])
     return out, counts
+
+
+CORE_MKT = [("^KS11", "코스피"), ("^GSPC", "S&P 500"), ("^IXIC", "나스닥"), ("BTC-USD", "비트코인")]
+
+
+def analog(s: pd.Series, level: bool, z_now: float, horizon: int = 20) -> dict | None:
+    """과거에 하루 움직임이 지금과 같은 방향으로 z 의 75% 이상이었던 날(5일 안 중복 제외) → horizon 거래일 뒤."""
+    s = s.dropna()
+    if len(s) < 300:
+        return None
+    r = s.diff() if level else s.pct_change()
+    z = r / r.rolling(60, min_periods=40).std().shift(1)
+    days, thr = [], None
+    for frac in (0.75, 0.6, 0.5, 0.4):          # 비슷한 날이 5번 이상 나올 때까지 조금씩 넓힘 (평소의 2배 아래로는 안 내림)
+        thr = frac * z_now
+        if abs(thr) < 2:
+            thr = 2.0 if z_now > 0 else -2.0
+        hit = ((z <= thr) if z_now < 0 else (z >= thr)) & (np.arange(len(s)) < len(s) - horizon - 1)
+        days, last = [], -99
+        for i in np.flatnonzero(hit.to_numpy()):
+            if i - last > 5:
+                days.append(i)
+                last = i
+        if len(days) >= 5 or abs(thr) <= 2:
+            break
+    if len(days) < 5:
+        return None
+    fwd = np.array([(s.iat[i + horizon] - s.iat[i]) if level else (s.iat[i + horizon] / s.iat[i] - 1) for i in days])
+    return {"n": len(days), "med": float(np.median(fwd)), "up": float((fwd > 0).mean()), "worst": float(fwd.min()),
+            "since": s.index[0].year, "thr": abs(float(thr))}
+
+
+def insights(iss: dict, imp: list, moves: dict, closes: dict, context: dict) -> list[str]:
+    """데이터로 만든 '생각할 거리' (HTML, 최대 3줄). 새 사실을 만들지 않고 숫자 비교만."""
+    from html import escape as esc
+    L = []
+    big = [x for x in imp if abs(x[3]) >= 2]
+    # (1) 과거 비슷한 움직임 뒤
+    for nm, code, r, z in sorted(big, key=lambda x: -abs(x[3]))[:1]:
+        if code in closes:
+            a = analog(closes[code], code in LEVEL, z)
+            if a:
+                unit = (lambda v: f"{v:+.2f}p") if code in LEVEL else (lambda v: f"{v:+.1%}")
+                L.append(f"과거: {esc(nm)}가 하루에 평소 변동의 {a['thr']:.1f}배 넘게 {'오른' if z > 0 else '빠진'} 날 {a['n']}번({a['since']}~) → "
+                         f"20거래일 뒤 오른 비율 {a['up']:.0%}, 중앙 {unit(a['med'])}, 최악 {unit(a['worst'])}")
+    # (2) 언론 반응 vs 시장 반응이 엇갈림
+    zmax = max((abs(x[3]) for x in imp), default=0.0)
+    if iss["sources"] >= 8 and imp and zmax < 1.0:
+        L.append("엇갈림: 언론은 크게 다뤘는데 관련 시장은 평소 수준으로만 움직임 — 이미 가격에 반영됐거나, 시장이 덜 중요하게 본다는 뜻일 수 있음")
+    if iss["sources"] <= 4 and zmax >= 3:
+        L.append("엇갈림: 시장은 크게 움직였는데 다룬 언론은 적음 — 원인이 아직 덜 알려졌을 수 있음")
+    # (3) 같은 이야기 안에서 오른 쪽·내린 쪽
+    ups = [x for x in imp if x[3] >= 1.5 and x[1] not in LEVEL]
+    dns = [x for x in imp if x[3] <= -1.5 and x[1] not in LEVEL]
+    if ups and dns:
+        L.append("득실이 갈림: " + ", ".join(f"{esc(n)} {r:+.1%}" for n, _, r, _ in ups[:2]) + " ↔ " +
+                 ", ".join(f"{esc(n)} {r:+.1%}" for n, _, r, _ in dns[:2]) + " — 누가 이득·손해인지가 이 이야기의 핵심")
+    # (4) 나라별 반응 차이 (이 이야기가 한쪽 시장에만 큰지)
+    core = [(nm, code, *moves[code]) for code, nm in CORE_MKT if code in moves]
+    if big and len(core) >= 2:
+        hi = max(core, key=lambda x: abs(x[3]))
+        lo = min(core, key=lambda x: abs(x[3]))
+        if abs(hi[3]) >= 2.5 and abs(lo[3]) < 1:
+            L.append(f"시장별 차이: {esc(hi[0])} {hi[2]:+.1%}(평소의 {abs(hi[3]):.1f}배) vs {esc(lo[0])} {lo[2]:+.1%} — 같은 뉴스에 반응 크기가 다른 이유는?")
+    # (5) 추세 맥락
+    for nm, code, r, z in big:
+        if code in context:
+            L.append(f"추세: {esc(nm)} {esc(context[code])}")
+            break
+    return L[:3]
 
 
 def issue_lines(issues: list[dict], title: str = "🔥 오늘의 큰 이슈") -> list[str]:
@@ -199,4 +274,6 @@ def issue_lines(issues: list[dict], title: str = "🔥 오늘의 큰 이슈") ->
             mv = [f"{esc(nm)} {r:+.2f}p" if code in LEVEL else f"{esc(nm)} {r:+.1%}" for nm, code, r, z in x["impact"] if abs(z) >= 1.5]
             if mv:
                 L.append("   ↳ 시장: " + ", ".join(mv))
+        for t in (x.get("insights") or [])[:2] + (x.get("ai") or [])[:2]:
+            L.append(f"   ↳ {t}")
     return L

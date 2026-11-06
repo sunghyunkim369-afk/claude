@@ -277,7 +277,10 @@ def build(cfg: dict | None = None, with_news: bool = True, log=print) -> dict:
         hp = cache / "news_terms.json"
         mv = si.moves_from(c.rename(columns={"BTC": "BTC-USD"}))
         found, counts = si.find_issues([i for g in sn.LAST_RAW.values() for i in g], si.load_hist(hp), mv,
-                                       day=str(pd.Timestamp.now(tz="Asia/Seoul").date()), max_n=2)
+                                       day=str(pd.Timestamp.now(tz="Asia/Seoul").date()), max_n=2,
+                                       closes={"BTC-USD": btc_long})
+        from . import ai as _ai
+        _ai.issue_insights(found, cfg, log=log)
         si.save_hist(hp, si.load_hist(hp), str(pd.Timestamp.now(tz="Asia/Seoul").date()), counts)
         iss = si.issue_lines(found, "🔥 시장 큰 이슈")
     except Exception:

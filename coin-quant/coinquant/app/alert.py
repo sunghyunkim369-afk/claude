@@ -271,6 +271,14 @@ def build(cfg: dict | None = None, with_news: bool = True, log=print) -> dict:
         rb = []
     if rb:
         L += [""] + rb
+    try:   # 주식·경제 뉴스에서 여러 언론사가 같이 다룬 큰 이슈 (코인에도 영향 줄 수 있는 것)
+        from ..stocks import news as sn
+        sn.collect(log=lambda *a: None)
+        iss = sn.issue_lines(sn.big_issues(n=2), "🔥 시장 큰 이슈")
+    except Exception:
+        iss = []
+    if iss:
+        L += [""] + iss
     L += [""] + market_lines(c, cache)
     L += ["", "<b>🧭 공식 신호</b>  <i>중기 +2 이상 매수 · 0 이하 매도</i>"]
     for a, v in st.items():

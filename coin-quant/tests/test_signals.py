@@ -260,3 +260,16 @@ def test_breakout_once_daily_only_decides_at_kst9_bar():
     # 돌파는 40번째 봉(04:00)에 났지만 판단은 UTC 20:00 시작 봉에서만 → 그 봉 전엔 포지션 없음
     first = P["BTC"].to_numpy().nonzero()[0]
     assert len(first) == 0 or idx[first[0]].hour == b4.KST9
+
+
+def test_big_issues_groups_same_story_across_outlets_and_languages():
+    from coinquant.stocks import news as sn
+    t = pd.Timestamp("2026-11-05")
+    mk = lambda title, src: {"title": title, "source": src, "time": t, "link": ""}  # noqa: E731
+    g = {"해외": [mk("Data center stocks tumble after Democrats win Congress", "Reuters"),
+                 mk("AI data-center shares fall as Texas result raises risks", "CNBC"),
+                 mk("Apple reports record sales", "Bloomberg")],
+         "국내": [mk("美 데이터센터株 급락", "한국경제"), mk("코스피 공방", "연합뉴스")]}
+    iss = sn.big_issues(g)
+    assert iss and iss[0]["label"].startswith("데이터센터") and iss[0]["sources"] == 3
+    assert all("애플" not in x["label"] for x in iss)     # 한 곳만 다룬 이야기는 큰 이슈 아님

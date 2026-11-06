@@ -87,9 +87,13 @@ def _norm(t: str) -> str:
     return re.sub(r"[\W_]+", "", t.lower())[:40]
 
 
+LAST_RAW: dict[str, list[dict]] = {}   # collect 가 고르기 전 전체 기사 (큰 이슈 찾기용)
+
+
 def collect(hours: int = 24, per_group: int = 10, log=print) -> tuple[dict[str, list[dict]], list[str]]:
     now = pd.Timestamp.now(tz="UTC").tz_localize(None)
     out, errors = {}, []
+    LAST_RAW.clear()
     for grp, feeds in FEEDS.items():
         items = []
         for name, url in feeds:
@@ -105,6 +109,7 @@ def collect(hours: int = 24, per_group: int = 10, log=print) -> tuple[dict[str, 
             seen.add(k)
             i["kind"], i["topics"] = kind(i["title"], i["source"]), topics(i["title"])
             keep.append(i)
+        LAST_RAW[grp] = list(keep)
         # 큰 언론사·주제가 잡힌 기사 먼저 (시각 순서는 유지), 같은 주제·같은 출처는 3개까지
         keep.sort(key=lambda i: -(2 * (i["source"] in MAJOR) + (len(i["topics"]) > 0)))
         pick, n_topic, n_src = [], {}, {}
@@ -198,3 +203,84 @@ def results_block(hours: int = 30) -> list[str]:
             t = esc(i["title"][:60] + ("…" if len(i["title"]) > 60 else ""))
             lines.append(f"📰 <a href=\"{esc(i['link'], quote=True)}\">{t}</a> <i>{esc(i['source'])}</i>")
     return lines
+
+
+# ---------------------------------------------------------------- 오늘의 큰 이슈: 여러 언론사가 같은 이야기를 한 것
+SYN = [(r"data[ -]?cent(er|re)s?", " datacenter "), (r"데이터 ?센터", " 데이터센터 "), (r"\bA\.?I\.?\b", " ai "),
+       (r"interest rates?", " rate "), (r"tariffs?", " tariff "), (r"\bFed\b|Federal Reserve", " fed ")]
+STOP_EN = set("""stock stocks market markets share shares wall street today new says said after amid with from that this what
+will more than over into week year years price prices investor investors trading trade nasdaq dow close closes rise rises fall falls
+gain gains drop drops higher lower record earnings report reports quarter could may might its their they have has why how here
+about top best buy sell index futures rally slump slide slides jump jumps soar tumble tumbles sink sinks set sets day ahead
+first last big biggest high low points point percent amp news live update updates morning evening analyst analysts expected
+company companies inc corp group shares""".split())
+STOP_KO = set("""증시 코스피 코스닥 주가 상승 하락 시장 투자 오늘 마감 전망 종목 관련 기업 발표 급등 급락 강세 약세 국내 미국 투자자
+속보 이번 지난 올해 내년 하루 연속 최대 최고 최저 장중 개장 출발 기록 이후 우려 기대 가능성 영향 분석 의견 주식 증권 지수""".split())
+KO_LABEL = {"datacenter": "데이터센터", "fed": "연준", "tariff": "관세", "rate": "금리", "ai": "AI", "oil": "유가", "china": "중국",
+            "nvidia": "엔비디아", "apple": "애플", "tesla": "테슬라", "bitcoin": "비트코인", "inflation": "물가", "jobs": "고용",
+            "election": "선거", "midterm": "중간선거", "midterms": "중간선거", "democrats": "민주당", "congress": "의회", "iran": "이란",
+            "chip": "반도체", "chips": "반도체", "semiconductor": "반도체", "treasury": "미 국채", "yields": "국채금리", "yield": "국채금리"}
+_KO_TAIL = re.compile(r"(으로|에서|에게|까지|부터|이며|이고|은|는|이|가|을|를|에|의|로|도|과|와|만)$")
+
+
+def _tokens(title: str) -> set[str]:
+    t = title
+    for pat, rep in SYN:
+        t = re.sub(pat, rep, t, flags=re.I)
+    toks = set()
+    for w in re.findall(r"[A-Za-z][A-Za-z\-]{2,}", t):
+        w = w.lower().strip("-")
+        if len(w) > 4 and w.endswith("s") and w not in ("congress", "midterms", "yields", "chips", "jobs", "democrats"):
+            w = w[:-1]
+        if w not in STOP_EN and len(w) >= 3:
+            toks.add(KO_LABEL.get(w, w))          # 영어·한국어 같은 이야기를 한 단어로
+    for w in re.findall(r"[가-힣]{2,}", t):
+        w = _KO_TAIL.sub("", w)
+        if len(w) >= 2 and w not in STOP_KO:
+            toks.add(w)
+    return toks
+
+
+def big_issues(groups: dict[str, list[dict]] | None = None, n: int = 3, min_sources: int = 3) -> list[dict]:
+    """같은 단어를 서로 다른 언론사 min_sources 곳 이상이 제목에 쓴 이야기 = 큰 이슈. [{"label","sources","item","count"}]"""
+    groups = groups if groups is not None else LAST_RAW
+    items = [i for g in groups.values() for i in g if i.get("title")]
+    for i in items:
+        i["_tok"] = _tokens(i["title"])
+    used, out = set(), []
+    for _ in range(n):
+        df: dict[str, set] = {}
+        for k, i in enumerate(items):
+            if k in used:
+                continue
+            for w in i["_tok"]:
+                df.setdefault(w, set()).add(i.get("source", ""))
+        cand = [(len(v), sum(1 for s_ in v if s_ in MAJOR), w) for w, v in df.items() if len(v) >= min_sources]
+        if not cand:
+            break
+        cnt, maj, w = max(cand)
+        idx = [k for k, i in enumerate(items) if k not in used and w in i["_tok"]]
+        best = sorted(idx, key=lambda k: (items[k].get("source") not in MAJOR,
+                                          -(items[k]["time"].value if pd.notna(items[k].get("time")) else 0)))[0]
+        used.update(idx)
+        co: dict[str, int] = {}
+        for k in idx:                             # 같이 많이 나온 단어 하나를 붙여 맥락 (예: 데이터센터 · 민주당)
+            for x in items[k]["_tok"] - {w}:
+                co[x] = co.get(x, 0) + 1
+        second = max(co, key=co.get) if co and max(co.values()) >= 2 else None
+        out.append({"label": w + (f" · {second}" if second else ""), "sources": cnt, "count": len(idx), "item": items[best]})
+    return out
+
+
+def issue_lines(issues: list[dict], title: str = "🔥 오늘의 큰 이슈") -> list[str]:
+    """텔레그램 HTML 줄."""
+    from html import escape as esc
+    if not issues:
+        return []
+    L = [f"<b>{title}</b>  <i>여러 언론사가 같이 다룬 이야기</i>"]
+    for x in issues:
+        i = x["item"]
+        t = esc(i["title"][:70] + ("…" if len(i["title"]) > 70 else ""))
+        link = f"<a href=\"{esc(i['link'], quote=True)}\">{t}</a>" if i.get("link") else t
+        L.append(f"• <b>{esc(x['label'])}</b> (언론 {x['sources']}곳) — {link} <i>{esc(i.get('source', ''))}</i>")
+    return L

@@ -222,6 +222,12 @@ def render(today: pd.Timestamp, mk: list[dict], news: dict, news_err: list[str],
     o += ["## ✅ 오늘 할 일\n"] + [f"- {ic} {_md(t)}" for ic, t in todo_items(idx_sig, econ, earn)] + [""]
     if results:
         o += ["## 📢 어젯밤 발표 결과\n"] + [f"- {_md(x)}" for x in results[1:]] + [""]
+    try:
+        iss = sn.issue_lines(sn.big_issues())
+    except Exception:
+        iss = []
+    if iss:
+        o += ["## 🔥 오늘의 큰 이슈\n", "_여러 언론사가 같이 다룬 이야기_\n"] + [f"- {_md(x[2:])}" for x in iss[1:]] + [""]
     o += ["## 📌 한눈에 보기\n", f"- 지수: {line}", f"- 금리·환율·변동성: {extra}"]
     for x in idx_sig or []:
         o.append(f"- {x['name']}: **{x['state']}**")
@@ -331,6 +337,12 @@ def telegram_text(today, mk, news, sig, url: str, idx_sig: list[dict] | None = N
     L += [f"{i} {t}" for i, t in todo_items(idx_sig, econ or [], earn or [])]
     if results:
         L += [""] + results
+    try:   # 여러 언론사가 같이 다룬 이야기 (예: 데이터센터 주 급락)
+        iss = sn.issue_lines(sn.big_issues())
+    except Exception:
+        iss = []
+    if iss:
+        L += [""] + iss
     L += ["", "<b>📊 지수</b>", f"🇺🇸 {idx(('^GSPC', '^IXIC'))}", f"🇰🇷 {idx(('^KS11', '^KQ11'))}"]
     ex = []
     if "KRW=X" in get:

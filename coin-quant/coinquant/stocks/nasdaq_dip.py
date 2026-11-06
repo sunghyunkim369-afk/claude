@@ -186,6 +186,29 @@ def main(cfg: dict | None = None, log=print) -> Path:
             win2 += v["E2"] > v["E0"]
         if n:
             L += ["", f"10년 구간 {n}개(1년씩 옮김) 중 E1 이 매달 매수보다 나은 구간 {win1 / n:.0%}, E2 는 {win2 / n:.0%}.", ""]
+        # 지금 사기 vs −20%·−30% 기다리기 — 시작 해마다 10년 뒤 평가액 (기다리는 동안 국채 이자)
+        L += ["", "지금 사기 vs 기다리기 (시작 해 1월마다, 10년 뒤 평가액 비율 = 기다리기 ÷ 지금 사기):", "",
+              "| 기다리는 기준 | 10년 구간 수 | 기다린 쪽이 나은 비율 | 비율 중앙 | 최악 | 최고 | 10년 안에 끝내 못 산 비율 |", "|---|---|---|---|---|---|---|"]
+        ddc = c / c.cummax() - 1
+        for thr in (-0.1, -0.2, -0.3):
+            ratios, never = [], 0
+            for y in range(cs.index[0].year, cs.index[-1].year - 9):
+                seg = c.loc[f"{y}-01-01":f"{y + 9}-12-31"]
+                if len(seg) < TD * 9:
+                    continue
+                rfs = rf.reindex(seg.index).fillna(0.0)
+                now_val = seg.iat[-1] / seg.iat[0]
+                hit = np.flatnonzero((ddc.reindex(seg.index) <= thr).to_numpy())
+                if len(hit) == 0:
+                    never += 1
+                    ratios.append(float((1 + rfs).prod()) / now_val)
+                    continue
+                i = hit[0]
+                cash = float((1 + rfs.iloc[:i + 1]).prod())
+                ratios.append(cash * seg.iat[-1] / seg.iat[i] / now_val)
+            if ratios:
+                r_ = np.array(ratios)
+                L.append(f"| 고점 대비 {thr:.0%} | {len(r_)} | {(r_ > 1).mean():.0%} | {np.median(r_):.2f} | {r_.min():.2f} | {r_.max():.2f} | {never / len(r_):.0%} |")
         if tk == "^IXIC":
             L += ["", "### 나스닥 종합의 −20% 이상 하락장 전부", "", "| 고점 | −20% 닿은 날 | 바닥 | 고점 대비 최대 | −20% 날부터 바닥까지 더 | 전고점 회복 | −20% 날부터 회복까지 |", "|---|---|---|---|---|---|---|"]
             for e in episodes(c):

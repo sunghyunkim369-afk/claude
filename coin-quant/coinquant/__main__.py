@@ -15,6 +15,7 @@
   python -m coinquant stocks-validate     주식(지수·종목)에서 확정 공식 검증 → docs/stocks-validation-날짜.md
   python -m coinquant stocks-brief        주식 오늘의 소식 → out/briefing/daily/날짜.md + 텔레그램
   python -m coinquant futures-lab         선물 단기 검증 (터틀·슈퍼트렌드·래리 윌리엄스·펀딩비 등 31개)
+  python -m coinquant hft-lab             고빈도(분봉 단타) 검증 → docs/hft-lab-날짜.md
   python -m coinquant alert [--test]      매수·매도 알림 (텔레그램·윈도우 알림, daily 가 자동으로 부름)
   python -m coinquant report [--no-news]  매일 리포트 → reports/daily-날짜.html
   python -m coinquant daily               update + report (예약 실행용)
@@ -117,6 +118,11 @@ def cmd_stocks_brief(a, cfg):
 def cmd_futures_lab(a, cfg):
     from .research import futures_lab
     futures_lab.run(cfg)
+
+
+def cmd_hft_lab(a, cfg):
+    from .research import hft_lab
+    print(hft_lab.run(cfg))
 
 
 def cmd_breakout4h(a, cfg):
@@ -290,6 +296,8 @@ def main(argv=None):
     s.set_defaults(fn=cmd_futures_lab)
     s = sub.add_parser("breakout4h", help="4시간봉 거래량 돌파(롱만): 생존 편향(그때 상위 20, 상폐 포함)·하루 한 번 판단 검증")
     s.set_defaults(fn=cmd_breakout4h)
+    s = sub.add_parser("hft-lab", help="고빈도(1·5·15분봉 단타) 검증: 평균회귀·RSI2·돌파·주문 흐름·급락 반등·변동성 돌파, 비용별")
+    s.set_defaults(fn=cmd_hft_lab)
     s = sub.add_parser("stocks-bias", help="주식 지수 공식 편향 점검: 세계 지수·배당·현금 이자·세금·시작 시점·환율·지연 (인터넷 필요)")
     s.set_defaults(fn=cmd_stocks_bias)
     s = sub.add_parser("stocks-shock", help="대형주 하루 −10% 급락 뒤 흐름 (실적 쇼크 사건 분석, 인터넷 필요)")

@@ -23,6 +23,8 @@ import time
 SUMMARY_PAGE = "https://claude.ai/artifact/KWUbqdVfGP4Mwnnz7ryzgG"
 WORK_DIR = "/content/transcribe"
 DRIVE_DIR = "/content/drive/MyDrive/전사문"
+CUDA12_DIR = "/content/cuda12"
+AUDIO_EXTS = {".m4a", ".mp3", ".wav", ".mp4", ".aac", ".flac", ".ogg", ".opus", ".qta", ".caf", ".mov", ".webm", ".amr", ".3gp"}
 
 # 유튜브 자막에서 배운 Whisper 단골 헛소리. 녹음에 없는데 조용한 구간에서 튀어나와요.
 HALLUCINATIONS = [
@@ -130,20 +132,33 @@ def has_gpu():
     return r.returncode == 0 and "GPU" in r.stdout
 
 
-def preload_cudnn():
-    # faster-whisper(CTranslate2)가 Colab의 cuDNN을 못 찾는 경우가 있어 미리 올려 둬요.
+def ensure_cuda12_libs():
+    """faster-whisper(CTranslate2)는 CUDA 12용 cuBLAS·cuDNN을 찾아요.
+    Colab이 CUDA 13으로 바뀌어 없으면 따로 깔고, 같은 이름으로 먼저 올려 둬서 그걸 쓰게 해요."""
     try:
-        import torch
-        if torch.cuda.is_available():
-            torch.backends.cudnn.version()
-    except Exception:
+        ctypes.CDLL("libcublas.so.12")
+        ctypes.CDLL("libcudnn_ops.so.9")
+        return
+    except OSError:
         pass
-    for lib_dir in glob.glob("/usr/local/lib/python3*/dist-packages/nvidia/cudnn/lib"):
-        for so in sorted(glob.glob(os.path.join(lib_dir, "libcudnn*.so*"))):
+    libs = sorted(glob.glob(os.path.join(CUDA12_DIR, "nvidia", "*", "lib", "*.so*")))
+    if not any(os.path.basename(p) == "libcublas.so.12" for p in libs):
+        print("GPU용 라이브러리(CUDA 12) 설치 중 (처음 한 번, 1~2분)...")
+        subprocess.run([sys.executable, "-m", "pip", "install", "-q", "--target", CUDA12_DIR,
+                        "nvidia-cublas-cu12", "nvidia-cudnn-cu12"], check=True)
+        libs = sorted(glob.glob(os.path.join(CUDA12_DIR, "nvidia", "*", "lib", "*.so*")))
+    # 서로 기대는 라이브러리가 있어서, 더 올라가지 않을 때까지 몇 번 돌려요.
+    pending = [p for p in libs if "nvblas" not in p]
+    for _ in range(5):
+        left = []
+        for so in pending:
             try:
                 ctypes.CDLL(so, mode=ctypes.RTLD_GLOBAL)
             except OSError:
-                pass
+                left.append(so)
+        if len(left) == len(pending):
+            break
+        pending = left
 
 
 def prepare_audio(src, dst):
@@ -163,13 +178,31 @@ def read_wav(path):
 
 
 def load_model(gpu):
+    import numpy as np
     from faster_whisper import WhisperModel
     if gpu:
         try:
-            return WhisperModel(MODEL, device="cuda", compute_type="float16"), "GPU"
+            model = WhisperModel(MODEL, device="cuda", compute_type="float16")
+            # 라이브러리 문제는 모델을 띄울 때가 아니라 처음 계산할 때 터져서, 1초짜리 무음으로 미리 시험해요.
+            segments, _ = model.transcribe(np.zeros(16000, dtype=np.float32), language="ko", vad_filter=False)
+            list(segments)
+            return model, "GPU"
         except Exception as e:
-            print(f"GPU로 모델을 못 띄워서 CPU로 바꿔요: {e}")
+            print(f"⚠️ GPU를 쓰지 못해 CPU로 바꿔요 (아주 느려요): {e}")
     return WhisperModel(MODEL, device="cpu", compute_type="int8"), "CPU"
+
+
+def leftover_audio():
+    """앞서 올렸는데 아직 전사문이 없는 녹음. 중간에 멈췄을 때 다시 올리지 않고 이어서 해요."""
+    found = []
+    for folder in ("/content", WORK_DIR):
+        for path in sorted(glob.glob(os.path.join(folder, "*"))):
+            base, ext = os.path.splitext(os.path.basename(path))
+            if ext.lower() not in AUDIO_EXTS or base.endswith("_16k"):
+                continue
+            if not os.path.exists(os.path.join(WORK_DIR, f"{base}_전사.txt")):
+                found.append(path)
+    return found
 
 
 def transcribe(model, wav, words):
@@ -222,22 +255,30 @@ def main():
         print("프로그램 설치 중 (처음 한 번, 1분쯤)...")
         subprocess.run([sys.executable, "-m", "pip", "install", "-q", "faster-whisper"], check=True)
 
-    print("녹음 파일을 골라 주세요 (m4a·mp3·wav·mp4 등, 여러 개 가능)")
-    uploaded = files.upload()
-    if not uploaded:
-        print("고른 파일이 없어요. 다시 ▶ 눌러 주세요.")
-        return
+    audio = leftover_audio()
+    if audio:
+        print(f"지난번에 올린 녹음 {len(audio)}개가 아직 남아 있어서 이어서 할게요:")
+        for path in audio:
+            print("  -", os.path.basename(path))
+    else:
+        print("녹음 파일을 골라 주세요 (m4a·mp3·wav·mp4 등, 여러 개 가능)")
+        audio = [os.path.abspath(name) for name in files.upload()]
+        if not audio:
+            print("고른 파일이 없어요. 다시 ▶ 눌러 주세요.")
+            return
 
     if gpu:
-        preload_cudnn()
+        ensure_cuda12_libs()
     print(f"\n{MODEL} 모델 준비 중 (처음엔 3GB 내려받느라 1~2분)...")
     model, device = load_model(gpu)
     print(f"준비 완료 ({device})\n")
 
-    for name in uploaded:
-        base = os.path.splitext(os.path.basename(name))[0]
-        src = os.path.join(WORK_DIR, os.path.basename(name))
-        os.replace(name, src)
+    for path in audio:
+        name = os.path.basename(path)
+        base = os.path.splitext(name)[0]
+        src = os.path.join(WORK_DIR, name)
+        if path != src:
+            os.replace(path, src)
         wav = os.path.join(WORK_DIR, base + "_16k.wav")
         print(f"▶ {name}")
         try:

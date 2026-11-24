@@ -192,7 +192,13 @@ def load_model(gpu):
     return WhisperModel(MODEL, device="cpu", compute_type="int8"), "CPU"
 
 
-def leftover_audio():
+def already_done(base, drive_dir):
+    """전사문이 이미 있는 녹음. 런타임이 초기화돼 다시 올려도 드라이브에 있는 건 건너뛰어요."""
+    folders = [WORK_DIR] + ([drive_dir] if drive_dir else [])
+    return any(os.path.exists(os.path.join(d, f"{base}_전사.txt")) for d in folders)
+
+
+def leftover_audio(drive_dir):
     """앞서 올렸는데 아직 전사문이 없는 녹음. 중간에 멈췄을 때 다시 올리지 않고 이어서 해요."""
     found = []
     for folder in ("/content", WORK_DIR):
@@ -200,7 +206,7 @@ def leftover_audio():
             base, ext = os.path.splitext(os.path.basename(path))
             if ext.lower() not in AUDIO_EXTS or base.endswith("_16k"):
                 continue
-            if not os.path.exists(os.path.join(WORK_DIR, f"{base}_전사.txt")):
+            if not already_done(base, drive_dir):
                 found.append(path)
     return found
 
@@ -255,7 +261,7 @@ def main():
         print("프로그램 설치 중 (처음 한 번, 1분쯤)...")
         subprocess.run([sys.executable, "-m", "pip", "install", "-q", "faster-whisper"], check=True)
 
-    audio = leftover_audio()
+    audio = leftover_audio(drive_dir)
     if audio:
         print(f"지난번에 올린 녹음 {len(audio)}개가 아직 남아 있어서 이어서 할게요:")
         for path in audio:
@@ -265,6 +271,13 @@ def main():
         audio = [os.path.abspath(name) for name in files.upload()]
         if not audio:
             print("고른 파일이 없어요. 다시 ▶ 눌러 주세요.")
+            return
+        done = [p for p in audio if already_done(os.path.splitext(os.path.basename(p))[0], drive_dir)]
+        for path in done:
+            print(f"  건너뜀: {os.path.basename(path)} (드라이브 '전사문' 폴더에 전사문이 이미 있어요)")
+        audio = [p for p in audio if p not in done]
+        if not audio:
+            print("올린 녹음은 모두 전사가 끝나 있어요.")
             return
 
     if gpu:

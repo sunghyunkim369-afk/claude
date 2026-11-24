@@ -7,7 +7,7 @@ KEYWORDS = "보세화물, 적재화물목록, 하우스B/L, B/L, AEO, 포워더,
 CLEAN_AUDIO = True  #@param {type:"boolean"}
 #@markdown **문단 나누기**: 이 초 이상 말이 끊기면 새 문단
 PARAGRAPH_GAP = 2.0  #@param {type:"number"}
-#@markdown **구글 드라이브 '전사문' 폴더에도 저장**: 폰 화면이 꺼져 연결이 끊겨도 결과가 남고, 요약 페이지에서 바로 골라 쓸 수 있어요
+#@markdown **구글 드라이브 쓰기**: 드라이브 `녹음함` 폴더의 새 녹음을 가져오고, 전사문은 `전사문` 폴더에 저장해요
 SAVE_TO_DRIVE = True  #@param {type:"boolean"}
 
 import ctypes
@@ -23,6 +23,7 @@ import time
 SUMMARY_PAGE = "https://claude.ai/artifact/KWUbqdVfGP4Mwnnz7ryzgG"
 WORK_DIR = "/content/transcribe"
 DRIVE_DIR = "/content/drive/MyDrive/전사문"
+INBOX_DIR = "/content/drive/MyDrive/녹음함"
 CUDA12_DIR = "/content/cuda12"
 AUDIO_EXTS = {".m4a", ".mp3", ".wav", ".mp4", ".aac", ".flac", ".ogg", ".opus", ".qta", ".caf", ".mov", ".webm", ".amr", ".3gp"}
 
@@ -198,14 +199,16 @@ def already_done(base, drive_dir):
     return any(os.path.exists(os.path.join(d, f"{base}_전사.txt")) for d in folders)
 
 
-def leftover_audio(drive_dir):
-    """앞서 올렸는데 아직 전사문이 없는 녹음. 중간에 멈췄을 때 다시 올리지 않고 이어서 해요."""
-    found = []
-    for folder in ("/content", WORK_DIR):
+def pending_audio(drive_dir):
+    """아직 전사문이 없는 녹음: 드라이브 녹음함에 넣어 둔 것과, 앞서 올렸다가 중간에 멈춘 것."""
+    folders = ([INBOX_DIR] if drive_dir else []) + ["/content", WORK_DIR]
+    found, seen = [], set()
+    for folder in folders:
         for path in sorted(glob.glob(os.path.join(folder, "*"))):
             base, ext = os.path.splitext(os.path.basename(path))
-            if ext.lower() not in AUDIO_EXTS or base.endswith("_16k"):
+            if ext.lower() not in AUDIO_EXTS or base.endswith("_16k") or base in seen:
                 continue
+            seen.add(base)
             if not already_done(base, drive_dir):
                 found.append(path)
     return found
@@ -238,6 +241,7 @@ def mount_drive():
     try:
         drive.mount("/content/drive")
         os.makedirs(DRIVE_DIR, exist_ok=True)
+        os.makedirs(INBOX_DIR, exist_ok=True)
         return DRIVE_DIR
     except Exception as e:
         print(f"드라이브에 연결하지 못했어요 ({e}). 내려받기로만 저장할게요.\n")
@@ -261,12 +265,15 @@ def main():
         print("프로그램 설치 중 (처음 한 번, 1분쯤)...")
         subprocess.run([sys.executable, "-m", "pip", "install", "-q", "faster-whisper"], check=True)
 
-    audio = leftover_audio(drive_dir)
+    audio = pending_audio(drive_dir)
     if audio:
-        print(f"지난번에 올린 녹음 {len(audio)}개가 아직 남아 있어서 이어서 할게요:")
+        print(f"전사할 녹음 {len(audio)}개를 찾았어요:")
         for path in audio:
-            print("  -", os.path.basename(path))
+            where = "드라이브 녹음함" if path.startswith(INBOX_DIR) else "지난번에 올린 것"
+            print(f"  - {os.path.basename(path)} ({where})")
     else:
+        if drive_dir:
+            print("드라이브 '녹음함' 폴더에 새 녹음이 없어요. 여기서 바로 골라도 돼요.")
         print("녹음 파일을 골라 주세요 (m4a·mp3·wav·mp4 등, 여러 개 가능)")
         audio = [os.path.abspath(name) for name in files.upload()]
         if not audio:
@@ -289,9 +296,12 @@ def main():
     for path in audio:
         name = os.path.basename(path)
         base = os.path.splitext(name)[0]
-        src = os.path.join(WORK_DIR, name)
-        if path != src:
-            os.replace(path, src)
+        if path.startswith(INBOX_DIR):
+            src = path  # 녹음함의 원본은 옮기지 않고 그 자리에서 읽어요
+        else:
+            src = os.path.join(WORK_DIR, name)
+            if path != src:
+                os.replace(path, src)
         wav = os.path.join(WORK_DIR, base + "_16k.wav")
         print(f"▶ {name}")
         try:

@@ -8,6 +8,8 @@
 | `run_cell.py` | 노트북 셀 코드 원본. 고친 뒤 `python3 build_notebook.py` 로 노트북을 다시 만들어요 |
 | `summary.html` | [받아쓰기 요약](https://claude.ai/artifact/KWUbqdVfGP4Mwnnz7ryzgG) 페이지 원본. 전사문을 올리면 Claude가 요약·결정·할 일로 정리 |
 
+녹음함: 구글 드라이브 `녹음함` 폴더에 녹음을 넣어 두고 노트북에서 ▶만 누르면, 전사문이 없는 녹음을 전부 찾아서 처리해요 (원본은 그대로 둠). 비어 있으면 파일을 직접 고를 수 있어요.
+
 폰에서 쓰기: 요약 페이지를 사파리에서 열고 **공유 → 홈 화면에 추가** (페이지 맨 아래에 안내 있음). 전사 결과는 구글 드라이브 `전사문` 폴더에도 저장돼서, 요약 페이지 파일 선택 창에서 바로 고를 수 있어요.
 
 노트북: https://colab.research.google.com/github/sunghyunkim369-afk/claude/blob/claude/elegant-heisenberg-s2a9ar/transcribe/transcribe_ko.ipynb
